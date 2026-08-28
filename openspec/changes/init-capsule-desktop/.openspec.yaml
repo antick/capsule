@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-08-28
+goal: Ship a pixel-faithful Capsule desktop usage dock as a pnpm/Turborepo
+  Electron app.

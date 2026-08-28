@@ -1,0 +1,48 @@
+schema: spec-driven
+
+context: |
+  Product: Capsule — a macOS always-on-top usage dock that lives in unused screen
+  gutters (display edges, empty Dock flanks, Stage Manager leftover space).
+  Visual source of truth: openspec/changes/init-capsule-desktop/references/hud-reference.jpg
+
+  Stack (locked for this change):
+  - pnpm 11.22.0 workspaces + Turborepo 2.10.11
+  - Electron 43.4.1 + electron-vite 5.0.0 + Node.js (main process)
+  - React 19.2.8 + TanStack Router file-based (1.170.31) + Vite 8.2.2
+  - Tailwind CSS 4.3.3 + shadcn/ui (CLI 4.18.x or older; must be ≥7 days old)
+  - Biome 2.5.9 for lint + format (no ESLint/Prettier)
+  - TypeScript 5.9.3 (not 7.x: electron-vite 5 does not target TS 7)
+  - All dependency versions MUST be published at least 7 days before 2026-08-28
+
+  Conventions:
+  - Conventional commits
+  - No hard-coded values in app code — shared config/constants package
+  - Shared date formatters only (never inline date formatting)
+  - Reusable components; no duplication
+  - Source files ≤ 500 lines; split when larger
+  - Changelog every completed change
+  - OpenAPI spec only if HTTP endpoints exist (v1 is Electron IPC only)
+  - Prefer pnpm; never npm/yarn as the workspace package manager
+  - Tests required (unit for usage/placement math; renderer visual checks)
+
+  Platform: macOS is v1. Windows/Linux are out of scope for this change.
+
+  This git repo currently contains leftover slashism.com markdown posts. Capsule
+  is a new product in this repo; do not delete those posts in this change.
+
+rules:
+  proposal:
+    - Keep the proposal under two pages
+    - Always include Non-goals inside What Changes or Impact
+  specs:
+    - Specs describe observable behavior, not file paths or library names
+    - One SHALL/MUST per requirement
+    - Every requirement has at least one GIVEN/WHEN/THEN scenario
+    - Cover empty, error, unauthenticated, and hover/leave edge cases
+  design:
+    - Pin every runtime dependency to a version published at least 7 days ago
+    - List constants that belong in packages/config rather than literals
+  tasks:
+    - Tasks are checkbox items an implementer can complete in order
+    - Group by capability, not by file
+    - Include changelog, tests, and visual comparison to the reference HUD
