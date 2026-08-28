@@ -1,4 +1,5 @@
 import {
+  createMemoryHistory,
   createRootRoute,
   createRoute,
   createRouter,
@@ -18,4 +19,5 @@ const indexRoute = createRoute({
 
 export const overlayRouter = createRouter({
   routeTree: rootRoute.addChildren([indexRoute]),
+  history: createMemoryHistory({ initialEntries: ["/"] }),
 });

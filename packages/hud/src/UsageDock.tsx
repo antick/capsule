@@ -21,6 +21,7 @@ export function UsageDock({
   cardGrowth,
   now,
   forceOpenProviderId = null,
+  initialPinnedProviderId = null,
   onOpenChange,
   onContextMenu,
 }: {
@@ -29,12 +30,15 @@ export function UsageDock({
   cardGrowth: CardGrowth;
   now?: Date;
   forceOpenProviderId?: ProviderId | null;
+  initialPinnedProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
   onContextMenu?: (event: MouseEvent) => void;
 }): ReactElement {
   const clock = now ?? new Date(DEMO_NOW_ISO);
   const [hovered, setHovered] = useState<ProviderId | null>(null);
-  const [pinned, setPinned] = useState<ProviderId | null>(null);
+  const [pinned, setPinned] = useState<ProviderId | null>(
+    initialPinnedProviderId,
+  );
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 

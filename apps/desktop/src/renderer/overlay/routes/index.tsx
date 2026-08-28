@@ -46,7 +46,7 @@ export function OverlayHud() {
         orientation={layout.orientation}
         cardGrowth={layout.cardGrowth}
         now={settings?.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
-        forceOpenProviderId={null}
+        initialPinnedProviderId={settings?.demoMode ? "claude" : null}
         onOpenChange={(open, providerId) => {
           window.capsule.setExpanded(open, providerId);
         }}
