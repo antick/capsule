@@ -1,3 +1,4 @@
+import { join } from "node:path";
 import {
   APP_NAME,
   type CapsuleSettings,
@@ -9,7 +10,7 @@ import {
 } from "@capsule/config";
 import { BrowserWindow, screen, shell } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
-import { preloadScript, rendererDevUrl, rendererHtml } from "./paths.ts";
+import { rendererDevUrl, rendererHtml } from "./paths.ts";
 
 const METER_BLOCK = HUD.meterSize + HUD.itemGap + 18;
 
@@ -31,7 +32,7 @@ export class OverlayController {
     this.meterCount = Math.max(1, count);
   }
 
-  async create(): Promise<BrowserWindow> {
+  async create(onReady?: () => void): Promise<BrowserWindow> {
     if (this.window && !this.window.isDestroyed()) {
       return this.window;
     }
@@ -45,6 +46,7 @@ export class OverlayController {
       show: false,
       frame: false,
       transparent: true,
+      backgroundColor: "#00000000",
       hasShadow: false,
       roundedCorners: false,
       skipTaskbar: true,
@@ -53,9 +55,9 @@ export class OverlayController {
       maximizable: false,
       minimizable: false,
       fullscreenable: false,
-      type: "panel",
       webPreferences: {
-        preload: preloadScript(),
+        // electron-vite rewrites this static join(__dirname) path in dev.
+        preload: join(__dirname, "../preload/index.js"),
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: true,
@@ -74,6 +76,18 @@ export class OverlayController {
 
     this.window = win;
     await this.relayout();
+
+    win.webContents.on("did-finish-load", () => {
+      win.showInactive();
+      onReady?.();
+    });
+    win.webContents.on("did-fail-load", (_event, code, description, url) => {
+      console.error("Capsule overlay failed to load", {
+        code,
+        description,
+        url,
+      });
+    });
 
     const devUrl = rendererDevUrl("overlay");
     if (devUrl) {

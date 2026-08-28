@@ -12,6 +12,10 @@ export function OverlayHud() {
   const [settings, setSettings] = useState<CapsuleSettings | null>(null);
 
   useEffect(() => {
+    if (!window.capsule) {
+      console.error("Capsule preload bridge is missing");
+      return;
+    }
     return window.capsule.onSnapshots((nextSnapshots, nextSettings) => {
       setSnapshots(nextSnapshots);
       setSettings(nextSettings);

@@ -81,6 +81,7 @@ export const CODEX_AUTH_PATH_SEGMENTS = [".codex", "auth.json"] as const;
 export const IPC = {
   snapshots: "capsule:snapshots",
   getSettings: "capsule:get-settings",
+  getSnapshots: "capsule:get-snapshots",
   setSettings: "capsule:set-settings",
   openSettings: "capsule:open-settings",
   quit: "capsule:quit",

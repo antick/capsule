@@ -1,6 +1,7 @@
+import { join } from "node:path";
 import { APP_NAME } from "@capsule/config";
 import { BrowserWindow, shell } from "electron";
-import { preloadScript, rendererDevUrl, rendererHtml } from "./paths.ts";
+import { rendererDevUrl, rendererHtml } from "./paths.ts";
 
 let settingsWindow: BrowserWindow | null = null;
 
@@ -21,7 +22,8 @@ export async function openSettingsWindow(hash = "/"): Promise<BrowserWindow> {
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 16, y: 16 },
     webPreferences: {
-      preload: preloadScript(),
+      // electron-vite rewrites this static join(__dirname) path in dev.
+      preload: join(__dirname, "../preload/index.js"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,

@@ -95,6 +95,7 @@ app.whenReady().then(async () => {
   );
 
   ipcMain.handle(IPC.getSettings, () => settings);
+  ipcMain.handle(IPC.getSnapshots, () => ({ snapshots, settings }));
   ipcMain.handle(IPC.setSettings, (_event, next: CapsuleSettings) =>
     applySettings(next),
   );
@@ -121,8 +122,14 @@ app.whenReady().then(async () => {
     ]).popup();
   });
 
-  await overlay.create();
+  await overlay.create(() => {
+    broadcast();
+    overlay.show();
+  });
   poller.start();
+  await poller.refresh();
+  broadcast();
+  overlay.show();
 
   if (!settings.demoMode && snapshots.every((item) => item.status !== "ok")) {
     await openSettingsWindow("/onboarding");

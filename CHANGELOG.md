@@ -12,3 +12,4 @@ All notable changes to Capsule are documented in this file.
 - pnpm + Turborepo monorepo with `@capsule/config`, `@capsule/dates`, `@capsule/usage`, `@capsule/hud`, `@capsule/ui`, and `@capsule/desktop`.
 - Demo-mode usage dock HUD (Claude 73% / ChatGPT 21% / Spark 52%) with connected detail card.
 - Electron overlay shell: always-on-top panel, click-through, Dock icon hidden, placement engine, settings window, Claude/ChatGPT adapters.
+- Overlay now hydrates usage snapshots on subscribe instead of painting an empty transparent window.

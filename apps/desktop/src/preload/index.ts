@@ -14,6 +14,10 @@ export interface CapsuleBridge {
   setPointerCapture: (capture: boolean) => void;
   setExpanded: (open: boolean, providerId: ProviderId | null) => void;
   showContextMenu: () => void;
+  getSnapshots: () => Promise<{
+    snapshots: UsageSnapshot[];
+    settings: CapsuleSettings;
+  }>;
   onSnapshots: (
     listener: (snapshots: UsageSnapshot[], settings: CapsuleSettings) => void,
   ) => () => void;
@@ -21,6 +25,7 @@ export interface CapsuleBridge {
 
 const capsule: CapsuleBridge = {
   getSettings: () => ipcRenderer.invoke(IPC.getSettings),
+  getSnapshots: () => ipcRenderer.invoke(IPC.getSnapshots),
   setSettings: (settings) => ipcRenderer.invoke(IPC.setSettings, settings),
   openSettings: (hash) => ipcRenderer.invoke(IPC.openSettings, hash),
   quit: () => ipcRenderer.invoke(IPC.quit),
@@ -43,10 +48,15 @@ const capsule: CapsuleBridge = {
     };
     ipcRenderer.on(IPC.snapshots, handler);
     void ipcRenderer
-      .invoke(IPC.getSettings)
-      .then((settings: CapsuleSettings) => {
-        listener([], settings);
-      });
+      .invoke(IPC.getSnapshots)
+      .then(
+        (payload: {
+          snapshots: UsageSnapshot[];
+          settings: CapsuleSettings;
+        }) => {
+          listener(payload.snapshots, payload.settings);
+        },
+      );
     return () => {
       ipcRenderer.off(IPC.snapshots, handler);
     };
