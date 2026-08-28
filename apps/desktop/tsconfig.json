@@ -1,0 +1,7 @@
+{
+  "extends": "@capsule/tsconfig/react.json",
+  "compilerOptions": {
+    "types": ["vite/client"]
+  },
+  "include": ["src/renderer", "src/preload/*.d.ts"]
+}

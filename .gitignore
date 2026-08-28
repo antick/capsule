@@ -1,0 +1,17 @@
+node_modules
+dist
+out
+.turbo
+*.log
+.DS_Store
+coverage
+playwright-report
+test-results
+.vite
+*.tsbuildinfo
+.idea
+.vscode
+.env
+.env.*
+!.env.example
+routeTree.gen.ts

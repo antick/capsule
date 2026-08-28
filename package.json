@@ -1,0 +1,19 @@
+{
+  "name": "capsule",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "dev": "turbo run dev --filter=@capsule/desktop",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "check": "turbo run check",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.9",
+    "turbo": "2.10.11",
+    "typescript": "5.9.3"
+  }
+}

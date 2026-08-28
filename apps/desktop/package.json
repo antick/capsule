@@ -1,0 +1,45 @@
+{
+  "name": "@capsule/desktop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "productName": "Capsule",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@capsule/config": "workspace:*",
+    "@capsule/dates": "workspace:*",
+    "@capsule/hud": "workspace:*",
+    "@capsule/ui": "workspace:*",
+    "@capsule/usage": "workspace:*",
+    "@tanstack/react-router": "1.170.31",
+    "electron-store": "11.0.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zustand": "5.0.15"
+  },
+  "devDependencies": {
+    "@capsule/tsconfig": "workspace:*",
+    "@tailwindcss/vite": "4.3.3",
+    "@tanstack/router-plugin": "1.168.34",
+    "@types/node": "24.2.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitejs/plugin-react": "6.1.0",
+    "electron": "43.4.1",
+    "electron-builder": "26.15.3",
+    "electron-vite": "5.0.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vite": "8.2.2",
+    "vitest": "4.1.11"
+  }
+}

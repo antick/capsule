@@ -1,0 +1,29 @@
+{
+  "name": "@capsule/hud",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@capsule/config": "workspace:*",
+    "@capsule/dates": "workspace:*",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@capsule/tsconfig": "workspace:*",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}
