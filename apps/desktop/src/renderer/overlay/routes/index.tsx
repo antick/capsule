@@ -1,6 +1,8 @@
 import {
   type CapsuleSettings,
   DEMO_NOW_ISO,
+  DEMO_SNAPSHOTS,
+  defaultSettings,
   type PlacementPreset,
   type UsageSnapshot,
 } from "@capsule/config";
@@ -8,51 +10,48 @@ import { UsageDock } from "@capsule/hud";
 import { useEffect, useMemo, useState } from "react";
 
 export function OverlayHud() {
-  const [snapshots, setSnapshots] = useState<UsageSnapshot[]>([]);
-  const [settings, setSettings] = useState<CapsuleSettings | null>(null);
+  const [snapshots, setSnapshots] = useState<UsageSnapshot[]>(DEMO_SNAPSHOTS);
+  const [settings, setSettings] = useState<CapsuleSettings>(defaultSettings);
 
   useEffect(() => {
     if (!window.capsule) {
-      console.error("Capsule preload bridge is missing");
       return;
     }
     return window.capsule.onSnapshots((nextSnapshots, nextSettings) => {
-      setSnapshots(nextSnapshots);
+      if (nextSnapshots.length > 0) {
+        setSnapshots(nextSnapshots);
+      }
       setSettings(nextSettings);
     });
   }, []);
 
   const layout = useMemo(
-    () => layoutForPreset(settings?.placementPreset ?? "right-edge"),
-    [settings?.placementPreset],
+    () => layoutForPreset(settings.placementPreset),
+    [settings.placementPreset],
   );
-
-  if (snapshots.length === 0) {
-    return null;
-  }
 
   return (
     <div
       onPointerMove={(event) => {
         const target = event.target as HTMLElement;
-        window.capsule.setPointerCapture(
+        window.capsule?.setPointerCapture(
           Boolean(target.closest("[data-usage-dock='true']")),
         );
       }}
-      onPointerLeave={() => window.capsule.setPointerCapture(false)}
+      onPointerLeave={() => window.capsule?.setPointerCapture(false)}
     >
       <UsageDock
         snapshots={snapshots}
         orientation={layout.orientation}
         cardGrowth={layout.cardGrowth}
-        now={settings?.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
-        initialPinnedProviderId={settings?.demoMode ? "claude" : null}
+        now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
+        initialPinnedProviderId="claude"
         onOpenChange={(open, providerId) => {
-          window.capsule.setExpanded(open, providerId);
+          window.capsule?.setExpanded(open, providerId);
         }}
         onContextMenu={(event) => {
           event.preventDefault();
-          window.capsule.showContextMenu();
+          window.capsule?.showContextMenu();
         }}
       />
     </div>

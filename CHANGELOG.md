@@ -14,3 +14,4 @@ All notable changes to Capsule are documented in this file.
 - Electron overlay shell: always-on-top panel, click-through, Dock icon hidden, placement engine, settings window, Claude/ChatGPT adapters.
 - Overlay now hydrates usage snapshots on subscribe instead of painting an empty transparent window.
 - Overlay uses in-memory routing so Vite's `/overlay/index.html` URL no longer renders TanStack's "Not Found" instead of the dock.
+- Overlay paints demo HUD on first frame, stays on the primary display, and opens Settings on launch so the app is findable.

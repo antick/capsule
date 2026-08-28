@@ -16,9 +16,10 @@ const METER_BLOCK = HUD.meterSize + HUD.itemGap + 18;
 
 export class OverlayController {
   window: BrowserWindow | null = null;
-  private expanded = false;
+  private expanded = true;
   private settings: CapsuleSettings;
   private meterCount: number = HUD.meterCountDefault;
+  private settingsDisplayId: number | null = null;
 
   constructor(settings: CapsuleSettings) {
     this.settings = settings;
@@ -50,7 +51,7 @@ export class OverlayController {
       hasShadow: false,
       roundedCorners: false,
       skipTaskbar: true,
-      focusable: false,
+      focusable: true,
       resizable: false,
       maximizable: false,
       minimizable: false,
@@ -64,9 +65,9 @@ export class OverlayController {
       },
     });
 
-    win.setAlwaysOnTop(true, "floating");
-    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false });
-    win.setIgnoreMouseEvents(true, { forward: true });
+    win.setAlwaysOnTop(true, "screen-saver");
+    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    win.setIgnoreMouseEvents(false);
     win.setMenuBarVisibility(false);
 
     win.webContents.setWindowOpenHandler((details) => {
@@ -78,7 +79,7 @@ export class OverlayController {
     await this.relayout();
 
     win.webContents.on("did-finish-load", () => {
-      win.showInactive();
+      win.show();
       onReady?.();
     });
     win.webContents.on("did-fail-load", (_event, code, description, url) => {
@@ -96,7 +97,7 @@ export class OverlayController {
       await win.loadFile(rendererHtml("overlay"));
     }
 
-    win.showInactive();
+    win.show();
     return win;
   }
 
@@ -114,7 +115,7 @@ export class OverlayController {
   }
 
   show(): void {
-    this.window?.showInactive();
+    this.window?.show();
   }
 
   async relayout(): Promise<PlacementResult | null> {
@@ -122,9 +123,11 @@ export class OverlayController {
     if (!win || win.isDestroyed()) {
       return null;
     }
+    const primary = screen.getPrimaryDisplay();
+    const displays = screen.getAllDisplays();
     const display =
-      screen.getDisplayNearestPoint(screen.getCursorScreenPoint()) ??
-      screen.getPrimaryDisplay();
+      displays.find((item) => item.id === this.settingsDisplayId) ?? primary;
+    this.settingsDisplayId = display.id;
     const chrome = await readChromeSnapshot({
       id: display.id,
       bounds: display.bounds,
@@ -145,12 +148,13 @@ export class OverlayController {
       },
       PLACEMENT,
     );
-    win.setBounds({
+    const bounds = {
       x: Math.round(placement.x),
       y: Math.round(placement.y),
       width: Math.round(placement.width),
       height: Math.round(placement.height),
-    });
+    };
+    win.setBounds(bounds);
     return placement;
   }
 }

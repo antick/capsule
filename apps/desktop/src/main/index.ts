@@ -23,7 +23,7 @@ import { createUsageHost } from "./usage-host.ts";
 app.setName(APP_NAME);
 
 if (process.platform === "darwin") {
-  app.dock?.hide();
+  app.dock?.show();
 }
 
 let settings = loadSettings();
@@ -130,10 +130,7 @@ app.whenReady().then(async () => {
   await poller.refresh();
   broadcast();
   overlay.show();
-
-  if (!settings.demoMode && snapshots.every((item) => item.status !== "ok")) {
-    await openSettingsWindow("/onboarding");
-  }
+  await openSettingsWindow("/");
 
   const chromeTimer = setInterval(() => {
     void overlay.relayout();
