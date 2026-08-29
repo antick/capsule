@@ -4,11 +4,13 @@ import {
   ANTHROPIC_OAUTH_USAGE_URL,
   CLAUDE_CREDENTIALS_PATH_SEGMENTS,
   CLAUDE_KEYCHAIN_SERVICE,
+  CLAUDE_USAGE_CACHE_FILE,
   COPY,
   PROVIDER_LABELS,
   type UsageSnapshot,
 } from "@capsule/config";
 import { toPercent } from "../clamp.ts";
+import { usageHeaders } from "../headers.ts";
 import type { UsageProvider, UsageProviderContext } from "../types.ts";
 import { unauthenticatedSnapshot } from "../unauthenticated.ts";
 
@@ -78,6 +80,43 @@ export function mapClaudeUsage(
   };
 }
 
+export function claudeUsageFromCache(raw: string): ClaudeUsageResponse | null {
+  try {
+    const parsed = JSON.parse(raw) as {
+      cachedUsageUtilization?: ClaudeUsageResponse & {
+        utilization?: ClaudeUsageResponse;
+      };
+    };
+    const cache = parsed.cachedUsageUtilization;
+    if (!cache) {
+      return null;
+    }
+    const utilization = cache.utilization ?? cache;
+    if (utilization.five_hour || utilization.seven_day) {
+      return utilization;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function cachedClaudeSnapshot(
+  context: UsageProviderContext,
+): Promise<UsageSnapshot | null> {
+  const raw = await context.readFile(
+    join(context.homeDir, CLAUDE_USAGE_CACHE_FILE),
+  );
+  if (!raw) {
+    return null;
+  }
+  const payload = claudeUsageFromCache(raw);
+  if (!payload) {
+    return null;
+  }
+  return { ...mapClaudeUsage(payload, context.now), status: "stale" };
+}
+
 export function createClaudeProvider(): UsageProvider {
   return {
     id: "claude",
@@ -92,23 +131,30 @@ export function createClaudeProvider(): UsageProvider {
         ? null
         : ((await context.readSecret?.(CLAUDE_KEYCHAIN_SERVICE)) ?? null);
       const token = fromFile ?? keychainToken(fromKeychain);
-      if (!token) {
-        return unauthenticatedSnapshot("claude", context.now);
+      if (token) {
+        const response = await context.fetch(ANTHROPIC_OAUTH_USAGE_URL, {
+          headers: usageHeaders({
+            Authorization: `Bearer ${token}`,
+            "anthropic-beta": ANTHROPIC_OAUTH_BETA_HEADER,
+          }),
+        });
+        if (response.ok) {
+          const payload = (await response.json()) as ClaudeUsageResponse;
+          return mapClaudeUsage(payload, context.now);
+        }
+        if (response.status !== 401 && response.status !== 403) {
+          const cached = await cachedClaudeSnapshot(context);
+          if (cached) {
+            return cached;
+          }
+          throw new Error(`Claude usage HTTP ${response.status}`);
+        }
       }
-      const response = await context.fetch(ANTHROPIC_OAUTH_USAGE_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "anthropic-beta": ANTHROPIC_OAUTH_BETA_HEADER,
-        },
-      });
-      if (response.status === 401 || response.status === 403) {
-        return unauthenticatedSnapshot("claude", context.now);
+      const cached = await cachedClaudeSnapshot(context);
+      if (cached) {
+        return cached;
       }
-      if (!response.ok) {
-        throw new Error(`Claude usage HTTP ${response.status}`);
-      }
-      const payload = (await response.json()) as ClaudeUsageResponse;
-      return mapClaudeUsage(payload, context.now);
+      return unauthenticatedSnapshot("claude", context.now);
     },
   };
 }

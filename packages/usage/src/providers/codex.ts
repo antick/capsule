@@ -11,6 +11,7 @@ import {
   type UsageSnapshot,
 } from "@capsule/config";
 import { toPercent } from "../clamp.ts";
+import { usageHeaders } from "../headers.ts";
 import { credentialPath, resetIso, windowLabel } from "../reset.ts";
 import type { UsageProvider, UsageProviderContext } from "../types.ts";
 import { unauthenticatedSnapshot } from "../unauthenticated.ts";
@@ -125,10 +126,9 @@ async function fetchUsage(
   accountId: string | null,
   url: string,
 ): Promise<Response> {
-  const headers: Record<string, string> = {
+  const headers = usageHeaders({
     Authorization: `Bearer ${token}`,
-    Accept: "application/json",
-  };
+  });
   if (accountId) {
     headers["ChatGPT-Account-Id"] = accountId;
   }
@@ -146,7 +146,9 @@ async function refreshAccessToken(
   });
   const response = await context.fetch(CODEX_TOKEN_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers: usageHeaders({
+      "Content-Type": "application/x-www-form-urlencoded",
+    }),
     body,
   });
   if (!response.ok) {

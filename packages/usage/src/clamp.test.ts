@@ -23,4 +23,8 @@ describe("toPercent", () => {
   it("keeps already-percent values", () => {
     expect(toPercent(21)).toBe(21);
   });
+
+  it("keeps a 1 percent value instead of treating it as 100", () => {
+    expect(toPercent(1)).toBe(1);
+  });
 });

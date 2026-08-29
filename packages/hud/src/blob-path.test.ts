@@ -1,6 +1,12 @@
 import { HUD, joinOffsetForIndex, railLengthForCount } from "@capsule/config";
 import { describe, expect, it } from "vitest";
-import { blobLayout, cardPath, railPath, tailPath } from "./blob-path.ts";
+import {
+  blobLayout,
+  cardPath,
+  connectedPath,
+  railPath,
+  tailPath,
+} from "./blob-path.ts";
 
 const railLength = railLengthForCount(3);
 const join = joinOffsetForIndex(0);
@@ -48,6 +54,25 @@ describe("blob paths", () => {
     ).toBe(true);
     expect(cardPath(layout.card).endsWith("Z")).toBe(true);
     expect(tailPath("left", layout.card, layout.rail, join).endsWith("Z")).toBe(
+      true,
+    );
+  });
+
+  it("keeps the right-edge rail square on the flush side", () => {
+    const layout = blobLayout({
+      cardGrowth: "left",
+      railLength,
+      joinOffset: join,
+    });
+    const right = layout.rail.x + layout.rail.width;
+    const closed = railPath("left", layout.rail);
+    expect(closed.startsWith(`M ${right} 0`)).toBe(true);
+    expect(closed).toContain(`L ${right} ${layout.rail.height}`);
+    const open = connectedPath("left", layout, join);
+    expect(open.startsWith(`M ${right} 0`)).toBe(true);
+    expect(open).toContain(`L ${right} ${layout.rail.height}`);
+    expect(open).toContain(`M ${right} 0`);
+    expect(open.includes(` ${layout.card.x} `) || open.includes(" 0 ")).toBe(
       true,
     );
   });

@@ -1,7 +1,12 @@
 import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { promisify } from "node:util";
-import type { CapsuleSettings, UsageSnapshot } from "@capsule/config";
+import {
+  type CapsuleSettings,
+  USAGE_USER_AGENT,
+  type UsageSnapshot,
+} from "@capsule/config";
 import {
   createClaudeProvider,
   createCodexProvider,
@@ -10,7 +15,7 @@ import {
   createPoller,
   type Poller,
 } from "@capsule/usage";
-import { app, powerMonitor } from "electron";
+import { app, powerMonitor, session } from "electron";
 
 const execFileAsync = promisify(execFile);
 
@@ -33,8 +38,14 @@ export function createUsageHost(
     onChange,
     host: {
       now: () => new Date(),
-      fetch: globalThis.fetch,
-      homeDir: () => app.getPath("home"),
+      fetch: usageFetch,
+      homeDir: () => {
+        try {
+          return app.getPath("home");
+        } catch {
+          return homedir();
+        }
+      },
       readFile: async (absolutePath: string) => {
         try {
           return await readFile(absolutePath, "utf8");
@@ -77,3 +88,30 @@ export function createUsageHost(
     },
   });
 }
+
+let usageFetcher: typeof fetch | null = null;
+
+const usageFetch: typeof fetch = (input, init) => {
+  if (!usageFetcher) {
+    const usageSession = session.fromPartition("capsule-usage");
+    usageSession.setUserAgent(USAGE_USER_AGENT);
+    usageFetcher = (async (nextInput, nextInit) => {
+      const url =
+        typeof nextInput === "string"
+          ? nextInput
+          : nextInput instanceof URL
+            ? nextInput.toString()
+            : nextInput.url;
+      const headers = new Headers(nextInit?.headers);
+      if (!headers.has("User-Agent")) {
+        headers.set("User-Agent", USAGE_USER_AGENT);
+      }
+      return usageSession.fetch(url, {
+        ...(nextInit ?? {}),
+        headers,
+        bypassCustomProtocolHandlers: true,
+      });
+    }) as typeof fetch;
+  }
+  return usageFetcher(input, init);
+};

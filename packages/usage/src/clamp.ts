@@ -15,7 +15,7 @@ export function toPercent(value: number | null | undefined): number {
   if (value == null || !Number.isFinite(value)) {
     return 0;
   }
-  if (value > 0 && value <= 1) {
+  if (value > 0 && value < 1) {
     return clampPercent(value * 100);
   }
   return clampPercent(value);

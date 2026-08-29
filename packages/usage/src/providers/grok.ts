@@ -4,11 +4,13 @@ import {
   GROK_BILLING_URL,
   GROK_HOME_ENV,
   GROK_TOKEN_AUTH_VALUE,
+  GROK_USER_ID_HEADER,
   PROVIDER_LABELS,
   type UsageBucket,
   type UsageSnapshot,
 } from "@capsule/config";
 import { toPercent } from "../clamp.ts";
+import { usageHeaders } from "../headers.ts";
 import { credentialPath, resetIso } from "../reset.ts";
 import type { UsageProvider, UsageProviderContext } from "../types.ts";
 import { unauthenticatedSnapshot } from "../unauthenticated.ts";
@@ -61,7 +63,23 @@ function isExpired(record: Record<string, unknown>): boolean {
   return false;
 }
 
-function collectTokens(value: unknown, into: string[]): void {
+interface GrokAuthToken {
+  token: string;
+  expired: boolean;
+  userId: string | null;
+}
+
+function readUserId(record: Record<string, unknown>): string | null {
+  for (const key of ["user_id", "userId", "principal_id", "sub"] as const) {
+    const value = record[key];
+    if (typeof value === "string" && value.length > 0) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function collectTokens(value: unknown, into: GrokAuthToken[]): void {
   if (!value || typeof value !== "object") {
     return;
   }
@@ -72,12 +90,12 @@ function collectTokens(value: unknown, into: string[]): void {
     return;
   }
   const record = value as Record<string, unknown>;
-  if (!isExpired(record)) {
-    for (const key of ["key", "access_token", "accessToken"] as const) {
-      const token = record[key];
-      if (typeof token === "string" && isLikelyJwt(token)) {
-        into.push(token);
-      }
+  const expired = isExpired(record);
+  const userId = readUserId(record);
+  for (const key of ["key", "access_token", "accessToken"] as const) {
+    const token = record[key];
+    if (typeof token === "string" && isLikelyJwt(token)) {
+      into.push({ token, expired, userId });
     }
   }
   for (const [key, nested] of Object.entries(record)) {
@@ -88,15 +106,26 @@ function collectTokens(value: unknown, into: string[]): void {
   }
 }
 
-export function grokTokenFromFile(raw: string): string | null {
+export function grokAuthFromFile(raw: string): {
+  token: string;
+  userId: string | null;
+} | null {
   try {
     const parsed: unknown = JSON.parse(raw);
-    const tokens: string[] = [];
+    const tokens: GrokAuthToken[] = [];
     collectTokens(parsed, tokens);
-    return tokens[0] ?? null;
+    const preferred = tokens.find((item) => !item.expired) ?? tokens[0];
+    return preferred
+      ? { token: preferred.token, userId: preferred.userId }
+      : null;
   } catch {
-    return isLikelyJwt(raw.trim()) ? raw.trim() : null;
+    const token = raw.trim();
+    return isLikelyJwt(token) ? { token, userId: null } : null;
   }
+}
+
+export function grokTokenFromFile(raw: string): string | null {
+  return grokAuthFromFile(raw)?.token ?? null;
 }
 
 function amountValue(amount: GrokAmount | undefined): number | null {
@@ -186,16 +215,19 @@ export function createGrokProvider(): UsageProvider {
         GROK_AUTH_PATH_SEGMENTS,
       );
       const raw = await context.readFile(authPath);
-      const token = raw ? grokTokenFromFile(raw) : null;
-      if (!token) {
+      const auth = raw ? grokAuthFromFile(raw) : null;
+      if (!auth) {
         return unauthenticatedSnapshot("grok", context.now);
       }
+      const headers = usageHeaders({
+        Authorization: `Bearer ${auth.token}`,
+        "X-XAI-Token-Auth": GROK_TOKEN_AUTH_VALUE,
+      });
+      if (auth.userId) {
+        headers[GROK_USER_ID_HEADER] = auth.userId;
+      }
       const response = await context.fetch(GROK_BILLING_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-          "X-XAI-Token-Auth": GROK_TOKEN_AUTH_VALUE,
-        },
+        headers,
       });
       if (response.status === 401 || response.status === 403) {
         return unauthenticatedSnapshot("grok", context.now);

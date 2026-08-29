@@ -190,6 +190,7 @@ export function UsageDock({
         joinOffset={joinOffsetForIndex(activeJoinIndex)}
         dragging={dragging}
         meterCount={Math.max(1, meters.length)}
+        cardHeight={cardHeightFor(cardSnapshot)}
         rail={meters.map((snapshot) => (
           <UsageMeter
             key={snapshot.providerId}
@@ -227,4 +228,15 @@ export function UsageDock({
       />
     </div>
   );
+}
+
+function cardHeightFor(snapshot: UsageSnapshot | null): number {
+  const count = snapshot?.buckets.length ?? 0;
+  if (count >= 2) {
+    return HUD.cardHeight;
+  }
+  if (count === 1) {
+    return HUD.cardSingleHeight;
+  }
+  return HUD.cardCompactHeight;
 }

@@ -4,6 +4,7 @@ import {
   blobLayout,
   type CardGrowth,
   cardPath,
+  connectedPath,
   flushClipRect,
   flushPadding,
   railPath,
@@ -20,6 +21,7 @@ export function HudFrame({
   joinOffset,
   dragging,
   meterCount,
+  cardHeight,
   rail,
   card,
 }: {
@@ -29,6 +31,7 @@ export function HudFrame({
   joinOffset: number;
   dragging: boolean;
   meterCount: number;
+  cardHeight?: number;
   rail: ReactNode;
   card: ReactNode;
 }): ReactElement {
@@ -39,14 +42,18 @@ export function HudFrame({
     cardGrowth,
     railLength,
     joinOffset: join,
+    cardHeight: cardHeight ?? HUD.cardHeight,
   });
   const pad = flushPadding(cardGrowth);
   const clip = flushClipRect(cardGrowth, layout);
   const showCard = progress > 0.02;
   const cardHits = progress > 0.55 && !dragging;
   const motion = `${MOTION.cardMs}ms ${MOTION.easing}`;
-  const railD = railPath(cardGrowth, layout.rail);
-  const gooMatrix = `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${HUD.blobGooAlpha} ${HUD.blobGooBias}`;
+  const railD = railPath(cardGrowth, layout.rail, {
+    joinOffset: join,
+    progress,
+  });
+  const blobD = showCard ? connectedPath(cardGrowth, layout, join) : railD;
 
   return (
     <div
@@ -90,25 +97,6 @@ export function HudFrame({
           }}
         >
           <defs>
-            <filter
-              id="capsule-hud-goo"
-              x="-40%"
-              y="-40%"
-              width="180%"
-              height="180%"
-            >
-              <feGaussianBlur
-                in="SourceGraphic"
-                stdDeviation={HUD.blobBlur}
-                result="blur"
-              />
-              <feColorMatrix
-                in="blur"
-                mode="matrix"
-                values={gooMatrix}
-                result="goo"
-              />
-            </filter>
             <clipPath id="capsule-hud-flush">
               <rect
                 x={clip.x}
@@ -119,38 +107,7 @@ export function HudFrame({
             </clipPath>
           </defs>
           <g clipPath="url(#capsule-hud-flush)">
-            <g filter={showCard ? "url(#capsule-hud-goo)" : undefined}>
-              <path d={railD} fill={HUD.surface} />
-              {showCard ? (
-                <>
-                  <path
-                    d={cardPath(layout.card)}
-                    fill={HUD.surface}
-                    opacity={progress}
-                  />
-                  <path
-                    d={tailPath(cardGrowth, layout.card, layout.rail, join)}
-                    fill={HUD.surface}
-                    opacity={progress}
-                  />
-                  <circle
-                    cx={layout.join.x}
-                    cy={layout.join.y}
-                    r={HUD.connectorRadius}
-                    fill={HUD.surface}
-                    opacity={progress}
-                  />
-                </>
-              ) : null}
-            </g>
-            <path d={railD} fill={HUD.surface} />
-            {showCard ? (
-              <path
-                d={cardPath(layout.card)}
-                fill={HUD.surface}
-                opacity={progress}
-              />
-            ) : null}
+            <path d={blobD} fill={HUD.surface} />
           </g>
         </svg>
         <svg

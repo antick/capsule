@@ -2,7 +2,11 @@ import { DEMO_SNAPSHOTS, defaultSettings } from "@capsule/config";
 import { describe, expect, it } from "vitest";
 import { mergeSnapshot } from "./merge.ts";
 import { createPoller } from "./poller.ts";
-import { mapClaudeUsage } from "./providers/claude.ts";
+import {
+  claudeUsageFromCache,
+  createClaudeProvider,
+  mapClaudeUsage,
+} from "./providers/claude.ts";
 import { mapCodexUsage } from "./providers/codex.ts";
 import { createDemoProvider } from "./providers/demo.ts";
 import { grokTokenFromFile, mapGrokCredits } from "./providers/grok.ts";
@@ -98,6 +102,67 @@ describe("mapGrokCredits", () => {
       }),
     );
     expect(token?.startsWith("eyJ")).toBe(true);
+  });
+
+  it("still reads a JWT when expires_at is in the past", () => {
+    const token = grokTokenFromFile(
+      JSON.stringify({
+        "https://accounts.x.ai/sign-in": {
+          key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+          expires_at: "2020-01-01T00:00:00Z",
+          user_id: "user-1",
+        },
+      }),
+    );
+    expect(token?.startsWith("eyJ")).toBe(true);
+  });
+});
+
+describe("claude cache", () => {
+  it("reads nested cachedUsageUtilization.utilization", () => {
+    const payload = claudeUsageFromCache(
+      JSON.stringify({
+        cachedUsageUtilization: {
+          utilization: {
+            five_hour: { utilization: 73, resets_at: "2026-08-27T12:13:00Z" },
+            seven_day: { utilization: 7, resets_at: "2026-09-03T00:00:00Z" },
+          },
+        },
+      }),
+    );
+    expect(payload?.five_hour?.utilization).toBe(73);
+    expect(payload?.seven_day?.utilization).toBe(7);
+  });
+
+  it("uses the local cache when oauth usage is rate limited", async () => {
+    const provider = createClaudeProvider();
+    const snapshot = await provider.fetchSnapshot({
+      now: new Date("2026-08-27T11:22:00.000Z"),
+      fetch: async () =>
+        new Response(JSON.stringify({ error: "rate" }), { status: 429 }),
+      readFile: async (path) => {
+        if (path.endsWith(".credentials.json")) {
+          return JSON.stringify({
+            claudeAiOauth: { accessToken: "sk-ant-oat-test" },
+          });
+        }
+        if (path.endsWith(".claude.json")) {
+          return JSON.stringify({
+            cachedUsageUtilization: {
+              utilization: {
+                five_hour: { utilization: 73 },
+                seven_day: { utilization: 7 },
+              },
+            },
+          });
+        }
+        return null;
+      },
+      homeDir: "/tmp",
+    });
+    expect(snapshot.status).toBe("stale");
+    expect(snapshot.primaryPercent).toBe(73);
+    expect(snapshot.buckets[1]?.percentUsed).toBe(7);
   });
 });
 

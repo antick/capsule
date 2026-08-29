@@ -76,21 +76,23 @@ export const HUD = {
   cardPadding: 16,
   cardRadius: 22,
   cardHeight: 188,
+  cardCompactHeight: 96,
+  cardSingleHeight: 136,
   cardTitleSize: 14,
   cardLabelSize: 12,
   cardResetSize: 11,
   cardSectionGap: 14,
   barHeight: 5,
   railRadius: 32,
-  joinWidth: 10,
-  tailBase: 48,
-  tailControl: 8,
-  biteRadius: 20,
-  connectorRadius: 20,
-  blobBlur: 7,
+  joinWidth: 14,
+  tailBase: 36,
+  tailControl: 10,
+  biteRadius: 24,
+  connectorRadius: 0,
+  blobBlur: 0,
   blobGooAlpha: 36,
   blobGooBias: -16,
-  cardTailOffsetY: 78,
+  cardTailOffsetY: 56,
   shadowPadding: 24,
   hoverOpenDelayMs: 70,
   hoverCloseDelayMs: 220,
@@ -154,6 +156,10 @@ export const CODEX_OAUTH_CLIENT_ID = "app_EMohtA1zFfdvkohgPldNB5nP";
 export const GROK_BILLING_URL =
   "https://cli-chat-proxy.grok.com/v1/billing?format=credits";
 export const GROK_TOKEN_AUTH_VALUE = "xai-grok-cli";
+export const GROK_USER_ID_HEADER = "x-userid";
+export const USAGE_USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1";
+export const CLAUDE_USAGE_CACHE_FILE = ".claude.json";
 
 export const CLAUDE_CREDENTIALS_PATH_SEGMENTS = [
   ".claude",
