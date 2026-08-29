@@ -5,13 +5,16 @@ import {
   defaultSettings,
   layoutForPreset,
   type ProviderId,
+  placeholderSnapshots,
   type UsageSnapshot,
 } from "@capsule/config";
 import { UsageDock } from "@capsule/hud";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export function OverlayHud() {
-  const [snapshots, setSnapshots] = useState<UsageSnapshot[]>([]);
+  const [snapshots, setSnapshots] = useState<UsageSnapshot[]>(() =>
+    placeholderSnapshots(),
+  );
   const [settings, setSettings] = useState<CapsuleSettings>(defaultSettings);
   const dragging = useRef(false);
   const lastCapture = useRef<boolean | null>(null);
@@ -101,7 +104,7 @@ export function OverlayHud() {
             ? snapshots
             : settings.demoMode
               ? DEMO_SNAPSHOTS
-              : snapshots
+              : placeholderSnapshots()
         }
         orientation={layout.orientation}
         cardGrowth={layout.cardGrowth}

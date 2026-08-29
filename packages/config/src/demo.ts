@@ -1,4 +1,9 @@
-import { COPY } from "./constants.ts";
+import {
+  COPY,
+  PROVIDER_IDS,
+  PROVIDER_LABELS,
+  type ProviderId,
+} from "./constants.ts";
 import type { UsageSnapshot } from "./usage-types.ts";
 
 /** Menu bar in the reference HUD: Thu 27 Aug 11.22 (local) */
@@ -16,6 +21,22 @@ const CODEX_RESET_ISO = new Date(
 const GROK_RESET_ISO = new Date(
   demoNow.getTime() + 7 * 60 * 60 * 1000,
 ).toISOString();
+
+export function placeholderSnapshots(
+  ids: readonly ProviderId[] = PROVIDER_IDS,
+  now: Date = new Date(),
+): UsageSnapshot[] {
+  const list = ids.length > 0 ? ids : PROVIDER_IDS;
+  return list.map((providerId) => ({
+    providerId,
+    displayName: PROVIDER_LABELS[providerId],
+    iconId: providerId,
+    primaryPercent: null,
+    buckets: [],
+    status: "unauthenticated",
+    fetchedAt: now.toISOString(),
+  }));
+}
 
 export const DEMO_SNAPSHOTS: UsageSnapshot[] = [
   {

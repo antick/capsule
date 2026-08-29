@@ -21,6 +21,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Fixed
 
+- The dock no longer renders as an empty black pill while usage is loading or a provider is signed out; meters stay visible with empty rings until live data arrives.
 - Usage card no longer clips into a distorted rectangle: the overlay stays large enough for the blob, and transparent pixels click through.
 - Hover opens a connected speech-bubble card aligned to the active meter; leaving the HUD still closes an unpinned card.
 - Drag follows the cursor in the main process so the dock can be moved without losing pointer events, then snaps to the nearest edge.

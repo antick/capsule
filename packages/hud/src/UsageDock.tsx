@@ -4,6 +4,7 @@ import {
   joinOffsetForIndex,
   MOTION,
   type ProviderId,
+  placeholderSnapshots,
   type UsageSnapshot,
 } from "@capsule/config";
 import {
@@ -42,6 +43,7 @@ export function UsageDock({
   onMoveEnd?: () => void;
 }): ReactElement {
   const clock = now ?? new Date(DEMO_NOW_ISO);
+  const meters = snapshots.length > 0 ? snapshots : placeholderSnapshots();
   const [hovered, setHovered] = useState<ProviderId | null>(null);
   const [pinned, setPinned] = useState<ProviderId | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -58,7 +60,7 @@ export function UsageDock({
   const lastCard = useRef<UsageSnapshot | null>(null);
   const openId = dragging ? null : (forceOpenProviderId ?? pinned ?? hovered);
   const openSnapshot =
-    snapshots.find((item) => item.providerId === openId) ?? null;
+    meters.find((item) => item.providerId === openId) ?? null;
   if (openSnapshot) {
     lastCard.current = openSnapshot;
   }
@@ -67,7 +69,7 @@ export function UsageDock({
     openId ?? lastCard.current?.providerId ?? snapshots[0]?.providerId ?? null;
   const activeJoinIndex = Math.max(
     0,
-    snapshots.findIndex((item) => item.providerId === joinId),
+    meters.findIndex((item) => item.providerId === joinId),
   );
 
   useEffect(() => {
@@ -187,8 +189,8 @@ export function UsageDock({
         open={openSnapshot !== null}
         joinOffset={joinOffsetForIndex(activeJoinIndex)}
         dragging={dragging}
-        meterCount={Math.max(1, snapshots.length)}
-        rail={snapshots.map((snapshot) => (
+        meterCount={Math.max(1, meters.length)}
+        rail={meters.map((snapshot) => (
           <UsageMeter
             key={snapshot.providerId}
             providerId={snapshot.providerId}

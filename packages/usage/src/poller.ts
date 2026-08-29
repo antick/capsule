@@ -1,7 +1,8 @@
-import type {
-  CapsuleSettings,
-  ProviderId,
-  UsageSnapshot,
+import {
+  type CapsuleSettings,
+  type ProviderId,
+  placeholderSnapshots,
+  type UsageSnapshot,
 } from "@capsule/config";
 import { mergeSnapshot } from "./merge.ts";
 import type { UsageProvider, UsageProviderContext } from "./types.ts";
@@ -86,6 +87,8 @@ export function createPoller(options: {
     start: () => {
       stop();
       const settings = options.getSettings();
+      snapshots = placeholderSnapshots(settings.enabledProviderIds);
+      options.onChange(snapshots);
       stopFns = [
         options.host.interval(settings.pollIntervalMs, () => {
           void refresh();

@@ -33,7 +33,11 @@ export {
   SEVERITY_BANDS,
   SEVERITY_COLORS,
 } from "./constants.ts";
-export { DEMO_NOW_ISO, DEMO_SNAPSHOTS } from "./demo.ts";
+export {
+  DEMO_NOW_ISO,
+  DEMO_SNAPSHOTS,
+  placeholderSnapshots,
+} from "./demo.ts";
 export type {
   ChromeSnapshot,
   DockOrientation,

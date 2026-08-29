@@ -50,4 +50,18 @@ describe("UsageDock", () => {
     expect(html).toContain("Not connected");
     expect(html).not.toContain("0% Used");
   });
+
+  it("still paints Claude, Codex, and Grok meters when snapshots are empty", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: [],
+        orientation: "vertical",
+        cardGrowth: "left",
+      }),
+    );
+    expect(html).toContain('data-provider="claude"');
+    expect(html).toContain('data-provider="codex"');
+    expect(html).toContain('data-provider="grok"');
+    expect(html).toContain("—");
+  });
 });
