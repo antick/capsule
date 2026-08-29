@@ -1,6 +1,7 @@
 import {
   COPY,
   HUD,
+  MOTION,
   type ProviderId,
   SEVERITY_COLORS,
   severityForPercent,
@@ -54,6 +55,8 @@ export function UsageMeter({
         gap: 6,
         cursor: "pointer",
         color: HUD.text,
+        transform: active ? `scale(${MOTION.meterHoverScale})` : "scale(1)",
+        transition: `transform ${MOTION.meterMs}ms ${MOTION.easing}`,
       }}
     >
       <svg
@@ -81,6 +84,9 @@ export function UsageMeter({
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={dashOffset}
+          style={{
+            transition: `stroke-dashoffset ${MOTION.ringMs}ms ${MOTION.easing}, stroke ${MOTION.meterMs}ms ${MOTION.easing}`,
+          }}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
         <foreignObject x={10} y={10} width={size - 20} height={size - 20}>

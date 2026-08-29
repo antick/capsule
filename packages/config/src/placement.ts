@@ -39,9 +39,25 @@ export interface PlacementResult {
   width: number;
   height: number;
   orientation: "vertical" | "horizontal";
-  cardGrowth: "left" | "right" | "up";
-  edge: "right" | "left" | "bottom";
+  cardGrowth: "left" | "right" | "up" | "down";
+  edge: "right" | "left" | "bottom" | "top";
   visualPreset: PlacementPreset;
+}
+
+export function layoutForPreset(preset: PlacementPreset): {
+  orientation: "vertical" | "horizontal";
+  cardGrowth: "left" | "right" | "up" | "down";
+} {
+  if (preset === "left-edge" || preset.startsWith("stage-manager")) {
+    return { orientation: "vertical", cardGrowth: "right" };
+  }
+  if (preset === "top-edge") {
+    return { orientation: "horizontal", cardGrowth: "down" };
+  }
+  if (preset === "bottom-edge" || preset.startsWith("dock-flank")) {
+    return { orientation: "horizontal", cardGrowth: "up" };
+  }
+  return { orientation: "vertical", cardGrowth: "left" };
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -97,6 +113,44 @@ export function computePlacement(
       orientation: "vertical",
       cardGrowth: "left",
       edge: "right",
+      visualPreset,
+    };
+  }
+
+  if (visualPreset === "top-edge") {
+    const size = horizontalWindowSize(hud);
+    const x = clamp(
+      centerInRange(workArea.x, workArea.width, size.width),
+      workArea.x,
+      workArea.x + workArea.width - size.width,
+    );
+    return {
+      displayId: id,
+      x,
+      y: workArea.y,
+      ...size,
+      orientation: "horizontal",
+      cardGrowth: "down",
+      edge: "top",
+      visualPreset,
+    };
+  }
+
+  if (visualPreset === "bottom-edge") {
+    const size = horizontalWindowSize(hud);
+    const x = clamp(
+      centerInRange(workArea.x, workArea.width, size.width),
+      workArea.x,
+      workArea.x + workArea.width - size.width,
+    );
+    return {
+      displayId: id,
+      x,
+      y: workArea.y + workArea.height - size.height,
+      ...size,
+      orientation: "horizontal",
+      cardGrowth: "up",
+      edge: "bottom",
       visualPreset,
     };
   }

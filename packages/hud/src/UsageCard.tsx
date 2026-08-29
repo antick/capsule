@@ -1,6 +1,7 @@
 import {
   COPY,
   HUD,
+  MOTION,
   SEVERITY_COLORS,
   severityForPercent,
   type UsageSnapshot,
@@ -46,6 +47,7 @@ function BucketRow({
             height: "100%",
             background: color,
             borderRadius: 99,
+            transition: `width ${MOTION.barMs}ms ${MOTION.easing}`,
           }}
         />
       </div>

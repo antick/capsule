@@ -15,7 +15,9 @@ export function PlacementPage() {
             type="radio"
             name="placement"
             checked={settings.placementPreset === preset}
-            onChange={() => void update({ placementPreset: preset })}
+            onChange={() =>
+              void update({ placementPreset: preset, customPosition: null })
+            }
           />
           {preset}
         </label>

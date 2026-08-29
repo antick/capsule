@@ -10,6 +10,7 @@ export {
   COPY,
   HUD,
   IPC,
+  MOTION,
   PLACEMENT,
   PLACEMENT_PRESETS,
   POLL_INTERVAL_MS,
@@ -25,13 +26,15 @@ export type {
   PlacementResult,
   Rect,
 } from "./placement.ts";
-export { computePlacement } from "./placement.ts";
+export { computePlacement, layoutForPreset } from "./placement.ts";
 export type { CapsuleSettings } from "./settings.ts";
 export {
   defaultSettings,
   settingsSchema,
 } from "./settings.ts";
 export { severityForPercent } from "./severity.ts";
+export type { ScreenEdge } from "./snap.ts";
+export { nearestEdge, presetForEdge, snapAfterDrag } from "./snap.ts";
 export type {
   UsageBucket,
   UsageSnapshot,

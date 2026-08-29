@@ -3,7 +3,7 @@ import {
   DEMO_NOW_ISO,
   DEMO_SNAPSHOTS,
   defaultSettings,
-  type PlacementPreset,
+  layoutForPreset,
   type UsageSnapshot,
 } from "@capsule/config";
 import { UsageDock } from "@capsule/hud";
@@ -35,7 +35,9 @@ export function OverlayHud() {
       onPointerMove={(event) => {
         const target = event.target as HTMLElement;
         window.capsule?.setPointerCapture(
-          Boolean(target.closest("[data-usage-dock='true']")),
+          Boolean(
+            target.closest("[data-hud-rail='true'], [data-card-open='true']"),
+          ),
         );
       }}
       onPointerLeave={() => window.capsule?.setPointerCapture(false)}
@@ -45,9 +47,17 @@ export function OverlayHud() {
         orientation={layout.orientation}
         cardGrowth={layout.cardGrowth}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
-        initialPinnedProviderId="claude"
         onOpenChange={(open, providerId) => {
           window.capsule?.setExpanded(open, providerId);
+        }}
+        onMoveStart={(screenX, screenY) => {
+          window.capsule?.startMove(screenX, screenY);
+        }}
+        onMove={(screenX, screenY) => {
+          window.capsule?.moveWindow(screenX, screenY);
+        }}
+        onMoveEnd={() => {
+          window.capsule?.endMove();
         }}
         onContextMenu={(event) => {
           event.preventDefault();
@@ -56,17 +66,4 @@ export function OverlayHud() {
       />
     </div>
   );
-}
-
-function layoutForPreset(preset: PlacementPreset): {
-  orientation: "vertical" | "horizontal";
-  cardGrowth: "left" | "right" | "up";
-} {
-  if (preset === "left-edge" || preset.startsWith("stage-manager")) {
-    return { orientation: "vertical", cardGrowth: "right" };
-  }
-  if (preset.startsWith("dock-flank")) {
-    return { orientation: "horizontal", cardGrowth: "up" };
-  }
-  return { orientation: "vertical", cardGrowth: "left" };
 }

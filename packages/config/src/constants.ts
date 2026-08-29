@@ -6,6 +6,8 @@ export type ProviderId = (typeof PROVIDER_IDS)[number];
 export const PLACEMENT_PRESETS = [
   "right-edge",
   "left-edge",
+  "top-edge",
+  "bottom-edge",
   "dock-flank-left",
   "dock-flank-right",
   "stage-manager-top",
@@ -44,6 +46,7 @@ export const HUD = {
   ringStroke: 3.25,
   itemGap: 20,
   percentFontSize: 12,
+  percentBlock: 18,
   cardWidth: 304,
   cardPadding: 16,
   cardRadius: 22,
@@ -53,6 +56,21 @@ export const HUD = {
   hoverOpenDelayMs: 80,
   hoverCloseDelayMs: 180,
   meterCountDefault: 3,
+  cardHeight: 188,
+} as const;
+
+export const MOTION = {
+  cardMs: 220,
+  ringMs: 560,
+  barMs: 420,
+  meterMs: 180,
+  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+  snapDistancePx: 56,
+  dragThresholdPx: 5,
+  meterHoverScale: 1.06,
+  closedCardShiftPx: 14,
+  closedCardScale: 0.96,
+  railShadow: "0 12px 40px rgba(0, 0, 0, 0.38)",
 } as const;
 
 export const PLACEMENT = {
@@ -88,6 +106,9 @@ export const IPC = {
   setPointerCapture: "capsule:set-pointer-capture",
   setExpanded: "capsule:set-expanded",
   contextMenu: "capsule:context-menu",
+  startMove: "capsule:start-move",
+  moveWindow: "capsule:move-window",
+  endMove: "capsule:end-move",
 } as const;
 
 export const COPY = {

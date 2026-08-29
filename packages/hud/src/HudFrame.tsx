@@ -1,13 +1,14 @@
-import { HUD } from "@capsule/config";
+import { HUD, MOTION } from "@capsule/config";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 
-export type CardGrowth = "left" | "right" | "up";
+export type CardGrowth = "left" | "right" | "up" | "down";
 
 export function HudFrame({
   orientation,
   cardGrowth,
   open,
   joinOffset,
+  dragging,
   rail,
   card,
 }: {
@@ -15,10 +16,12 @@ export function HudFrame({
   cardGrowth: CardGrowth;
   open: boolean;
   joinOffset: number;
+  dragging: boolean;
   rail: ReactNode;
   card: ReactNode;
 }): ReactElement {
   const radius = HUD.railRadius;
+  const motion = `${MOTION.cardMs}ms ${MOTION.easing}`;
   const railStyle: CSSProperties = {
     background: HUD.surface,
     display: "flex",
@@ -33,9 +36,13 @@ export function HudFrame({
     width: orientation === "vertical" ? HUD.railWidth : "auto",
     height: orientation === "horizontal" ? HUD.railWidth : "auto",
     boxSizing: "border-box",
-    borderRadius: open ? railRadius(cardGrowth, radius) : radius,
+    borderRadius: radius,
     position: "relative",
-    zIndex: 1,
+    zIndex: 2,
+    boxShadow: MOTION.railShadow,
+    cursor: dragging ? "grabbing" : "grab",
+    transition: `transform ${motion}, box-shadow ${motion}`,
+    transform: dragging ? "scale(1.02)" : "scale(1)",
   };
 
   const cardWrapStyle: CSSProperties = {
@@ -43,17 +50,22 @@ export function HudFrame({
     borderRadius: HUD.cardRadius,
     position: "relative",
     marginTop: orientation === "vertical" ? Math.max(0, joinOffset - 86) : 0,
-    display: open ? "block" : "none",
+    opacity: open && !dragging ? 1 : 0,
+    transform: cardTransform(open && !dragging, cardGrowth),
+    transformOrigin: cardOrigin(cardGrowth),
+    transition: `opacity ${motion}, transform ${motion}`,
+    pointerEvents: open && !dragging ? "auto" : "none",
+    boxShadow: MOTION.railShadow,
   };
-
-  const tailStyle: CSSProperties = tail(cardGrowth);
 
   const direction: CSSProperties =
     cardGrowth === "left"
       ? { flexDirection: "row" }
       : cardGrowth === "right"
         ? { flexDirection: "row-reverse" }
-        : { flexDirection: "column-reverse" };
+        : cardGrowth === "up"
+          ? { flexDirection: "column-reverse" }
+          : { flexDirection: "column" };
 
   return (
     <div
@@ -66,9 +78,13 @@ export function HudFrame({
         ...direction,
       }}
     >
-      <div style={cardWrapStyle}>
+      <div
+        data-card-wrap="true"
+        data-card-open={open ? "true" : "false"}
+        style={cardWrapStyle}
+      >
         {card}
-        <span style={tailStyle} />
+        <span style={tail(cardGrowth)} />
       </div>
       <div data-hud-rail="true" style={railStyle}>
         {rail}
@@ -77,14 +93,35 @@ export function HudFrame({
   );
 }
 
-function railRadius(growth: CardGrowth, radius: number): string {
+function cardOrigin(growth: CardGrowth): string {
   if (growth === "left") {
-    return `${radius}px 0 0 ${radius}px`;
+    return "right center";
   }
   if (growth === "right") {
-    return `0 ${radius}px ${radius}px 0`;
+    return "left center";
   }
-  return `${radius}px ${radius}px 0 0`;
+  if (growth === "up") {
+    return "center bottom";
+  }
+  return "center top";
+}
+
+function cardTransform(open: boolean, growth: CardGrowth): string {
+  if (open) {
+    return "translate(0, 0) scale(1)";
+  }
+  const shift = MOTION.closedCardShiftPx;
+  const scale = MOTION.closedCardScale;
+  if (growth === "left") {
+    return `translateX(${shift}px) scale(${scale})`;
+  }
+  if (growth === "right") {
+    return `translateX(-${shift}px) scale(${scale})`;
+  }
+  if (growth === "up") {
+    return `translateY(${shift}px) scale(${scale})`;
+  }
+  return `translateY(-${shift}px) scale(${scale})`;
 }
 
 function tail(growth: CardGrowth): CSSProperties {
@@ -115,13 +152,24 @@ function tail(growth: CardGrowth): CSSProperties {
       borderRight: `${size}px solid ${HUD.surface}`,
     };
   }
+  if (growth === "up") {
+    return {
+      ...base,
+      bottom: -size + 1,
+      left: "50%",
+      marginLeft: -size,
+      borderLeft: `${size}px solid transparent`,
+      borderRight: `${size}px solid transparent`,
+      borderTop: `${size}px solid ${HUD.surface}`,
+    };
+  }
   return {
     ...base,
-    bottom: -size + 1,
+    top: -size + 1,
     left: "50%",
     marginLeft: -size,
     borderLeft: `${size}px solid transparent`,
     borderRight: `${size}px solid transparent`,
-    borderTop: `${size}px solid ${HUD.surface}`,
+    borderBottom: `${size}px solid ${HUD.surface}`,
   };
 }

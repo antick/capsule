@@ -13,6 +13,13 @@ export const settingsSchema = z.object({
   demoMode: z.boolean(),
   pollIntervalMs: z.number().int().positive(),
   launchAtLogin: z.boolean(),
+  customPosition: z
+    .object({
+      x: z.number(),
+      y: z.number(),
+    })
+    .nullable()
+    .default(null),
 });
 
 export type CapsuleSettings = z.infer<typeof settingsSchema>;
@@ -24,5 +31,6 @@ export function defaultSettings(): CapsuleSettings {
     demoMode: true,
     pollIntervalMs: POLL_INTERVAL_MS,
     launchAtLogin: false,
+    customPosition: null,
   };
 }

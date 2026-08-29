@@ -114,6 +114,18 @@ app.whenReady().then(async () => {
       overlay.setExpanded(open, providerId);
     },
   );
+  ipcMain.on(IPC.startMove, (_event, screenX: number, screenY: number) => {
+    overlay.startMove(screenX, screenY);
+  });
+  ipcMain.on(IPC.moveWindow, (_event, screenX: number, screenY: number) => {
+    overlay.moveWindow(screenX, screenY);
+  });
+  ipcMain.handle(IPC.endMove, () => {
+    const next = overlay.endMove();
+    if (next) {
+      applySettings({ ...settings, ...next });
+    }
+  });
   ipcMain.on(IPC.contextMenu, () => {
     Menu.buildFromTemplate([
       { label: COPY.settings, click: () => void openSettingsWindow("/") },
@@ -130,7 +142,9 @@ app.whenReady().then(async () => {
   await poller.refresh();
   broadcast();
   overlay.show();
-  await openSettingsWindow("/");
+  if (!settings.demoMode && snapshots.every((item) => item.status !== "ok")) {
+    await openSettingsWindow("/onboarding");
+  }
 
   const chromeTimer = setInterval(() => {
     void overlay.relayout();

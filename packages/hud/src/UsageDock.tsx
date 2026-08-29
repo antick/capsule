@@ -1,11 +1,13 @@
 import {
   DEMO_NOW_ISO,
   HUD,
+  MOTION,
   type ProviderId,
   type UsageSnapshot,
 } from "@capsule/config";
 import {
   type MouseEvent,
+  type PointerEvent,
   type ReactElement,
   useEffect,
   useRef,
@@ -21,30 +23,44 @@ export function UsageDock({
   cardGrowth,
   now,
   forceOpenProviderId = null,
-  initialPinnedProviderId = null,
   onOpenChange,
   onContextMenu,
+  onMoveStart,
+  onMove,
+  onMoveEnd,
 }: {
   snapshots: UsageSnapshot[];
   orientation: "vertical" | "horizontal";
   cardGrowth: CardGrowth;
   now?: Date;
   forceOpenProviderId?: ProviderId | null;
-  initialPinnedProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
   onContextMenu?: (event: MouseEvent) => void;
+  onMoveStart?: (screenX: number, screenY: number) => void;
+  onMove?: (screenX: number, screenY: number) => void;
+  onMoveEnd?: () => void;
 }): ReactElement {
   const clock = now ?? new Date(DEMO_NOW_ISO);
   const [hovered, setHovered] = useState<ProviderId | null>(null);
-  const [pinned, setPinned] = useState<ProviderId | null>(
-    initialPinnedProviderId,
-  );
+  const [pinned, setPinned] = useState<ProviderId | null>(null);
+  const [dragging, setDragging] = useState(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const drag = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    active: boolean;
+  } | null>(null);
 
-  const openId = forceOpenProviderId ?? pinned ?? hovered;
+  const lastCard = useRef<UsageSnapshot | null>(null);
+  const openId = dragging ? null : (forceOpenProviderId ?? pinned ?? hovered);
   const openSnapshot =
     snapshots.find((item) => item.providerId === openId) ?? null;
+  if (openSnapshot) {
+    lastCard.current = openSnapshot;
+  }
+  const cardSnapshot = openSnapshot ?? lastCard.current;
 
   useEffect(() => {
     onOpenChange?.(openSnapshot !== null, openSnapshot?.providerId ?? null);
@@ -60,6 +76,9 @@ export function UsageDock({
   };
 
   const scheduleOpen = (id: ProviderId) => {
+    if (dragging) {
+      return;
+    }
     clearTimers();
     openTimer.current = setTimeout(() => {
       setHovered(id);
@@ -79,15 +98,69 @@ export function UsageDock({
   );
   const joinOffset =
     HUD.railPaddingY +
-    joinIndex * (HUD.meterSize + HUD.itemGap + 18) +
+    joinIndex * (HUD.meterSize + HUD.itemGap + HUD.percentBlock) +
     HUD.meterSize / 2;
+
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) {
+      return;
+    }
+    const target = event.target as HTMLElement;
+    if (target.closest("button")) {
+      return;
+    }
+    drag.current = {
+      pointerId: event.pointerId,
+      startX: event.screenX,
+      startY: event.screenY,
+      active: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const state = drag.current;
+    if (!state || state.pointerId !== event.pointerId) {
+      return;
+    }
+    const dx = event.screenX - state.startX;
+    const dy = event.screenY - state.startY;
+    const distance = Math.hypot(dx, dy);
+    if (!state.active && distance >= MOTION.dragThresholdPx) {
+      state.active = true;
+      setDragging(true);
+      setPinned(null);
+      setHovered(null);
+      clearTimers();
+      onMoveStart?.(event.screenX, event.screenY);
+    }
+    if (state.active) {
+      onMove?.(event.screenX, event.screenY);
+    }
+  };
+
+  const finishDrag = (event: PointerEvent<HTMLDivElement>) => {
+    const state = drag.current;
+    if (!state || state.pointerId !== event.pointerId) {
+      return;
+    }
+    if (state.active) {
+      onMoveEnd?.();
+    }
+    setDragging(false);
+    drag.current = null;
+  };
 
   return (
     <div
       data-usage-dock="true"
       role="application"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={finishDrag}
+      onPointerCancel={finishDrag}
       onPointerLeave={() => {
-        if (!pinned) {
+        if (!pinned && !dragging) {
           scheduleClose();
         }
       }}
@@ -99,6 +172,7 @@ export function UsageDock({
         cardGrowth={cardGrowth}
         open={openSnapshot !== null}
         joinOffset={joinOffset}
+        dragging={dragging}
         rail={snapshots.map((snapshot) => (
           <UsageMeter
             key={snapshot.providerId}
@@ -108,6 +182,9 @@ export function UsageDock({
             onPointerEnter={() => scheduleOpen(snapshot.providerId)}
             onPointerLeave={() => undefined}
             onClick={() => {
+              if (drag.current?.active) {
+                return;
+              }
               setPinned((current) =>
                 current === snapshot.providerId ? null : snapshot.providerId,
               );
@@ -116,14 +193,16 @@ export function UsageDock({
           />
         ))}
         card={
-          openSnapshot ? (
+          cardSnapshot ? (
             <div
               onPointerEnter={() => {
-                clearTimers();
-                setHovered(openSnapshot.providerId);
+                if (!dragging) {
+                  clearTimers();
+                  setHovered(cardSnapshot.providerId);
+                }
               }}
             >
-              <UsageCard snapshot={openSnapshot} now={clock} />
+              <UsageCard snapshot={cardSnapshot} now={clock} />
             </div>
           ) : null
         }
