@@ -19,6 +19,7 @@ All notable changes to Capsule are documented in this file.
 - Menu bar extra and Dock icon for Capsule, with Position shortcuts (right, left, bottom, and other placements) plus Open Settings.
 - Live Claude, Codex, and Grok usage from local CLI logins (`~/.claude`, `~/.codex`, `~/.grok`). Demo mode is now opt-in.
 - The dock now hides until it is needed, on by default in Settings → Appearance → Placement. At rest it retracts into the screen edge and leaves a slim latch behind; reaching for that latch unrolls the rail back out and the meters arrive one after another rather than all at once. The latch answers to a band around it rather than to its own few pixels, and carries a hairline so it stays visible on a dark desktop as well as a light one.
+- "Show Dock", in the menu bar extra, the dock's own context menu (⌘⇧D) and Settings → Appearance → Placement. A hidden dock is a few pixels of latch, which can be all but invisible on a dark wallpaper, so this unrolls it and holds it out for a few seconds before letting it retract on its own.
 - A provider whose usage is being fetched says so with a bright arc that chases round its ring. The numbers already on screen stay put underneath, and the rings clear one at a time as each provider's fetch lands. Clicking a meter asks for that provider to be read again, so the sweep is on demand as well as on the poll.
 
 ### Fixed

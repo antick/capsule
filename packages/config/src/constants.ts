@@ -145,6 +145,8 @@ export const MOTION = {
    * corner of the card on the way to something else does not dismiss it.
    */
   peekHoldMs: 460,
+  /** How long "Show Dock" keeps the dock out before it may retract again. */
+  revealHoldMs: 3200,
   /** Gap between one meter arriving and the next, during the unroll. */
   meterStaggerMs: 45,
   /** How small a meter is while it waits out of view. */
@@ -268,6 +270,12 @@ export const IPC = {
   endMove: "capsule:end-move",
   /** Re-poll one provider now, because the user asked for it. */
   refreshProvider: "capsule:refresh-provider",
+  /**
+   * Unroll the dock and hold it out, so someone who cannot find the latch —
+   * a few pixels of dark tab on what may be a dark wallpaper — can see where
+   * it lives.
+   */
+  revealDock: "capsule:reveal-dock",
 } as const;
 
 export const COPY = {
@@ -323,6 +331,9 @@ export const COPY = {
   autoHide: "Hide until needed",
   autoHideHint:
     "The dock rests as a slim latch in the screen edge and unrolls when you reach for it.",
+  showDock: "Show Dock",
+  showDockHint:
+    "Unrolls the dock and holds it there for a few seconds, for when you have lost track of the latch.",
   providersHint:
     "Capsule reads the logins these CLIs already keep on this Mac. Turn one off to hide its ring.",
   statusLabels: {

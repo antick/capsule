@@ -14,6 +14,7 @@ export interface AppChromeHandlers {
   getSettings: () => CapsuleSettings;
   applyPlacement: (preset: PlacementPreset) => void;
   openSettings: () => void;
+  revealDock: () => void;
   quit: () => void;
 }
 
@@ -57,6 +58,10 @@ export function capsuleCommandTemplate(
 ): MenuItemConstructorOptions[] {
   return [
     {
+      label: COPY.showDock,
+      click: () => handlers.revealDock(),
+    },
+    {
       label: COPY.openSettings,
       click: () => handlers.openSettings(),
     },
@@ -83,6 +88,11 @@ function applicationMenuTemplate(
       submenu: [
         { role: "about" },
         { type: "separator" },
+        {
+          label: COPY.showDock,
+          accelerator: "CommandOrControl+Shift+D",
+          click: () => handlers.revealDock(),
+        },
         {
           label: COPY.settings,
           accelerator: "CommandOrControl+,",

@@ -31,6 +31,10 @@ export interface CapsuleBridge {
   onPointerInside: (listener: (inside: boolean) => void) => () => void;
   /** Ask for one provider's usage to be fetched again, right now. */
   refreshProvider: (providerId: ProviderId) => void;
+  /** Ask for the dock to unroll and stay out for a moment. */
+  revealDock: () => void;
+  /** Fires on the overlay when that ask arrives. */
+  onRevealDock: (listener: () => void) => () => void;
   startMove: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
   showContextMenu: () => void;
@@ -87,6 +91,16 @@ const capsule: CapsuleBridge = {
   },
   refreshProvider: (providerId) => {
     ipcRenderer.send(IPC.refreshProvider, providerId);
+  },
+  revealDock: () => {
+    ipcRenderer.send(IPC.revealDock);
+  },
+  onRevealDock: (listener) => {
+    const handler = () => listener();
+    ipcRenderer.on(IPC.revealDock, handler);
+    return () => {
+      ipcRenderer.off(IPC.revealDock, handler);
+    };
   },
   startMove: (screenX, screenY) => {
     ipcRenderer.send(IPC.startMove, screenX, screenY);

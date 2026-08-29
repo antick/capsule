@@ -49,6 +49,7 @@ export function UsageDock({
   corner = null,
   autoHide = false,
   pointerInside = null,
+  revealNonce = 0,
   forceOpenProviderId = null,
   onOpenChange,
   onRefresh,
@@ -78,6 +79,12 @@ export function UsageDock({
    * a card open for good once the cursor left.
    */
   pointerInside?: boolean | null;
+  /**
+   * Bumped when the user asks "where is it?" from a menu. A hidden dock is a
+   * few pixels of tab that can vanish into a dark wallpaper, so this unrolls
+   * it and holds it out long enough to be spotted.
+   */
+  revealNonce?: number;
   forceOpenProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
   /** Fires when the user asks for a provider to be read again. */
@@ -97,9 +104,11 @@ export function UsageDock({
   const [pinned, setPinned] = useState<ProviderId | null>(null);
   const [dragging, setDragging] = useState(false);
   const [woken, setWoken] = useState(false);
+  const [held, setHeld] = useState(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const drag = useRef<{
     pointerId: number;
     startX: number;
@@ -109,7 +118,8 @@ export function UsageDock({
   const didDrag = useRef(false);
 
   // Retracted until something asks for it: a preview, a drag, or the pointer.
-  const peek = autoHide && !woken && !dragging && forceOpenProviderId === null;
+  const peek =
+    autoHide && !woken && !held && !dragging && forceOpenProviderId === null;
 
   const lastCard = useRef<UsageSnapshot | null>(null);
   const openId =
@@ -159,7 +169,7 @@ export function UsageDock({
   };
 
   const scheduleSleep = () => {
-    if (!autoHide || pinned || dragging) {
+    if (!autoHide || pinned || dragging || held) {
       return;
     }
     if (peekTimer.current) {
@@ -209,7 +219,7 @@ export function UsageDock({
     closeTimer.current = setTimeout(() => {
       setHovered(null);
     }, HUD.hoverCloseDelayMs);
-    if (autoHide) {
+    if (autoHide && !held) {
       peekTimer.current = setTimeout(() => {
         setWoken(false);
       }, MOTION.peekHoldMs);
@@ -223,6 +233,8 @@ export function UsageDock({
   leaveRef.current = leave;
   const wakeRef = useRef(wake);
   wakeRef.current = wake;
+  const pointerInsideRef = useRef(pointerInside);
+  pointerInsideRef.current = pointerInside;
   useEffect(() => {
     if (pointerInside === null) {
       return;
@@ -233,6 +245,31 @@ export function UsageDock({
     }
     leaveRef.current();
   }, [pointerInside]);
+
+  // "Show Dock": unroll and stay put for a beat, then go back to whatever the
+  // cursor says. Leaving it out for good would defeat hiding it in the first
+  // place, so the hold expires on its own.
+  useEffect(() => {
+    if (revealNonce === 0) {
+      return;
+    }
+    if (peekTimer.current) {
+      clearTimeout(peekTimer.current);
+    }
+    setWoken(true);
+    setHeld(true);
+    holdTimer.current = setTimeout(() => {
+      setHeld(false);
+      if (pointerInsideRef.current !== true) {
+        setWoken(false);
+      }
+    }, MOTION.revealHoldMs);
+    return () => {
+      if (holdTimer.current) {
+        clearTimeout(holdTimer.current);
+      }
+    };
+  }, [revealNonce]);
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) {

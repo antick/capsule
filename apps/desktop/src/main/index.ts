@@ -98,6 +98,7 @@ app.whenReady().then(async () => {
     openSettings: () => {
       openSettingsWindow("/");
     },
+    revealDock: () => overlay.reveal(),
     quit: () => app.quit(),
   });
 
@@ -149,6 +150,9 @@ app.whenReady().then(async () => {
   });
   ipcMain.on(IPC.refreshProvider, (_event, providerId: ProviderId) => {
     void poller.refreshProvider(providerId);
+  });
+  ipcMain.on(IPC.revealDock, () => {
+    overlay.reveal();
   });
   ipcMain.on(IPC.contextMenu, () => {
     // The dock outranks pop-up menus, so it has to step down for one.

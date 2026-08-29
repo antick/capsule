@@ -35,6 +35,8 @@ export function OverlayHud() {
   // Null until main's hit test has spoken, so the dock keeps trusting the DOM
   // on the very first frames.
   const [pointerInside, setPointerInside] = useState<boolean | null>(null);
+  // Counter rather than a flag: asking twice in a row has to reveal twice.
+  const [revealNonce, setRevealNonce] = useState(0);
   const appearance = useSystemAppearance();
   const host = useRef<HTMLDivElement>(null);
   const pressed = useRef(false);
@@ -82,6 +84,12 @@ export function OverlayHud() {
 
   useEffect(() => {
     return window.capsule?.onPointerInside(setPointerInside);
+  }, []);
+
+  useEffect(() => {
+    return window.capsule?.onRevealDock(() => {
+      setRevealNonce((current) => current + 1);
+    });
   }, []);
 
   const refreshProvider = useCallback((providerId: ProviderId) => {
@@ -194,6 +202,7 @@ export function OverlayHud() {
         corner={frame.corner}
         autoHide={settings.autoHide}
         pointerInside={pointerInside}
+        revealNonce={revealNonce}
         onRefresh={refreshProvider}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
         forceOpenProviderId={previewOpen ? "claude" : null}

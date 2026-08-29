@@ -73,6 +73,22 @@ export function AppearancePage() {
             />
           }
         />
+        {settings.autoHide ? (
+          <Row
+            label={COPY.showDock}
+            hint={COPY.showDockHint}
+            control={
+              <Button
+                variant="outline"
+                size="sm"
+                className="whitespace-nowrap"
+                onClick={() => window.capsule?.revealDock()}
+              >
+                {COPY.showDock}
+              </Button>
+            }
+          />
+        ) : null}
         <Row
           label={COPY.cornerArc}
           hint={COPY.cornerArcHint}

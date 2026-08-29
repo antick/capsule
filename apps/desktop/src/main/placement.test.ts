@@ -18,7 +18,9 @@ import {
   railLengthForCount,
   styleSupportsNotch,
 } from "@capsule/config";
-import { blobLayout, framePadding } from "@capsule/hud";
+// The geometry entry, not the barrel: this is a main-process test, and the
+// barrel would pull React components into a DOM-less project.
+import { blobLayout, framePadding } from "@capsule/hud/geometry";
 import { describe, expect, it } from "vitest";
 
 // A 14" MacBook Pro: notched display, menu bar at 38px, Dock at the bottom.
@@ -40,7 +42,7 @@ function isCompact(preset: PlacementPreset): boolean {
 /** Mirrors OverlayController.computeFor: the window the dock is given. */
 function place(
   preset: PlacementPreset,
-  scale = HUD_SCALE.default,
+  scale: number = HUD_SCALE.default,
   style: DockStyle = DOCK_STYLES.rail,
 ) {
   const m = hudMetrics(scale);

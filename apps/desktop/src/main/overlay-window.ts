@@ -195,6 +195,18 @@ export class OverlayController {
     // Window stays card-sized so the bubble can animate without clipping.
   }
 
+  /** Unrolls a hidden dock and holds it out, so it can be found again. */
+  reveal(): void {
+    const win = this.window;
+    if (!win || win.isDestroyed()) {
+      return;
+    }
+    if (!win.isVisible()) {
+      win.showInactive();
+    }
+    win.webContents.send(IPC.revealDock);
+  }
+
   /** Drops below pop-up menu level so a context menu draws over the dock. */
   suspendAlwaysOnTop(): void {
     this.window?.setAlwaysOnTop(true, MENU_SAFE_LEVEL);
