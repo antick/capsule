@@ -1,5 +1,7 @@
 import {
   type CapsuleSettings,
+  cornerIsBottom,
+  cornerIsRight,
   DEMO_NOW_ISO,
   DEMO_SNAPSHOTS,
   defaultSettings,
@@ -7,23 +9,29 @@ import {
   type HudAppearance,
   hudMetrics,
   layoutForPreset,
+  MOTION,
   type ProviderId,
   placeholderSnapshots,
   type Rect,
   resolveHudTheme,
   type UsageSnapshot,
 } from "@capsule/config";
-import { type HitRegions, UsageDock } from "@capsule/hud";
+import { type HitRegions, UsageDock, useAnimatedNumber } from "@capsule/hud";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { DockFrame } from "../../../preload/index.ts";
 
 export function OverlayHud() {
   const [snapshots, setSnapshots] = useState<UsageSnapshot[]>(() =>
     placeholderSnapshots(),
   );
   const [settings, setSettings] = useState<CapsuleSettings>(defaultSettings);
-  // The main process owns where the rail sits inside the window: only it knows
-  // how close the window has been pushed to a screen edge.
-  const [railBias, setRailBias] = useState<number | null>(null);
+  // The main process owns where the rail sits inside the window, and whether
+  // the dock has curled into a corner: only it knows how close the window has
+  // been pushed to a screen edge.
+  const [frame, setFrame] = useState<DockFrame>({
+    railBias: 0,
+    corner: null,
+  });
   const appearance = useSystemAppearance();
   const host = useRef<HTMLDivElement>(null);
   const pressed = useRef(false);
@@ -66,17 +74,18 @@ export function OverlayHud() {
   }, []);
 
   useEffect(() => {
-    return window.capsule?.onRailBias(setRailBias);
+    return window.capsule?.onDockFrame(setFrame);
   }, []);
 
   const layout = useMemo(
     () => layoutForPreset(settings.placementPreset),
     [settings.placementPreset],
   );
-  const metrics = useMemo(
-    () => hudMetrics(settings.hudScale),
-    [settings.hudScale],
-  );
+  // Resizing eases through the sizes in between rather than snapping. The
+  // window is only ever the bigger of the two ends while this runs, so the
+  // artwork can grow into it or shrink away from it without being clipped.
+  const scale = useAnimatedNumber(settings.hudScale, MOTION.zoomMs);
+  const metrics = useMemo(() => hudMetrics(scale), [scale]);
   const theme = useMemo(
     () => resolveHudTheme(settings.hudTheme, appearance),
     [settings.hudTheme, appearance],
@@ -86,7 +95,16 @@ export function OverlayHud() {
     [settings.dockStyle],
   );
 
-  const packToEnd = layout.cardGrowth === "left" || layout.cardGrowth === "up";
+  // The frame is pinned against the docked edge, and against the start of the
+  // edge it slides along — the rail bias does the rest of the positioning.
+  // That only shows while a resize is easing and the window is the larger of
+  // the two sizes, but it has to be right or the dock drifts as it zooms.
+  const packToEnd = frame.corner
+    ? cornerIsRight(frame.corner)
+    : layout.cardGrowth === "left";
+  const packToBottom = frame.corner
+    ? cornerIsBottom(frame.corner)
+    : layout.cardGrowth === "up";
   const previewOpen =
     typeof window !== "undefined" && window.location.hash === "#open";
 
@@ -113,7 +131,7 @@ export function OverlayHud() {
       width: rect.width,
       height: rect.height,
     });
-    const rects = [shift(regions.rail)];
+    const rects = regions.rail.map(shift);
     if (regions.open) {
       rects.push(shift(regions.open));
     }
@@ -143,7 +161,7 @@ export function OverlayHud() {
         height: "100%",
         display: "flex",
         justifyContent: packToEnd ? "flex-end" : "flex-start",
-        alignItems: layout.cardGrowth === "up" ? "flex-end" : "flex-start",
+        alignItems: packToBottom ? "flex-end" : "flex-start",
         pointerEvents: "none",
       }}
     >
@@ -161,7 +179,8 @@ export function OverlayHud() {
         orientation={layout.orientation}
         cardGrowth={layout.cardGrowth}
         notch={layout.notch}
-        railBias={railBias}
+        railBias={frame.railBias}
+        corner={frame.corner}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
         forceOpenProviderId={previewOpen ? "claude" : null}
         onOpenChange={onOpenChange}

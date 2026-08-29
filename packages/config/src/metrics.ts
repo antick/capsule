@@ -20,15 +20,25 @@ export function hudScaleSteps(): number[] {
   );
 }
 
+/**
+ * Holds a scale inside the supported range without rounding it to a step.
+ * Settings only ever store a step, but a resize eases through the sizes in
+ * between, and those have to be drawable or the animation is a staircase.
+ */
+export function hudScaleRange(scale: number): number {
+  if (!Number.isFinite(scale)) {
+    return HUD_SCALE.default;
+  }
+  return Math.min(HUD_SCALE.max, Math.max(HUD_SCALE.min, scale));
+}
+
+/** The nearest size the user can actually choose. */
 export function clampHudScale(scale: number): number {
   if (!Number.isFinite(scale)) {
     return HUD_SCALE.default;
   }
   const stepped = Math.round(scale / HUD_SCALE.step) * HUD_SCALE.step;
-  return Math.min(
-    HUD_SCALE.max,
-    Math.max(HUD_SCALE.min, Number(stepped.toFixed(2))),
-  );
+  return hudScaleRange(Number(stepped.toFixed(2)));
 }
 
 export function nextHudScale(scale: number, direction: 1 | -1): number {
@@ -130,7 +140,7 @@ function px(value: number, scale: number): number {
 }
 
 export function hudMetrics(scale: number = HUD_SCALE.default): HudMetrics {
-  const safe = clampHudScale(scale);
+  const safe = hudScaleRange(scale);
   const out = { scale: safe, unit: safe } as HudMetrics;
   for (const key of SCALED_KEYS) {
     out[key] = px(HUD_BASE[key], safe);

@@ -1,4 +1,5 @@
 import {
+  type Corner,
   cardHeightForBuckets,
   cardMessageHeight,
   DEMO_NOW_ISO,
@@ -25,6 +26,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { CornerFrame } from "./CornerFrame.tsx";
 import { type CardGrowth, type HitRegions, HudFrame } from "./HudFrame.tsx";
 import { UsageCard } from "./UsageCard.tsx";
 import { UsageMeter } from "./UsageMeter.tsx";
@@ -39,6 +41,7 @@ export function UsageDock({
   dockStyle = DOCK_STYLES.rail,
   now,
   railBias = null,
+  corner = null,
   forceOpenProviderId = null,
   onOpenChange,
   onContextMenu,
@@ -57,6 +60,8 @@ export function UsageDock({
   now?: Date;
   /** Where the rail sits inside its frame; the main process owns this. */
   railBias?: number | null;
+  /** Set when the dock has curled into a screen corner as an arc. */
+  corner?: Corner | null;
   forceOpenProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
   onContextMenu?: (event: MouseEvent) => void;
@@ -203,8 +208,53 @@ export function UsageDock({
 
   // A horizontal dock has to fit a meter's full height inside the rail's
   // thickness, so the percent caption is dropped rather than overflowing it.
-  const compact = orientation === "horizontal";
+  // A corner arc is the same story: the caption has nowhere to sit on a band
+  // that curves away under it.
+  const compact = orientation === "horizontal" || corner !== null;
   const isNotch = notch && styleSupportsNotch(dockStyle);
+
+  const meterNodes = meters.map((snapshot) => (
+    <UsageMeter
+      metrics={metrics}
+      theme={theme}
+      key={snapshot.providerId}
+      providerId={snapshot.providerId}
+      percent={snapshot.primaryPercent}
+      active={openId === snapshot.providerId}
+      compact={compact}
+      onPointerEnter={() => scheduleOpen(snapshot.providerId)}
+      onPointerLeave={() => undefined}
+      onClick={() => {
+        if (didDrag.current) {
+          didDrag.current = false;
+          return;
+        }
+        setPinned((current) =>
+          current === snapshot.providerId ? null : snapshot.providerId,
+        );
+        setHovered(snapshot.providerId);
+      }}
+    />
+  ));
+
+  const cardNode = cardSnapshot ? (
+    <div
+      style={{ width: "100%", height: "100%" }}
+      onPointerEnter={() => {
+        if (!dragging) {
+          clearTimers();
+          setHovered(cardSnapshot.providerId);
+        }
+      }}
+    >
+      <UsageCard
+        metrics={metrics}
+        theme={theme}
+        snapshot={cardSnapshot}
+        now={clock}
+      />
+    </div>
+  ) : null;
 
   return (
     <div
@@ -226,65 +276,40 @@ export function UsageDock({
       onContextMenu={onContextMenu}
       style={{ display: "inline-flex", pointerEvents: "none" }}
     >
-      <HudFrame
-        metrics={metrics}
-        theme={theme}
-        style={dockStyle}
-        orientation={orientation}
-        cardGrowth={cardGrowth}
-        notch={isNotch}
-        compact={compact}
-        open={openSnapshot !== null}
-        joinOffset={joinOffsetForIndex(metrics, activeJoinIndex, compact)}
-        dragging={dragging}
-        railLength={railLengthForCount(metrics, meters.length, compact)}
-        cardHeight={cardHeightFor(metrics, cardSnapshot)}
-        railBias={railBias}
-        onHitRegions={onHitRegions}
-        rail={meters.map((snapshot) => (
-          <UsageMeter
-            metrics={metrics}
-            theme={theme}
-            key={snapshot.providerId}
-            providerId={snapshot.providerId}
-            percent={snapshot.primaryPercent}
-            active={openId === snapshot.providerId}
-            compact={compact}
-            onPointerEnter={() => scheduleOpen(snapshot.providerId)}
-            onPointerLeave={() => undefined}
-            onClick={() => {
-              if (didDrag.current) {
-                didDrag.current = false;
-                return;
-              }
-              setPinned((current) =>
-                current === snapshot.providerId ? null : snapshot.providerId,
-              );
-              setHovered(snapshot.providerId);
-            }}
-          />
-        ))}
-        card={
-          cardSnapshot ? (
-            <div
-              style={{ width: "100%", height: "100%" }}
-              onPointerEnter={() => {
-                if (!dragging) {
-                  clearTimers();
-                  setHovered(cardSnapshot.providerId);
-                }
-              }}
-            >
-              <UsageCard
-                metrics={metrics}
-                theme={theme}
-                snapshot={cardSnapshot}
-                now={clock}
-              />
-            </div>
-          ) : null
-        }
-      />
+      {corner ? (
+        <CornerFrame
+          metrics={metrics}
+          theme={theme}
+          style={dockStyle}
+          corner={corner}
+          open={openSnapshot !== null}
+          dragging={dragging}
+          activeIndex={activeJoinIndex}
+          cardHeight={cardHeightFor(metrics, cardSnapshot)}
+          onHitRegions={onHitRegions}
+          meters={meterNodes}
+          card={cardNode}
+        />
+      ) : (
+        <HudFrame
+          metrics={metrics}
+          theme={theme}
+          style={dockStyle}
+          orientation={orientation}
+          cardGrowth={cardGrowth}
+          notch={isNotch}
+          compact={compact}
+          open={openSnapshot !== null}
+          joinOffset={joinOffsetForIndex(metrics, activeJoinIndex, compact)}
+          dragging={dragging}
+          railLength={railLengthForCount(metrics, meters.length, compact)}
+          cardHeight={cardHeightFor(metrics, cardSnapshot)}
+          railBias={railBias}
+          onHitRegions={onHitRegions}
+          rail={meterNodes}
+          card={cardNode}
+        />
+      )}
     </div>
   );
 }

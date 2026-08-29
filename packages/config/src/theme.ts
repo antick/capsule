@@ -15,8 +15,10 @@ export interface HudTheme {
   ringTrack: string;
   /** Unfilled part of a card bar. */
   barTrack: string;
-  /** Drop shadow colour, already carrying its own alpha. */
+  /** Ambient shadow colour, already carrying its own alpha. */
   shadow: string;
+  /** The tighter contact shadow under the same surface. */
+  shadowContact: string;
 }
 
 export const HUD_THEME_IDS = [
@@ -44,7 +46,8 @@ export const HUD_THEMES = {
     textMuted: "#8C8C8C",
     ringTrack: "#303030",
     barTrack: "#2E2E2E",
-    shadow: "rgba(0, 0, 0, 0.5)",
+    shadow: "rgba(0, 0, 0, 0.34)",
+    shadowContact: "rgba(0, 0, 0, 0.30)",
   },
   graphite: {
     id: "graphite",
@@ -57,7 +60,8 @@ export const HUD_THEMES = {
     textMuted: "#9A9AA1",
     ringTrack: "#3A3A3E",
     barTrack: "#3A3A3E",
-    shadow: "rgba(0, 0, 0, 0.45)",
+    shadow: "rgba(0, 0, 0, 0.30)",
+    shadowContact: "rgba(0, 0, 0, 0.26)",
   },
   ink: {
     id: "ink",
@@ -70,7 +74,8 @@ export const HUD_THEMES = {
     textMuted: "#7E8CAB",
     ringTrack: "#1E2A42",
     barTrack: "#1E2A42",
-    shadow: "rgba(4, 10, 26, 0.55)",
+    shadow: "rgba(4, 10, 26, 0.38)",
+    shadowContact: "rgba(4, 10, 26, 0.32)",
   },
   porcelain: {
     id: "porcelain",
@@ -83,7 +88,8 @@ export const HUD_THEMES = {
     textMuted: "#6B6B70",
     ringTrack: "#E4E4E9",
     barTrack: "#E4E4E9",
-    shadow: "rgba(0, 0, 0, 0.22)",
+    shadow: "rgba(16, 16, 20, 0.13)",
+    shadowContact: "rgba(16, 16, 20, 0.12)",
   },
   linen: {
     id: "linen",
@@ -96,7 +102,8 @@ export const HUD_THEMES = {
     textMuted: "#7B7365",
     ringTrack: "#E3DBCB",
     barTrack: "#E3DBCB",
-    shadow: "rgba(62, 48, 22, 0.2)",
+    shadow: "rgba(62, 48, 22, 0.13)",
+    shadowContact: "rgba(62, 48, 22, 0.12)",
   },
 } as const satisfies Record<HudThemeId, HudTheme>;
 

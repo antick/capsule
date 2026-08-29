@@ -38,11 +38,13 @@ describe("blobLayout", () => {
     expect(layout.rail.width).toBe(m.railWidth);
   });
 
-  it("leaves a visible gap between the tail tip and the rail", () => {
+  it("lands the tail on the rail rather than short of it", () => {
     const layout = layoutFor("left", 0);
-    expect(layout.rail.x - layout.tip.x).toBe(m.joinGap);
+    // Any daylight here shows the desktop through the join and splits the
+    // card off the dock as two separate objects.
+    expect(layout.tip.x).toBe(layout.rail.x);
     expect(layout.tip.x - (layout.card.x + layout.card.width)).toBe(
-      m.tailLength,
+      m.tailLength + m.joinGap,
     );
   });
 
@@ -143,7 +145,7 @@ describe("blobLayout", () => {
     const layout = layoutFor("right", 0);
     expect(layout.rail.x).toBe(0);
     expect(layout.card.x + layout.card.width).toBe(layout.width);
-    expect(layout.tip.x - layout.rail.width).toBe(m.joinGap);
+    expect(layout.tip.x).toBe(layout.rail.x + layout.rail.width);
   });
 
   it("scales the whole silhouette with the user's size preference", () => {
@@ -241,8 +243,9 @@ describe("hitRegions", () => {
   it("offers only the rail while the card is closed", () => {
     const regions = hitRegions(layoutFor("left", 0), pad, false);
     expect(regions.open).toBeNull();
-    expect(regions.rail.width).toBe(m.railWidth);
-    expect(regions.rail.x).toBe(layoutFor("left", 0).rail.x + pad.left);
+    expect(regions.rail).toHaveLength(1);
+    expect(regions.rail[0]?.width).toBe(m.railWidth);
+    expect(regions.rail[0]?.x).toBe(layoutFor("left", 0).rail.x + pad.left);
   });
 
   it("bridges the tail gap once the card is open", () => {

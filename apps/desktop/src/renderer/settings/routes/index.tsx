@@ -1,8 +1,8 @@
 import { COPY, clampHudScale } from "@capsule/config";
-import { Button } from "@capsule/ui";
+import { Button, Switch } from "@capsule/ui";
 import { DockPreview } from "../components/dock-preview.tsx";
 import { PlacementPicker } from "../components/placement-picker.tsx";
-import { Section } from "../components/section.tsx";
+import { Row, Section } from "../components/section.tsx";
 import { SizeStepper } from "../components/size-stepper.tsx";
 import { StylePicker } from "../components/style-picker.tsx";
 import { ThemePicker } from "../components/theme-picker.tsx";
@@ -60,6 +60,17 @@ export function AppearancePage() {
           value={settings.placementPreset}
           onChange={(preset) =>
             void update({ placementPreset: preset, customPosition: null })
+          }
+        />
+        <Row
+          label={COPY.cornerArc}
+          hint={COPY.cornerArcHint}
+          control={
+            <Switch
+              aria-label={COPY.cornerArc}
+              checked={settings.cornerArc}
+              onCheckedChange={(checked) => void update({ cornerArc: checked })}
+            />
           }
         />
       </Section>

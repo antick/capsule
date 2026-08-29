@@ -18,6 +18,7 @@ All notable changes to Capsule are documented in this file.
 - Hover/click to open the usage card with motion; drag the dock and snap it to a screen edge.
 - Menu bar extra and Dock icon for Capsule, with Position shortcuts (right, left, bottom, and other placements) plus Open Settings.
 - Live Claude, Codex, and Grok usage from local CLI logins (`~/.claude`, `~/.codex`, `~/.grok`). Demo mode is now opt-in.
+- "Curl into corners", off by default in Settings → Appearance → Placement. With it on, dragging the dock all the way to the end of an edge bends it into a quarter arc that traces the screen corner: the meters keep their spacing but ride the curve, the percent captions drop the way they do on the top edge, and the card squares up against the band and opens inward so it never lies across the ring.
 
 ### Changed
 
@@ -35,9 +36,12 @@ All notable changes to Capsule are documented in this file.
 - On the top edge the dock renders as a notch: compact rings without percent captions, hung from the physical top of the screen over the menu bar.
 - Capsule no longer takes a tile in the macOS Dock; it is reached from the menu bar and from the dock itself.
 - Settings is rebuilt around a sidebar with a live dock preview, a click-anywhere screen diagram for placement, the size stepper, and provider cards showing connection state and current usage.
+- The dock is lit like a card resting on the desktop: a tight contact shadow plus a wide ambient one at low alpha, instead of a single heavy cast. The old shadow spread a grey cloud over anything behind the card — directly under it a white window lost thirty levels of brightness across a band wider than the card itself.
 
 ### Fixed
 
+- Changing the dock's size eases between the two sizes instead of jumping. Every dimension was rounded to the nearest 10% step before it was drawn, so the animation could only land on the seven sizes the stepper offers and arrived as a staircase; the render path now draws the sizes in between, while settings still only ever store a step. The window is held at the larger of the two sizes for the length of the change so the artwork is never clipped on its way down, and it is anchored against the docked edge so the dock does not drift while it grows.
+- The rail and the card cast one shadow between them rather than one each, so the card no longer prints its own shadow across the rail at the join and split what should read as a single surface. The card's text sits outside the shadowed layer entirely.
 - Hovering and clicking the dock work again while another app is in front. macOS only forwards mouse-move events to a click-through window while the owning app is frontmost, so the renderer never learned the cursor had arrived and the dock stayed transparent to it — which also made dragging work only sometimes. The main process now reads the cursor position itself and hit-tests the regions the dock publishes, so nothing depends on which app has focus.
 - Capsule no longer starts with a usage card already open: a development-only hook that clicked a meter on launch to grab a screenshot has been removed.
 - Settings opens every time, from the menu bar and from the dock's own context menu. Re-opening asked the window that was already up to change its own page and waited for the answer; if that renderer was gone or minimised the answer never came, so the call hung and every later attempt silently did nothing. Nothing waits on the renderer now, a minimised window is restored, and a window whose load failed is thrown away instead of being handed to the next caller.

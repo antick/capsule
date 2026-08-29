@@ -106,6 +106,7 @@ app.whenReady().then(async () => {
 
   ipcMain.handle(IPC.getSettings, () => settings);
   ipcMain.handle(IPC.getSnapshots, () => ({ snapshots, settings }));
+  ipcMain.handle(IPC.getDockFrame, () => overlay.dockFrame());
   ipcMain.handle(IPC.setSettings, (_event, next: CapsuleSettings) =>
     applySettings(next),
   );

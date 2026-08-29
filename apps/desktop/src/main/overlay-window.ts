@@ -2,8 +2,11 @@ import { join } from "node:path";
 import {
   APP_NAME,
   type CapsuleSettings,
+  type Corner,
   cardHeightForBuckets,
   computePlacement,
+  cornerForRail,
+  cornerWindowSize,
   dockAlongEdge,
   dockEdgeGap,
   dockStyleFor,
@@ -19,8 +22,11 @@ import {
   presetForEdge,
   type Rect,
   railLengthForCount,
+  railStartForCorner,
   slideAlongEdge,
   styleSupportsNotch,
+  type WindowBox,
+  zoomHoldBounds,
 } from "@capsule/config";
 import { BrowserWindow, screen, shell } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
@@ -33,6 +39,7 @@ const MENU_SAFE_LEVEL = "floating";
 
 interface DragState {
   preset: PlacementPreset;
+  /** The edge placement, corner-free: the drag measures against its track. */
   placement: PlacementResult;
   /** Cursor offset from the leading edge of the rail, along the slide axis. */
   grabOffset: number;
@@ -55,8 +62,13 @@ export class OverlayController {
   private onPresetPreview: ((preset: PlacementPreset) => void) | null = null;
   /** Where the rail currently sits inside the window. */
   private railBias = 0;
+  /** Corner the dock has curled into, or null while it lies along an edge. */
+  private corner: Corner | null = null;
   /** What the renderer was last told, so a drag does not spam identical values. */
-  private publishedBias: number | null = null;
+  private publishedFrame: string | null = null;
+  /** Size the window was last laid out for; null until it is first placed. */
+  private appliedScale: number | null = null;
+  private zoomHold: ReturnType<typeof setTimeout> | null = null;
 
   constructor(settings: CapsuleSettings) {
     this.settings = settings;
@@ -124,8 +136,8 @@ export class OverlayController {
 
     win.webContents.on("did-finish-load", () => {
       // A fresh renderer knows nothing about the layout it was sized for.
-      this.publishedBias = null;
-      this.publishRailBias(this.railBias);
+      this.publishedFrame = null;
+      this.publishFrame(this.railBias, this.corner);
       win.showInactive();
       onReady?.();
     });
@@ -191,14 +203,18 @@ export class OverlayController {
       return;
     }
     const bounds = win.getBounds();
-    const placement = this.placementFor(this.settings.placementPreset);
-    if (!placement) {
-      return;
-    }
+    const placement = this.computeFor(
+      this.settings.placementPreset,
+      this.syntheticChrome(),
+      null,
+    );
     // Grab the rail, not the window: where the window has been stopped by a
-    // screen edge the two no longer move together.
+    // screen edge the two no longer move together. A curled dock has no rail
+    // to grab, so it re-enters the track at the end it curled from.
     const windowStart = placement.slide.axis === "x" ? bounds.x : bounds.y;
-    const railStart = windowStart + placement.slide.gutter + this.railBias;
+    const railStart = this.corner
+      ? railStartForCorner(placement.slide, this.corner)
+      : windowStart + placement.slide.gutter + this.railBias;
     this.drag = {
       preset: this.settings.placementPreset,
       placement,
@@ -267,62 +283,126 @@ export class OverlayController {
     if (!win || win.isDestroyed() || this.drag) {
       return null;
     }
-    const placement = await this.placementForAsync(
-      this.settings.placementPreset,
-    );
-    if (!placement) {
-      return null;
-    }
-    this.settingsDisplayId = placement.displayId;
+    const preset = this.settings.placementPreset;
+    const chrome = await this.chromeFor(preset);
+    const edge = this.computeFor(preset, chrome, null);
+    this.settingsDisplayId = edge.displayId;
+
     const custom = this.settings.customPosition;
-    let { x, y, railBias } = placement;
-    if (custom) {
-      // A remembered position only says how far along the edge the rail sits;
-      // the axis pinned to the edge always comes from the placement.
-      const placed = dockAlongEdge(
-        placement.slide,
-        placement.slide.axis === "x" ? custom.x : custom.y,
-      );
-      railBias = placed.railBias;
-      if (placement.slide.axis === "x") {
-        x = placed.window;
-      } else {
-        y = placed.window;
-      }
-    }
+    // A remembered position only says how far along the edge the rail sits;
+    // the axis pinned to the edge always comes from the placement.
+    const railStart = custom
+      ? edge.slide.axis === "x"
+        ? custom.x
+        : custom.y
+      : this.railStartOf(edge);
+    const corner = this.cornerFor(edge, railStart);
+    const placement = corner
+      ? this.computeFor(preset, chrome, corner)
+      : this.slid(edge, railStart);
+
     const bounds = {
-      x: Math.round(x),
-      y: Math.round(y),
+      x: Math.round(placement.x),
+      y: Math.round(placement.y),
       width: Math.round(placement.width),
       height: Math.round(placement.height),
     };
-    win.setBounds(bounds, false);
-    this.publishRailBias(railBias);
-    return { ...placement, x: bounds.x, y: bounds.y, railBias };
+    this.applyBounds(win, bounds, placement.cardGrowth);
+    this.publishFrame(placement.railBias, corner);
+    return { ...placement, x: bounds.x, y: bounds.y };
   }
 
-  /** Tells the renderer where to draw the rail inside the window it was given. */
-  private publishRailBias(bias: number): void {
+  /** The same placement, moved so its rail starts where it is asked to. */
+  private slid(placement: PlacementResult, railStart: number): PlacementResult {
+    const placed = dockAlongEdge(placement.slide, railStart);
+    return {
+      ...placement,
+      x: placement.slide.axis === "x" ? placed.window : placement.x,
+      y: placement.slide.axis === "y" ? placed.window : placement.y,
+      railBias: placed.railBias,
+    };
+  }
+
+  /**
+   * Moves the window, holding it at the larger size for the length of a resize
+   * so the renderer can ease the artwork between the two without being clipped
+   * by its own window. The window is transparent, so nobody sees the slack.
+   */
+  private applyBounds(
+    win: BrowserWindow,
+    bounds: WindowBox,
+    cardGrowth: PlacementResult["cardGrowth"],
+  ): void {
+    if (this.zoomHold) {
+      clearTimeout(this.zoomHold);
+      this.zoomHold = null;
+    }
+    const zooming =
+      this.appliedScale !== null &&
+      this.appliedScale !== this.settings.hudScale;
+    this.appliedScale = this.settings.hudScale;
+    if (!zooming) {
+      win.setBounds(bounds, false);
+      return;
+    }
+    win.setBounds(zoomHoldBounds(bounds, win.getBounds(), cardGrowth), false);
+    this.zoomHold = setTimeout(() => {
+      this.zoomHold = null;
+      if (!win.isDestroyed()) {
+        win.setBounds(bounds, false);
+      }
+    }, MOTION.zoomMs + MOTION.zoomSettleMs);
+  }
+
+  /** How the overlay should currently draw itself, for a renderer that asks. */
+  dockFrame(): { railBias: number; corner: Corner | null } {
+    return { railBias: this.railBias, corner: this.corner };
+  }
+
+  /** Tells the renderer how to draw itself in the window it was just given. */
+  private publishFrame(bias: number, corner: Corner | null): void {
     const win = this.window;
     if (!win || win.isDestroyed()) {
       return;
     }
-    const next = Math.round(bias);
-    this.railBias = next;
-    if (this.publishedBias === next) {
+    const frame = { railBias: Math.round(bias), corner };
+    this.railBias = frame.railBias;
+    this.corner = corner;
+    const key = JSON.stringify(frame);
+    if (this.publishedFrame === key) {
       return;
     }
-    this.publishedBias = next;
-    win.webContents.send(IPC.railBias, next);
+    this.publishedFrame = key;
+    win.webContents.send(IPC.dockFrame, frame);
   }
 
-  /** Window geometry for a preset on the display the dock currently lives on. */
-  private placementFor(preset: PlacementPreset): PlacementResult | null {
-    const displays = screen.getAllDisplays();
-    const display =
-      displays.find((item) => item.id === this.settingsDisplayId) ??
-      screen.getPrimaryDisplay();
-    return this.computeFor(preset, {
+  /**
+   * The corner the rail has reached, if the arc is switched on. Derived from
+   * where the rail sits rather than stored, so a corner dock uncurls by itself
+   * when the screen it is on changes size.
+   */
+  private cornerFor(edge: PlacementResult, railStart: number): Corner | null {
+    if (!this.settings.cornerArc) {
+      return null;
+    }
+    return cornerForRail(
+      edge.edge,
+      edge.slide,
+      railStart,
+      PLACEMENT.cornerSnapPx,
+    );
+  }
+
+  /** Where the rail's leading edge sits, given a placement's own window. */
+  private railStartOf(placement: PlacementResult): number {
+    const axis = placement.slide.axis === "x" ? placement.x : placement.y;
+    return axis + placement.slide.gutter + placement.railBias;
+  }
+
+  /** The display the dock currently lives on, without asking the system Dock. */
+  private syntheticChrome(): Parameters<typeof computePlacement>[1] {
+    const display = this.currentDisplay();
+    return {
       display: {
         id: display.id,
         bounds: display.bounds,
@@ -331,34 +411,42 @@ export class OverlayController {
       // Dock metrics only matter for the bottom preset, and the work-area
       // inset already tells us the Dock's thickness during a drag.
       dock: { orientation: "bottom", autohide: false, tilesize: 48 },
-    });
+    };
   }
 
-  private async placementForAsync(
-    preset: PlacementPreset,
-  ): Promise<PlacementResult | null> {
+  private currentDisplay() {
     const displays = screen.getAllDisplays();
-    const display =
+    return (
       displays.find((item) => item.id === this.settingsDisplayId) ??
-      screen.getPrimaryDisplay();
-    const chrome = await readChromeSnapshot({
+      screen.getPrimaryDisplay()
+    );
+  }
+
+  private async chromeFor(
+    _preset: PlacementPreset,
+  ): Promise<Parameters<typeof computePlacement>[1]> {
+    const display = this.currentDisplay();
+    return readChromeSnapshot({
       id: display.id,
       bounds: display.bounds,
       workArea: display.workArea,
     });
-    return this.computeFor(preset, chrome);
   }
 
   private computeFor(
     preset: PlacementPreset,
     chrome: Parameters<typeof computePlacement>[1],
+    corner: Corner | null,
   ): PlacementResult {
     const metrics = hudMetrics(this.settings.hudScale);
     const style = dockStyleFor(this.settings.dockStyle);
     const notchAllowed = styleSupportsNotch(style);
     // Matches UsageDock: a dock lying along an edge drops its percent
-    // captions, which makes its rail shorter than a vertical one.
-    const compact = preset === "top-edge" || preset === "bottom-edge";
+    // captions, which makes its rail shorter than a vertical one. An arc drops
+    // them too, so a corner dock measures as a compact one.
+    const compact =
+      corner !== null || preset === "top-edge" || preset === "bottom-edge";
+    const cardHeight = cardHeightForBuckets(metrics, HUD.maxCardBuckets);
     return computePlacement(
       preset,
       chrome,
@@ -368,15 +456,20 @@ export class OverlayController {
         cardWidth: metrics.cardWidth,
         // Sized for the tallest card, since the window cannot resize itself
         // mid-animation without the bubble tearing.
-        cardHeight: cardHeightForBuckets(metrics, HUD.maxCardBuckets),
+        cardHeight,
         expanded: true,
         shadowPadding: metrics.shadowPadding,
         joinWidth: metrics.tailLength + metrics.joinGap,
         edgeFlare: metrics.edgeFlare * style.flare,
         edgeGap: dockEdgeGap(metrics, style),
+        corner: cornerWindowSize(metrics, {
+          meterCount: this.meterCount,
+          cardHeight,
+          style,
+        }),
       },
       PLACEMENT,
-      { notchAllowed },
+      { notchAllowed, corner },
     );
   }
 
@@ -399,16 +492,13 @@ export class OverlayController {
     let placement = drag.placement;
     if (preset !== drag.preset || display.id !== placement.displayId) {
       this.settingsDisplayId = display.id;
-      const next = this.placementFor(preset);
-      if (next) {
-        placement = next;
-        // Re-grab the rail from its middle so the dock does not lurch when it
-        // rotates onto a new edge.
-        drag.grabOffset = placement.slide.railLength / 2;
-        drag.preset = preset;
-        drag.placement = placement;
-        this.onPresetPreview?.(preset);
-      }
+      placement = this.computeFor(preset, this.syntheticChrome(), null);
+      // Re-grab the rail from its middle so the dock does not lurch when it
+      // rotates onto a new edge.
+      drag.grabOffset = placement.slide.railLength / 2;
+      drag.preset = preset;
+      drag.placement = placement;
+      this.onPresetPreview?.(preset);
     }
 
     const next = slideAlongEdge({
@@ -419,16 +509,27 @@ export class OverlayController {
       grabOffset: drag.grabOffset,
     });
     drag.railStart = next.railStart;
+    const corner = this.cornerFor(placement, next.railStart);
+    const curled = corner
+      ? this.computeFor(preset, this.syntheticChrome(), corner)
+      : null;
     win.setBounds(
-      {
-        x: next.x,
-        y: next.y,
-        width: Math.round(placement.width),
-        height: Math.round(placement.height),
-      },
+      curled
+        ? {
+            x: Math.round(curled.x),
+            y: Math.round(curled.y),
+            width: Math.round(curled.width),
+            height: Math.round(curled.height),
+          }
+        : {
+            x: next.x,
+            y: next.y,
+            width: Math.round(placement.width),
+            height: Math.round(placement.height),
+          },
       false,
     );
-    this.publishRailBias(next.railBias);
+    this.publishFrame(curled ? 0 : next.railBias, corner);
   }
 
   private startHoverTracking(): void {

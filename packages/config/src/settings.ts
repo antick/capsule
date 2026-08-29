@@ -106,6 +106,8 @@ export const settingsSchema = z.preprocess(
       .default("auto")
       .catch("auto"),
     dockStyle: z.enum(DOCK_STYLE_IDS).default("rail").catch("rail"),
+    /** Let the dock curl into a quarter arc when it reaches a screen corner. */
+    cornerArc: z.boolean().default(false).catch(false),
     customPosition: z
       .object({
         x: z.number(),
@@ -129,6 +131,7 @@ export function defaultSettings(): CapsuleSettings {
     hudScale: HUD_SCALE.default,
     hudTheme: "auto",
     dockStyle: "rail",
+    cornerArc: false,
     customPosition: null,
     schemaVersion: SCHEMA_VERSION,
   };

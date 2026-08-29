@@ -85,6 +85,20 @@ describe("hud scale", () => {
     expect(clampHudScale(0.823)).toBe(0.8);
   });
 
+  it("draws the sizes between two steps, so a resize can ease through them", () => {
+    // Settings only ever store a step, but the dock eases between them on a
+    // resize. Snapping here would turn that into a seven-frame staircase.
+    const widths = new Set<number>();
+    for (let scale = 1; scale <= 1.1 + 1e-9; scale += 0.01) {
+      widths.add(hudMetrics(scale).railWidth);
+    }
+    expect(widths.size).toBeGreaterThan(2);
+    expect(hudMetrics(99).railWidth).toBe(hudMetrics(HUD_SCALE.max).railWidth);
+    expect(hudMetrics(Number.NaN).railWidth).toBe(
+      hudMetrics(HUD_SCALE.default).railWidth,
+    );
+  });
+
   it("steps up and down without escaping the range", () => {
     expect(nextHudScale(HUD_SCALE.max, 1)).toBe(HUD_SCALE.max);
     expect(nextHudScale(HUD_SCALE.min, -1)).toBe(HUD_SCALE.min);

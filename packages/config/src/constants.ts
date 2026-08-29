@@ -68,6 +68,12 @@ export const HUD = {
    * taller-than-usual card is never clipped by the frame it opens inside.
    */
   maxCardBuckets: 3,
+  /**
+   * Smallest corner arc, as a multiple of the rail's thickness. Without a floor
+   * a one- or two-meter arc curls up so tightly it reads as a blob rather than
+   * a band tracing the corner.
+   */
+  cornerMinRadiusRatio: 1.6,
 } as const;
 
 /**
@@ -119,6 +125,10 @@ export const MOTION = {
   openMs: 260,
   closeMs: 170,
   slideMs: 320,
+  /** Resizing the dock eases through the sizes in between instead of jumping. */
+  zoomMs: 280,
+  /** Grace before the window shrinks back onto the eased-down artwork. */
+  zoomSettleMs: 60,
   ringMs: 560,
   barMs: 420,
   meterMs: 180,
@@ -140,9 +150,16 @@ export const MOTION = {
   meterIdleOpacity: 0.92,
   closedBubbleScale: 0.62,
   liftScale: 1.04,
-  shadowDy: 12,
-  shadowBlur: 22,
-  shadowOpacity: 0.5,
+  /**
+   * The dock is lit like a card resting on the desktop: a tight contact shadow
+   * that reads as the edge meeting the surface, and a wider ambient one at low
+   * alpha. A single heavy cast instead spreads a grey cloud across whatever is
+   * behind it, which is glaring over a pale window.
+   */
+  shadowContactDy: 1,
+  shadowContactBlur: 3,
+  shadowDy: 6,
+  shadowBlur: 14,
 } as const;
 
 export const PLACEMENT = {
@@ -155,6 +172,11 @@ export const PLACEMENT = {
   dockFlankMarginPx: 12,
   /** Keeps the notch clear of the camera housing on notched displays. */
   notchSideInsetPx: 8,
+  /**
+   * How close to the end of its travel the rail has to be before the dock
+   * curls into the corner, when the corner arc is switched on.
+   */
+  cornerSnapPx: 28,
 } as const;
 
 export const POLL_INTERVAL_MS = 60_000;
@@ -198,8 +220,14 @@ export const IPC = {
   setExpanded: "capsule:set-expanded",
   /** Main tells an open settings window which page to show. */
   navigate: "capsule:navigate",
-  /** Main tells the overlay where the rail sits inside its frame. */
-  railBias: "capsule:rail-bias",
+  /**
+   * Main tells the overlay how to draw itself in the window it was just given:
+   * where the rail sits inside that window, and whether it has curled into a
+   * corner. Both change together during a drag, so they travel together.
+   */
+  dockFrame: "capsule:dock-frame",
+  /** The same, pulled by a renderer that has just (re)loaded. */
+  getDockFrame: "capsule:get-dock-frame",
   contextMenu: "capsule:context-menu",
   startMove: "capsule:start-move",
   endMove: "capsule:end-move",
@@ -252,6 +280,9 @@ export const COPY = {
   recentre: "Re-centre",
   recentreHint:
     "Forget where the dock was last dragged and centre it on its edge.",
+  cornerArc: "Curl into corners",
+  cornerArcHint:
+    "Drag the dock all the way to a corner and it bends into a quarter arc that traces it.",
   providersHint:
     "Capsule reads the logins these CLIs already keep on this Mac. Turn one off to hide its ring.",
   statusLabels: {

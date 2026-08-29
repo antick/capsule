@@ -1,11 +1,18 @@
 import {
   type CapsuleSettings,
+  type Corner,
   IPC,
   type ProviderId,
   type Rect,
   type UsageSnapshot,
 } from "@capsule/config";
 import { contextBridge, ipcRenderer } from "electron";
+
+/** How the overlay should draw itself inside the window main just gave it. */
+export interface DockFrame {
+  railBias: number;
+  corner: Corner | null;
+}
 
 export interface CapsuleBridge {
   getSettings: () => Promise<CapsuleSettings>;
@@ -18,8 +25,8 @@ export interface CapsuleBridge {
   setExpanded: (open: boolean, providerId: ProviderId | null) => void;
   /** Fires when main asks this window to show a different page. */
   onNavigate: (listener: (hash: string) => void) => () => void;
-  /** Fires when the dock's offset inside its window changes. */
-  onRailBias: (listener: (bias: number) => void) => () => void;
+  /** Fires when the dock's offset inside its window, or its corner, changes. */
+  onDockFrame: (listener: (frame: DockFrame) => void) => () => void;
   startMove: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
   showContextMenu: () => void;
@@ -54,11 +61,17 @@ const capsule: CapsuleBridge = {
       ipcRenderer.off(IPC.navigate, handler);
     };
   },
-  onRailBias: (listener) => {
-    const handler = (_event: unknown, bias: number) => listener(bias);
-    ipcRenderer.on(IPC.railBias, handler);
+  onDockFrame: (listener) => {
+    const handler = (_event: unknown, frame: DockFrame) => listener(frame);
+    ipcRenderer.on(IPC.dockFrame, handler);
+    // Main publishes on did-finish-load, which lands before React has mounted
+    // and subscribed, so ask for the current frame rather than wait for the
+    // next one — otherwise a reload draws the dock as if it were on an edge.
+    void ipcRenderer
+      .invoke(IPC.getDockFrame)
+      .then((frame: DockFrame) => listener(frame));
     return () => {
-      ipcRenderer.off(IPC.railBias, handler);
+      ipcRenderer.off(IPC.dockFrame, handler);
     };
   },
   startMove: (screenX, screenY) => {

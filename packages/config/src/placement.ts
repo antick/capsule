@@ -1,4 +1,5 @@
 import { PLACEMENT, type PlacementPreset } from "./constants.ts";
+import { type Corner, cornerIsBottom, cornerIsRight } from "./corner.ts";
 
 export interface Rect {
   x: number;
@@ -33,6 +34,8 @@ export interface HudSize {
   edgeFlare: number;
   /** Gap the dock style leaves between itself and the screen edge. */
   edgeGap: number;
+  /** Window the corner arc needs, when the corner arc is switched on. */
+  corner?: { width: number; height: number };
 }
 
 export type ScreenEdge = "left" | "right" | "top" | "bottom";
@@ -80,6 +83,8 @@ export interface PlacementResult {
   slide: SlideTrack;
   /** Where the rail sits inside its frame, given `x`/`y`. */
   railBias: number;
+  /** Set when the dock has curled into a screen corner instead. */
+  corner: Corner | null;
 }
 
 export function edgeForPreset(preset: PlacementPreset): ScreenEdge {
@@ -123,6 +128,38 @@ export function layoutForPreset(preset: PlacementPreset): {
     return { orientation: "horizontal", cardGrowth: "up", notch: false };
   }
   return { orientation: "vertical", cardGrowth: "left", notch: false };
+}
+
+export interface WindowBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * A window big enough to hold both sizes at once, anchored where the frame is
+ * anchored: against the docked edge, and against the start of the edge it
+ * slides along. Resizing the dock eases the artwork between two sizes, so for
+ * those few frames the window has to be the larger of the two or the artwork
+ * is clipped on the way down. Growing away from the frame's own anchor keeps
+ * the dock still while it happens.
+ */
+export function zoomHoldBounds(
+  target: WindowBox,
+  current: WindowBox,
+  cardGrowth: PlacementResult["cardGrowth"],
+): WindowBox {
+  const width = Math.max(target.width, current.width);
+  const height = Math.max(target.height, current.height);
+  return {
+    // Only a right-edge dock is pinned by its right side; only a bottom-edge
+    // dock is pinned by its bottom.
+    x: cardGrowth === "left" ? target.x + target.width - width : target.x,
+    y: cardGrowth === "up" ? target.y + target.height - height : target.y,
+    width,
+    height,
+  };
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -218,13 +255,47 @@ function centerInRange(start: number, span: number, size: number): number {
   return Math.round(start + (span - size) / 2);
 }
 
+/**
+ * Swaps the edge window for the corner one. The slide track is left alone: it
+ * is what the drag keeps measuring against, and it is how the dock knows the
+ * cursor has pulled far enough back along the edge to uncurl again.
+ */
+function applyCorner(
+  result: PlacementResult,
+  corner: Corner | null,
+  hud: HudSize,
+  bounds: Rect,
+): PlacementResult {
+  if (!corner || !hud.corner) {
+    return result;
+  }
+  const { width, height } = hud.corner;
+  return {
+    ...result,
+    corner,
+    x: Math.round(
+      cornerIsRight(corner) ? bounds.x + bounds.width - width : bounds.x,
+    ),
+    y: Math.round(
+      cornerIsBottom(corner) ? bounds.y + bounds.height - height : bounds.y,
+    ),
+    width,
+    height,
+    railBias: 0,
+  };
+}
+
 export function computePlacement(
   preset: PlacementPreset,
   chrome: ChromeSnapshot,
   hud: HudSize,
   constants: typeof PLACEMENT = PLACEMENT,
-  /** Dock styles that visibly float cannot pass for a notch. */
-  options: { notchAllowed?: boolean } = {},
+  options: {
+    /** Dock styles that visibly float cannot pass for a notch. */
+    notchAllowed?: boolean;
+    /** Corner the dock has curled into, if the corner arc is switched on. */
+    corner?: Corner | null;
+  } = {},
 ): PlacementResult {
   const { bounds, workArea, id } = chrome.display;
   const layout = layoutForPreset(preset);
@@ -251,19 +322,25 @@ export function computePlacement(
       track,
       centerInRange(workArea.y, workArea.height, extents.rail),
     );
-    return {
-      displayId: id,
-      x: edge === "right" ? bounds.x + bounds.width - size.width : bounds.x,
-      y: placed.window,
-      ...size,
-      orientation,
-      cardGrowth,
-      edge,
-      visualPreset: preset,
-      notch,
-      slide: track,
-      railBias: placed.railBias,
-    };
+    return applyCorner(
+      {
+        displayId: id,
+        x: edge === "right" ? bounds.x + bounds.width - size.width : bounds.x,
+        y: placed.window,
+        ...size,
+        orientation,
+        cardGrowth,
+        edge,
+        visualPreset: preset,
+        notch,
+        slide: track,
+        railBias: placed.railBias,
+        corner: null,
+      },
+      options.corner ?? null,
+      hud,
+      bounds,
+    );
   }
 
   const size = horizontalWindowSize(hud);
@@ -284,19 +361,25 @@ export function computePlacement(
       track,
       centerInRange(bounds.x, bounds.width, extents.rail),
     );
-    return {
-      displayId: id,
-      x: placed.window,
-      y: bounds.y,
-      ...size,
-      orientation,
-      cardGrowth,
-      edge,
-      visualPreset: preset,
-      notch,
-      slide: track,
-      railBias: placed.railBias,
-    };
+    return applyCorner(
+      {
+        displayId: id,
+        x: placed.window,
+        y: bounds.y,
+        ...size,
+        orientation,
+        cardGrowth,
+        edge,
+        visualPreset: preset,
+        notch,
+        slide: track,
+        railBias: placed.railBias,
+        corner: null,
+      },
+      options.corner ?? null,
+      hud,
+      bounds,
+    );
   }
 
   // Bottom: sit on the physical screen bottom, the same edge the Dock sits on,
@@ -316,17 +399,23 @@ export function computePlacement(
   };
   const placed = dockAlongEdge(track, sharesTheEdge ? besideDock() : centred);
 
-  return {
-    displayId: id,
-    x: placed.window,
-    y: Math.round(bounds.y + bounds.height - size.height),
-    ...size,
-    orientation,
-    cardGrowth,
-    edge,
-    visualPreset: preset,
-    notch,
-    slide: track,
-    railBias: placed.railBias,
-  };
+  return applyCorner(
+    {
+      displayId: id,
+      x: placed.window,
+      y: Math.round(bounds.y + bounds.height - size.height),
+      ...size,
+      orientation,
+      cardGrowth,
+      edge,
+      visualPreset: preset,
+      notch,
+      slide: track,
+      railBias: placed.railBias,
+      corner: null,
+    },
+    options.corner ?? null,
+    hud,
+    bounds,
+  );
 }

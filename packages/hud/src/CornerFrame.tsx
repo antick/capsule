@@ -1,4 +1,5 @@
 import {
+  type Corner,
   cardHeightForBuckets,
   DOCK_STYLES,
   type DockStyle,
@@ -8,86 +9,60 @@ import {
   type HudTheme,
   MOTION,
 } from "@capsule/config";
-import { type ReactElement, type ReactNode, useEffect } from "react";
 import {
-  blobLayout,
-  bubbleOrigin,
-  bubblePath,
-  type CardGrowth,
-  cardOrigin,
-  framePadding,
-  type HitRegions,
-  hitRegions,
-  railPath,
-} from "./blob-path.ts";
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+  useEffect,
+} from "react";
+import type { HitRegions } from "./blob-path.ts";
+import { cornerLayout } from "./corner-path.ts";
 import { dockShadow } from "./shadow.ts";
-import { useAnimatedNumber } from "./use-animated-number.ts";
 
-export type { CardGrowth, HitRegions };
-
-export function HudFrame({
+/**
+ * The dock curled into a screen corner: a quarter-ring bridging the two edges
+ * with the meters spread along it, and the card hanging off the active meter
+ * on the same radius. Shares the edge dock's rule that the card and the rail
+ * are one surface — the spur runs back into the band.
+ */
+export function CornerFrame({
   metrics,
   theme = HUD_THEMES.midnight,
   style = DOCK_STYLES.rail,
-  orientation,
-  cardGrowth,
-  notch,
-  compact,
+  corner,
   open,
-  joinOffset,
   dragging,
-  railLength,
+  activeIndex,
   cardHeight,
-  railBias = null,
-  rail,
+  meters,
   card,
   onHitRegions,
 }: {
   metrics: HudMetrics;
   theme?: HudTheme;
   style?: DockStyle;
-  orientation: "vertical" | "horizontal";
-  cardGrowth: CardGrowth;
-  notch?: boolean;
-  /** Horizontal docks drop the percent caption to stay edge-thin. */
-  compact?: boolean;
+  corner: Corner;
   open: boolean;
-  joinOffset: number;
   dragging: boolean;
-  railLength: number;
+  activeIndex: number;
   cardHeight?: number;
-  /** Where the rail sits inside the frame, from the placement engine. */
-  railBias?: number | null;
-  rail: ReactNode;
+  /** One node per meter, positioned on the arc rather than stacked. */
+  meters: ReactNode[];
   card: ReactNode;
   onHitRegions?: (regions: HitRegions) => void;
 }): ReactElement {
   const height = cardHeight ?? cardHeightForBuckets(metrics, 2);
-  // The tail slides between meters instead of jumping.
-  const join = useAnimatedNumber(joinOffset, MOTION.slideMs);
-  const layout = blobLayout(metrics, {
-    cardGrowth,
-    railLength,
-    joinOffset: join,
+  const layout = cornerLayout(metrics, {
+    corner,
+    meterCount: meters.length,
     cardHeight: height,
     cardReserve: cardHeightForBuckets(metrics, HUD.maxCardBuckets),
+    activeIndex,
     style,
-    railBias,
   });
-  const pad = framePadding(metrics, cardGrowth, style);
   const visible = open && !dragging;
-  const interactive = visible;
   const shadow = dockShadow(metrics, theme);
-  const alongPadding = compact ? metrics.notchPaddingY : metrics.railPaddingY;
-  const railPadding =
-    orientation === "vertical"
-      ? `${alongPadding}px ${metrics.railPaddingX}px`
-      : `${metrics.railPaddingX}px ${alongPadding}px`;
-
-  const railShape = railPath(metrics, cardGrowth, layout, { notch, style });
-  const bubbleShape = bubblePath(metrics, cardGrowth, layout);
-  // The card's own reveal, shared by its silhouette and its contents — they
-  // live in different layers so that the shadow filter never touches the text.
+  const pad = layout.padding;
   const reveal = {
     opacity: visible ? 1 : 0,
     transform: visible ? "scale(1)" : `scale(${MOTION.closedBubbleScale})`,
@@ -97,9 +72,7 @@ export function HudFrame({
     willChange: "transform, opacity",
   } as const;
 
-  // Serialised so the effect fires on a geometry change rather than on every
-  // render, since the regions themselves are rebuilt each time.
-  const hitKey = JSON.stringify(hitRegions(layout, pad, interactive));
+  const hitKey = JSON.stringify(regionsFor(layout, pad, visible));
   useEffect(() => {
     onHitRegions?.(JSON.parse(hitKey) as HitRegions);
   }, [hitKey, onHitRegions]);
@@ -107,6 +80,7 @@ export function HudFrame({
   return (
     <div
       data-hud-frame="true"
+      data-hud-corner={corner}
       style={{
         position: "relative",
         boxSizing: "border-box",
@@ -128,9 +102,6 @@ export function HudFrame({
           height: layout.height,
         }}
       >
-        {/* Rail and card share one shadow. Giving each its own would print the
-            card's shadow across the rail at the join and split the surface in
-            two again. */}
         <div
           data-hud-silhouette="true"
           style={{
@@ -151,13 +122,10 @@ export function HudFrame({
               inset: 0,
               overflow: "visible",
               pointerEvents: "none",
-              transform: dragging ? `scale(${MOTION.liftScale})` : "scale(1)",
-              transformOrigin: railOrigin(cardGrowth),
-              transition: `transform ${MOTION.openMs}ms ${MOTION.easing}`,
             }}
           >
             <path
-              d={railShape}
+              d={layout.arc}
               fill={theme.surface}
               data-hud-hit="true"
               style={{
@@ -167,7 +135,7 @@ export function HudFrame({
             />
             {style.outline ? (
               <path
-                d={railShape}
+                d={layout.arc}
                 fill="none"
                 stroke={theme.surfaceEdge}
                 strokeWidth={1}
@@ -188,19 +156,19 @@ export function HudFrame({
               inset: 0,
               overflow: "visible",
               pointerEvents: "none",
-              transformOrigin: bubbleOrigin(layout),
+              transformOrigin: `${layout.tip.x}px ${layout.tip.y}px`,
               ...reveal,
             }}
           >
             <path
-              d={bubbleShape}
+              d={layout.bubble}
               fill={theme.surface}
-              data-hud-hit={interactive ? "true" : undefined}
-              style={{ pointerEvents: interactive ? "fill" : "none" }}
+              data-hud-hit={visible ? "true" : undefined}
+              style={{ pointerEvents: visible ? "fill" : "none" }}
             />
             {style.outline ? (
               <path
-                d={bubbleShape}
+                d={layout.bubble}
                 fill="none"
                 stroke={theme.surfaceEdge}
                 strokeWidth={1}
@@ -212,7 +180,7 @@ export function HudFrame({
 
         <div
           data-card-wrap="true"
-          data-hud-hit={interactive ? "true" : undefined}
+          data-hud-hit={visible ? "true" : undefined}
           style={{
             position: "absolute",
             left: layout.card.x,
@@ -220,49 +188,87 @@ export function HudFrame({
             width: layout.card.width,
             height: layout.card.height,
             boxSizing: "border-box",
-            transformOrigin: cardOrigin(layout),
-            pointerEvents: interactive ? "auto" : "none",
+            transformOrigin: `${layout.tip.x - layout.card.x}px ${
+              layout.tip.y - layout.card.y
+            }px`,
+            pointerEvents: visible ? "auto" : "none",
             ...reveal,
           }}
         >
           {card}
         </div>
 
-        <div
-          data-hud-rail="true"
-          style={{
-            position: "absolute",
-            left: layout.rail.x,
-            top: layout.rail.y,
-            width: layout.rail.width,
-            height: layout.rail.height,
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: orientation === "vertical" ? "column" : "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: metrics.itemGap,
-            padding: railPadding,
-            pointerEvents: "none",
-            cursor: dragging ? "grabbing" : "grab",
-          }}
-        >
-          {rail}
-        </div>
+        {meters.map((meter, index) => {
+          const centre = layout.meters[index];
+          return (
+            <div
+              key={keyOf(meter, index)}
+              data-hud-rail="true"
+              style={{
+                position: "absolute",
+                left: (centre?.x ?? 0) - metrics.meterSize / 2,
+                top: (centre?.y ?? 0) - metrics.meterSize / 2,
+                width: metrics.meterSize,
+                height: metrics.meterSize,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                pointerEvents: "none",
+                cursor: dragging ? "grabbing" : "grab",
+              }}
+            >
+              {meter}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function railOrigin(growth: CardGrowth): string {
-  if (growth === "left") {
-    return "right center";
+/** Each meter carries its provider key already; the wrapper reuses it. */
+function keyOf(meter: ReactNode, index: number): string {
+  const key = isValidElement(meter) ? meter.key : null;
+  return key ?? `meter-${index}`;
+}
+
+function regionsFor(
+  layout: ReturnType<typeof cornerLayout>,
+  padding: { top: number; left: number },
+  open: boolean,
+): HitRegions {
+  const shift = (rect: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }) => ({
+    x: rect.x + padding.left,
+    y: rect.y + padding.top,
+    width: rect.width,
+    height: rect.height,
+  });
+  const rail = layout.hits.map(shift);
+  if (!open) {
+    return { rail, open: null };
   }
-  if (growth === "right") {
-    return "left center";
-  }
-  if (growth === "up") {
-    return "center bottom";
-  }
-  return "center top";
+  const card = shift(layout.card);
+  // The pointer has to cross the spur to reach the card, so the whole span
+  // between the two has to stay live or the card closes on the way over.
+  const spread = rail.reduce((acc, rect) => union(acc, rect), rail[0] ?? card);
+  return { rail, open: union(spread, card) };
+}
+
+function union<
+  T extends { x: number; y: number; width: number; height: number },
+>(a: T, b: T): T {
+  const x = Math.min(a.x, b.x);
+  const y = Math.min(a.y, b.y);
+  return {
+    ...a,
+    x,
+    y,
+    width: Math.max(a.x + a.width, b.x + b.width) - x,
+    height: Math.max(a.y + a.height, b.y + b.height) - y,
+  };
 }

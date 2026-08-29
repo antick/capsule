@@ -51,7 +51,7 @@ function n(value: number): string {
  * the right edge, meters stacked downward — then mapped into the requested
  * orientation. Mirroring transforms reverse arc sweeps.
  */
-interface Mapper {
+export interface Mapper {
   point: (x: number, y: number) => [number, number];
   mirrored: boolean;
 }
@@ -100,7 +100,7 @@ function mapRect(rect: Rect, growth: CardGrowth, canonicalWidth: number): Rect {
   };
 }
 
-class PathBuilder {
+export class PathBuilder {
   private parts: string[] = [];
 
   constructor(private readonly mapper: Mapper) {}
@@ -229,7 +229,9 @@ function canonicalLayout(
       height: input.cardAlong,
     },
     joinY,
-    tipX: input.reserveAcross + m.tailLength,
+    // The tail lands on the rail rather than short of it, so the two
+    // silhouettes read as one surface with no desktop showing between them.
+    tipX: railX,
   };
 }
 
@@ -291,7 +293,11 @@ function railCornerRadius(
 }
 
 /** A plain rounded rectangle, traced clockwise in the canonical frame. */
-function roundedRect(mapper: Mapper, rect: Rect, radius: number): string {
+export function roundedRect(
+  mapper: Mapper,
+  rect: Rect,
+  radius: number,
+): string {
   const r = Math.min(radius, rect.width / 2, rect.height / 2);
   const left = rect.x;
   const right = rect.x + rect.width;
@@ -355,8 +361,9 @@ export function railPath(
 }
 
 /**
- * The card and its tail as one speech bubble. The tail is a sharp spur that
- * stops short of the rail rather than merging into it.
+ * The card and its tail as one speech bubble. The tail runs all the way onto
+ * the rail — and a hair past it, so antialiasing cannot leave a seam — because
+ * any daylight between the two lets the desktop show through the join.
  */
 export function bubblePath(
   m: HudMetrics,
@@ -369,7 +376,7 @@ export function bubblePath(
   const radius = Math.min(m.cardRadius, card.width / 2, card.height / 2);
   const edge = card.x + card.width;
   const half = Math.min(m.tailBase / 2, Math.max(0, card.height / 2 - radius));
-  const length = m.tailLength;
+  const length = base.tipX - edge + Math.max(1, m.unit);
   const cy = clamp(
     base.joinY,
     card.y + radius + half,
@@ -435,10 +442,17 @@ export function bubbleOrigin(layout: BlobLayout): string {
   return `${n(layout.tip.x)}px ${n(layout.tip.y)}px`;
 }
 
+/** The same tip, for the card contents, which sit in their own box. */
+export function cardOrigin(layout: BlobLayout): string {
+  return `${n(layout.tip.x - layout.card.x)}px ${n(
+    layout.tip.y - layout.card.y,
+  )}px`;
+}
+
 /** Areas that should swallow the mouse, in coordinates local to the frame. */
 export interface HitRegions {
   /** The rail alone, which is live whether or not a card is showing. */
-  rail: Rect;
+  rail: Rect[];
   /**
    * Rail, tail and card as one block while the card is open. Reaching the card
    * means crossing the gap the tail spans, so that gap has to stay live too or
@@ -454,10 +468,10 @@ export function hitRegions(
 ): HitRegions {
   const rail = offsetRect(layout.rail, padding.left, padding.top);
   if (!open) {
-    return { rail, open: null };
+    return { rail: [rail], open: null };
   }
   const card = offsetRect(layout.card, padding.left, padding.top);
-  return { rail, open: unionRect(rail, card) };
+  return { rail: [rail], open: unionRect(rail, card) };
 }
 
 function offsetRect(rect: Rect, dx: number, dy: number): Rect {

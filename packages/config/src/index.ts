@@ -34,6 +34,21 @@ export {
   SEVERITY_COLORS,
   USAGE_USER_AGENT,
 } from "./constants.ts";
+export type { Corner, CornerGeometry, CornerGrowth } from "./corner.ts";
+export {
+  CORNERS,
+  cornerAngle,
+  cornerCapFor,
+  cornerCardGrowth,
+  cornerCardRect,
+  cornerForRail,
+  cornerGeometry,
+  cornerIsBottom,
+  cornerIsRight,
+  cornerMeterCentre,
+  cornerWindowSize,
+  railStartForCorner,
+} from "./corner.ts";
 export {
   DEMO_NOW_ISO,
   DEMO_SNAPSHOTS,
@@ -54,6 +69,7 @@ export {
   clampHudScale,
   HUD_SCALE,
   hudMetrics,
+  hudScaleRange,
   hudScaleSteps,
   joinOffsetForIndex,
   meterBlockSize,
@@ -69,6 +85,7 @@ export type {
   Rect,
   ScreenEdge,
   SlideTrack,
+  WindowBox,
 } from "./placement.ts";
 export {
   computePlacement,
@@ -76,6 +93,7 @@ export {
   edgeForPreset,
   layoutForPreset,
   presetForEdge,
+  zoomHoldBounds,
 } from "./placement.ts";
 export type { CapsuleSettings } from "./settings.ts";
 export {
