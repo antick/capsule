@@ -4,6 +4,7 @@ export interface UsageProviderContext {
   now: Date;
   fetch: typeof fetch;
   readFile: (absolutePath: string) => Promise<string | null>;
+  readSecret?: (service: string) => Promise<string | null>;
   homeDir: string;
 }
 

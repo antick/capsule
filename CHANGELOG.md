@@ -17,6 +17,7 @@ All notable changes to Capsule are documented in this file.
 - Overlay paints demo HUD on first frame and stays on the primary display.
 - Hover/click to open the usage card with motion; drag the dock and snap it to a screen edge.
 - Menu bar extra and Dock icon for Capsule, with Position shortcuts (right, left, bottom, and other placements) plus Open Settings.
+- Live Claude, Codex, and Grok usage from local CLI logins (`~/.claude`, `~/.codex`, `~/.grok`). Demo mode is now opt-in.
 
 ### Fixed
 

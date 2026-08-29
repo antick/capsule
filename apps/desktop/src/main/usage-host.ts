@@ -1,14 +1,18 @@
+import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
+import { promisify } from "node:util";
 import type { CapsuleSettings, UsageSnapshot } from "@capsule/config";
 import {
-  createChatgptProvider,
   createClaudeProvider,
+  createCodexProvider,
   createDemoProvider,
+  createGrokProvider,
   createPoller,
-  createSparkProvider,
   type Poller,
 } from "@capsule/usage";
 import { app, powerMonitor } from "electron";
+
+const execFileAsync = promisify(execFile);
 
 export function createUsageHost(
   getSettings: () => CapsuleSettings,
@@ -18,14 +22,10 @@ export function createUsageHost(
   const providers = demo
     ? [
         createDemoProvider("claude"),
-        createDemoProvider("chatgpt"),
-        createDemoProvider("spark"),
+        createDemoProvider("codex"),
+        createDemoProvider("grok"),
       ]
-    : [
-        createClaudeProvider(),
-        createChatgptProvider(),
-        createSparkProvider({ demoBacked: false }),
-      ];
+    : [createClaudeProvider(), createCodexProvider(), createGrokProvider()];
 
   return createPoller({
     providers,
@@ -38,6 +38,20 @@ export function createUsageHost(
       readFile: async (absolutePath: string) => {
         try {
           return await readFile(absolutePath, "utf8");
+        } catch {
+          return null;
+        }
+      },
+      readSecret: async (service: string) => {
+        try {
+          const { stdout } = await execFileAsync("security", [
+            "find-generic-password",
+            "-s",
+            service,
+            "-w",
+          ]);
+          const value = stdout.trim();
+          return value.length > 0 ? value : null;
         } catch {
           return null;
         }

@@ -10,10 +10,10 @@ const SESSION_RESET_ISO = new Date(
   demoNow.getTime() + 51 * 60 * 1000,
 ).toISOString();
 const WEEKLY_RESET_ISO = new Date("2026-09-03T00:00:00").toISOString();
-const CHATGPT_RESET_ISO = new Date(
+const CODEX_RESET_ISO = new Date(
   demoNow.getTime() + 5 * 60 * 60 * 1000,
 ).toISOString();
-const SPARK_RESET_ISO = new Date(
+const GROK_RESET_ISO = new Date(
   demoNow.getTime() + 7 * 60 * 60 * 1000,
 ).toISOString();
 
@@ -43,23 +43,23 @@ export const DEMO_SNAPSHOTS: UsageSnapshot[] = [
     ],
   },
   {
-    providerId: "chatgpt",
-    displayName: "ChatGPT",
-    iconId: "chatgpt",
+    providerId: "codex",
+    displayName: "Codex",
+    iconId: "codex",
     primaryPercent: 21,
     status: "ok",
     fetchedAt: DEMO_FETCHED_AT,
     buckets: [
       {
         id: "primary",
-        label: COPY.chatgptPrimary,
+        label: COPY.fiveHourWindow,
         percentUsed: 21,
-        resetsAt: CHATGPT_RESET_ISO,
+        resetsAt: CODEX_RESET_ISO,
         resetStyle: "relative",
       },
       {
         id: "secondary",
-        label: COPY.chatgptSecondary,
+        label: COPY.weeklyWindow,
         percentUsed: 8,
         resetsAt: WEEKLY_RESET_ISO,
         resetStyle: "absolute",
@@ -67,23 +67,23 @@ export const DEMO_SNAPSHOTS: UsageSnapshot[] = [
     ],
   },
   {
-    providerId: "spark",
-    displayName: "Spark",
-    iconId: "spark",
+    providerId: "grok",
+    displayName: "Grok",
+    iconId: "grok",
     primaryPercent: 52,
     status: "ok",
     fetchedAt: DEMO_FETCHED_AT,
     buckets: [
       {
-        id: "primary",
-        label: COPY.sparkPrimary,
+        id: "weekly",
+        label: COPY.grokWeekly,
         percentUsed: 52,
-        resetsAt: SPARK_RESET_ISO,
+        resetsAt: GROK_RESET_ISO,
         resetStyle: "relative",
       },
       {
-        id: "weekly",
-        label: COPY.sparkSecondary,
+        id: "build",
+        label: COPY.grokBuild,
         percentUsed: 18,
         resetsAt: WEEKLY_RESET_ISO,
         resetStyle: "absolute",

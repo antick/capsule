@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clampPercent } from "./clamp.ts";
+import { clampPercent, toPercent } from "./clamp.ts";
 
 describe("clampPercent", () => {
   it("clamps 112 to 100", () => {
@@ -12,5 +12,15 @@ describe("clampPercent", () => {
 
   it("passes through in-range values", () => {
     expect(clampPercent(73)).toBe(73);
+  });
+});
+
+describe("toPercent", () => {
+  it("treats 0-1 fractions as percents", () => {
+    expect(toPercent(0.73)).toBe(73);
+  });
+
+  it("keeps already-percent values", () => {
+    expect(toPercent(21)).toBe(21);
   });
 });

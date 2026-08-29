@@ -1,4 +1,4 @@
-import { COPY, PROVIDER_IDS } from "@capsule/config";
+import { COPY, PROVIDER_IDS, PROVIDER_LABELS } from "@capsule/config";
 import { Switch } from "@capsule/ui";
 import { useCapsuleSettings } from "../use-settings.ts";
 
@@ -16,7 +16,7 @@ export function ProvidersPage() {
         return (
           <div key={id} className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-sm font-medium capitalize">{id}</div>
+              <div className="text-sm font-medium">{PROVIDER_LABELS[id]}</div>
               <div className="text-xs text-neutral-500">
                 {snapshot?.status ?? "idle"}
               </div>

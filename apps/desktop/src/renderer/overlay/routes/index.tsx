@@ -11,7 +11,7 @@ import { UsageDock } from "@capsule/hud";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export function OverlayHud() {
-  const [snapshots, setSnapshots] = useState<UsageSnapshot[]>(DEMO_SNAPSHOTS);
+  const [snapshots, setSnapshots] = useState<UsageSnapshot[]>([]);
   const [settings, setSettings] = useState<CapsuleSettings>(defaultSettings);
   const dragging = useRef(false);
   const lastCapture = useRef<boolean | null>(null);
@@ -96,7 +96,13 @@ export function OverlayHud() {
       }}
     >
       <UsageDock
-        snapshots={snapshots}
+        snapshots={
+          snapshots.length > 0
+            ? snapshots
+            : settings.demoMode
+              ? DEMO_SNAPSHOTS
+              : snapshots
+        }
         orientation={layout.orientation}
         cardGrowth={layout.cardGrowth}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}

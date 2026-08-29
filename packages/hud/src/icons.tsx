@@ -17,23 +17,23 @@ function ClaudeIcon({ color, size }: IconProps): ReactElement {
   );
 }
 
-function ChatgptIcon({ color, size }: IconProps): ReactElement {
+function CodexIcon({ color, size }: IconProps): ReactElement {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill={color}
-        d="M12.4 3.1c1.2-.7 2.8-.3 3.6.9l.2.4c.9-.3 1.9 0 2.5.8 1 .9 1 2.5.2 3.6l-.3.4.8 1.4c.8 1.3.4 3-.9 3.8l-.4.2c.3.9 0 1.9-.8 2.5-.9 1-2.5 1-3.6.2l-.4-.3-1.4.8c-1.3.8-3 .4-3.8-.9l-.2-.4c-.9.3-1.9 0-2.5-.8-1-.9-1-2.5-.2-3.6l.3-.4-.8-1.4c-.8-1.3-.4-3 .9-3.8l.4-.2c-.3-.9 0-1.9.8-2.5.9-1 2.5-1 3.6-.2l.4.3 1.4-.8Zm-.4 5.4c-1.9 1.1-2.6 3.6-1.5 5.5 1.1 1.9 3.6 2.6 5.5 1.5 1.9-1.1 2.6-3.6 1.5-5.5-1.1-1.9-3.6-2.6-5.5-1.5Z"
+        d="M8.2 5.2 4.8 12l3.4 6.8h2.4L7.2 12 10.6 5.2H8.2Zm7.6 0h2.4L21.2 12l-3.4 6.8h-2.4L16.8 12 12.8 5.2h3Zm-3.1 2.6L10.4 18h2.2l2.3-10.2h-2.2Z"
       />
     </svg>
   );
 }
 
-function SparkIcon({ color, size }: IconProps): ReactElement {
+function GrokIcon({ color, size }: IconProps): ReactElement {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill={color}
-        d="M12 3.5 13.2 9.2 19 8.4 14.8 12 19 15.6l-5.8-.8L12 20.5 10.8 14.8 5 15.6 9.2 12 5 8.4l5.8.8L12 3.5Z"
+        d="M4.2 4.2 10.8 12 4.2 19.8h3.4L12 14.4l4.4 5.4h3.4L13.2 12l6.6-7.8h-3.4L12 9.6 7.6 4.2H4.2Z"
       />
     </svg>
   );
@@ -48,11 +48,11 @@ export function ProviderIcon({
   color: string;
   size: number;
 }): ReactElement {
-  if (id === "chatgpt") {
-    return <ChatgptIcon color={color} size={size} />;
+  if (id === "codex") {
+    return <CodexIcon color={color} size={size} />;
   }
-  if (id === "spark") {
-    return <SparkIcon color={color} size={size} />;
+  if (id === "grok") {
+    return <GrokIcon color={color} size={size} />;
   }
   return <ClaudeIcon color={color} size={size} />;
 }

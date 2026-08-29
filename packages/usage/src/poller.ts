@@ -10,6 +10,7 @@ export interface PollerHost {
   now: () => Date;
   fetch: typeof fetch;
   readFile: (absolutePath: string) => Promise<string | null>;
+  readSecret?: (service: string) => Promise<string | null>;
   homeDir: () => string;
   interval: (ms: number, tick: () => void) => () => void;
   onResume: (tick: () => void) => () => void;
@@ -37,6 +38,7 @@ export function createPoller(options: {
     now: options.host.now(),
     fetch: options.host.fetch,
     readFile: options.host.readFile,
+    readSecret: options.host.readSecret,
     homeDir: options.host.homeDir(),
   });
 

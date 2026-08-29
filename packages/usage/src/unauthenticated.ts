@@ -1,10 +1,8 @@
-import type { ProviderId, UsageSnapshot } from "@capsule/config";
-
-const NAMES: Record<ProviderId, string> = {
-  claude: "Claude",
-  chatgpt: "ChatGPT",
-  spark: "Spark",
-};
+import {
+  PROVIDER_LABELS,
+  type ProviderId,
+  type UsageSnapshot,
+} from "@capsule/config";
 
 export function unauthenticatedSnapshot(
   providerId: ProviderId,
@@ -12,7 +10,7 @@ export function unauthenticatedSnapshot(
 ): UsageSnapshot {
   return {
     providerId,
-    displayName: NAMES[providerId],
+    displayName: PROVIDER_LABELS[providerId],
     iconId: providerId,
     primaryPercent: null,
     buckets: [],

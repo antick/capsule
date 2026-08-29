@@ -33,9 +33,9 @@ describe("UsageDock", () => {
       createElement(UsageDock, {
         snapshots: [
           {
-            providerId: "chatgpt",
-            displayName: "ChatGPT",
-            iconId: "chatgpt",
+            providerId: "codex",
+            displayName: "Codex",
+            iconId: "codex",
             status: "unauthenticated",
             primaryPercent: null,
             buckets: [],
@@ -44,7 +44,7 @@ describe("UsageDock", () => {
         ],
         orientation: "vertical",
         cardGrowth: "left",
-        forceOpenProviderId: "chatgpt",
+        forceOpenProviderId: "codex",
       }),
     );
     expect(html).toContain("Not connected");

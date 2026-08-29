@@ -1,7 +1,13 @@
 export const APP_NAME = "Capsule";
 
-export const PROVIDER_IDS = ["claude", "chatgpt", "spark"] as const;
+export const PROVIDER_IDS = ["claude", "codex", "grok"] as const;
 export type ProviderId = (typeof PROVIDER_IDS)[number];
+
+export const PROVIDER_LABELS = {
+  claude: "Claude",
+  codex: "Codex",
+  grok: "Grok",
+} as const satisfies Record<ProviderId, string>;
 
 export const PLACEMENT_PRESETS = [
   "right-edge",
@@ -139,13 +145,24 @@ export const CHROME_POLL_MS = 2_000;
 export const ANTHROPIC_OAUTH_USAGE_URL =
   "https://api.anthropic.com/api/oauth/usage";
 export const ANTHROPIC_OAUTH_BETA_HEADER = "oauth-2025-04-20";
-export const CHATGPT_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
+export const CLAUDE_KEYCHAIN_SERVICE = "Claude Code-credentials";
+export const CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
+export const CODEX_USAGE_FALLBACK_URL =
+  "https://chatgpt.com/backend-api/codex/usage";
+export const CODEX_TOKEN_URL = "https://auth.openai.com/oauth/token";
+export const CODEX_OAUTH_CLIENT_ID = "app_EMohtA1zFfdvkohgPldNB5nP";
+export const GROK_BILLING_URL =
+  "https://cli-chat-proxy.grok.com/v1/billing?format=credits";
+export const GROK_TOKEN_AUTH_VALUE = "xai-grok-cli";
 
 export const CLAUDE_CREDENTIALS_PATH_SEGMENTS = [
   ".claude",
   ".credentials.json",
 ] as const;
 export const CODEX_AUTH_PATH_SEGMENTS = [".codex", "auth.json"] as const;
+export const GROK_AUTH_PATH_SEGMENTS = [".grok", "auth.json"] as const;
+export const CODEX_HOME_ENV = "CODEX_HOME";
+export const GROK_HOME_ENV = "GROK_HOME";
 
 export const IPC = {
   snapshots: "capsule:snapshots",
@@ -165,10 +182,13 @@ export const IPC = {
 export const COPY = {
   currentSession: "Current session",
   allModels: "All models",
-  chatgptPrimary: "Primary window",
-  chatgptSecondary: "Secondary window",
-  sparkPrimary: "Current window",
-  sparkSecondary: "Weekly",
+  fiveHourWindow: "5-hour window",
+  weeklyWindow: "Weekly",
+  dailyWindow: "Daily",
+  monthlyWindow: "Monthly",
+  grokWeekly: "Weekly credits",
+  grokOnDemand: "On-demand",
+  grokBuild: "Grok Build",
   percentUsedSuffix: "% Used",
   percentSuffix: "%",
   usageTitleSuffix: " Usage",
@@ -186,6 +206,6 @@ export const COPY = {
   providers: "Providers",
   onboardingTitle: "Welcome to Capsule",
   onboardingBody:
-    "Connect Claude or ChatGPT from credentials already on this Mac, or turn on demo mode to see the usage dock.",
+    "Capsule reads Claude, Codex, and Grok logins already on this Mac. Sign in with those CLIs, or turn on demo mode to preview the dock.",
   enableDemo: "Enable demo mode",
 } as const;

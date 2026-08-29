@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import { mergeSnapshot } from "./merge.ts";
 import { createPoller } from "./poller.ts";
 import { mapClaudeUsage } from "./providers/claude.ts";
+import { mapCodexUsage } from "./providers/codex.ts";
 import { createDemoProvider } from "./providers/demo.ts";
+import { grokTokenFromFile, mapGrokCredits } from "./providers/grok.ts";
 import { unauthenticatedSnapshot } from "./unauthenticated.ts";
 
 describe("mapClaudeUsage", () => {
@@ -26,6 +28,76 @@ describe("mapClaudeUsage", () => {
     expect(snapshot.buckets[0]?.label).toBe("Current session");
     expect(snapshot.buckets[1]?.label).toBe("All models");
     expect(snapshot.buckets[1]?.percentUsed).toBe(7);
+  });
+
+  it("treats fractional utilization as a percent", () => {
+    const snapshot = mapClaudeUsage(
+      { five_hour: { utilization: 0.73 } },
+      new Date("2026-08-27T11:22:00.000Z"),
+    );
+    expect(snapshot.primaryPercent).toBe(73);
+  });
+});
+
+describe("mapCodexUsage", () => {
+  it("maps WHAM primary and secondary windows", () => {
+    const snapshot = mapCodexUsage(
+      {
+        plan_type: "plus",
+        rate_limit: {
+          primary_window: {
+            used_percent: 21,
+            limit_window_seconds: 18000,
+            reset_at: 1782770922,
+          },
+          secondary_window: {
+            used_percent: 8,
+            limit_window_seconds: 604800,
+            reset_at: 1783357722,
+          },
+        },
+      },
+      new Date("2026-08-27T11:22:00.000Z"),
+    );
+    expect(snapshot.providerId).toBe("codex");
+    expect(snapshot.primaryPercent).toBe(21);
+    expect(snapshot.buckets[0]?.label).toBe("5-hour window");
+    expect(snapshot.buckets[1]?.label).toBe("Weekly");
+    expect(snapshot.buckets[1]?.percentUsed).toBe(8);
+  });
+});
+
+describe("mapGrokCredits", () => {
+  it("maps weekly credit percent and build product usage", () => {
+    const snapshot = mapGrokCredits(
+      {
+        config: {
+          creditUsagePercent: 52,
+          currentPeriod: {
+            type: "USAGE_PERIOD_TYPE_WEEKLY",
+            end: "2026-09-03T00:00:00Z",
+          },
+          productUsage: [{ product: "PRODUCT_GROK_BUILD", usagePercent: 18 }],
+        },
+      },
+      new Date("2026-08-27T11:22:00.000Z"),
+    );
+    expect(snapshot.providerId).toBe("grok");
+    expect(snapshot.primaryPercent).toBe(52);
+    expect(snapshot.buckets[0]?.label).toBe("Weekly credits");
+    expect(snapshot.buckets[1]?.label).toBe("Grok Build");
+    expect(snapshot.buckets[1]?.percentUsed).toBe(18);
+  });
+
+  it("reads a JWT from nested Grok CLI auth.json", () => {
+    const token = grokTokenFromFile(
+      JSON.stringify({
+        "https://accounts.x.ai/sign-in": {
+          key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+        },
+      }),
+    );
+    expect(token?.startsWith("eyJ")).toBe(true);
   });
 });
 
@@ -89,14 +161,14 @@ describe("poller", () => {
           },
         },
         {
-          id: "chatgpt",
+          id: "codex",
           fetchSnapshot: async () => {
-            fetched.push("chatgpt");
+            fetched.push("codex");
             const snapshot = DEMO_SNAPSHOTS.find(
-              (item) => item.providerId === "chatgpt",
+              (item) => item.providerId === "codex",
             );
             if (!snapshot) {
-              throw new Error("missing chatgpt demo");
+              throw new Error("missing codex demo");
             }
             return snapshot;
           },
