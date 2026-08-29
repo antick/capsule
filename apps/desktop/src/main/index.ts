@@ -18,6 +18,10 @@ import { createUsageHost } from "./usage-host.ts";
 
 app.setName(APP_NAME);
 
+app.on("will-finish-launching", () => {
+  hideFromMacDock();
+});
+
 let settings = loadSettings();
 const overlay = new OverlayController(settings);
 let snapshots: UsageSnapshot[] = [];

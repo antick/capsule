@@ -122,7 +122,14 @@ export class OverlayController {
     });
 
     win.setAlwaysOnTop(true, TOP_LEVEL);
-    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false });
+    // Electron's default here calls dock.show() when visibleOnFullScreen is
+    // false — that is what kept putting the Electron tile back in the Dock
+    // after every accessory-policy hide. Skip the process-type transform so
+    // the HUD can still ride every Space and stay off native fullscreen.
+    win.setVisibleOnAllWorkspaces(true, {
+      visibleOnFullScreen: false,
+      skipTransformProcessType: true,
+    });
     win.setIgnoreMouseEvents(true, { forward: true });
     win.setMenuBarVisibility(false);
 

@@ -11,7 +11,6 @@ function bringForward(win: BrowserWindow): void {
   if (win.isDestroyed()) {
     return;
   }
-  hideFromMacDock();
   if (process.platform === "darwin") {
     // Capsule lives in the menu bar with no Dock tile, so nothing else will
     // bring it forward for us.
@@ -24,15 +23,7 @@ function bringForward(win: BrowserWindow): void {
   }
   win.show();
   win.focus();
-  // Showing a regular window can promote us back to a Dock app. Drop the
-  // tile again, then steal focus back if that deactivated us.
-  if (process.platform === "darwin" && app.dock?.isVisible()) {
-    hideFromMacDock();
-    if (!win.isDestroyed()) {
-      app.focus({ steal: true });
-      win.focus();
-    }
-  }
+  hideFromMacDock();
 }
 
 /**
