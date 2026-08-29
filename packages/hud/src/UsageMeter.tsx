@@ -45,6 +45,7 @@ export function UsageMeter({
       onMouseEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       onClick={onClick}
+      data-hud-hit="true"
       style={{
         appearance: "none",
         background: "transparent",
@@ -53,9 +54,10 @@ export function UsageMeter({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 6,
+        gap: HUD.meterLabelGap,
         cursor: "pointer",
         color: HUD.text,
+        pointerEvents: "auto",
         transform: active ? `scale(${MOTION.meterHoverScale})` : "scale(1)",
         transition: `transform ${MOTION.meterMs}ms ${MOTION.easing}`,
       }}
@@ -90,19 +92,11 @@ export function UsageMeter({
           }}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
-        <foreignObject x={10} y={10} width={size - 20} height={size - 20}>
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ProviderIcon id={providerId} color={HUD.text} size={18} />
-          </div>
-        </foreignObject>
+        <g
+          transform={`translate(${(size - HUD.iconSize) / 2} ${(size - HUD.iconSize) / 2})`}
+        >
+          <ProviderIcon id={providerId} color={HUD.text} size={HUD.iconSize} />
+        </g>
       </svg>
       <span
         style={{

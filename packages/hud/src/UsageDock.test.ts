@@ -24,6 +24,7 @@ describe("UsageDock", () => {
     expect(html).toContain("73% Used");
     expect(html).toContain("7% Used");
     expect(html).toContain("Resets in 51 min");
+    expect(html).toContain("data-hud-blob");
     expect(html.includes("0% Used")).toBe(false);
   });
 

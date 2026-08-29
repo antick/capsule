@@ -23,7 +23,7 @@ import { createUsageHost } from "./usage-host.ts";
 app.setName(APP_NAME);
 
 if (process.platform === "darwin") {
-  app.dock?.show();
+  app.dock?.hide();
 }
 
 let settings = loadSettings();

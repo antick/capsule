@@ -19,6 +19,7 @@ const hud: HudSize = {
   cardHeight: 168,
   expanded: false,
   shadowPadding: HUD.shadowPadding,
+  joinWidth: HUD.joinWidth,
 };
 
 const chrome = (overrides: Partial<ChromeSnapshot> = {}): ChromeSnapshot => ({

@@ -41,37 +41,71 @@ export const HUD = {
     '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif',
   railWidth: 76,
   railPaddingX: 14,
-  railPaddingY: 20,
+  railPaddingY: 32,
   meterSize: 48,
-  ringStroke: 3.25,
-  itemGap: 20,
+  ringStroke: 3.5,
+  itemGap: 18,
   percentFontSize: 12,
   percentBlock: 18,
+  iconSize: 18,
+  meterLabelGap: 6,
   cardWidth: 304,
   cardPadding: 16,
   cardRadius: 22,
-  railRadius: 28,
-  joinSize: 14,
-  shadowPadding: 20,
-  hoverOpenDelayMs: 0,
+  cardHeight: 188,
+  cardTitleSize: 14,
+  cardLabelSize: 12,
+  cardResetSize: 11,
+  cardSectionGap: 14,
+  barHeight: 5,
+  railRadius: 32,
+  joinWidth: 10,
+  tailBase: 48,
+  tailControl: 8,
+  biteRadius: 20,
+  connectorRadius: 20,
+  blobBlur: 7,
+  blobGooAlpha: 36,
+  blobGooBias: -16,
+  cardTailOffsetY: 78,
+  shadowPadding: 24,
+  hoverOpenDelayMs: 70,
   hoverCloseDelayMs: 220,
   meterCountDefault: 3,
-  cardHeight: 188,
 } as const;
 
 export const MOTION = {
-  cardMs: 220,
+  cardMs: 280,
+  blobMs: 280,
   ringMs: 560,
   barMs: 420,
   meterMs: 180,
   easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-  snapDistancePx: 56,
-  dragThresholdPx: 5,
+  snapDistancePx: 72,
+  dragThresholdPx: 6,
+  dragPollMs: 8,
   meterHoverScale: 1.06,
-  closedCardShiftPx: 14,
-  closedCardScale: 0.96,
-  railShadow: "0 12px 40px rgba(0, 0, 0, 0.38)",
+  closedCardShiftPx: 16,
+  closedCardScale: 0.94,
+  liftScale: 1.03,
+  shadowDy: 14,
+  shadowBlur: 18,
+  shadowOpacity: 0.42,
+  railShadow: "0 14px 40px rgba(0, 0, 0, 0.42)",
 } as const;
+
+export function meterBlockSize(): number {
+  return HUD.meterSize + HUD.itemGap + HUD.percentBlock;
+}
+
+export function railLengthForCount(count: number): number {
+  const n = Math.max(1, count);
+  return HUD.railPaddingY * 2 + n * meterBlockSize() - HUD.itemGap;
+}
+
+export function joinOffsetForIndex(index: number): number {
+  return HUD.railPaddingY + index * meterBlockSize() + HUD.meterSize / 2;
+}
 
 export const PLACEMENT = {
   gutterInsetPx: 0,
@@ -79,7 +113,7 @@ export const PLACEMENT = {
   stageManagerThumbStackInsetPx: 96,
   dockFlankMarginPx: 16,
   dockCenteredIconSpanPx: 420,
-  windowShadowPaddingPx: 20,
+  windowShadowPaddingPx: 24,
 } as const;
 
 export const POLL_INTERVAL_MS = 60_000;

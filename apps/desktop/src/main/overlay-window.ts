@@ -4,30 +4,28 @@ import {
   type CapsuleSettings,
   computePlacement,
   HUD,
-  layoutForPreset,
+  MOTION,
   PLACEMENT,
   type PlacementPreset,
   type PlacementResult,
   type ProviderId,
-  slideAlongEdge,
+  railLengthForCount,
+  snapAfterDrag,
 } from "@capsule/config";
 import { BrowserWindow, screen, shell } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
-
-const METER_BLOCK = HUD.meterSize + HUD.itemGap + HUD.percentBlock;
 
 export class OverlayController {
   window: BrowserWindow | null = null;
   private settings: CapsuleSettings;
   private meterCount: number = HUD.meterCountDefault;
   private settingsDisplayId: number | null = null;
-  private expanded = false;
   private dragging = false;
   private dragOffsetX = 0;
   private dragOffsetY = 0;
-  private lockedX = 0;
-  private lockedY = 0;
+  private dragTimer: ReturnType<typeof setInterval> | null = null;
+  private ignoreMouse = true;
 
   constructor(settings: CapsuleSettings) {
     this.settings = settings;
@@ -59,11 +57,14 @@ export class OverlayController {
       hasShadow: false,
       roundedCorners: false,
       skipTaskbar: true,
-      focusable: true,
+      focusable: false,
+      acceptFirstMouse: true,
       resizable: false,
       maximizable: false,
       minimizable: false,
       fullscreenable: false,
+      hiddenInMissionControl: true,
+      type: "panel",
       webPreferences: {
         preload: join(__dirname, "../preload/index.js"),
         contextIsolation: true,
@@ -72,8 +73,9 @@ export class OverlayController {
       },
     });
 
-    win.setAlwaysOnTop(true, "screen-saver");
-    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    win.setAlwaysOnTop(true, "floating");
+    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false });
+    win.setIgnoreMouseEvents(true, { forward: true });
     win.setMenuBarVisibility(false);
 
     win.webContents.setWindowOpenHandler((details) => {
@@ -85,7 +87,7 @@ export class OverlayController {
     await this.relayout();
 
     win.webContents.on("did-finish-load", () => {
-      win.show();
+      win.showInactive();
       onReady?.();
     });
     win.webContents.on("did-fail-load", (_event, code, description, url) => {
@@ -103,20 +105,20 @@ export class OverlayController {
       await win.loadFile(rendererHtml("overlay"));
     }
 
-    win.show();
+    win.showInactive();
     return win;
   }
 
-  setPointerCapture(_capture: boolean): void {
-    // Mouse events must stay enabled or hover/drag never reach the HUD.
-  }
-
-  setExpanded(open: boolean, _providerId: ProviderId | null): void {
-    if (this.expanded === open || this.dragging) {
+  setPointerCapture(capture: boolean): void {
+    if (this.dragging) {
+      this.setIgnore(false);
       return;
     }
-    this.expanded = open;
-    void this.relayout();
+    this.setIgnore(!capture);
+  }
+
+  setExpanded(_open: boolean, _providerId: ProviderId | null): void {
+    // Window stays card-sized so the blob can animate without clipping.
   }
 
   startMove(screenX: number, screenY: number): void {
@@ -126,48 +128,60 @@ export class OverlayController {
     }
     const bounds = win.getBounds();
     this.dragging = true;
-    this.expanded = false;
     this.dragOffsetX = screenX - bounds.x;
     this.dragOffsetY = screenY - bounds.y;
-    this.lockedX = bounds.x;
-    this.lockedY = bounds.y;
+    this.setIgnore(false);
+    this.stopDragPoll();
+    this.dragTimer = setInterval(() => {
+      if (!this.dragging || !this.window || this.window.isDestroyed()) {
+        return;
+      }
+      const point = screen.getCursorScreenPoint();
+      this.applyDragPosition(point.x, point.y);
+    }, MOTION.dragPollMs);
   }
 
   moveWindow(screenX: number, screenY: number): void {
-    const win = this.window;
-    if (!win || win.isDestroyed() || !this.dragging) {
+    if (!this.dragging) {
       return;
     }
-    const bounds = win.getBounds();
-    const display = screen.getDisplayMatching(bounds);
-    const next = slideAlongEdge({
-      orientation: layoutForPreset(this.settings.placementPreset).orientation,
-      lockedX: this.lockedX,
-      lockedY: this.lockedY,
-      width: bounds.width,
-      height: bounds.height,
-      screenX,
-      screenY,
-      offsetX: this.dragOffsetX,
-      offsetY: this.dragOffsetY,
-      workArea: display.workArea,
-    });
-    win.setPosition(Math.round(next.x), Math.round(next.y));
+    this.applyDragPosition(screenX, screenY);
   }
 
   endMove(): {
     placementPreset: PlacementPreset;
     customPosition: { x: number; y: number } | null;
   } | null {
-    const win = this.window;
+    this.stopDragPoll();
+    if (!this.dragging) {
+      return null;
+    }
     this.dragging = false;
+    const win = this.window;
     if (!win || win.isDestroyed()) {
       return null;
     }
     const bounds = win.getBounds();
+    const display = screen.getDisplayMatching(bounds);
+    const snapped = snapAfterDrag(
+      bounds,
+      display.workArea,
+      MOTION.snapDistancePx,
+    );
+    win.setBounds(
+      {
+        x: snapped.x,
+        y: snapped.y,
+        width: bounds.width,
+        height: bounds.height,
+      },
+      false,
+    );
+    this.settingsDisplayId = display.id;
+    this.setIgnore(true);
     return {
-      placementPreset: this.settings.placementPreset,
-      customPosition: { x: bounds.x, y: bounds.y },
+      placementPreset: snapped.preset,
+      customPosition: { x: snapped.x, y: snapped.y },
     };
   }
 
@@ -176,7 +190,7 @@ export class OverlayController {
   }
 
   show(): void {
-    this.window?.show();
+    this.window?.showInactive();
   }
 
   async relayout(): Promise<PlacementResult | null> {
@@ -194,40 +208,37 @@ export class OverlayController {
       bounds: display.bounds,
       workArea: display.workArea,
     });
-    const railLength =
-      HUD.railPaddingY * 2 + this.meterCount * METER_BLOCK - HUD.itemGap;
     const placement = computePlacement(
       this.settings.placementPreset,
       chrome,
       {
         railWidth: HUD.railWidth,
-        railLength,
+        railLength: railLengthForCount(this.meterCount),
         cardWidth: HUD.cardWidth,
         cardHeight: HUD.cardHeight,
-        expanded: this.expanded,
+        expanded: true,
         shadowPadding: HUD.shadowPadding,
+        joinWidth: HUD.joinWidth,
       },
       PLACEMENT,
     );
     let x = placement.x;
     let y = placement.y;
     const custom = this.settings.customPosition;
-    const orientation = layoutForPreset(
-      this.settings.placementPreset,
-    ).orientation;
     const work = chrome.display.workArea;
     if (custom) {
-      if (orientation === "vertical") {
-        y = Math.min(
-          Math.max(custom.y, work.y),
-          work.y + work.height - placement.height,
-        );
-      } else {
-        x = Math.min(
-          Math.max(custom.x, work.x),
-          work.x + work.width - placement.width,
-        );
-      }
+      const snapped = snapAfterDrag(
+        {
+          x: custom.x,
+          y: custom.y,
+          width: placement.width,
+          height: placement.height,
+        },
+        work,
+        MOTION.snapDistancePx,
+      );
+      x = snapped.x;
+      y = snapped.y;
     }
     const bounds = {
       x: Math.round(x),
@@ -235,7 +246,51 @@ export class OverlayController {
       width: Math.round(placement.width),
       height: Math.round(placement.height),
     };
-    win.setBounds(bounds);
+    win.setBounds(bounds, false);
     return { ...placement, x: bounds.x, y: bounds.y };
   }
+
+  private applyDragPosition(screenX: number, screenY: number): void {
+    const win = this.window;
+    if (!win || win.isDestroyed() || !this.dragging) {
+      return;
+    }
+    const bounds = win.getBounds();
+    const display = screen.getDisplayNearestPoint({ x: screenX, y: screenY });
+    const work = display.workArea;
+    const x = clamp(
+      Math.round(screenX - this.dragOffsetX),
+      work.x,
+      work.x + work.width - bounds.width,
+    );
+    const y = clamp(
+      Math.round(screenY - this.dragOffsetY),
+      work.y,
+      work.y + work.height - bounds.height,
+    );
+    win.setBounds({ ...bounds, x, y }, false);
+  }
+
+  private stopDragPoll(): void {
+    if (this.dragTimer) {
+      clearInterval(this.dragTimer);
+      this.dragTimer = null;
+    }
+  }
+
+  private setIgnore(ignore: boolean): void {
+    const win = this.window;
+    if (!win || win.isDestroyed()) {
+      return;
+    }
+    if (this.ignoreMouse === ignore) {
+      return;
+    }
+    this.ignoreMouse = ignore;
+    win.setIgnoreMouseEvents(ignore, { forward: true });
+  }
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }

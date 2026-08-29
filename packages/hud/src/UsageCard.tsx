@@ -21,21 +21,31 @@ function BucketRow({
 }): ReactElement {
   const color = SEVERITY_COLORS[severityForPercent(percentUsed)];
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: HUD.meterLabelGap,
+      }}
+    >
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "baseline",
-          gap: 12,
+          gap: HUD.cardSectionGap,
         }}
       >
-        <span style={{ fontSize: 12, color: HUD.text }}>{label}</span>
-        <span style={{ fontSize: 11, color: HUD.textMuted }}>{resetCopy}</span>
+        <span style={{ fontSize: HUD.cardLabelSize, color: HUD.text }}>
+          {label}
+        </span>
+        <span style={{ fontSize: HUD.cardResetSize, color: HUD.textMuted }}>
+          {resetCopy}
+        </span>
       </div>
       <div
         style={{
-          height: 4,
+          height: HUD.barHeight,
           borderRadius: 99,
           background: HUD.barTrack,
           overflow: "hidden",
@@ -51,7 +61,7 @@ function BucketRow({
           }}
         />
       </div>
-      <span style={{ fontSize: 12, color: HUD.text }}>
+      <span style={{ fontSize: HUD.cardLabelSize, color: HUD.text }}>
         {percentUsed}
         {COPY.percentUsedSuffix}
       </span>
@@ -71,21 +81,37 @@ export function UsageCard({
   let body: ReactElement;
   if (snapshot.status === "unauthenticated") {
     body = (
-      <p style={{ margin: 0, fontSize: 12, color: HUD.textMuted }}>
+      <p
+        style={{ margin: 0, fontSize: HUD.cardLabelSize, color: HUD.textMuted }}
+      >
         {COPY.notConnected}
       </p>
     );
   } else if (snapshot.buckets.length === 0) {
     body = (
-      <p style={{ margin: 0, fontSize: 12, color: HUD.textMuted }}>
+      <p
+        style={{ margin: 0, fontSize: HUD.cardLabelSize, color: HUD.textMuted }}
+      >
         {snapshot.status === "stale" ? COPY.staleData : COPY.unavailable}
       </p>
     );
   } else {
     body = (
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: HUD.cardSectionGap,
+        }}
+      >
         {snapshot.status === "stale" ? (
-          <p style={{ margin: 0, fontSize: 11, color: HUD.textMuted }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: HUD.cardResetSize,
+              color: HUD.textMuted,
+            }}
+          >
             {COPY.staleData}
           </p>
         ) : null}
@@ -116,8 +142,8 @@ export function UsageCard({
           display: "flex",
           alignItems: "center",
           gap: 8,
-          marginBottom: 14,
-          fontSize: 14,
+          marginBottom: HUD.cardSectionGap,
+          fontSize: HUD.cardTitleSize,
           fontWeight: 600,
         }}
       >

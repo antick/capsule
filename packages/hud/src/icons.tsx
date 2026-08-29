@@ -11,7 +11,7 @@ function ClaudeIcon({ color, size }: IconProps): ReactElement {
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill={color}
-        d="M12 3.2 13.7 9h5.6l-4.5 3.3 1.7 5.8L12 14.9 7.5 18.1 9.2 12.3 4.7 9h5.6L12 3.2Z"
+        d="M12 3 13.5 10.2 20.7 11.7 13.5 13.2 12 20.4 10.5 13.2 3.3 11.7 10.5 10.2 12 3Z"
       />
     </svg>
   );

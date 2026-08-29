@@ -1,7 +1,17 @@
-import { HUD, MOTION } from "@capsule/config";
-import type { CSSProperties, ReactElement, ReactNode } from "react";
+import { HUD, MOTION, railLengthForCount } from "@capsule/config";
+import type { ReactElement, ReactNode } from "react";
+import {
+  blobLayout,
+  type CardGrowth,
+  cardPath,
+  flushClipRect,
+  flushPadding,
+  railPath,
+  tailPath,
+} from "./blob-path.ts";
+import { useAnimatedNumber } from "./use-animated-number.ts";
 
-export type CardGrowth = "left" | "right" | "up" | "down";
+export type { CardGrowth };
 
 export function HudFrame({
   orientation,
@@ -9,6 +19,7 @@ export function HudFrame({
   open,
   joinOffset,
   dragging,
+  meterCount,
   rail,
   card,
 }: {
@@ -17,83 +28,217 @@ export function HudFrame({
   open: boolean;
   joinOffset: number;
   dragging: boolean;
+  meterCount: number;
   rail: ReactNode;
   card: ReactNode;
 }): ReactElement {
-  const radius = HUD.railRadius;
+  const railLength = railLengthForCount(meterCount);
+  const join = useAnimatedNumber(joinOffset, MOTION.blobMs);
+  const progress = useAnimatedNumber(open && !dragging ? 1 : 0, MOTION.blobMs);
+  const layout = blobLayout({
+    cardGrowth,
+    railLength,
+    joinOffset: join,
+  });
+  const pad = flushPadding(cardGrowth);
+  const clip = flushClipRect(cardGrowth, layout);
+  const showCard = progress > 0.02;
+  const cardHits = progress > 0.55 && !dragging;
   const motion = `${MOTION.cardMs}ms ${MOTION.easing}`;
-  const railStyle: CSSProperties = {
-    background: HUD.surface,
-    display: "flex",
-    flexDirection: orientation === "vertical" ? "column" : "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: HUD.itemGap,
-    padding:
-      orientation === "vertical"
-        ? `${HUD.railPaddingY}px ${HUD.railPaddingX}px`
-        : `${HUD.railPaddingX}px ${HUD.railPaddingY}px`,
-    width: orientation === "vertical" ? HUD.railWidth : "auto",
-    height: orientation === "horizontal" ? HUD.railWidth : "auto",
-    boxSizing: "border-box",
-    borderRadius: radius,
-    position: "relative",
-    zIndex: 2,
-    boxShadow: MOTION.railShadow,
-    cursor: dragging ? "grabbing" : "grab",
-    transition: `transform ${motion}, box-shadow ${motion}`,
-    transform: dragging ? "scale(1.02)" : "scale(1)",
-  };
-
-  const cardWrapStyle: CSSProperties = {
-    background: HUD.surface,
-    borderRadius: HUD.cardRadius,
-    position: "relative",
-    marginTop: orientation === "vertical" ? Math.max(0, joinOffset - 86) : 0,
-    opacity: open && !dragging ? 1 : 0,
-    transform: cardTransform(open && !dragging, cardGrowth),
-    transformOrigin: cardOrigin(cardGrowth),
-    transition: `opacity ${motion}, transform ${motion}`,
-    pointerEvents: open && !dragging ? "auto" : "none",
-    boxShadow: MOTION.railShadow,
-  };
-
-  const direction: CSSProperties =
-    cardGrowth === "left"
-      ? { flexDirection: "row" }
-      : cardGrowth === "right"
-        ? { flexDirection: "row-reverse" }
-        : cardGrowth === "up"
-          ? { flexDirection: "column-reverse" }
-          : { flexDirection: "column" };
+  const railD = railPath(cardGrowth, layout.rail);
+  const gooMatrix = `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${HUD.blobGooAlpha} ${HUD.blobGooBias}`;
 
   return (
     <div
       data-hud-frame="true"
       style={{
-        display: "flex",
-        alignItems: "flex-start",
+        position: "relative",
+        boxSizing: "border-box",
+        width: layout.width + pad.left + pad.right,
+        height: layout.height + pad.top + pad.bottom,
+        paddingTop: pad.top,
+        paddingRight: pad.right,
+        paddingBottom: pad.bottom,
+        paddingLeft: pad.left,
         fontFamily: HUD.fontFamily,
         color: HUD.text,
-        ...direction,
+        pointerEvents: "none",
       }}
     >
       <div
-        data-card-wrap="true"
-        data-card-open={open ? "true" : "false"}
-        style={cardWrapStyle}
+        style={{
+          position: "relative",
+          width: layout.width,
+          height: layout.height,
+        }}
       >
-        {card}
-        <span style={tail(cardGrowth)} />
-      </div>
-      <div data-hud-rail="true" style={railStyle}>
-        {rail}
+        <svg
+          data-hud-blob="true"
+          width={layout.width}
+          height={layout.height}
+          viewBox={`0 0 ${layout.width} ${layout.height}`}
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            overflow: "visible",
+            pointerEvents: "none",
+            filter: `drop-shadow(0 ${MOTION.shadowDy}px ${MOTION.shadowBlur}px rgba(0, 0, 0, ${MOTION.shadowOpacity}))`,
+            transform: dragging ? `scale(${MOTION.liftScale})` : "scale(1)",
+            transformOrigin: blobOrigin(cardGrowth),
+            transition: `transform ${motion}`,
+          }}
+        >
+          <defs>
+            <filter
+              id="capsule-hud-goo"
+              x="-40%"
+              y="-40%"
+              width="180%"
+              height="180%"
+            >
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation={HUD.blobBlur}
+                result="blur"
+              />
+              <feColorMatrix
+                in="blur"
+                mode="matrix"
+                values={gooMatrix}
+                result="goo"
+              />
+            </filter>
+            <clipPath id="capsule-hud-flush">
+              <rect
+                x={clip.x}
+                y={clip.y}
+                width={clip.width}
+                height={clip.height}
+              />
+            </clipPath>
+          </defs>
+          <g clipPath="url(#capsule-hud-flush)">
+            <g filter={showCard ? "url(#capsule-hud-goo)" : undefined}>
+              <path d={railD} fill={HUD.surface} />
+              {showCard ? (
+                <>
+                  <path
+                    d={cardPath(layout.card)}
+                    fill={HUD.surface}
+                    opacity={progress}
+                  />
+                  <path
+                    d={tailPath(cardGrowth, layout.card, layout.rail, join)}
+                    fill={HUD.surface}
+                    opacity={progress}
+                  />
+                  <circle
+                    cx={layout.join.x}
+                    cy={layout.join.y}
+                    r={HUD.connectorRadius}
+                    fill={HUD.surface}
+                    opacity={progress}
+                  />
+                </>
+              ) : null}
+            </g>
+            <path d={railD} fill={HUD.surface} />
+            {showCard ? (
+              <path
+                d={cardPath(layout.card)}
+                fill={HUD.surface}
+                opacity={progress}
+              />
+            ) : null}
+          </g>
+        </svg>
+        <svg
+          width={layout.width}
+          height={layout.height}
+          viewBox={`0 0 ${layout.width} ${layout.height}`}
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            overflow: "visible",
+            pointerEvents: "none",
+          }}
+        >
+          <path
+            d={railD}
+            fill="transparent"
+            data-hud-hit="true"
+            style={{
+              pointerEvents: "fill",
+              cursor: dragging ? "grabbing" : "grab",
+            }}
+          />
+          {cardHits ? (
+            <>
+              <path
+                d={cardPath(layout.card)}
+                fill="transparent"
+                data-hud-hit="true"
+                style={{ pointerEvents: "fill" }}
+              />
+              <path
+                d={tailPath(cardGrowth, layout.card, layout.rail, join)}
+                fill="transparent"
+                data-hud-hit="true"
+                style={{ pointerEvents: "fill" }}
+              />
+            </>
+          ) : null}
+        </svg>
+        <div
+          data-card-wrap="true"
+          data-card-open={open ? "true" : "false"}
+          data-hud-hit={cardHits ? "true" : "false"}
+          style={{
+            position: "absolute",
+            left: layout.card.x,
+            top: layout.card.y,
+            width: layout.card.width,
+            boxSizing: "border-box",
+            opacity: progress,
+            transform: cardTransform(progress, cardGrowth),
+            transformOrigin: cardOrigin(cardGrowth),
+            pointerEvents: cardHits ? "auto" : "none",
+          }}
+        >
+          {card}
+        </div>
+        <div
+          data-hud-rail="true"
+          style={{
+            position: "absolute",
+            left: layout.rail.x,
+            top: layout.rail.y,
+            width: layout.rail.width,
+            height: layout.rail.height,
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: orientation === "vertical" ? "column" : "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: HUD.itemGap,
+            padding:
+              orientation === "vertical"
+                ? `${HUD.railPaddingY}px ${HUD.railPaddingX}px`
+                : `${HUD.railPaddingX}px ${HUD.railPaddingY}px`,
+            pointerEvents: "none",
+            cursor: dragging ? "grabbing" : "grab",
+          }}
+        >
+          {rail}
+        </div>
       </div>
     </div>
   );
 }
 
-function cardOrigin(growth: CardGrowth): string {
+function blobOrigin(growth: CardGrowth): string {
   if (growth === "left") {
     return "right center";
   }
@@ -106,70 +251,22 @@ function cardOrigin(growth: CardGrowth): string {
   return "center top";
 }
 
-function cardTransform(open: boolean, growth: CardGrowth): string {
-  if (open) {
-    return "translate(0, 0) scale(1)";
-  }
-  const shift = MOTION.closedCardShiftPx;
-  const scale = MOTION.closedCardScale;
+function cardOrigin(growth: CardGrowth): string {
+  return blobOrigin(growth);
+}
+
+function cardTransform(progress: number, growth: CardGrowth): string {
+  const scale =
+    MOTION.closedCardScale + (1 - MOTION.closedCardScale) * progress;
+  const shift = MOTION.closedCardShiftPx * (1 - progress);
   if (growth === "left") {
     return `translateX(${shift}px) scale(${scale})`;
   }
   if (growth === "right") {
-    return `translateX(-${shift}px) scale(${scale})`;
+    return `translateX(${-shift}px) scale(${scale})`;
   }
   if (growth === "up") {
     return `translateY(${shift}px) scale(${scale})`;
   }
-  return `translateY(-${shift}px) scale(${scale})`;
-}
-
-function tail(growth: CardGrowth): CSSProperties {
-  const size = HUD.joinSize;
-  const base: CSSProperties = {
-    position: "absolute",
-    width: 0,
-    height: 0,
-    pointerEvents: "none",
-  };
-  if (growth === "left") {
-    return {
-      ...base,
-      right: -size + 1,
-      top: 72,
-      borderTop: `${size}px solid transparent`,
-      borderBottom: `${size}px solid transparent`,
-      borderLeft: `${size}px solid ${HUD.surface}`,
-    };
-  }
-  if (growth === "right") {
-    return {
-      ...base,
-      left: -size + 1,
-      top: 72,
-      borderTop: `${size}px solid transparent`,
-      borderBottom: `${size}px solid transparent`,
-      borderRight: `${size}px solid ${HUD.surface}`,
-    };
-  }
-  if (growth === "up") {
-    return {
-      ...base,
-      bottom: -size + 1,
-      left: "50%",
-      marginLeft: -size,
-      borderLeft: `${size}px solid transparent`,
-      borderRight: `${size}px solid transparent`,
-      borderTop: `${size}px solid ${HUD.surface}`,
-    };
-  }
-  return {
-    ...base,
-    top: -size + 1,
-    left: "50%",
-    marginLeft: -size,
-    borderLeft: `${size}px solid transparent`,
-    borderRight: `${size}px solid transparent`,
-    borderBottom: `${size}px solid ${HUD.surface}`,
-  };
+  return `translateY(${-shift}px) scale(${scale})`;
 }

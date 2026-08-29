@@ -30,6 +30,7 @@ export interface HudSize {
   cardHeight: number;
   expanded: boolean;
   shadowPadding: number;
+  joinWidth: number;
 }
 
 export interface PlacementResult {
@@ -65,18 +66,18 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function verticalWindowSize(hud: HudSize): { width: number; height: number } {
-  const card = hud.expanded ? hud.cardWidth : 0;
+  const extra = hud.expanded ? hud.cardWidth + hud.joinWidth : 0;
   return {
-    width: hud.railWidth + card + hud.shadowPadding,
+    width: hud.railWidth + extra + hud.shadowPadding,
     height: hud.railLength + hud.shadowPadding * 2,
   };
 }
 
 function horizontalWindowSize(hud: HudSize): { width: number; height: number } {
-  const card = hud.expanded ? hud.cardHeight : 0;
+  const extra = hud.expanded ? hud.cardHeight + hud.joinWidth : 0;
   return {
     width: hud.railLength + hud.shadowPadding * 2,
-    height: hud.railWidth + card + hud.shadowPadding,
+    height: hud.railWidth + extra + hud.shadowPadding,
   };
 }
 

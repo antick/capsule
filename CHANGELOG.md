@@ -15,4 +15,10 @@ All notable changes to Capsule are documented in this file.
 - Overlay now hydrates usage snapshots on subscribe instead of painting an empty transparent window.
 - Overlay uses in-memory routing so Vite's `/overlay/index.html` URL no longer renders TanStack's "Not Found" instead of the dock.
 - Overlay paints demo HUD on first frame and stays on the primary display.
-- Hover/click to open the usage card with motion; drag along the docked edge to reposition.
+- Hover/click to open the usage card with motion; drag the dock and snap it to a screen edge.
+
+### Fixed
+
+- Usage card no longer clips into a distorted rectangle: the overlay stays large enough for the blob, and transparent pixels click through.
+- Hover opens a connected speech-bubble card aligned to the active meter; leaving the HUD still closes an unpinned card.
+- Drag follows the cursor in the main process so the dock can be moved without losing pointer events, then snaps to the nearest edge.

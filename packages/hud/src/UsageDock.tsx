@@ -1,6 +1,7 @@
 import {
   DEMO_NOW_ISO,
   HUD,
+  joinOffsetForIndex,
   MOTION,
   type ProviderId,
   type UsageSnapshot,
@@ -62,6 +63,12 @@ export function UsageDock({
     lastCard.current = openSnapshot;
   }
   const cardSnapshot = openSnapshot ?? lastCard.current;
+  const joinId =
+    openId ?? lastCard.current?.providerId ?? snapshots[0]?.providerId ?? null;
+  const activeJoinIndex = Math.max(
+    0,
+    snapshots.findIndex((item) => item.providerId === joinId),
+  );
 
   useEffect(() => {
     onOpenChange?.(openSnapshot !== null, openSnapshot?.providerId ?? null);
@@ -91,20 +98,14 @@ export function UsageDock({
   };
 
   const scheduleClose = () => {
+    if (pinned || dragging) {
+      return;
+    }
     clearTimers();
     closeTimer.current = setTimeout(() => {
       setHovered(null);
     }, HUD.hoverCloseDelayMs);
   };
-
-  const joinIndex = Math.max(
-    0,
-    snapshots.findIndex((item) => item.providerId === openId),
-  );
-  const joinOffset =
-    HUD.railPaddingY +
-    joinIndex * (HUD.meterSize + HUD.itemGap + HUD.percentBlock) +
-    HUD.meterSize / 2;
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) {
@@ -117,7 +118,11 @@ export function UsageDock({
       startY: event.screenY,
       active: false,
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
+    if (event.target instanceof Element) {
+      event.target.setPointerCapture(event.pointerId);
+    } else {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
   };
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -152,6 +157,9 @@ export function UsageDock({
     }
     setDragging(false);
     drag.current = null;
+    window.setTimeout(() => {
+      didDrag.current = false;
+    }, 0);
   };
 
   return (
@@ -162,20 +170,24 @@ export function UsageDock({
       onPointerMove={onPointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
-      onPointerLeave={() => {
-        if (!pinned && !dragging) {
-          scheduleClose();
+      onPointerEnter={() => {
+        if (!dragging) {
+          clearTimers();
         }
       }}
+      onPointerLeave={() => {
+        scheduleClose();
+      }}
       onContextMenu={onContextMenu}
-      style={{ display: "inline-flex" }}
+      style={{ display: "inline-flex", pointerEvents: "none" }}
     >
       <HudFrame
         orientation={orientation}
         cardGrowth={cardGrowth}
         open={openSnapshot !== null}
-        joinOffset={joinOffset}
+        joinOffset={joinOffsetForIndex(activeJoinIndex)}
         dragging={dragging}
+        meterCount={Math.max(1, snapshots.length)}
         rail={snapshots.map((snapshot) => (
           <UsageMeter
             key={snapshot.providerId}
