@@ -11,11 +11,12 @@ All notable changes to Capsule are documented in this file.
 - Root `AGENTS.md` requiring agents to auto-commit each completed task (conventional commits, no push).
 - pnpm + Turborepo monorepo with `@capsule/config`, `@capsule/dates`, `@capsule/usage`, `@capsule/hud`, `@capsule/ui`, and `@capsule/desktop`.
 - Demo-mode usage dock HUD (Claude 73% / ChatGPT 21% / Spark 52%) with connected detail card.
-- Electron overlay shell: always-on-top panel, click-through, Dock icon hidden, placement engine, settings window, Claude/ChatGPT adapters.
+- Electron overlay shell: always-on-top panel, click-through, placement engine, settings window, Claude/ChatGPT adapters.
 - Overlay now hydrates usage snapshots on subscribe instead of painting an empty transparent window.
 - Overlay uses in-memory routing so Vite's `/overlay/index.html` URL no longer renders TanStack's "Not Found" instead of the dock.
 - Overlay paints demo HUD on first frame and stays on the primary display.
 - Hover/click to open the usage card with motion; drag the dock and snap it to a screen edge.
+- Menu bar extra and Dock icon for Capsule, with Position shortcuts (right, left, bottom, and other placements) plus Open Settings.
 
 ### Fixed
 

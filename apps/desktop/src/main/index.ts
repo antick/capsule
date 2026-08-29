@@ -2,19 +2,13 @@ import {
   APP_NAME,
   type CapsuleSettings,
   CHROME_POLL_MS,
-  COPY,
   IPC,
+  type PlacementPreset,
   type ProviderId,
   type UsageSnapshot,
 } from "@capsule/config";
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  powerMonitor,
-  screen,
-} from "electron";
+import { app, BrowserWindow, ipcMain, powerMonitor, screen } from "electron";
+import { createAppChrome } from "./app-chrome.ts";
 import { OverlayController } from "./overlay-window.ts";
 import { openSettingsWindow } from "./settings-window.ts";
 import { loadSettings, saveSettings } from "./store.ts";
@@ -22,13 +16,10 @@ import { createUsageHost } from "./usage-host.ts";
 
 app.setName(APP_NAME);
 
-if (process.platform === "darwin") {
-  app.dock?.hide();
-}
-
 let settings = loadSettings();
 const overlay = new OverlayController(settings);
 let snapshots: UsageSnapshot[] = [];
+let appChrome: ReturnType<typeof createAppChrome> | null = null;
 
 const broadcast = () => {
   overlay.setMeterCount(snapshots.length || 1);
@@ -72,6 +63,7 @@ function applySettings(next: CapsuleSettings): CapsuleSettings {
   }
   void overlay.relayout();
   broadcast();
+  appChrome?.sync(settings);
   return settings;
 }
 
@@ -81,18 +73,20 @@ app.whenReady().then(async () => {
     settings = saveSettings({ ...settings, launchAtLogin: login.openAtLogin });
   }
 
-  Menu.setApplicationMenu(
-    Menu.buildFromTemplate([
-      {
-        label: APP_NAME,
-        submenu: [
-          { label: COPY.settings, click: () => void openSettingsWindow("/") },
-          { type: "separator" },
-          { role: "quit", label: COPY.quit },
-        ],
-      },
-    ]),
-  );
+  appChrome = createAppChrome({
+    getSettings: () => settings,
+    applyPlacement: (preset: PlacementPreset) => {
+      applySettings({
+        ...settings,
+        placementPreset: preset,
+        customPosition: null,
+      });
+    },
+    openSettings: () => {
+      void openSettingsWindow("/placement");
+    },
+    quit: () => app.quit(),
+  });
 
   ipcMain.handle(IPC.getSettings, () => settings);
   ipcMain.handle(IPC.getSnapshots, () => ({ snapshots, settings }));
@@ -127,11 +121,11 @@ app.whenReady().then(async () => {
     }
   });
   ipcMain.on(IPC.contextMenu, () => {
-    Menu.buildFromTemplate([
-      { label: COPY.settings, click: () => void openSettingsWindow("/") },
-      { type: "separator" },
-      { label: COPY.quit, click: () => app.quit() },
-    ]).popup();
+    appChrome?.popup();
+  });
+
+  app.on("activate", () => {
+    void openSettingsWindow("/placement");
   });
 
   await overlay.create(() => {

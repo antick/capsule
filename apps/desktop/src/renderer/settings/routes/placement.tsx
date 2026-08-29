@@ -1,4 +1,4 @@
-import { COPY, PLACEMENT_PRESETS } from "@capsule/config";
+import { COPY, PLACEMENT_LABELS, PLACEMENT_PRESETS } from "@capsule/config";
 import { useCapsuleSettings } from "../use-settings.ts";
 
 export function PlacementPage() {
@@ -19,7 +19,7 @@ export function PlacementPage() {
               void update({ placementPreset: preset, customPosition: null })
             }
           />
-          {preset}
+          {PLACEMENT_LABELS[preset]}
         </label>
       ))}
     </fieldset>

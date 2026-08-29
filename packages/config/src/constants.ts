@@ -15,6 +15,23 @@ export const PLACEMENT_PRESETS = [
 ] as const;
 export type PlacementPreset = (typeof PLACEMENT_PRESETS)[number];
 
+export const PLACEMENT_LABELS = {
+  "right-edge": "Right side",
+  "left-edge": "Left side",
+  "bottom-edge": "Bottom",
+  "top-edge": "Top",
+  "dock-flank-left": "Dock, left",
+  "dock-flank-right": "Dock, right",
+  "stage-manager-top": "Stage Manager, top",
+  "stage-manager-bottom": "Stage Manager, bottom",
+} as const satisfies Record<PlacementPreset, string>;
+
+export const PLACEMENT_MENU_GROUPS = [
+  ["right-edge", "left-edge", "bottom-edge", "top-edge"],
+  ["dock-flank-left", "dock-flank-right"],
+  ["stage-manager-top", "stage-manager-bottom"],
+] as const satisfies ReadonlyArray<ReadonlyArray<PlacementPreset>>;
+
 export const SEVERITY_BANDS = {
   low: 39,
   mid: 69,
@@ -159,6 +176,8 @@ export const COPY = {
   staleData: "Data is stale",
   unavailable: "Usage unavailable",
   settings: "Settings",
+  openSettings: "Open Settings…",
+  position: "Position",
   quit: "Quit Capsule",
   demoMode: "Demo mode",
   launchAtLogin: "Launch at login",

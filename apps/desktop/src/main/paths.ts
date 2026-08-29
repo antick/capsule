@@ -4,6 +4,10 @@ export function rendererHtml(name: "overlay" | "settings"): string {
   return join(__dirname, `../renderer/${name}/index.html`);
 }
 
+export function resourceFile(name: string): string {
+  return join(__dirname, "../../resources", name);
+}
+
 export function rendererDevUrl(name: "overlay" | "settings"): string | null {
   const base = process.env.ELECTRON_RENDERER_URL;
   if (!base) {

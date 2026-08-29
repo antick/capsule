@@ -7,6 +7,9 @@ let settingsWindow: BrowserWindow | null = null;
 
 export async function openSettingsWindow(hash = "/"): Promise<BrowserWindow> {
   if (settingsWindow && !settingsWindow.isDestroyed()) {
+    await settingsWindow.webContents.executeJavaScript(
+      `window.location.hash = ${JSON.stringify(`#${hash}`)}`,
+    );
     settingsWindow.show();
     settingsWindow.focus();
     return settingsWindow;
