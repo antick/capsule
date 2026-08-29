@@ -4,10 +4,12 @@ import {
   type CapsuleSettings,
   cardHeightForBuckets,
   computePlacement,
+  dockAlongEdge,
   dockEdgeGap,
   dockStyleFor,
   HUD,
   hudMetrics,
+  IPC,
   MOTION,
   nearestEdgeForPoint,
   PLACEMENT,
@@ -32,8 +34,10 @@ const MENU_SAFE_LEVEL = "floating";
 interface DragState {
   preset: PlacementPreset;
   placement: PlacementResult;
-  /** Cursor offset from the leading edge of the window, along the slide axis. */
+  /** Cursor offset from the leading edge of the rail, along the slide axis. */
   grabOffset: number;
+  /** Leading edge of the rail in screen coordinates, which is what we store. */
+  railStart: number;
 }
 
 export class OverlayController {
@@ -49,6 +53,10 @@ export class OverlayController {
   /** Window-local areas the dock wants the mouse for, reported by the renderer. */
   private hitRegions: Rect[] = [];
   private onPresetPreview: ((preset: PlacementPreset) => void) | null = null;
+  /** Where the rail currently sits inside the window. */
+  private railBias = 0;
+  /** What the renderer was last told, so a drag does not spam identical values. */
+  private publishedBias: number | null = null;
 
   constructor(settings: CapsuleSettings) {
     this.settings = settings;
@@ -115,6 +123,9 @@ export class OverlayController {
     await this.relayout();
 
     win.webContents.on("did-finish-load", () => {
+      // A fresh renderer knows nothing about the layout it was sized for.
+      this.publishedBias = null;
+      this.publishRailBias(this.railBias);
       win.showInactive();
       onReady?.();
     });
@@ -184,11 +195,16 @@ export class OverlayController {
     if (!placement) {
       return;
     }
+    // Grab the rail, not the window: where the window has been stopped by a
+    // screen edge the two no longer move together.
+    const windowStart = placement.slide.axis === "x" ? bounds.x : bounds.y;
+    const railStart = windowStart + placement.slide.gutter + this.railBias;
     this.drag = {
       preset: this.settings.placementPreset,
       placement,
       grabOffset:
-        placement.slide.axis === "x" ? screenX - bounds.x : screenY - bounds.y,
+        (placement.slide.axis === "x" ? screenX : screenY) - railStart,
+      railStart,
     };
     this.setIgnore(false);
     this.stopDragPoll();
@@ -217,9 +233,16 @@ export class OverlayController {
     }
     const bounds = win.getBounds();
     this.settingsDisplayId = drag.placement.displayId;
+    // The slide axis holds the rail's leading edge, so the same number means
+    // the same place whatever the card or the style does to the window around
+    // it. The other axis is pinned by the edge and is ignored on the way back.
+    const along = Math.round(drag.railStart);
     return {
       placementPreset: drag.preset,
-      customPosition: { x: bounds.x, y: bounds.y },
+      customPosition:
+        drag.placement.slide.axis === "x"
+          ? { x: along, y: bounds.y }
+          : { x: bounds.x, y: along },
     };
   }
 
@@ -252,19 +275,19 @@ export class OverlayController {
     }
     this.settingsDisplayId = placement.displayId;
     const custom = this.settings.customPosition;
-    let { x, y } = placement;
+    let { x, y, railBias } = placement;
     if (custom) {
-      // A remembered position only says how far along the edge the dock sits;
+      // A remembered position only says how far along the edge the rail sits;
       // the axis pinned to the edge always comes from the placement.
-      const along = placement.slide.axis === "x" ? custom.x : custom.y;
-      const clamped = Math.min(
-        placement.slide.max,
-        Math.max(placement.slide.min, along),
+      const placed = dockAlongEdge(
+        placement.slide,
+        placement.slide.axis === "x" ? custom.x : custom.y,
       );
+      railBias = placed.railBias;
       if (placement.slide.axis === "x") {
-        x = clamped;
+        x = placed.window;
       } else {
-        y = clamped;
+        y = placed.window;
       }
     }
     const bounds = {
@@ -274,7 +297,23 @@ export class OverlayController {
       height: Math.round(placement.height),
     };
     win.setBounds(bounds, false);
-    return { ...placement, x: bounds.x, y: bounds.y };
+    this.publishRailBias(railBias);
+    return { ...placement, x: bounds.x, y: bounds.y, railBias };
+  }
+
+  /** Tells the renderer where to draw the rail inside the window it was given. */
+  private publishRailBias(bias: number): void {
+    const win = this.window;
+    if (!win || win.isDestroyed()) {
+      return;
+    }
+    const next = Math.round(bias);
+    this.railBias = next;
+    if (this.publishedBias === next) {
+      return;
+    }
+    this.publishedBias = next;
+    win.webContents.send(IPC.railBias, next);
   }
 
   /** Window geometry for a preset on the display the dock currently lives on. */
@@ -363,10 +402,9 @@ export class OverlayController {
       const next = this.placementFor(preset);
       if (next) {
         placement = next;
-        // Re-grab from the middle so the dock does not lurch when it rotates.
-        const span =
-          placement.slide.axis === "x" ? placement.width : placement.height;
-        drag.grabOffset = span / 2;
+        // Re-grab the rail from its middle so the dock does not lurch when it
+        // rotates onto a new edge.
+        drag.grabOffset = placement.slide.railLength / 2;
         drag.preset = preset;
         drag.placement = placement;
         this.onPresetPreview?.(preset);
@@ -380,6 +418,7 @@ export class OverlayController {
       cursor,
       grabOffset: drag.grabOffset,
     });
+    drag.railStart = next.railStart;
     win.setBounds(
       {
         x: next.x,
@@ -389,6 +428,7 @@ export class OverlayController {
       },
       false,
     );
+    this.publishRailBias(next.railBias);
   }
 
   private startHoverTracking(): void {

@@ -7,10 +7,10 @@ import {
   type ProviderId,
 } from "./constants.ts";
 import { DOCK_STYLE_IDS } from "./dock-style.ts";
-import { HUD_SCALE } from "./metrics.ts";
+import { clampHudScale, HUD_SCALE } from "./metrics.ts";
 import { HUD_THEME_IDS } from "./theme.ts";
 
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 6;
 
 const LEGACY_PROVIDER_IDS: Record<string, ProviderId> = {
   chatgpt: "codex",
@@ -56,12 +56,19 @@ export function migrateSettings(raw: unknown): unknown {
     enabledProviderIds: enabled,
     placementPreset: preset,
     demoMode: firstLiveSchema ? false : input.demoMode,
-    // A stored position belongs to the old placement model; let the new
-    // engine re-anchor the dock rather than restoring a stale coordinate.
-    customPosition: version < 3 ? null : input.customPosition,
+    // A stored position used to be the window's corner and is now the leading
+    // edge of the rail itself, so an old coordinate would put the dock in the
+    // wrong place. Let the placement engine re-anchor it instead.
+    customPosition: version < 6 ? null : input.customPosition,
     // The artwork was redrawn at a smaller size, so an old percentage no
-    // longer means what it did and is dropped rather than re-based.
-    hudScale: version < 5 ? HUD_SCALE.default : input.hudScale,
+    // longer means what it did and is dropped rather than re-based. Anything
+    // newer is snapped onto the current grid of sizes.
+    hudScale:
+      version < 5
+        ? HUD_SCALE.default
+        : typeof input.hudScale === "number"
+          ? clampHudScale(input.hudScale)
+          : input.hudScale,
     schemaVersion: SCHEMA_VERSION,
   };
 }

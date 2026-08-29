@@ -36,6 +36,7 @@ export function HudFrame({
   dragging,
   railLength,
   cardHeight,
+  railBias = null,
   rail,
   card,
   onHitRegions,
@@ -53,6 +54,8 @@ export function HudFrame({
   dragging: boolean;
   railLength: number;
   cardHeight?: number;
+  /** Where the rail sits inside the frame, from the placement engine. */
+  railBias?: number | null;
   rail: ReactNode;
   card: ReactNode;
   onHitRegions?: (regions: HitRegions) => void;
@@ -67,6 +70,7 @@ export function HudFrame({
     cardHeight: height,
     cardReserve: cardHeightForBuckets(metrics, HUD.maxCardBuckets),
     style,
+    railBias,
   });
   const pad = framePadding(metrics, cardGrowth, style);
   const visible = open && !dragging;

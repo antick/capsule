@@ -7,6 +7,7 @@ import {
   computePlacement,
   DOCK_STYLES,
   type DockStyle,
+  dockAlongEdge,
   dockEdgeGap,
   HUD,
   HUD_SCALE,
@@ -82,7 +83,38 @@ describe("desktop placement wiring", () => {
     expect(result.y + result.height).toBeGreaterThan(908);
     expect(result.y + result.height).toBeLessThanOrEqual(982);
     const dockLeft = (1512 - PLACEMENT.dockCenteredIconSpanPx) / 2;
-    expect(result.x + result.width).toBeLessThanOrEqual(dockLeft);
+    const railRight =
+      result.x +
+      result.slide.gutter +
+      result.railBias +
+      result.slide.railLength;
+    expect(railRight).toBeLessThanOrEqual(dockLeft);
+  });
+
+  it("lets the dock reach the far corner of the edge it rides", () => {
+    // The window is wider than the rail, because it has to be able to show a
+    // card without resizing. Clamping the window to the screen used to stop
+    // the dock half an inch short of the corner, leaving a gap the user reads
+    // as the dock refusing to move.
+    for (const preset of ["bottom-edge", "right-edge"] as const) {
+      for (const style of Object.values(DOCK_STYLES)) {
+        const result = place(preset, HUD_SCALE.default, style);
+        const along = preset === "bottom-edge" ? "x" : "y";
+        const screenEnd = along === "x" ? 1512 : 982;
+        const placed = dockAlongEdge(result.slide, result.slide.max);
+        const railEnd =
+          placed.window +
+          result.slide.gutter +
+          placed.railBias +
+          result.slide.railLength;
+        expect(railEnd).toBe(screenEnd);
+        // And the frame it is drawn in never leaves the screen with it, or the
+        // card would be the thing that gets cut off instead.
+        const windowEnd =
+          placed.window + (along === "x" ? result.width : result.height);
+        expect(windowEnd - result.slide.gutter).toBeLessThanOrEqual(screenEnd);
+      }
+    }
   });
 
   it("shrinks the window when the user turns the size down", () => {
@@ -91,10 +123,12 @@ describe("desktop placement wiring", () => {
     );
   });
 
-  it("keeps a floating style below the menu bar instead of over it", () => {
+  it("hangs a floating style from the physical top as well", () => {
+    // Only the notch used to reach the top of the screen, so changing style
+    // made the top dock appear to slip down below the menu bar.
     const result = place("top-edge", HUD_SCALE.default, DOCK_STYLES.capsule);
     expect(result.notch).toBe(false);
-    expect(result.y).toBe(chrome.display.workArea.y);
+    expect(result.y).toBe(chrome.display.bounds.y);
   });
 
   it("leaves the tray style a gap against the edge it rides", () => {
@@ -133,19 +167,37 @@ describe("window and frame agree", () => {
           ),
         ];
 
+        // Both ends of the travel, where the rail is pushed off centre, as
+        // well as the middle where it is not.
+        const biases = [null, 0, window.slide.slack / 2, window.slide.slack];
+
         for (const cardHeight of cards) {
-          for (let index = 0; index < METERS; index += 1) {
-            const layout = blobLayout(m, {
-              cardGrowth: window.cardGrowth,
-              railLength: railLengthForCount(m, METERS, compact),
-              joinOffset: joinOffsetForIndex(m, index, compact),
-              cardHeight,
-              cardReserve: cardHeightForBuckets(m, HUD.maxCardBuckets),
-              style,
-            });
-            const pad = framePadding(m, window.cardGrowth, style);
-            expect(layout.width + pad.left + pad.right).toBe(window.width);
-            expect(layout.height + pad.top + pad.bottom).toBe(window.height);
+          for (const railBias of biases) {
+            for (let index = 0; index < METERS; index += 1) {
+              const layout = blobLayout(m, {
+                cardGrowth: window.cardGrowth,
+                railLength: railLengthForCount(m, METERS, compact),
+                joinOffset: joinOffsetForIndex(m, index, compact),
+                cardHeight,
+                cardReserve: cardHeightForBuckets(m, HUD.maxCardBuckets),
+                style,
+                railBias,
+              });
+              const pad = framePadding(m, window.cardGrowth, style);
+              expect(layout.width + pad.left + pad.right).toBe(window.width);
+              expect(layout.height + pad.top + pad.bottom).toBe(window.height);
+
+              // Whatever the bias, the card stays inside the frame — which is
+              // what keeps it on screen once the window stops at the edge.
+              expect(layout.card.x).toBeGreaterThanOrEqual(0);
+              expect(layout.card.y).toBeGreaterThanOrEqual(0);
+              expect(layout.card.x + layout.card.width).toBeLessThanOrEqual(
+                layout.width,
+              );
+              expect(layout.card.y + layout.card.height).toBeLessThanOrEqual(
+                layout.height,
+              );
+            }
           }
         }
       });

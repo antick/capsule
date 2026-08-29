@@ -198,6 +198,8 @@ export const IPC = {
   setExpanded: "capsule:set-expanded",
   /** Main tells an open settings window which page to show. */
   navigate: "capsule:navigate",
+  /** Main tells the overlay where the rail sits inside its frame. */
+  railBias: "capsule:rail-bias",
   contextMenu: "capsule:context-menu",
   startMove: "capsule:start-move",
   endMove: "capsule:end-move",

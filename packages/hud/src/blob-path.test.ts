@@ -52,6 +52,38 @@ describe("blobLayout", () => {
     expect(layout.height).toBe(railLength + m.edgeFlare * 2);
   });
 
+  it("slides the rail through the frame when the placement asks it to", () => {
+    // The frame is longer than the rail whenever the card is, and the rail is
+    // centred in the difference. Against a screen edge the window can go no
+    // further, so the placement engine slides the rail on within the frame —
+    // which is how the dock reaches a corner without taking the card with it.
+    const tallCard = cardHeightForBuckets(m, 3);
+    const centred = blobLayout(m, {
+      cardGrowth: "left",
+      railLength: 120,
+      joinOffset: joinOffsetForIndex(m, 0),
+      cardHeight: tallCard,
+    });
+    const slack = centred.height - (120 + m.edgeFlare * 2);
+    expect(slack).toBeGreaterThan(0);
+
+    const pushed = blobLayout(m, {
+      cardGrowth: "left",
+      railLength: 120,
+      joinOffset: joinOffsetForIndex(m, 0),
+      cardHeight: tallCard,
+      railBias: slack,
+    });
+    expect(pushed.height).toBe(centred.height);
+    expect(pushed.rail.y).toBe(slack + m.edgeFlare);
+    expect(pushed.rail.y + pushed.rail.height + m.edgeFlare).toBe(
+      pushed.height,
+    );
+    expect(pushed.card.y + pushed.card.height).toBeLessThanOrEqual(
+      pushed.height,
+    );
+  });
+
   it("centres the card on the meter its tail points at", () => {
     const layout = layoutFor("left", 1);
     const centre = layout.card.y + layout.card.height / 2;

@@ -20,7 +20,7 @@ describe("migrateSettings", () => {
     );
     expect(migrated.enabledProviderIds).toEqual(["claude", "codex", "grok"]);
     expect(migrated.demoMode).toBe(false);
-    expect(migrated.schemaVersion).toBe(5);
+    expect(migrated.schemaVersion).toBe(6);
   });
 
   it("sorts the enabled providers so the dock cannot re-shuffle itself", () => {
@@ -58,22 +58,35 @@ describe("migrateSettings", () => {
     expect(stage.placementPreset).toBe("left-edge");
   });
 
-  it("drops a position saved under the old placement model", () => {
-    const migrated = settingsSchema.parse({
-      ...defaultSettings(),
-      customPosition: { x: 900, y: 120 },
-      schemaVersion: 2,
-    });
-    expect(migrated.customPosition).toBeNull();
+  it("drops a position saved before it meant the rail's own edge", () => {
+    // It used to be the window's corner, which sits a shadow gutter and half
+    // the card's overhang away from where the dock is drawn.
+    for (const schemaVersion of [2, 5]) {
+      const migrated = settingsSchema.parse({
+        ...defaultSettings(),
+        customPosition: { x: 900, y: 120 },
+        schemaVersion,
+      });
+      expect(migrated.customPosition).toBeNull();
+    }
   });
 
   it("keeps a position saved under the current model", () => {
     const migrated = settingsSchema.parse({
       ...defaultSettings(),
       customPosition: { x: 900, y: 120 },
-      schemaVersion: 3,
+      schemaVersion: 6,
     });
     expect(migrated.customPosition).toEqual({ x: 900, y: 120 });
+  });
+
+  it("snaps a stored size onto the sizes the stepper can reach", () => {
+    const migrated = settingsSchema.parse({
+      ...defaultSettings(),
+      hudScale: 0.55,
+      schemaVersion: 5,
+    });
+    expect(migrated.hudScale).toBe(HUD_SCALE.min);
   });
 
   it("fills in a default size for settings written before it existed", () => {

@@ -38,6 +38,7 @@ export function UsageDock({
   theme = HUD_THEMES.midnight,
   dockStyle = DOCK_STYLES.rail,
   now,
+  railBias = null,
   forceOpenProviderId = null,
   onOpenChange,
   onContextMenu,
@@ -54,6 +55,8 @@ export function UsageDock({
   theme?: HudTheme;
   dockStyle?: DockStyle;
   now?: Date;
+  /** Where the rail sits inside its frame; the main process owns this. */
+  railBias?: number | null;
   forceOpenProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
   onContextMenu?: (event: MouseEvent) => void;
@@ -236,6 +239,7 @@ export function UsageDock({
         dragging={dragging}
         railLength={railLengthForCount(metrics, meters.length, compact)}
         cardHeight={cardHeightFor(metrics, cardSnapshot)}
+        railBias={railBias}
         onHitRegions={onHitRegions}
         rail={meters.map((snapshot) => (
           <UsageMeter

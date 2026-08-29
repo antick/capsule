@@ -6,11 +6,19 @@ import { HUD_BASE } from "./constants.ts";
  * tail and shadow gutter) grows and shrinks as a single unit.
  */
 export const HUD_SCALE = {
-  min: 0.5,
+  min: 0.7,
   max: 1.3,
-  step: 0.05,
+  step: 0.1,
   default: 1,
 } as const;
+
+/** Every size the stepper can land on, smallest first. */
+export function hudScaleSteps(): number[] {
+  const count = Math.round((HUD_SCALE.max - HUD_SCALE.min) / HUD_SCALE.step);
+  return Array.from({ length: count + 1 }, (_, i) =>
+    clampHudScale(HUD_SCALE.min + i * HUD_SCALE.step),
+  );
+}
 
 export function clampHudScale(scale: number): number {
   if (!Number.isFinite(scale)) {

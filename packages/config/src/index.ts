@@ -54,6 +54,7 @@ export {
   clampHudScale,
   HUD_SCALE,
   hudMetrics,
+  hudScaleSteps,
   joinOffsetForIndex,
   meterBlockSize,
   meterStrideSize,
@@ -67,9 +68,11 @@ export type {
   PlacementResult,
   Rect,
   ScreenEdge,
+  SlideTrack,
 } from "./placement.ts";
 export {
   computePlacement,
+  dockAlongEdge,
   edgeForPreset,
   layoutForPreset,
   presetForEdge,

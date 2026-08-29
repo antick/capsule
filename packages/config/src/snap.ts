@@ -1,4 +1,9 @@
-import type { Rect, ScreenEdge } from "./placement.ts";
+import {
+  dockAlongEdge,
+  type Rect,
+  type ScreenEdge,
+  type SlideTrack,
+} from "./placement.ts";
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -38,22 +43,38 @@ export function nearestEdgeForPoint(
 /**
  * Where the dock should sit while being dragged along `edge`. The axis pinned
  * to the edge is fixed by the placement; only the other one follows the cursor.
+ *
+ * `grabOffset` is measured from the leading edge of the rail rather than of the
+ * window, so the rail stays under the cursor even where the window has to stop
+ * short of the screen edge and let the rail slide on within it.
  */
 export function slideAlongEdge(input: {
-  slide: { axis: "x" | "y"; min: number; max: number };
+  slide: SlideTrack;
   anchorX: number;
   anchorY: number;
   cursor: { x: number; y: number };
   grabOffset: number;
-}): { x: number; y: number } {
-  const along = clamp(
-    (input.slide.axis === "x" ? input.cursor.x : input.cursor.y) -
-      input.grabOffset,
+}): { x: number; y: number; railBias: number; railStart: number } {
+  const cursorAlong =
+    input.slide.axis === "x" ? input.cursor.x : input.cursor.y;
+  const railStart = clamp(
+    cursorAlong - input.grabOffset,
     input.slide.min,
     input.slide.max,
   );
+  const placed = dockAlongEdge(input.slide, railStart);
   if (input.slide.axis === "x") {
-    return { x: Math.round(along), y: Math.round(input.anchorY) };
+    return {
+      x: placed.window,
+      y: Math.round(input.anchorY),
+      railBias: placed.railBias,
+      railStart,
+    };
   }
-  return { x: Math.round(input.anchorX), y: Math.round(along) };
+  return {
+    x: Math.round(input.anchorX),
+    y: placed.window,
+    railBias: placed.railBias,
+    railStart,
+  };
 }

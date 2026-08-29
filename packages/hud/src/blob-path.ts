@@ -189,15 +189,22 @@ function canonicalLayout(
     reserveAcross: number;
     reserveAlong: number;
     flare: number;
+    railBias: number | null;
   },
 ): CanonicalFrame {
   const width = input.reserveAcross + m.tailLength + m.joinGap + m.railWidth;
-  const height = Math.max(
-    input.railLength + input.flare * 2,
-    input.reserveAlong,
-  );
+  const painted = input.railLength + input.flare * 2;
+  const height = Math.max(painted, input.reserveAlong);
   const railX = input.reserveAcross + m.tailLength + m.joinGap;
-  const railY = (height - input.railLength) / 2;
+  // Where the rail sits in the spare frame the card needs. Centred unless the
+  // window has been stopped by a screen edge, in which case the placement
+  // engine slides the rail on so it can still reach the corner.
+  const bias = clamp(
+    input.railBias ?? (height - painted) / 2,
+    0,
+    height - painted,
+  );
+  const railY = bias + input.flare;
   const joinY = railY + input.joinOffset;
   const cardY = clamp(
     joinY - input.cardAlong / 2,
@@ -236,6 +243,8 @@ export function blobLayout(
     /** Tallest card the window was sized for; defaults to the card shown. */
     cardReserve?: number;
     style?: DockStyle;
+    /** Rail offset inside the frame; centred when omitted. */
+    railBias?: number | null;
   },
 ): BlobLayout {
   const cardHeight = input.cardHeight ?? cardHeightForBuckets(m, 2);
@@ -250,6 +259,7 @@ export function blobLayout(
     reserveAcross: Math.max(reserve.cardAcross, card.cardAcross),
     reserveAlong: Math.max(reserve.cardAlong, card.cardAlong),
     flare: m.edgeFlare * style.flare,
+    railBias: input.railBias ?? null,
   });
   const vertical = isVertical(growth);
   const mapper = mapperFor(growth, base.width);

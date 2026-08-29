@@ -21,6 +21,9 @@ export function OverlayHud() {
     placeholderSnapshots(),
   );
   const [settings, setSettings] = useState<CapsuleSettings>(defaultSettings);
+  // The main process owns where the rail sits inside the window: only it knows
+  // how close the window has been pushed to a screen edge.
+  const [railBias, setRailBias] = useState<number | null>(null);
   const appearance = useSystemAppearance();
   const host = useRef<HTMLDivElement>(null);
   const pressed = useRef(false);
@@ -60,6 +63,10 @@ export function OverlayHud() {
       }
       setSettings(nextSettings);
     });
+  }, []);
+
+  useEffect(() => {
+    return window.capsule?.onRailBias(setRailBias);
   }, []);
 
   const layout = useMemo(
@@ -154,6 +161,7 @@ export function OverlayHud() {
         orientation={layout.orientation}
         cardGrowth={layout.cardGrowth}
         notch={layout.notch}
+        railBias={railBias}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
         forceOpenProviderId={previewOpen ? "claude" : null}
         onOpenChange={onOpenChange}

@@ -11,6 +11,7 @@ import {
   clampHudScale,
   HUD_SCALE,
   hudMetrics,
+  hudScaleSteps,
   joinOffsetForIndex,
   meterBlockSize,
   meterStrideSize,
@@ -87,8 +88,15 @@ describe("hud scale", () => {
   it("steps up and down without escaping the range", () => {
     expect(nextHudScale(HUD_SCALE.max, 1)).toBe(HUD_SCALE.max);
     expect(nextHudScale(HUD_SCALE.min, -1)).toBe(HUD_SCALE.min);
-    expect(nextHudScale(0.8, 1)).toBe(0.85);
-    expect(nextHudScale(0.8, -1)).toBe(0.75);
+    expect(nextHudScale(0.8, 1)).toBe(0.9);
+    expect(nextHudScale(0.8, -1)).toBe(0.7);
+  });
+
+  it("offers three steps down and three up from the shipped size", () => {
+    const steps = hudScaleSteps();
+    expect(steps).toEqual([0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3]);
+    expect(steps.indexOf(HUD_SCALE.default)).toBe(3);
+    expect(steps.length - 1 - steps.indexOf(HUD_SCALE.default)).toBe(3);
   });
 
   it("shrinks every dimension together, and never to nothing", () => {

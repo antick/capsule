@@ -18,6 +18,8 @@ export interface CapsuleBridge {
   setExpanded: (open: boolean, providerId: ProviderId | null) => void;
   /** Fires when main asks this window to show a different page. */
   onNavigate: (listener: (hash: string) => void) => () => void;
+  /** Fires when the dock's offset inside its window changes. */
+  onRailBias: (listener: (bias: number) => void) => () => void;
   startMove: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
   showContextMenu: () => void;
@@ -50,6 +52,13 @@ const capsule: CapsuleBridge = {
     ipcRenderer.on(IPC.navigate, handler);
     return () => {
       ipcRenderer.off(IPC.navigate, handler);
+    };
+  },
+  onRailBias: (listener) => {
+    const handler = (_event: unknown, bias: number) => listener(bias);
+    ipcRenderer.on(IPC.railBias, handler);
+    return () => {
+      ipcRenderer.off(IPC.railBias, handler);
     };
   },
   startMove: (screenX, screenY) => {

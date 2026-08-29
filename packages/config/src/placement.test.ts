@@ -51,15 +51,26 @@ describe("computePlacement", () => {
     expect(result.orientation).toBe("vertical");
   });
 
-  it("keeps vertical docks clear of the menu bar", () => {
+  it("lets a vertical dock ride the whole physical edge", () => {
+    // Stopping at the work area would leave the dock hovering above the macOS
+    // Dock with a band of desktop showing beneath it.
     const result = computePlacement("right-edge", chrome(), hud, PLACEMENT);
     expect(result.slide.axis).toBe("y");
-    expect(result.slide.min).toBe(display.workArea.y);
-    expect(result.slide.max).toBe(
-      display.workArea.y + display.workArea.height - result.height,
+    expect(result.slide.min).toBe(display.bounds.y);
+    expect(result.slide.max + result.slide.railLength).toBe(
+      display.bounds.y + display.bounds.height,
     );
-    expect(result.y).toBeGreaterThanOrEqual(result.slide.min);
-    expect(result.y).toBeLessThanOrEqual(result.slide.max);
+  });
+
+  it("centres a vertical dock on the space the menu bar leaves", () => {
+    const result = computePlacement("right-edge", chrome(), hud, PLACEMENT);
+    const railTop = result.y + result.slide.gutter + result.railBias;
+    expect(railTop).toBe(
+      Math.round(
+        display.workArea.y +
+          (display.workArea.height - result.slide.railLength) / 2,
+      ),
+    );
   });
 
   it("hangs the top edge from the physical screen top as a notch", () => {
@@ -93,9 +104,10 @@ describe("computePlacement", () => {
     const dockLeft =
       (display.bounds.width - PLACEMENT.dockCenteredIconSpanPx) / 2;
     const dockRight = dockLeft + PLACEMENT.dockCenteredIconSpanPx;
-    const clearsLeft = result.x + result.width <= dockLeft;
-    const clearsRight = result.x >= dockRight;
-    expect(clearsLeft || clearsRight).toBe(true);
+    // What must clear the Dock is the rail, not the transparent window.
+    const railLeft = result.x + result.slide.gutter + result.railBias;
+    const railRight = railLeft + result.slide.railLength;
+    expect(railRight <= dockLeft || railLeft >= dockRight).toBe(true);
   });
 
   it("centres on the bottom edge when no Dock is sharing it", () => {
@@ -109,8 +121,9 @@ describe("computePlacement", () => {
         hud,
         PLACEMENT,
       );
-      expect(result.x).toBe(
-        Math.round((display.bounds.width - result.width) / 2),
+      const railLeft = result.x + result.slide.gutter + result.railBias;
+      expect(railLeft).toBe(
+        Math.round((display.bounds.width - result.slide.railLength) / 2),
       );
     }
   });
@@ -129,12 +142,28 @@ describe("computePlacement", () => {
     expect(detached.x + detached.width).toBe(display.bounds.width);
   });
 
-  it("starts a non-notch top dock below the menu bar", () => {
+  it("hangs a floating style from the physical top too", () => {
+    // It is drawn as a pill rather than a notch, but it still starts at the
+    // top of the screen and covers the menu bar; only its own edge gap holds
+    // it off. Starting at the work area instead made the top dock look like it
+    // had slipped down whenever the style changed.
     const result = computePlacement("top-edge", chrome(), hud, PLACEMENT, {
       notchAllowed: false,
     });
     expect(result.notch).toBe(false);
-    expect(result.y).toBe(display.workArea.y);
+    expect(result.y).toBe(display.bounds.y);
+  });
+
+  it("lets a horizontal dock reach both corners of its edge", () => {
+    for (const preset of ["top-edge", "bottom-edge"] as const) {
+      const result = computePlacement(preset, chrome(), hud, PLACEMENT, {
+        notchAllowed: false,
+      });
+      expect(result.slide.min).toBe(display.bounds.x);
+      expect(result.slide.max + result.slide.railLength).toBe(
+        display.bounds.x + display.bounds.width,
+      );
+    }
   });
 
   it("grows the window inward when expanded on the right edge", () => {
