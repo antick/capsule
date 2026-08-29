@@ -24,6 +24,8 @@ export interface Poller {
   stop: () => void;
   /** Re-reads every enabled provider over the network. */
   refresh: () => Promise<void>;
+  /** Re-reads a single provider, for when the user asks for that one. */
+  refreshProvider: (providerId: ProviderId) => Promise<void>;
   /**
    * Reconciles the published list against the enabled providers without
    * touching the network, so toggling one lands immediately.
@@ -64,6 +66,28 @@ export function createPoller(options: {
     options.onChange(snapshots);
   };
 
+  /** One provider's turn on the network, with a failure folded into a snapshot. */
+  const fetchOne = async (provider: UsageProvider): Promise<UsageSnapshot> => {
+    const previous = snapshots.find((item) => item.providerId === provider.id);
+    try {
+      return mergeSnapshot(previous, await provider.fetchSnapshot(context()));
+    } catch (error) {
+      console.warn(
+        `Capsule ${provider.id} failed`,
+        error instanceof Error ? error.message : error,
+      );
+      return mergeSnapshot(previous, {
+        providerId: provider.id,
+        displayName: PROVIDER_LABELS[provider.id],
+        iconId: provider.id,
+        primaryPercent: previous?.primaryPercent ?? null,
+        buckets: previous?.buckets ?? [],
+        status: "error",
+        fetchedAt: options.host.now().toISOString(),
+      });
+    }
+  };
+
   const refresh = async () => {
     if (inFlight) {
       return inFlight;
@@ -80,29 +104,7 @@ export function createPoller(options: {
         if (!enabled.has(provider.id)) {
           continue;
         }
-        const previous = snapshots.find(
-          (item) => item.providerId === provider.id,
-        );
-        try {
-          const fetched = await provider.fetchSnapshot(context());
-          next.push(mergeSnapshot(previous, fetched));
-        } catch (error) {
-          console.warn(
-            `Capsule ${provider.id} failed`,
-            error instanceof Error ? error.message : error,
-          );
-          next.push(
-            mergeSnapshot(previous, {
-              providerId: provider.id,
-              displayName: PROVIDER_LABELS[provider.id],
-              iconId: provider.id,
-              primaryPercent: previous?.primaryPercent ?? null,
-              buckets: previous?.buckets ?? [],
-              status: "error",
-              fetchedAt: options.host.now().toISOString(),
-            }),
-          );
-        }
+        next.push(await fetchOne(provider));
         pending.delete(provider.id);
         markRefreshing(pending);
       }
@@ -113,6 +115,37 @@ export function createPoller(options: {
     });
     return inFlight;
   };
+
+  const refreshProvider = async (providerId: ProviderId) => {
+    const provider = options.providers.find((item) => item.id === providerId);
+    const enabled = new Set<ProviderId>(
+      options.getSettings().enabledProviderIds,
+    );
+    // A sweep already running on this ring is the answer to a second click.
+    if (!provider || !enabled.has(providerId)) {
+      return;
+    }
+    if (
+      snapshots.some(
+        (item) => item.providerId === providerId && item.refreshing,
+      )
+    ) {
+      return;
+    }
+    markRefreshing(refreshingIds().add(providerId));
+    const fetched = await fetchOne(provider);
+    snapshots = snapshots.map((item) =>
+      item.providerId === providerId ? { ...fetched, refreshing: false } : item,
+    );
+    options.onChange(snapshots);
+  };
+
+  const refreshingIds = (): Set<ProviderId> =>
+    new Set(
+      snapshots
+        .filter((item) => item.refreshing)
+        .map((item) => item.providerId),
+    );
 
   const sync = () => {
     const settings = options.getSettings();
@@ -154,6 +187,7 @@ export function createPoller(options: {
     },
     stop,
     refresh,
+    refreshProvider,
     sync,
     getSnapshots: () => snapshots,
   };

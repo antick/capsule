@@ -256,9 +256,18 @@ export const IPC = {
   dockFrame: "capsule:dock-frame",
   /** The same, pulled by a renderer that has just (re)loaded. */
   getDockFrame: "capsule:get-dock-frame",
+  /**
+   * Whether the cursor is over the dock, from the hit test main runs itself.
+   * The renderer cannot rely on pointerout for this: the window turns
+   * click-through the moment the cursor leaves, and a click-through window
+   * raises no such event.
+   */
+  pointerInside: "capsule:pointer-inside",
   contextMenu: "capsule:context-menu",
   startMove: "capsule:start-move",
   endMove: "capsule:end-move",
+  /** Re-poll one provider now, because the user asked for it. */
+  refreshProvider: "capsule:refresh-provider",
 } as const;
 
 export const COPY = {

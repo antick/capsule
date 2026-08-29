@@ -147,6 +147,9 @@ app.whenReady().then(async () => {
       applySettings({ ...settings, ...next });
     }
   });
+  ipcMain.on(IPC.refreshProvider, (_event, providerId: ProviderId) => {
+    void poller.refreshProvider(providerId);
+  });
   ipcMain.on(IPC.contextMenu, () => {
     // The dock outranks pop-up menus, so it has to step down for one.
     overlay.suspendAlwaysOnTop();

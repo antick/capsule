@@ -19,7 +19,13 @@ All notable changes to Capsule are documented in this file.
 - Menu bar extra and Dock icon for Capsule, with Position shortcuts (right, left, bottom, and other placements) plus Open Settings.
 - Live Claude, Codex, and Grok usage from local CLI logins (`~/.claude`, `~/.codex`, `~/.grok`). Demo mode is now opt-in.
 - The dock now hides until it is needed, on by default in Settings → Appearance → Placement. At rest it retracts into the screen edge and leaves a slim latch behind; reaching for that latch unrolls the rail back out and the meters arrive one after another rather than all at once. The latch answers to a band around it rather than to its own few pixels, and carries a hairline so it stays visible on a dark desktop as well as a light one.
-- A provider whose usage is being fetched says so with a bright arc that chases round its ring. The numbers already on screen stay put underneath, and the rings clear one at a time as each provider's fetch lands.
+- A provider whose usage is being fetched says so with a bright arc that chases round its ring. The numbers already on screen stay put underneath, and the rings clear one at a time as each provider's fetch lands. Clicking a meter asks for that provider to be read again, so the sweep is on demand as well as on the poll.
+
+### Fixed
+
+- The dock no longer flashes a gap along the screen edge as it unrolls. Its arrival was springing past the edge and settling back, which pulled the rail clear of the border for a frame or two on the way in.
+- A card no longer stays open after the pointer has gone. The window turns click-through the moment the cursor leaves it, and a click-through window raises no `pointerout`, so the dock was never told; the hit test the main process already runs now says so directly. The same signal retracts an auto-hiding dock, and leaving now drops a pinned card rather than stranding it open with nothing on screen to dismiss it.
+- An auto-hiding dock no longer retracts while the cursor is still resting on it. The rail sliding out from under a stationary pointer raises `pointerleave` by itself, and the dock was taking that at face value.
 - "Curl into corners", off by default in Settings → Appearance → Placement. With it on, dragging the dock all the way to the end of an edge bends it into a quarter arc that traces the screen corner: the meters keep their spacing but ride the curve, the percent captions drop the way they do on the top edge, and the card squares up against the band and opens inward so it never lies across the ring.
 
 ### Changed

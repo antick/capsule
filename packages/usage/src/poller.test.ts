@@ -110,6 +110,46 @@ describe("poller.refresh", () => {
     ]);
   });
 
+  // sync() rather than start(): start kicks off a full refresh, and these
+  // providers never resolve, so every ring would already be sweeping.
+  it("sweeps only the ring the user asked for", async () => {
+    const { poller } = setup(["claude", "codex"]);
+    poller.sync();
+
+    void poller.refreshProvider("codex");
+    await Promise.resolve();
+
+    expect(
+      poller.getSnapshots().map((item) => [item.providerId, item.refreshing]),
+    ).toEqual([
+      ["claude", false],
+      ["codex", true],
+    ]);
+  });
+
+  it("ignores a second ask while that provider is already in the air", async () => {
+    const { poller, onChange } = setup(["claude"]);
+    poller.sync();
+    void poller.refreshProvider("claude");
+    await Promise.resolve();
+    onChange.mockClear();
+
+    void poller.refreshProvider("claude");
+    await Promise.resolve();
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("ignores an ask for a provider that is switched off", async () => {
+    const { poller, onChange } = setup(["claude"]);
+    poller.sync();
+    onChange.mockClear();
+
+    await poller.refreshProvider("grok");
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("keeps the numbers already on screen while the sweep runs", async () => {
     const { poller } = setup(["claude"]);
     poller.start();

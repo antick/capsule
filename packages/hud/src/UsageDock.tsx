@@ -48,8 +48,10 @@ export function UsageDock({
   railBias = null,
   corner = null,
   autoHide = false,
+  pointerInside = null,
   forceOpenProviderId = null,
   onOpenChange,
+  onRefresh,
   onContextMenu,
   onPressedChange,
   onMoveStart,
@@ -70,8 +72,16 @@ export function UsageDock({
   corner?: Corner | null;
   /** Rest as a latch in the screen edge until the pointer comes for it. */
   autoHide?: boolean;
+  /**
+   * The host's own verdict on whether the cursor is over the dock. A
+   * click-through window raises no pointerout, so DOM events alone would leave
+   * a card open for good once the cursor left.
+   */
+  pointerInside?: boolean | null;
   forceOpenProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
+  /** Fires when the user asks for a provider to be read again. */
+  onRefresh?: (providerId: ProviderId) => void;
   onContextMenu?: (event: MouseEvent) => void;
   /** Fires while the pointer is held down, so the host can pin mouse capture. */
   onPressedChange?: (pressed: boolean) => void;
@@ -184,6 +194,46 @@ export function UsageDock({
     }, HUD.hoverCloseDelayMs);
   };
 
+  /**
+   * The cursor has gone. Unlike a hover-out this also drops a pinned card:
+   * pinning is only meant to hold a card still while you are on the dock, and
+   * a pin that survives leaving would strand the card open with nothing left
+   * on screen to dismiss it.
+   */
+  const leave = () => {
+    if (dragging) {
+      return;
+    }
+    setPinned(null);
+    clearTimers();
+    closeTimer.current = setTimeout(() => {
+      setHovered(null);
+    }, HUD.hoverCloseDelayMs);
+    if (autoHide) {
+      peekTimer.current = setTimeout(() => {
+        setWoken(false);
+      }, MOTION.peekHoldMs);
+    }
+  };
+
+  // The host's hit test is the authority on the pointer having left; the DOM
+  // only ever reliably reports it arriving. Held in refs so the effect can
+  // depend on the signal alone rather than on every render's closures.
+  const leaveRef = useRef(leave);
+  leaveRef.current = leave;
+  const wakeRef = useRef(wake);
+  wakeRef.current = wake;
+  useEffect(() => {
+    if (pointerInside === null) {
+      return;
+    }
+    if (pointerInside) {
+      wakeRef.current();
+      return;
+    }
+    leaveRef.current();
+  }, [pointerInside]);
+
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) {
       return;
@@ -280,6 +330,9 @@ export function UsageDock({
           current === snapshot.providerId ? null : snapshot.providerId,
         );
         setHovered(snapshot.providerId);
+        // Asking for a provider re-reads it, which is what puts the sweep on
+        // its ring and lands a fresh number underneath.
+        onRefresh?.(snapshot.providerId);
       }}
     />
   ));
@@ -319,8 +372,13 @@ export function UsageDock({
         }
       }}
       onPointerLeave={() => {
-        scheduleClose();
-        scheduleSleep();
+        // Only when nothing better is available. The rail sliding out from
+        // under a stationary cursor raises pointerleave all by itself, so
+        // acting on it would retract the dock the user just called up.
+        if (pointerInside === null) {
+          scheduleClose();
+          scheduleSleep();
+        }
       }}
       onContextMenu={onContextMenu}
       style={{ display: "inline-flex", pointerEvents: "none" }}

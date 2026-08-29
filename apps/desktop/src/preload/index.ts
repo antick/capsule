@@ -27,6 +27,10 @@ export interface CapsuleBridge {
   onNavigate: (listener: (hash: string) => void) => () => void;
   /** Fires when the dock's offset inside its window, or its corner, changes. */
   onDockFrame: (listener: (frame: DockFrame) => void) => () => void;
+  /** Fires when main's hit test sees the cursor arrive at, or leave, the dock. */
+  onPointerInside: (listener: (inside: boolean) => void) => () => void;
+  /** Ask for one provider's usage to be fetched again, right now. */
+  refreshProvider: (providerId: ProviderId) => void;
   startMove: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
   showContextMenu: () => void;
@@ -73,6 +77,16 @@ const capsule: CapsuleBridge = {
     return () => {
       ipcRenderer.off(IPC.dockFrame, handler);
     };
+  },
+  onPointerInside: (listener) => {
+    const handler = (_event: unknown, inside: boolean) => listener(inside);
+    ipcRenderer.on(IPC.pointerInside, handler);
+    return () => {
+      ipcRenderer.off(IPC.pointerInside, handler);
+    };
+  },
+  refreshProvider: (providerId) => {
+    ipcRenderer.send(IPC.refreshProvider, providerId);
   },
   startMove: (screenX, screenY) => {
     ipcRenderer.send(IPC.startMove, screenX, screenY);

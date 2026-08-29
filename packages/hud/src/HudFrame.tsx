@@ -87,11 +87,13 @@ export function HudFrame({
   const latch = latchRect(metrics, cardGrowth, layout);
   const zone = latchHotZone(metrics, cardGrowth, layout);
   // The rail rides out to the edge and back; the latch cross-fades with it so
-  // the dock never reads as two objects at once.
+  // the dock never reads as two objects at once. This settles rather than
+  // springs: an overshoot here would carry the rail clear of the screen edge
+  // on arrival and flash the gap behind it.
   const unroll = {
     transform: peek ? `translate(${shift.x}px, ${shift.y}px)` : "translate(0)",
     transition: `transform ${peek ? MOTION.peekOutMs : MOTION.peekMs}ms ${
-      peek ? MOTION.closeEasing : MOTION.popEasing
+      peek ? MOTION.closeEasing : MOTION.easing
     }`,
     willChange: "transform",
   } as const;

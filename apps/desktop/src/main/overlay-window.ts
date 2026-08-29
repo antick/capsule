@@ -587,6 +587,10 @@ export class OverlayController {
     }
     this.ignoreMouse = ignore;
     win.setIgnoreMouseEvents(ignore, { forward: true });
+    // Going click-through does not raise pointerout in the renderer, so a dock
+    // that opened a card would sit there with it open for good. The hit test
+    // already knows the cursor has gone; say so.
+    win.webContents.send(IPC.pointerInside, !ignore);
   }
 }
 

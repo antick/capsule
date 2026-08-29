@@ -32,6 +32,9 @@ export function OverlayHud() {
     railBias: 0,
     corner: null,
   });
+  // Null until main's hit test has spoken, so the dock keeps trusting the DOM
+  // on the very first frames.
+  const [pointerInside, setPointerInside] = useState<boolean | null>(null);
   const appearance = useSystemAppearance();
   const host = useRef<HTMLDivElement>(null);
   const pressed = useRef(false);
@@ -75,6 +78,14 @@ export function OverlayHud() {
 
   useEffect(() => {
     return window.capsule?.onDockFrame(setFrame);
+  }, []);
+
+  useEffect(() => {
+    return window.capsule?.onPointerInside(setPointerInside);
+  }, []);
+
+  const refreshProvider = useCallback((providerId: ProviderId) => {
+    window.capsule?.refreshProvider(providerId);
   }, []);
 
   const layout = useMemo(
@@ -182,6 +193,8 @@ export function OverlayHud() {
         railBias={frame.railBias}
         corner={frame.corner}
         autoHide={settings.autoHide}
+        pointerInside={pointerInside}
+        onRefresh={refreshProvider}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
         forceOpenProviderId={previewOpen ? "claude" : null}
         onOpenChange={onOpenChange}
