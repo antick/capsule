@@ -53,8 +53,8 @@ export const HUD = {
   railRadius: 28,
   joinSize: 14,
   shadowPadding: 20,
-  hoverOpenDelayMs: 80,
-  hoverCloseDelayMs: 180,
+  hoverOpenDelayMs: 0,
+  hoverCloseDelayMs: 220,
   meterCountDefault: 3,
   cardHeight: 188,
 } as const;

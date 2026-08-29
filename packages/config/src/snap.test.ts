@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nearestEdge, snapAfterDrag } from "./snap.ts";
+import { nearestEdge, slideAlongEdge, snapAfterDrag } from "./snap.ts";
 
 const display = { x: 0, y: 0, width: 1440, height: 900 };
 const win = { x: 0, y: 200, width: 400, height: 320 };
@@ -31,5 +31,24 @@ describe("nearestEdge", () => {
   it("picks the closest edge for card growth", () => {
     expect(nearestEdge({ ...win, x: 20, y: 300 }, display)).toBe("left");
     expect(nearestEdge({ ...win, x: 1000, y: 300 }, display)).toBe("right");
+  });
+});
+
+describe("slideAlongEdge", () => {
+  it("keeps a right-edge dock on x and slides y", () => {
+    const result = slideAlongEdge({
+      orientation: "vertical",
+      lockedX: 1040,
+      lockedY: 200,
+      width: 400,
+      height: 320,
+      screenX: 1200,
+      screenY: 500,
+      offsetX: 20,
+      offsetY: 40,
+      workArea: display,
+    });
+    expect(result.x).toBe(1040);
+    expect(result.y).toBe(460);
   });
 });

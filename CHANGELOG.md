@@ -15,4 +15,4 @@ All notable changes to Capsule are documented in this file.
 - Overlay now hydrates usage snapshots on subscribe instead of painting an empty transparent window.
 - Overlay uses in-memory routing so Vite's `/overlay/index.html` URL no longer renders TanStack's "Not Found" instead of the dock.
 - Overlay paints demo HUD on first frame and stays on the primary display.
-- Hover/click to open the usage card with motion; drag the rail to move and snap to screen edges.
+- Hover/click to open the usage card with motion; drag along the docked edge to reposition.

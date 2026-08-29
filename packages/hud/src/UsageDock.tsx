@@ -52,6 +52,7 @@ export function UsageDock({
     startY: number;
     active: boolean;
   } | null>(null);
+  const didDrag = useRef(false);
 
   const lastCard = useRef<UsageSnapshot | null>(null);
   const openId = dragging ? null : (forceOpenProviderId ?? pinned ?? hovered);
@@ -76,10 +77,14 @@ export function UsageDock({
   };
 
   const scheduleOpen = (id: ProviderId) => {
-    if (dragging) {
+    if (dragging || didDrag.current) {
       return;
     }
     clearTimers();
+    if (HUD.hoverOpenDelayMs <= 0) {
+      setHovered(id);
+      return;
+    }
     openTimer.current = setTimeout(() => {
       setHovered(id);
     }, HUD.hoverOpenDelayMs);
@@ -105,10 +110,7 @@ export function UsageDock({
     if (event.button !== 0) {
       return;
     }
-    const target = event.target as HTMLElement;
-    if (target.closest("button")) {
-      return;
-    }
+    didDrag.current = false;
     drag.current = {
       pointerId: event.pointerId,
       startX: event.screenX,
@@ -128,6 +130,7 @@ export function UsageDock({
     const distance = Math.hypot(dx, dy);
     if (!state.active && distance >= MOTION.dragThresholdPx) {
       state.active = true;
+      didDrag.current = true;
       setDragging(true);
       setPinned(null);
       setHovered(null);
@@ -182,7 +185,8 @@ export function UsageDock({
             onPointerEnter={() => scheduleOpen(snapshot.providerId)}
             onPointerLeave={() => undefined}
             onClick={() => {
-              if (drag.current?.active) {
+              if (didDrag.current) {
+                didDrag.current = false;
                 return;
               }
               setPinned((current) =>

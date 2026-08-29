@@ -34,7 +34,12 @@ export {
 } from "./settings.ts";
 export { severityForPercent } from "./severity.ts";
 export type { ScreenEdge } from "./snap.ts";
-export { nearestEdge, presetForEdge, snapAfterDrag } from "./snap.ts";
+export {
+  nearestEdge,
+  presetForEdge,
+  slideAlongEdge,
+  snapAfterDrag,
+} from "./snap.ts";
 export type {
   UsageBucket,
   UsageSnapshot,

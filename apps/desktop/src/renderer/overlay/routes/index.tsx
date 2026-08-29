@@ -30,17 +30,17 @@ export function OverlayHud() {
     [settings.placementPreset],
   );
 
+  const packToEnd = layout.cardGrowth === "left" || layout.cardGrowth === "up";
+
   return (
     <div
-      onPointerMove={(event) => {
-        const target = event.target as HTMLElement;
-        window.capsule?.setPointerCapture(
-          Boolean(
-            target.closest("[data-hud-rail='true'], [data-card-open='true']"),
-          ),
-        );
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: packToEnd ? "flex-end" : "flex-start",
+        alignItems: layout.cardGrowth === "up" ? "flex-end" : "flex-start",
       }}
-      onPointerLeave={() => window.capsule?.setPointerCapture(false)}
     >
       <UsageDock
         snapshots={snapshots}

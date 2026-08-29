@@ -4,12 +4,12 @@ import {
   type CapsuleSettings,
   computePlacement,
   HUD,
-  MOTION,
+  layoutForPreset,
   PLACEMENT,
   type PlacementPreset,
   type PlacementResult,
   type ProviderId,
-  snapAfterDrag,
+  slideAlongEdge,
 } from "@capsule/config";
 import { BrowserWindow, screen, shell } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
@@ -22,9 +22,12 @@ export class OverlayController {
   private settings: CapsuleSettings;
   private meterCount: number = HUD.meterCountDefault;
   private settingsDisplayId: number | null = null;
+  private expanded = false;
   private dragging = false;
   private dragOffsetX = 0;
   private dragOffsetY = 0;
+  private lockedX = 0;
+  private lockedY = 0;
 
   constructor(settings: CapsuleSettings) {
     this.settings = settings;
@@ -71,7 +74,6 @@ export class OverlayController {
 
     win.setAlwaysOnTop(true, "screen-saver");
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-    win.setIgnoreMouseEvents(false);
     win.setMenuBarVisibility(false);
 
     win.webContents.setWindowOpenHandler((details) => {
@@ -105,15 +107,16 @@ export class OverlayController {
     return win;
   }
 
-  setPointerCapture(capture: boolean): void {
-    if (this.dragging) {
-      return;
-    }
-    this.window?.setIgnoreMouseEvents(!capture, { forward: true });
+  setPointerCapture(_capture: boolean): void {
+    // Mouse events must stay enabled or hover/drag never reach the HUD.
   }
 
-  setExpanded(_open: boolean, _providerId: ProviderId | null): void {
-    // Window stays expanded-sized so the card can animate in CSS.
+  setExpanded(open: boolean, _providerId: ProviderId | null): void {
+    if (this.expanded === open || this.dragging) {
+      return;
+    }
+    this.expanded = open;
+    void this.relayout();
   }
 
   startMove(screenX: number, screenY: number): void {
@@ -123,9 +126,11 @@ export class OverlayController {
     }
     const bounds = win.getBounds();
     this.dragging = true;
+    this.expanded = false;
     this.dragOffsetX = screenX - bounds.x;
     this.dragOffsetY = screenY - bounds.y;
-    win.setIgnoreMouseEvents(false);
+    this.lockedX = bounds.x;
+    this.lockedY = bounds.y;
   }
 
   moveWindow(screenX: number, screenY: number): void {
@@ -133,10 +138,21 @@ export class OverlayController {
     if (!win || win.isDestroyed() || !this.dragging) {
       return;
     }
-    win.setPosition(
-      Math.round(screenX - this.dragOffsetX),
-      Math.round(screenY - this.dragOffsetY),
-    );
+    const bounds = win.getBounds();
+    const display = screen.getDisplayMatching(bounds);
+    const next = slideAlongEdge({
+      orientation: layoutForPreset(this.settings.placementPreset).orientation,
+      lockedX: this.lockedX,
+      lockedY: this.lockedY,
+      width: bounds.width,
+      height: bounds.height,
+      screenX,
+      screenY,
+      offsetX: this.dragOffsetX,
+      offsetY: this.dragOffsetY,
+      workArea: display.workArea,
+    });
+    win.setPosition(Math.round(next.x), Math.round(next.y));
   }
 
   endMove(): {
@@ -149,22 +165,9 @@ export class OverlayController {
       return null;
     }
     const bounds = win.getBounds();
-    const display = screen.getDisplayMatching(bounds);
-    const snapped = snapAfterDrag(
-      bounds,
-      display.bounds,
-      MOTION.snapDistancePx,
-    );
-    win.setBounds({
-      x: snapped.x,
-      y: snapped.y,
-      width: bounds.width,
-      height: bounds.height,
-    });
-    this.settingsDisplayId = display.id;
     return {
-      placementPreset: snapped.preset,
-      customPosition: snapped.snapped ? null : { x: snapped.x, y: snapped.y },
+      placementPreset: this.settings.placementPreset,
+      customPosition: { x: bounds.x, y: bounds.y },
     };
   }
 
@@ -201,7 +204,7 @@ export class OverlayController {
         railLength,
         cardWidth: HUD.cardWidth,
         cardHeight: HUD.cardHeight,
-        expanded: true,
+        expanded: this.expanded,
         shadowPadding: HUD.shadowPadding,
       },
       PLACEMENT,
@@ -209,9 +212,22 @@ export class OverlayController {
     let x = placement.x;
     let y = placement.y;
     const custom = this.settings.customPosition;
+    const orientation = layoutForPreset(
+      this.settings.placementPreset,
+    ).orientation;
+    const work = chrome.display.workArea;
     if (custom) {
-      x = custom.x;
-      y = custom.y;
+      if (orientation === "vertical") {
+        y = Math.min(
+          Math.max(custom.y, work.y),
+          work.y + work.height - placement.height,
+        );
+      } else {
+        x = Math.min(
+          Math.max(custom.x, work.x),
+          work.x + work.width - placement.width,
+        );
+      }
     }
     const bounds = {
       x: Math.round(x),

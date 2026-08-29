@@ -69,3 +69,29 @@ export function snapAfterDrag(
   }
   return { x, y, preset: presetForEdge(edge), snapped };
 }
+
+export function slideAlongEdge(input: {
+  orientation: "vertical" | "horizontal";
+  lockedX: number;
+  lockedY: number;
+  width: number;
+  height: number;
+  screenX: number;
+  screenY: number;
+  offsetX: number;
+  offsetY: number;
+  workArea: Rect;
+}): { x: number; y: number } {
+  const maxX = input.workArea.x + input.workArea.width - input.width;
+  const maxY = input.workArea.y + input.workArea.height - input.height;
+  if (input.orientation === "vertical") {
+    return {
+      x: input.lockedX,
+      y: clamp(input.screenY - input.offsetY, input.workArea.y, maxY),
+    };
+  }
+  return {
+    x: clamp(input.screenX - input.offsetX, input.workArea.x, maxX),
+    y: input.lockedY,
+  };
+}

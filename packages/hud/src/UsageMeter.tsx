@@ -42,6 +42,7 @@ export function UsageMeter({
       data-provider={providerId}
       data-active={active ? "true" : "false"}
       onPointerEnter={onPointerEnter}
+      onMouseEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       onClick={onClick}
       style={{
