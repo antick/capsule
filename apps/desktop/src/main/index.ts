@@ -10,6 +10,7 @@ import {
 } from "@capsule/config";
 import { app, BrowserWindow, ipcMain, powerMonitor, screen } from "electron";
 import { createAppChrome } from "./app-chrome.ts";
+import { hideFromMacDock } from "./macos-dock.ts";
 import { OverlayController } from "./overlay-window.ts";
 import { openSettingsWindow } from "./settings-window.ts";
 import { loadSettings, saveSettings } from "./store.ts";
@@ -72,6 +73,10 @@ function applySettings(next: CapsuleSettings): CapsuleSettings {
 }
 
 app.whenReady().then(async () => {
+  // Become a menu-bar extra before any window exists. A regular BrowserWindow
+  // can put the Dock tile back if we still look like a normal app.
+  hideFromMacDock();
+
   const login = app.getLoginItemSettings();
   if (login.openAtLogin !== settings.launchAtLogin) {
     settings = saveSettings({ ...settings, launchAtLogin: login.openAtLogin });
@@ -152,6 +157,7 @@ app.whenReady().then(async () => {
     broadcast();
     overlay.show();
   });
+  hideFromMacDock();
   poller.start();
   await poller.refresh();
   broadcast();

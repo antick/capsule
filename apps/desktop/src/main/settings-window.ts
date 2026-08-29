@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { APP_NAME, IPC } from "@capsule/config";
 import { app, BrowserWindow, shell } from "electron";
+import { hideFromMacDock } from "./macos-dock.ts";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
 
 let settingsWindow: BrowserWindow | null = null;
@@ -10,6 +11,7 @@ function bringForward(win: BrowserWindow): void {
   if (win.isDestroyed()) {
     return;
   }
+  hideFromMacDock();
   if (process.platform === "darwin") {
     // Capsule lives in the menu bar with no Dock tile, so nothing else will
     // bring it forward for us.
@@ -22,6 +24,15 @@ function bringForward(win: BrowserWindow): void {
   }
   win.show();
   win.focus();
+  // Showing a regular window can promote us back to a Dock app. Drop the
+  // tile again, then steal focus back if that deactivated us.
+  if (process.platform === "darwin" && app.dock?.isVisible()) {
+    hideFromMacDock();
+    if (!win.isDestroyed()) {
+      app.focus({ steal: true });
+      win.focus();
+    }
+  }
 }
 
 /**
@@ -48,6 +59,7 @@ export function openSettingsWindow(hash = "/"): BrowserWindow {
     minWidth: 720,
     minHeight: 560,
     show: false,
+    skipTaskbar: true,
     backgroundColor: "#0d0d0f",
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 16, y: 18 },
@@ -74,6 +86,7 @@ export function openSettingsWindow(hash = "/"): BrowserWindow {
     }
   });
   settingsWindow = win;
+  hideFromMacDock();
 
   const devUrl = rendererDevUrl("settings");
   const load = devUrl

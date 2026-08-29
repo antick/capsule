@@ -6,7 +6,8 @@ import {
   PLACEMENT_PRESETS,
   type PlacementPreset,
 } from "@capsule/config";
-import { app, Menu, type MenuItemConstructorOptions, Tray } from "electron";
+import { Menu, type MenuItemConstructorOptions, Tray } from "electron";
+import { hideFromMacDock } from "./macos-dock.ts";
 import { trayTemplateImage } from "./tray-icon.ts";
 
 export interface AppChromeHandlers {
@@ -26,11 +27,9 @@ export function createAppChrome(handlers: AppChromeHandlers): {
     tray.popUpContextMenu();
   });
 
-  if (process.platform === "darwin") {
-    // Capsule is reached from the menu bar and the dock itself, so a Dock tile
-    // would be a second copy of the same commands taking up space.
-    app.dock?.hide();
-  }
+  // Capsule is reached from the menu bar and the HUD, so a Dock tile would
+  // be a second copy of the same process taking up space.
+  hideFromMacDock();
 
   const sync = (settings: CapsuleSettings) => {
     tray.setContextMenu(
