@@ -1,4 +1,10 @@
-import { cardHeightForBuckets, type HudMetrics } from "@capsule/config";
+import {
+  cardHeightForBuckets,
+  DOCK_STYLES,
+  type DockStyle,
+  dockEdgeGap,
+  type HudMetrics,
+} from "@capsule/config";
 
 export type CardGrowth = "left" | "right" | "up" | "down";
 
@@ -231,28 +237,70 @@ export function blobLayout(
   };
 }
 
+/** Corner radius the requested style wants on the rail. */
+function railCornerRadius(
+  m: HudMetrics,
+  style: DockStyle,
+  rail: Rect,
+  notch: boolean,
+): number {
+  const base =
+    style.radius === "pill"
+      ? rail.width / 2
+      : (notch ? m.notchRadius : m.railRadius) * style.radius;
+  return Math.min(base, rail.width / 2, rail.height / 2);
+}
+
+/** A plain rounded rectangle, traced clockwise in the canonical frame. */
+function roundedRect(mapper: Mapper, rect: Rect, radius: number): string {
+  const r = Math.min(radius, rect.width / 2, rect.height / 2);
+  const left = rect.x;
+  const right = rect.x + rect.width;
+  const top = rect.y;
+  const bottom = rect.y + rect.height;
+  return new PathBuilder(mapper)
+    .move(left + r, top)
+    .line(right - r, top)
+    .arc(r, 1, right, top + r)
+    .line(right, bottom - r)
+    .arc(r, 1, right - r, bottom)
+    .line(left + r, bottom)
+    .arc(r, 1, left, bottom - r)
+    .line(left, top + r)
+    .arc(r, 1, left + r, top)
+    .close()
+    .toString();
+}
+
 /**
- * The rail: rounded on the inner side, and blended into the screen edge it
- * rests against by a concave fillet at each end. As a notch the fillets stay —
- * they are what make it read as carved out of the screen rather than stuck on
- * top — but the corners tighten so it matches the menu-bar silhouette.
+ * The rail. In the default style it is rounded on the inner side and blended
+ * into the screen edge by a concave fillet at each end; as a notch the fillets
+ * stay — they are what make it read as carved out of the screen rather than
+ * stuck on top — but the corners tighten to match the menu bar. Styles that
+ * float clear of the edge drop the fillets and close into a rounded slab.
  */
 export function railPath(
   m: HudMetrics,
   growth: CardGrowth,
   layout: BlobLayout,
-  notch = false,
+  options: { notch?: boolean; style?: DockStyle } = {},
 ): string {
+  const style = options.style ?? DOCK_STYLES.rail;
+  const notch = options.notch ?? false;
   const base = layout.canonical;
   const mapper = mapperFor(growth, base.width);
   const rail = base.rail;
+  const radius = railCornerRadius(m, style, rail, notch);
+  const flare = Math.min(m.edgeFlare * style.flare, rail.height / 2);
+
+  if (flare <= 0) {
+    return roundedRect(mapper, rail, radius);
+  }
+
   const outer = rail.x + rail.width;
   const inner = rail.x;
   const top = rail.y;
   const bottom = rail.y + rail.height;
-  const cornerBase = notch ? m.notchRadius : m.railRadius;
-  const radius = Math.min(cornerBase, rail.width / 2, rail.height / 2);
-  const flare = Math.min(m.edgeFlare, rail.height / 2);
 
   return new PathBuilder(mapper)
     .move(outer, top - flare)
@@ -315,10 +363,14 @@ export function bubblePath(
     .toString();
 }
 
-/** Shadow gutter, omitted on the side that sits flush against the screen. */
+/**
+ * Shadow gutter. The side that faces the screen edge carries only the gap the
+ * dock style asks for, which is zero for the flush styles.
+ */
 export function framePadding(
   m: HudMetrics,
   growth: CardGrowth,
+  style: DockStyle = DOCK_STYLES.rail,
 ): {
   top: number;
   right: number;
@@ -326,19 +378,65 @@ export function framePadding(
   left: number;
 } {
   const pad = m.shadowPadding;
+  const gap = dockEdgeGap(m, style);
   if (growth === "left") {
-    return { top: pad, right: 0, bottom: pad, left: pad };
+    return { top: pad, right: gap, bottom: pad, left: pad };
   }
   if (growth === "right") {
-    return { top: pad, right: pad, bottom: pad, left: 0 };
+    return { top: pad, right: pad, bottom: pad, left: gap };
   }
   if (growth === "up") {
-    return { top: pad, right: pad, bottom: 0, left: pad };
+    return { top: pad, right: pad, bottom: gap, left: pad };
   }
-  return { top: 0, right: pad, bottom: pad, left: pad };
+  return { top: gap, right: pad, bottom: pad, left: pad };
 }
 
 /** The tail tip, so the bubble scales out of the rail when it opens. */
 export function bubbleOrigin(layout: BlobLayout): string {
   return `${n(layout.tip.x)}px ${n(layout.tip.y)}px`;
+}
+
+/** Areas that should swallow the mouse, in coordinates local to the frame. */
+export interface HitRegions {
+  /** The rail alone, which is live whether or not a card is showing. */
+  rail: Rect;
+  /**
+   * Rail, tail and card as one block while the card is open. Reaching the card
+   * means crossing the gap the tail spans, so that gap has to stay live too or
+   * the pointer leaves the dock on the way over and the card closes itself.
+   */
+  open: Rect | null;
+}
+
+export function hitRegions(
+  layout: BlobLayout,
+  padding: { top: number; left: number },
+  open: boolean,
+): HitRegions {
+  const rail = offsetRect(layout.rail, padding.left, padding.top);
+  if (!open) {
+    return { rail, open: null };
+  }
+  const card = offsetRect(layout.card, padding.left, padding.top);
+  return { rail, open: unionRect(rail, card) };
+}
+
+function offsetRect(rect: Rect, dx: number, dy: number): Rect {
+  return {
+    x: rect.x + dx,
+    y: rect.y + dy,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
+function unionRect(a: Rect, b: Rect): Rect {
+  const x = Math.min(a.x, b.x);
+  const y = Math.min(a.y, b.y);
+  return {
+    x,
+    y,
+    width: Math.max(a.x + a.width, b.x + b.width) - x,
+    height: Math.max(a.y + a.height, b.y + b.height) - y,
+  };
 }

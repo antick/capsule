@@ -6,7 +6,11 @@ import {
   PROVIDER_IDS,
   type ProviderId,
 } from "./constants.ts";
-import { clampHudScale, HUD_SCALE } from "./metrics.ts";
+import { DOCK_STYLE_IDS } from "./dock-style.ts";
+import { clampHudScale, HUD_SCALE, REFERENCE_RATIO } from "./metrics.ts";
+import { HUD_THEME_IDS } from "./theme.ts";
+
+const SCHEMA_VERSION = 4;
 
 const LEGACY_PROVIDER_IDS: Record<string, ProviderId> = {
   chatgpt: "codex",
@@ -53,12 +57,21 @@ export function migrateSettings(raw: unknown): unknown {
     // A stored position belongs to the old placement model; let the new
     // engine re-anchor the dock rather than restoring a stale coordinate.
     customPosition: version < 3 ? null : input.customPosition,
-    hudScale:
-      typeof input.hudScale === "number"
-        ? clampHudScale(input.hudScale)
-        : HUD_SCALE.default,
-    schemaVersion: 3,
+    hudScale: migrateHudScale(input.hudScale, version),
+    schemaVersion: SCHEMA_VERSION,
   };
+}
+
+/**
+ * Scale used to be measured against the reference drawing. It is now measured
+ * against the size the dock ships at, so an old preference has to be divided
+ * by the ratio between the two to keep the dock the size it already was.
+ */
+function migrateHudScale(raw: unknown, version: number): number {
+  if (typeof raw !== "number" || !Number.isFinite(raw)) {
+    return HUD_SCALE.default;
+  }
+  return clampHudScale(version < 4 ? raw / REFERENCE_RATIO : raw);
 }
 
 export const settingsSchema = z.preprocess(
@@ -74,6 +87,11 @@ export const settingsSchema = z.preprocess(
       .min(HUD_SCALE.min)
       .max(HUD_SCALE.max)
       .default(HUD_SCALE.default),
+    hudTheme: z
+      .enum(["auto", ...HUD_THEME_IDS] as const)
+      .default("auto")
+      .catch("auto"),
+    dockStyle: z.enum(DOCK_STYLE_IDS).default("rail").catch("rail"),
     customPosition: z
       .object({
         x: z.number(),
@@ -81,7 +99,7 @@ export const settingsSchema = z.preprocess(
       })
       .nullable()
       .default(null),
-    schemaVersion: z.number().int().positive().default(3),
+    schemaVersion: z.number().int().positive().default(SCHEMA_VERSION),
   }),
 );
 
@@ -95,7 +113,9 @@ export function defaultSettings(): CapsuleSettings {
     pollIntervalMs: POLL_INTERVAL_MS,
     launchAtLogin: false,
     hudScale: HUD_SCALE.default,
+    hudTheme: "auto",
+    dockStyle: "rail",
     customPosition: null,
-    schemaVersion: 3,
+    schemaVersion: SCHEMA_VERSION,
   };
 }

@@ -1,10 +1,11 @@
-import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   APP_NAME,
   type CapsuleSettings,
   cardHeightForBuckets,
   computePlacement,
+  dockEdgeGap,
+  dockStyleFor,
   HUD,
   hudMetrics,
   MOTION,
@@ -14,12 +15,19 @@ import {
   type PlacementResult,
   type ProviderId,
   presetForEdge,
+  type Rect,
   railLengthForCount,
   slideAlongEdge,
+  styleSupportsNotch,
 } from "@capsule/config";
 import { BrowserWindow, screen, shell } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
+
+/** Above the menu bar, so the notch can cover it. */
+const TOP_LEVEL = "screen-saver";
+/** Below pop-up menus, so a context menu is not hidden by the dock. */
+const MENU_SAFE_LEVEL = "floating";
 
 interface DragState {
   preset: PlacementPreset;
@@ -35,7 +43,11 @@ export class OverlayController {
   private settingsDisplayId: number | null = null;
   private drag: DragState | null = null;
   private dragTimer: ReturnType<typeof setInterval> | null = null;
+  private hoverTimer: ReturnType<typeof setInterval> | null = null;
   private ignoreMouse = true;
+  private pressed = false;
+  /** Window-local areas the dock wants the mouse for, reported by the renderer. */
+  private hitRegions: Rect[] = [];
   private onPresetPreview: ((preset: PlacementPreset) => void) | null = null;
 
   constructor(settings: CapsuleSettings) {
@@ -89,8 +101,7 @@ export class OverlayController {
       },
     });
 
-    // "screen-saver" keeps the notch above the menu bar; "floating" sits under it.
-    win.setAlwaysOnTop(true, "screen-saver");
+    win.setAlwaysOnTop(true, TOP_LEVEL);
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false });
     win.setIgnoreMouseEvents(true, { forward: true });
     win.setMenuBarVisibility(false);
@@ -123,19 +134,44 @@ export class OverlayController {
     }
 
     win.showInactive();
+    this.startHoverTracking();
     return win;
   }
 
-  setPointerCapture(capture: boolean): void {
-    if (this.drag) {
+  /**
+   * The renderer cannot decide when the dock should swallow the mouse. macOS
+   * only forwards move events to a click-through window while the owning app
+   * is frontmost, so with another app in focus the overlay would never learn
+   * the cursor had arrived and would stay transparent to it forever. Instead
+   * the main process reads the cursor itself and hit-tests the regions the
+   * renderer publishes.
+   */
+  setHitRegions(regions: Rect[]): void {
+    this.hitRegions = regions;
+    this.updateHover();
+  }
+
+  /** Held from pointerdown to pointerup: never go click-through mid-press. */
+  setPressed(pressed: boolean): void {
+    this.pressed = pressed;
+    if (pressed) {
       this.setIgnore(false);
-      return;
+    } else {
+      this.updateHover();
     }
-    this.setIgnore(!capture);
   }
 
   setExpanded(_open: boolean, _providerId: ProviderId | null): void {
     // Window stays card-sized so the bubble can animate without clipping.
+  }
+
+  /** Drops below pop-up menu level so a context menu draws over the dock. */
+  suspendAlwaysOnTop(): void {
+    this.window?.setAlwaysOnTop(true, MENU_SAFE_LEVEL);
+  }
+
+  restoreAlwaysOnTop(): void {
+    this.window?.setAlwaysOnTop(true, TOP_LEVEL);
   }
 
   startMove(screenX: number, screenY: number): void {
@@ -181,7 +217,6 @@ export class OverlayController {
     }
     const bounds = win.getBounds();
     this.settingsDisplayId = drag.placement.displayId;
-    this.setIgnore(true);
     return {
       placementPreset: drag.preset,
       customPosition: { x: bounds.x, y: bounds.y },
@@ -196,41 +231,12 @@ export class OverlayController {
     this.window?.showInactive();
   }
 
-  async debugState(): Promise<{ capsule: string; text: string } | null> {
-    const win = this.window;
-    if (!win || win.isDestroyed()) {
-      return null;
+  destroy(): void {
+    this.stopDragPoll();
+    if (this.hoverTimer) {
+      clearInterval(this.hoverTimer);
+      this.hoverTimer = null;
     }
-    return win.webContents.executeJavaScript(`({
-      capsule: typeof window.capsule,
-      text: (document.body.innerText || "").replace(/\\s+/g, " ").trim(),
-    })`);
-  }
-
-  async openProvider(providerId: ProviderId): Promise<void> {
-    const win = this.window;
-    if (!win || win.isDestroyed()) {
-      return;
-    }
-    await win.webContents.executeJavaScript(
-      `(() => {
-        const el = document.querySelector('[data-provider="${providerId}"]');
-        if (!el) return false;
-        el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
-        el.click();
-        return true;
-      })()`,
-    );
-  }
-
-  async capturePng(dest: string): Promise<string | null> {
-    const win = this.window;
-    if (!win || win.isDestroyed()) {
-      return null;
-    }
-    const image = await win.webContents.capturePage();
-    await writeFile(dest, image.toPNG());
-    return dest;
   }
 
   async relayout(): Promise<PlacementResult | null> {
@@ -309,21 +315,25 @@ export class OverlayController {
     chrome: Parameters<typeof computePlacement>[1],
   ): PlacementResult {
     const metrics = hudMetrics(this.settings.hudScale);
-    const notch = preset === "top-edge";
+    const style = dockStyleFor(this.settings.dockStyle);
+    const notchAllowed = styleSupportsNotch(style);
+    const compact = preset === "top-edge" || preset === "bottom-edge";
     return computePlacement(
       preset,
       chrome,
       {
         railWidth: metrics.railWidth,
-        railLength: railLengthForCount(metrics, this.meterCount, notch),
+        railLength: railLengthForCount(metrics, this.meterCount, compact),
         cardWidth: metrics.cardWidth,
         cardHeight: cardHeightForBuckets(metrics, 2),
         expanded: true,
         shadowPadding: metrics.shadowPadding,
         joinWidth: metrics.tailLength + metrics.joinGap,
-        edgeFlare: metrics.edgeFlare,
+        edgeFlare: notchAllowed ? metrics.edgeFlare : 0,
+        edgeGap: dockEdgeGap(metrics, style),
       },
       PLACEMENT,
+      { notchAllowed },
     );
   }
 
@@ -377,6 +387,37 @@ export class OverlayController {
     );
   }
 
+  private startHoverTracking(): void {
+    if (this.hoverTimer) {
+      return;
+    }
+    this.hoverTimer = setInterval(() => {
+      this.updateHover();
+    }, MOTION.hoverPollMs);
+  }
+
+  private updateHover(): void {
+    const win = this.window;
+    if (!win || win.isDestroyed()) {
+      return;
+    }
+    // A press or a drag owns the mouse until it ends, whatever the cursor
+    // is over — the dock may well have slid out from under it.
+    if (this.pressed || this.drag) {
+      this.setIgnore(false);
+      return;
+    }
+    if (!win.isVisible() || this.hitRegions.length === 0) {
+      this.setIgnore(true);
+      return;
+    }
+    const cursor = screen.getCursorScreenPoint();
+    const bounds = win.getBounds();
+    const x = cursor.x - bounds.x;
+    const y = cursor.y - bounds.y;
+    this.setIgnore(!this.hitRegions.some((rect) => contains(rect, x, y)));
+  }
+
   private stopDragPoll(): void {
     if (this.dragTimer) {
       clearInterval(this.dragTimer);
@@ -395,4 +436,14 @@ export class OverlayController {
     this.ignoreMouse = ignore;
     win.setIgnoreMouseEvents(ignore, { forward: true });
   }
+}
+
+function contains(rect: Rect, x: number, y: number): boolean {
+  const slop = MOTION.hoverSlopPx;
+  return (
+    x >= rect.x - slop &&
+    x <= rect.x + rect.width + slop &&
+    y >= rect.y - slop &&
+    y <= rect.y + rect.height + slop
+  );
 }

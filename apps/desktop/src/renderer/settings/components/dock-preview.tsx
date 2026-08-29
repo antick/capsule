@@ -2,11 +2,16 @@ import {
   cardHeightForBuckets,
   DEMO_NOW_ISO,
   DEMO_SNAPSHOTS,
+  type DockStyleId,
+  dockStyleFor,
+  type HudThemeSetting,
   hudMetrics,
   joinOffsetForIndex,
   layoutForPreset,
   type PlacementPreset,
   railLengthForCount,
+  resolveHudTheme,
+  styleSupportsNotch,
   type UsageSnapshot,
 } from "@capsule/config";
 import { blobLayout, UsageDock } from "@capsule/hud";
@@ -35,10 +40,14 @@ const EDGE_FIT: Record<PlacementPreset, { align: string; origin: string }> = {
 export function DockPreview({
   preset,
   scale,
+  themeSetting,
+  styleId,
   snapshots,
 }: {
   preset: PlacementPreset;
   scale: number;
+  themeSetting: HudThemeSetting;
+  styleId: DockStyleId;
   snapshots: UsageSnapshot[];
 }): ReactElement {
   const box = useRef<HTMLDivElement>(null);
@@ -58,12 +67,16 @@ export function DockPreview({
 
   const metrics = hudMetrics(scale);
   const layout = layoutForPreset(preset);
+  const dockStyle = dockStyleFor(styleId);
+  // The preview panel is dark, so `auto` shows the palette it would pick there.
+  const theme = resolveHudTheme(themeSetting, "dark");
   const fit = EDGE_FIT[preset];
   const meters = snapshots.length > 0 ? snapshots : DEMO_SNAPSHOTS;
+  const compact = layout.orientation === "horizontal";
   const frame = blobLayout(metrics, {
     cardGrowth: layout.cardGrowth,
-    railLength: railLengthForCount(metrics, meters.length, layout.notch),
-    joinOffset: joinOffsetForIndex(metrics, 0, layout.notch),
+    railLength: railLengthForCount(metrics, meters.length, compact),
+    joinOffset: joinOffsetForIndex(metrics, 0, compact),
     cardHeight: cardHeightForBuckets(metrics, 2),
   });
   const pad = metrics.shadowPadding * 2;
@@ -92,9 +105,11 @@ export function DockPreview({
         <UsageDock
           snapshots={meters}
           metrics={metrics}
+          theme={theme}
+          dockStyle={dockStyle}
           orientation={layout.orientation}
           cardGrowth={layout.cardGrowth}
-          notch={layout.notch}
+          notch={layout.notch && styleSupportsNotch(dockStyle)}
           now={new Date(DEMO_NOW_ISO)}
           forceOpenProviderId={meters[0]?.providerId ?? null}
         />

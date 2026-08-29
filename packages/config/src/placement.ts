@@ -31,6 +31,8 @@ export interface HudSize {
   shadowPadding: number;
   joinWidth: number;
   edgeFlare: number;
+  /** Gap the dock style leaves between itself and the screen edge. */
+  edgeGap: number;
 }
 
 export type ScreenEdge = "left" | "right" | "top" | "bottom";
@@ -110,7 +112,7 @@ function alongSize(hud: HudSize, cardAlong: number): number {
 function verticalWindowSize(hud: HudSize): { width: number; height: number } {
   const extra = hud.expanded ? hud.cardWidth + hud.joinWidth : 0;
   return {
-    width: hud.railWidth + extra + hud.shadowPadding,
+    width: hud.railWidth + extra + hud.shadowPadding + hud.edgeGap,
     height: alongSize(hud, hud.cardHeight),
   };
 }
@@ -119,7 +121,7 @@ function horizontalWindowSize(hud: HudSize): { width: number; height: number } {
   const extra = hud.expanded ? hud.cardHeight + hud.joinWidth : 0;
   return {
     width: alongSize(hud, hud.cardWidth),
-    height: hud.railWidth + extra + hud.shadowPadding,
+    height: hud.railWidth + extra + hud.shadowPadding + hud.edgeGap,
   };
 }
 
@@ -144,9 +146,13 @@ export function computePlacement(
   chrome: ChromeSnapshot,
   hud: HudSize,
   constants: typeof PLACEMENT = PLACEMENT,
+  /** Dock styles that visibly float cannot pass for a notch. */
+  options: { notchAllowed?: boolean } = {},
 ): PlacementResult {
   const { bounds, workArea, id } = chrome.display;
-  const { orientation, cardGrowth, notch } = layoutForPreset(preset);
+  const layout = layoutForPreset(preset);
+  const { orientation, cardGrowth } = layout;
+  const notch = layout.notch && options.notchAllowed !== false;
   const edge = edgeForPreset(preset);
 
   if (edge === "right" || edge === "left") {
@@ -183,11 +189,12 @@ export function computePlacement(
   );
 
   if (edge === "top") {
-    // The notch hangs from the physical top of the screen, over the menu bar.
+    // A notch hangs from the physical top of the screen, over the menu bar.
+    // Anything that reads as floating starts below the menu bar instead.
     return {
       displayId: id,
       x: clamp(centerInRange(bounds.x, bounds.width, size.width), min, max),
-      y: bounds.y,
+      y: notch ? bounds.y : workArea.y,
       ...size,
       orientation,
       cardGrowth,

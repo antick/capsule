@@ -123,6 +123,15 @@ export const MOTION = {
   closeEasing: "cubic-bezier(0.4, 0, 0.9, 0.6)",
   dragThresholdPx: 5,
   dragPollMs: 8,
+  /**
+   * How often the main process asks where the cursor is to decide whether the
+   * overlay should swallow mouse events. macOS only forwards move events to a
+   * click-through window while the app is frontmost, so hit testing cannot
+   * live in the renderer.
+   */
+  hoverPollMs: 24,
+  /** Slack around the dock so the hover region is forgiving at small sizes. */
+  hoverSlopPx: 2,
   meterIdleOpacity: 0.92,
   closedBubbleScale: 0.62,
   liftScale: 1.04,
@@ -180,6 +189,7 @@ export const IPC = {
   openSettings: "capsule:open-settings",
   quit: "capsule:quit",
   setPointerCapture: "capsule:set-pointer-capture",
+  setHitRegions: "capsule:set-hit-regions",
   setExpanded: "capsule:set-expanded",
   contextMenu: "capsule:context-menu",
   startMove: "capsule:start-move",
@@ -203,7 +213,7 @@ export const COPY = {
   staleData: "Data is stale",
   unavailable: "Usage unavailable",
   settings: "Settings",
-  openSettings: "Open Settings…",
+  openSettings: "Settings",
   position: "Position",
   quit: "Quit Capsule",
   demoMode: "Demo mode",
@@ -223,6 +233,13 @@ export const COPY = {
   dockSizeHint: "Scales the whole dock — rings, card and type together.",
   decreaseSize: "Make the dock smaller",
   increaseSize: "Make the dock bigger",
+  theme: "Theme",
+  themeHint:
+    "Auto follows macOS and swaps between Midnight and Porcelain on its own.",
+  themeAuto: "Auto",
+  themeAutoHint: "Match the system appearance.",
+  dockStyle: "Dock style",
+  dockStyleHint: "How the dock meets the edge it is parked against.",
   recentre: "Re-centre",
   recentreHint:
     "Forget where the dock was last dragged and centre it on its edge.",

@@ -18,7 +18,7 @@ export interface AppChromeHandlers {
 
 export function createAppChrome(handlers: AppChromeHandlers): {
   sync: (settings: CapsuleSettings) => void;
-  popup: () => void;
+  popup: (onClose?: () => void) => void;
 } {
   const tray = new Tray(trayTemplateImage());
   tray.setToolTip(APP_NAME);
@@ -47,10 +47,10 @@ export function createAppChrome(handlers: AppChromeHandlers): {
   sync(handlers.getSettings());
   return {
     sync,
-    popup: () => {
+    popup: (onClose) => {
       Menu.buildFromTemplate(
         capsuleCommandTemplate(handlers.getSettings(), handlers),
-      ).popup();
+      ).popup({ callback: onClose });
     },
   };
 }

@@ -14,6 +14,7 @@ import {
   meterBlockSize,
   meterStrideSize,
   nextHudScale,
+  REFERENCE_RATIO,
   railLengthForCount,
 } from "./metrics.ts";
 
@@ -38,7 +39,7 @@ describe("rail geometry", () => {
     expect(last).toBeLessThan(railLengthForCount(m, 3));
   });
 
-  it("drops the percent caption and tightens padding in notch mode", () => {
+  it("drops the percent caption and tightens padding in compact mode", () => {
     expect(meterBlockSize(m, true)).toBe(m.meterSize);
     expect(railLengthForCount(m, 3, true)).toBeLessThan(
       railLengthForCount(m, 3),
@@ -46,6 +47,21 @@ describe("rail geometry", () => {
     expect(joinOffsetForIndex(m, 0, true)).toBe(
       m.notchPaddingY + m.meterSize / 2,
     );
+  });
+
+  it("fits a compact meter inside the rail's thickness at every size", () => {
+    // A horizontal dock lays meters across the rail's short axis, so anything
+    // taller than the rail spills out onto the desktop.
+    for (
+      let scale = HUD_SCALE.min;
+      scale <= HUD_SCALE.max + 1e-9;
+      scale += HUD_SCALE.step
+    ) {
+      const metrics = hudMetrics(scale);
+      expect(
+        meterBlockSize(metrics, true) + metrics.railPaddingX * 2,
+      ).toBeLessThanOrEqual(metrics.railWidth);
+    }
   });
 });
 
@@ -82,6 +98,15 @@ describe("hud scale", () => {
     expect(small.cardWidth).toBeLessThan(large.cardWidth);
     expect(small.railWidth).toBeLessThan(large.railWidth);
     expect(small.ringStroke).toBeGreaterThanOrEqual(1);
+  });
+
+  it("measures 100% against the shipped size, not the reference drawing", () => {
+    const shipped = hudMetrics(HUD_SCALE.default);
+    expect(shipped.scale).toBe(1);
+    expect(shipped.unit).toBe(REFERENCE_RATIO);
+    expect(shipped.railWidth).toBeLessThan(
+      hudMetrics(1 / REFERENCE_RATIO).railWidth,
+    );
   });
 });
 

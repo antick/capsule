@@ -1,4 +1,9 @@
-import { DEMO_NOW_ISO, DEMO_SNAPSHOTS } from "@capsule/config";
+import {
+  DEMO_NOW_ISO,
+  DEMO_SNAPSHOTS,
+  DOCK_STYLES,
+  HUD_THEMES,
+} from "@capsule/config";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -65,5 +70,62 @@ describe("UsageDock", () => {
     expect(html).toContain('data-provider="codex"');
     expect(html).toContain('data-provider="grok"');
     expect(html).toContain("—");
+  });
+
+  it("drops the percent captions when the dock lies along an edge", () => {
+    const horizontal = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "horizontal",
+        cardGrowth: "up",
+        now: new Date(DEMO_NOW_ISO),
+      }),
+    );
+    expect(horizontal).not.toContain(">73%<");
+    expect(horizontal).toContain('data-provider="claude"');
+
+    const vertical = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now: new Date(DEMO_NOW_ISO),
+      }),
+    );
+    expect(vertical).toContain(">73%<");
+  });
+
+  it("paints the chosen theme onto the surface and the type", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        theme: HUD_THEMES.porcelain,
+        now: new Date(DEMO_NOW_ISO),
+        forceOpenProviderId: "claude",
+      }),
+    );
+    expect(html).toContain(`fill="${HUD_THEMES.porcelain.surface}"`);
+    expect(html).toContain(HUD_THEMES.porcelain.textMuted);
+    expect(html).not.toContain('fill="#000000"');
+  });
+
+  it("outlines the tray style and leaves the rail style unoutlined", () => {
+    const render = (
+      dockStyle: (typeof DOCK_STYLES)[keyof typeof DOCK_STYLES],
+    ) =>
+      renderToStaticMarkup(
+        createElement(UsageDock, {
+          snapshots: DEMO_SNAPSHOTS,
+          orientation: "vertical",
+          cardGrowth: "left",
+          dockStyle,
+          now: new Date(DEMO_NOW_ISO),
+        }),
+      );
+    // The hairline is the only 1px stroke; meter rings are far thicker.
+    expect(render(DOCK_STYLES.tray)).toContain('stroke-width="1"');
+    expect(render(DOCK_STYLES.rail)).not.toContain('stroke-width="1"');
   });
 });

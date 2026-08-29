@@ -1,7 +1,8 @@
 import {
   COPY,
-  HUD,
+  HUD_THEMES,
   type HudMetrics,
+  type HudTheme,
   MOTION,
   type ProviderId,
   SEVERITY_COLORS,
@@ -12,6 +13,7 @@ import { ProviderIcon } from "./icons.tsx";
 
 export function UsageMeter({
   metrics,
+  theme = HUD_THEMES.midnight,
   providerId,
   percent,
   active,
@@ -21,10 +23,11 @@ export function UsageMeter({
   onClick,
 }: {
   metrics: HudMetrics;
+  theme?: HudTheme;
   providerId: ProviderId;
   percent: number | null;
   active: boolean;
-  /** Notch mode drops the percent caption so the dock stays menu-bar tall. */
+  /** Horizontal docks drop the percent caption so they stay edge-thin. */
   compact?: boolean;
   onPointerEnter: () => void;
   onPointerLeave: () => void;
@@ -36,7 +39,7 @@ export function UsageMeter({
   const circumference = 2 * Math.PI * radius;
   const rounded = percent === null ? null : Math.round(percent);
   const severity = rounded === null ? null : severityForPercent(rounded);
-  const color = severity ? SEVERITY_COLORS[severity] : HUD.ringTrack;
+  const color = severity ? SEVERITY_COLORS[severity] : theme.ringTrack;
   const dashOffset =
     rounded === null
       ? circumference
@@ -64,7 +67,7 @@ export function UsageMeter({
         alignItems: "center",
         gap: metrics.meterLabelGap,
         cursor: "pointer",
-        color: HUD.text,
+        color: theme.text,
         pointerEvents: "auto",
         // Meters keep a fixed size; the card's tail marks the active one.
         opacity: active ? 1 : MOTION.meterIdleOpacity,
@@ -84,7 +87,7 @@ export function UsageMeter({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={HUD.ringTrack}
+          stroke={theme.ringTrack}
           strokeWidth={stroke}
         />
         {rounded !== null && rounded > 0 ? (
@@ -109,7 +112,7 @@ export function UsageMeter({
         >
           <ProviderIcon
             id={providerId}
-            color={HUD.text}
+            color={theme.text}
             size={metrics.iconSize}
           />
         </g>

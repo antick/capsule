@@ -13,9 +13,11 @@ const settings = {
   demoMode: false,
   pollIntervalMs: 60000,
   launchAtLogin: true,
-  hudScale: 0.75,
+  hudScale: 1,
+  hudTheme: "auto",
+  dockStyle: "rail",
   customPosition: { x: 100, y: 100 },
-  schemaVersion: 3,
+  schemaVersion: 4,
 };
 
 const bucket = (id, label, percentUsed) => ({
@@ -67,6 +69,7 @@ window.capsule = {
   openSettings: async () => {},
   quit: async () => {},
   setPointerCapture: () => {},
+  setHitRegions: () => {},
   setExpanded: () => {},
   startMove: () => {},
   endMove: async () => {},

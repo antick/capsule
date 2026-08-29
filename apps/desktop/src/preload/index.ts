@@ -2,6 +2,7 @@ import {
   type CapsuleSettings,
   IPC,
   type ProviderId,
+  type Rect,
   type UsageSnapshot,
 } from "@capsule/config";
 import { contextBridge, ipcRenderer } from "electron";
@@ -12,6 +13,8 @@ export interface CapsuleBridge {
   openSettings: (hash?: string) => Promise<void>;
   quit: () => Promise<void>;
   setPointerCapture: (capture: boolean) => void;
+  /** Window-local areas the dock wants the mouse for. */
+  setHitRegions: (regions: Rect[]) => void;
   setExpanded: (open: boolean, providerId: ProviderId | null) => void;
   startMove: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
@@ -33,6 +36,9 @@ const capsule: CapsuleBridge = {
   quit: () => ipcRenderer.invoke(IPC.quit),
   setPointerCapture: (capture) => {
     ipcRenderer.send(IPC.setPointerCapture, capture);
+  },
+  setHitRegions: (regions) => {
+    ipcRenderer.send(IPC.setHitRegions, regions);
   },
   setExpanded: (open, providerId) => {
     ipcRenderer.send(IPC.setExpanded, open, providerId);

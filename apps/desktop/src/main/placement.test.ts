@@ -3,9 +3,14 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   computePlacement,
+  DOCK_STYLES,
+  type DockStyle,
+  dockEdgeGap,
+  HUD_SCALE,
   hudMetrics,
   PLACEMENT,
   type PlacementPreset,
+  styleSupportsNotch,
 } from "@capsule/config";
 import { describe, expect, it } from "vitest";
 
@@ -19,8 +24,13 @@ const chrome = {
   dock: { orientation: "bottom" as const, autohide: false, tilesize: 48 },
 };
 
-function place(preset: PlacementPreset, scale = 0.75) {
+function place(
+  preset: PlacementPreset,
+  scale = HUD_SCALE.default,
+  style: DockStyle = DOCK_STYLES.rail,
+) {
   const m = hudMetrics(scale);
+  const notchAllowed = styleSupportsNotch(style);
   return computePlacement(
     preset,
     chrome,
@@ -32,9 +42,11 @@ function place(preset: PlacementPreset, scale = 0.75) {
       expanded: true,
       shadowPadding: m.shadowPadding,
       joinWidth: m.tailLength + m.joinGap,
-      edgeFlare: m.edgeFlare,
+      edgeFlare: notchAllowed ? m.edgeFlare : 0,
+      edgeGap: dockEdgeGap(m, style),
     },
     PLACEMENT,
+    { notchAllowed },
   );
 }
 
@@ -61,9 +73,22 @@ describe("desktop placement wiring", () => {
   });
 
   it("shrinks the window when the user turns the size down", () => {
-    expect(place("right-edge", 0.55).width).toBeLessThan(
-      place("right-edge", 1.2).width,
+    expect(place("right-edge", HUD_SCALE.min).width).toBeLessThan(
+      place("right-edge", HUD_SCALE.max).width,
     );
+  });
+
+  it("keeps a floating style below the menu bar instead of over it", () => {
+    const result = place("top-edge", HUD_SCALE.default, DOCK_STYLES.capsule);
+    expect(result.notch).toBe(false);
+    expect(result.y).toBe(chrome.display.workArea.y);
+  });
+
+  it("leaves the tray style a gap against the edge it rides", () => {
+    const flush = place("right-edge");
+    const tray = place("right-edge", HUD_SCALE.default, DOCK_STYLES.tray);
+    expect(tray.width).toBeGreaterThan(flush.width);
+    expect(tray.x + tray.width).toBe(1512);
   });
 });
 

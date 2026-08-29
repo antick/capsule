@@ -1,17 +1,25 @@
 import { join } from "node:path";
 import { APP_NAME } from "@capsule/config";
-import { BrowserWindow, shell } from "electron";
+import { app, BrowserWindow, shell } from "electron";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
 
 let settingsWindow: BrowserWindow | null = null;
+
+/** The overlay is not focusable, so the app itself may not be frontmost. */
+function bringForward(win: BrowserWindow): void {
+  win.show();
+  win.focus();
+  if (process.platform === "darwin") {
+    app.focus({ steal: true });
+  }
+}
 
 export async function openSettingsWindow(hash = "/"): Promise<BrowserWindow> {
   if (settingsWindow && !settingsWindow.isDestroyed()) {
     await settingsWindow.webContents.executeJavaScript(
       `window.location.hash = ${JSON.stringify(`#${hash}`)}`,
     );
-    settingsWindow.show();
-    settingsWindow.focus();
+    bringForward(settingsWindow);
     return settingsWindow;
   }
 
@@ -39,6 +47,14 @@ export async function openSettingsWindow(hash = "/"): Promise<BrowserWindow> {
     return { action: "deny" };
   });
 
+  // Registered before the load: ready-to-show fires during it, and a listener
+  // attached afterwards misses the event and leaves the window hidden.
+  win.once("ready-to-show", () => bringForward(win));
+  win.on("closed", () => {
+    settingsWindow = null;
+  });
+  settingsWindow = win;
+
   const devUrl = rendererDevUrl("settings");
   if (devUrl) {
     await win.loadURL(`${devUrl}#${hash}`);
@@ -46,10 +62,8 @@ export async function openSettingsWindow(hash = "/"): Promise<BrowserWindow> {
     await win.loadFile(rendererHtml("settings"), { hash });
   }
 
-  win.once("ready-to-show", () => win.show());
-  win.on("closed", () => {
-    settingsWindow = null;
-  });
-  settingsWindow = win;
+  if (!win.isDestroyed()) {
+    bringForward(win);
+  }
   return win;
 }

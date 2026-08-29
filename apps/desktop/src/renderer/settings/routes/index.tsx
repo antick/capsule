@@ -4,6 +4,8 @@ import { DockPreview } from "../components/dock-preview.tsx";
 import { PlacementPicker } from "../components/placement-picker.tsx";
 import { Section } from "../components/section.tsx";
 import { SizeStepper } from "../components/size-stepper.tsx";
+import { StylePicker } from "../components/style-picker.tsx";
+import { ThemePicker } from "../components/theme-picker.tsx";
 import { useCapsuleSettings } from "../use-settings.ts";
 
 export function AppearancePage() {
@@ -17,7 +19,23 @@ export function AppearancePage() {
         <DockPreview
           preset={settings.placementPreset}
           scale={settings.hudScale}
+          themeSetting={settings.hudTheme}
+          styleId={settings.dockStyle}
           snapshots={snapshots}
+        />
+      </Section>
+
+      <Section title={COPY.dockStyle} hint={COPY.dockStyleHint}>
+        <StylePicker
+          value={settings.dockStyle}
+          onChange={(dockStyle) => void update({ dockStyle })}
+        />
+      </Section>
+
+      <Section title={COPY.theme} hint={COPY.themeHint}>
+        <ThemePicker
+          value={settings.hudTheme}
+          onChange={(hudTheme) => void update({ hudTheme })}
         />
       </Section>
 

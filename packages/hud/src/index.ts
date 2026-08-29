@@ -1,5 +1,10 @@
-export type { BlobLayout, CardGrowth } from "./blob-path.ts";
-export { blobLayout } from "./blob-path.ts";
+export type { BlobLayout, CardGrowth, HitRegions, Rect } from "./blob-path.ts";
+export {
+  blobLayout,
+  framePadding,
+  hitRegions,
+  railPath,
+} from "./blob-path.ts";
 export { HudFrame } from "./HudFrame.tsx";
 export { ProviderIcon } from "./icons.tsx";
 export { UsageCard } from "./UsageCard.tsx";

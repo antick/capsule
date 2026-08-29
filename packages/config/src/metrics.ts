@@ -4,12 +4,19 @@ import { HUD_BASE } from "./constants.ts";
  * The dock is authored once at scale 1 and every pixel value is derived from
  * that base, so the whole HUD — rail, meters, card, tail and shadow gutter —
  * grows and shrinks as a single unit.
+ *
+ * The reference drawing is larger than the size the dock actually wants to be
+ * on a real desktop, so 100% to the user is {@link REFERENCE_RATIO} of it.
+ * Folding the ratio in here keeps the artwork at its authored numbers while
+ * the percentage in settings still means what it says.
  */
+export const REFERENCE_RATIO = 0.8;
+
 export const HUD_SCALE = {
-  min: 0.55,
-  max: 1.2,
+  min: 0.5,
+  max: 1.3,
   step: 0.05,
-  default: 0.75,
+  default: 1,
 } as const;
 
 export function clampHudScale(scale: number): number {
@@ -28,7 +35,10 @@ export function nextHudScale(scale: number, direction: 1 | -1): number {
 }
 
 export interface HudMetrics {
+  /** The user's size preference, where 1 is 100%. */
   scale: number;
+  /** Multiplier actually applied to the reference artwork. */
+  unit: number;
   railWidth: number;
   railPaddingX: number;
   railPaddingY: number;
@@ -117,9 +127,10 @@ function px(value: number, scale: number): number {
 
 export function hudMetrics(scale: number = HUD_SCALE.default): HudMetrics {
   const safe = clampHudScale(scale);
-  const out = { scale: safe } as HudMetrics;
+  const unit = safe * REFERENCE_RATIO;
+  const out = { scale: safe, unit } as HudMetrics;
   for (const key of SCALED_KEYS) {
-    out[key] = px(HUD_BASE[key], safe);
+    out[key] = px(HUD_BASE[key], unit);
   }
   return out;
 }

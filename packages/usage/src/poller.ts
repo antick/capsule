@@ -21,7 +21,13 @@ export interface PollerHost {
 export interface Poller {
   start: () => void;
   stop: () => void;
+  /** Re-reads every enabled provider over the network. */
   refresh: () => Promise<void>;
+  /**
+   * Reconciles the published list against the enabled providers without
+   * touching the network, so toggling one lands immediately.
+   */
+  sync: () => void;
   getSnapshots: () => UsageSnapshot[];
 }
 
@@ -87,6 +93,25 @@ export function createPoller(options: {
     return inFlight;
   };
 
+  const sync = () => {
+    const settings = options.getSettings();
+    // Placeholders define both the order and the enabled set; anything we
+    // already know about a provider is carried over so nothing flickers.
+    const next = placeholderSnapshots(settings.enabledProviderIds).map(
+      (placeholder) =>
+        snapshots.find((item) => item.providerId === placeholder.providerId) ??
+        placeholder,
+    );
+    const unchanged =
+      next.length === snapshots.length &&
+      next.every((item, index) => item === snapshots[index]);
+    if (unchanged) {
+      return;
+    }
+    snapshots = next;
+    options.onChange(snapshots);
+  };
+
   return {
     start: () => {
       stop();
@@ -108,6 +133,7 @@ export function createPoller(options: {
     },
     stop,
     refresh,
+    sync,
     getSnapshots: () => snapshots,
   };
 

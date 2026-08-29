@@ -1,5 +1,7 @@
 import {
   cardHeightForBuckets,
+  DOCK_STYLES,
+  dockEdgeGap,
   hudMetrics,
   joinOffsetForIndex,
   railLengthForCount,
@@ -10,12 +12,14 @@ import {
   bubblePath,
   type CardGrowth,
   framePadding,
+  hitRegions,
   railPath,
 } from "./blob-path.ts";
 
 const m = hudMetrics(1);
 const railLength = railLengthForCount(m, 3);
 const cardHeight = cardHeightForBuckets(m, 2);
+const growths: CardGrowth[] = ["left", "right", "up", "down"];
 
 function layoutFor(cardGrowth: CardGrowth, index: number) {
   return blobLayout(m, {
@@ -111,8 +115,6 @@ describe("blobLayout", () => {
 });
 
 describe("silhouettes", () => {
-  const growths: CardGrowth[] = ["left", "right", "up", "down"];
-
   it("closes both shapes in every orientation", () => {
     for (const growth of growths) {
       const layout = layoutFor(growth, 1);
@@ -139,10 +141,10 @@ describe("silhouettes", () => {
 
   it("keeps the notch corners tighter than the rail's", () => {
     const layout = layoutFor("down", 0);
-    expect(railPath(m, "down", layout, true)).not.toBe(
-      railPath(m, "down", layout, false),
+    expect(railPath(m, "down", layout, { notch: true })).not.toBe(
+      railPath(m, "down", layout, { notch: false }),
     );
-    expect(railPath(m, "down", layout, true)).toContain(
+    expect(railPath(m, "down", layout, { notch: true })).toContain(
       `A ${m.notchRadius} ${m.notchRadius}`,
     );
   });
@@ -154,11 +156,87 @@ describe("silhouettes", () => {
   });
 });
 
+describe("dock styles", () => {
+  it("drops the edge fillets for styles that float clear of the edge", () => {
+    const layout = layoutFor("left", 0);
+    const rail = railPath(m, "left", layout, { style: DOCK_STYLES.rail });
+    const capsule = railPath(m, "left", layout, { style: DOCK_STYLES.capsule });
+    // The rail starts a flare's distance above the rail body; a floating
+    // silhouette starts on the body itself.
+    expect(rail).toContain(`${layout.width} 0`);
+    expect(capsule).not.toContain(`${layout.width} 0`);
+    expect(capsule.endsWith("Z")).toBe(true);
+    expect(capsule).not.toContain("NaN");
+  });
+
+  it("rounds the capsule to a half-width pill", () => {
+    const layout = layoutFor("left", 0);
+    const half = m.railWidth / 2;
+    expect(
+      railPath(m, "left", layout, { style: DOCK_STYLES.capsule }),
+    ).toContain(`A ${half} ${half}`);
+  });
+
+  it("closes every style in every orientation", () => {
+    for (const style of Object.values(DOCK_STYLES)) {
+      for (const growth of growths) {
+        const path = railPath(m, growth, layoutFor(growth, 1), { style });
+        expect(path.endsWith("Z")).toBe(true);
+        expect(path).not.toContain("NaN");
+      }
+    }
+  });
+});
+
+describe("hitRegions", () => {
+  const pad = framePadding(m, "left");
+
+  it("offers only the rail while the card is closed", () => {
+    const regions = hitRegions(layoutFor("left", 0), pad, false);
+    expect(regions.open).toBeNull();
+    expect(regions.rail.width).toBe(m.railWidth);
+    expect(regions.rail.x).toBe(layoutFor("left", 0).rail.x + pad.left);
+  });
+
+  it("bridges the tail gap once the card is open", () => {
+    const layout = layoutFor("left", 0);
+    const regions = hitRegions(layout, pad, true);
+    const gap = layout.rail.x - (layout.card.x + layout.card.width);
+    expect(gap).toBeGreaterThan(0);
+    // Losing the pointer while crossing the tail would close the card under
+    // the cursor, so rail and card have to be one region.
+    expect(regions.open?.x).toBe(layout.card.x + pad.left);
+    expect(regions.open && regions.open.x + regions.open.width).toBe(
+      layout.rail.x + layout.rail.width + pad.left,
+    );
+  });
+
+  it("covers the card on every edge", () => {
+    for (const growth of growths) {
+      const layout = layoutFor(growth, 1);
+      const padding = framePadding(m, growth);
+      const open = hitRegions(layout, padding, true).open;
+      expect(open).not.toBeNull();
+      expect(open?.x).toBeLessThanOrEqual(layout.card.x + padding.left);
+      expect(open && open.y + open.height).toBeGreaterThanOrEqual(
+        layout.card.y + layout.card.height + padding.top,
+      );
+    }
+  });
+});
+
 describe("framePadding", () => {
   it("drops the gutter on the flush side", () => {
     expect(framePadding(m, "left").right).toBe(0);
     expect(framePadding(m, "right").left).toBe(0);
     expect(framePadding(m, "up").bottom).toBe(0);
     expect(framePadding(m, "down").top).toBe(0);
+  });
+
+  it("holds a detached style off the edge instead", () => {
+    const gap = dockEdgeGap(m, DOCK_STYLES.capsule);
+    expect(gap).toBeGreaterThan(0);
+    expect(framePadding(m, "left", DOCK_STYLES.capsule).right).toBe(gap);
+    expect(framePadding(m, "down", DOCK_STYLES.capsule).top).toBe(gap);
   });
 });

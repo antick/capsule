@@ -1,7 +1,8 @@
 import {
   COPY,
-  HUD,
+  HUD_THEMES,
   type HudMetrics,
+  type HudTheme,
   MOTION,
   SEVERITY_COLORS,
   severityForPercent,
@@ -13,11 +14,13 @@ import { ProviderIcon } from "./icons.tsx";
 
 function BucketRow({
   metrics,
+  theme,
   label,
   percentUsed,
   resetCopy,
 }: {
   metrics: HudMetrics;
+  theme: HudTheme;
   label: string;
   percentUsed: number;
   resetCopy: string;
@@ -41,10 +44,12 @@ function BucketRow({
           lineHeight: `${metrics.cardTextLine}px`,
         }}
       >
-        <span style={{ fontSize: metrics.cardLabelSize, color: HUD.text }}>
+        <span style={{ fontSize: metrics.cardLabelSize, color: theme.text }}>
           {label}
         </span>
-        <span style={{ fontSize: metrics.cardResetSize, color: HUD.textMuted }}>
+        <span
+          style={{ fontSize: metrics.cardResetSize, color: theme.textMuted }}
+        >
           {resetCopy}
         </span>
       </div>
@@ -52,7 +57,7 @@ function BucketRow({
         style={{
           height: metrics.barHeight,
           borderRadius: 99,
-          background: HUD.barTrack,
+          background: theme.barTrack,
           overflow: "hidden",
         }}
       >
@@ -69,7 +74,7 @@ function BucketRow({
       <span
         style={{
           fontSize: metrics.cardLabelSize,
-          color: HUD.text,
+          color: theme.text,
           height: metrics.cardTextLine,
           lineHeight: `${metrics.cardTextLine}px`,
         }}
@@ -83,9 +88,11 @@ function BucketRow({
 
 function Message({
   metrics,
+  theme,
   text,
 }: {
   metrics: HudMetrics;
+  theme: HudTheme;
   text: string;
 }): ReactElement {
   return (
@@ -93,7 +100,7 @@ function Message({
       style={{
         margin: 0,
         fontSize: metrics.cardLabelSize,
-        color: HUD.textMuted,
+        color: theme.textMuted,
         height: metrics.cardTextLine,
         lineHeight: `${metrics.cardTextLine}px`,
       }}
@@ -105,10 +112,12 @@ function Message({
 
 export function UsageCard({
   metrics,
+  theme = HUD_THEMES.midnight,
   snapshot,
   now,
 }: {
   metrics: HudMetrics;
+  theme?: HudTheme;
   snapshot: UsageSnapshot;
   now: Date;
 }): ReactElement {
@@ -116,11 +125,12 @@ export function UsageCard({
 
   let body: ReactElement;
   if (snapshot.status === "unauthenticated") {
-    body = <Message metrics={metrics} text={COPY.notConnected} />;
+    body = <Message metrics={metrics} theme={theme} text={COPY.notConnected} />;
   } else if (snapshot.buckets.length === 0) {
     body = (
       <Message
         metrics={metrics}
+        theme={theme}
         text={snapshot.status === "stale" ? COPY.staleData : COPY.unavailable}
       />
     );
@@ -136,6 +146,7 @@ export function UsageCard({
         {snapshot.buckets.map((bucket) => (
           <BucketRow
             metrics={metrics}
+            theme={theme}
             key={bucket.id}
             label={bucket.label}
             percentUsed={Math.round(bucket.percentUsed)}
@@ -156,7 +167,7 @@ export function UsageCard({
         paddingBottom: metrics.cardPaddingBottom,
         paddingLeft: metrics.cardPaddingX,
         paddingRight: metrics.cardPaddingX,
-        color: HUD.text,
+        color: theme.text,
         boxSizing: "border-box",
       }}
     >
@@ -174,7 +185,7 @@ export function UsageCard({
       >
         <ProviderIcon
           id={snapshot.iconId}
-          color={HUD.text}
+          color={theme.text}
           size={metrics.cardIconSize}
         />
         <span>{title}</span>

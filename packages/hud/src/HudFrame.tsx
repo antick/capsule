@@ -1,27 +1,36 @@
 import {
   cardHeightForBuckets,
+  DOCK_STYLES,
+  type DockStyle,
   HUD,
+  HUD_THEMES,
   type HudMetrics,
+  type HudTheme,
   MOTION,
 } from "@capsule/config";
-import type { ReactElement, ReactNode } from "react";
+import { type ReactElement, type ReactNode, useEffect } from "react";
 import {
   blobLayout,
   bubbleOrigin,
   bubblePath,
   type CardGrowth,
   framePadding,
+  type HitRegions,
+  hitRegions,
   railPath,
 } from "./blob-path.ts";
 import { useAnimatedNumber } from "./use-animated-number.ts";
 
-export type { CardGrowth };
+export type { CardGrowth, HitRegions };
 
 export function HudFrame({
   metrics,
+  theme = HUD_THEMES.midnight,
+  style = DOCK_STYLES.rail,
   orientation,
   cardGrowth,
   notch,
+  compact,
   open,
   joinOffset,
   dragging,
@@ -29,11 +38,16 @@ export function HudFrame({
   cardHeight,
   rail,
   card,
+  onHitRegions,
 }: {
   metrics: HudMetrics;
+  theme?: HudTheme;
+  style?: DockStyle;
   orientation: "vertical" | "horizontal";
   cardGrowth: CardGrowth;
   notch?: boolean;
+  /** Horizontal docks drop the percent caption to stay edge-thin. */
+  compact?: boolean;
   open: boolean;
   joinOffset: number;
   dragging: boolean;
@@ -41,6 +55,7 @@ export function HudFrame({
   cardHeight?: number;
   rail: ReactNode;
   card: ReactNode;
+  onHitRegions?: (regions: HitRegions) => void;
 }): ReactElement {
   const height = cardHeight ?? cardHeightForBuckets(metrics, 2);
   // The tail slides between meters instead of jumping.
@@ -51,18 +66,27 @@ export function HudFrame({
     joinOffset: join,
     cardHeight: height,
   });
-  const pad = framePadding(metrics, cardGrowth);
+  const pad = framePadding(metrics, cardGrowth, style);
   const visible = open && !dragging;
   const interactive = visible;
   const shadow = `drop-shadow(0 ${Math.round(
-    MOTION.shadowDy * metrics.scale,
-  )}px ${Math.round(MOTION.shadowBlur * metrics.scale)}px rgba(0, 0, 0, ${
-    MOTION.shadowOpacity
-  }))`;
+    MOTION.shadowDy * metrics.unit,
+  )}px ${Math.round(MOTION.shadowBlur * metrics.unit)}px ${theme.shadow})`;
+  const alongPadding = compact ? metrics.notchPaddingY : metrics.railPaddingY;
   const railPadding =
     orientation === "vertical"
-      ? `${notch ? metrics.notchPaddingY : metrics.railPaddingY}px ${metrics.railPaddingX}px`
-      : `${metrics.railPaddingX}px ${notch ? metrics.notchPaddingY : metrics.railPaddingY}px`;
+      ? `${alongPadding}px ${metrics.railPaddingX}px`
+      : `${metrics.railPaddingX}px ${alongPadding}px`;
+
+  const railShape = railPath(metrics, cardGrowth, layout, { notch, style });
+  const bubbleShape = bubblePath(metrics, cardGrowth, layout);
+
+  // Serialised so the effect fires on a geometry change rather than on every
+  // render, since the regions themselves are rebuilt each time.
+  const hitKey = JSON.stringify(hitRegions(layout, pad, interactive));
+  useEffect(() => {
+    onHitRegions?.(JSON.parse(hitKey) as HitRegions);
+  }, [hitKey, onHitRegions]);
 
   return (
     <div
@@ -77,7 +101,7 @@ export function HudFrame({
         paddingBottom: pad.bottom,
         paddingLeft: pad.left,
         fontFamily: HUD.fontFamily,
-        color: HUD.text,
+        color: theme.text,
         pointerEvents: "none",
       }}
     >
@@ -106,14 +130,23 @@ export function HudFrame({
           }}
         >
           <path
-            d={railPath(metrics, cardGrowth, layout, notch)}
-            fill={HUD.surface}
+            d={railShape}
+            fill={theme.surface}
             data-hud-hit="true"
             style={{
               pointerEvents: "fill",
               cursor: dragging ? "grabbing" : "grab",
             }}
           />
+          {style.outline ? (
+            <path
+              d={railShape}
+              fill="none"
+              stroke={theme.surfaceEdge}
+              strokeWidth={1}
+              style={{ pointerEvents: "none" }}
+            />
+          ) : null}
         </svg>
 
         <div
@@ -148,11 +181,20 @@ export function HudFrame({
             }}
           >
             <path
-              d={bubblePath(metrics, cardGrowth, layout)}
-              fill={HUD.surface}
+              d={bubbleShape}
+              fill={theme.surface}
               data-hud-hit={interactive ? "true" : undefined}
               style={{ pointerEvents: interactive ? "fill" : "none" }}
             />
+            {style.outline ? (
+              <path
+                d={bubbleShape}
+                fill="none"
+                stroke={theme.surfaceEdge}
+                strokeWidth={1}
+                style={{ pointerEvents: "none" }}
+              />
+            ) : null}
           </svg>
           <div
             data-card-wrap="true"

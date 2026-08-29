@@ -39,6 +39,14 @@ export {
   DEMO_SNAPSHOTS,
   placeholderSnapshots,
 } from "./demo.ts";
+export type { DockStyle, DockStyleId } from "./dock-style.ts";
+export {
+  DOCK_STYLE_IDS,
+  DOCK_STYLES,
+  dockEdgeGap,
+  dockStyleFor,
+  styleSupportsNotch,
+} from "./dock-style.ts";
 export type { HudMetrics } from "./metrics.ts";
 export {
   cardHeightForBuckets,
@@ -50,6 +58,7 @@ export {
   meterBlockSize,
   meterStrideSize,
   nextHudScale,
+  REFERENCE_RATIO,
   railLengthForCount,
 } from "./metrics.ts";
 export type {
@@ -74,6 +83,18 @@ export {
 } from "./settings.ts";
 export { severityForPercent } from "./severity.ts";
 export { edgeAffinity, nearestEdgeForPoint, slideAlongEdge } from "./snap.ts";
+export type {
+  HudAppearance,
+  HudTheme,
+  HudThemeId,
+  HudThemeSetting,
+} from "./theme.ts";
+export {
+  HUD_THEME_AUTO_PAIR,
+  HUD_THEME_IDS,
+  HUD_THEMES,
+  resolveHudTheme,
+} from "./theme.ts";
 export type {
   UsageBucket,
   UsageSnapshot,

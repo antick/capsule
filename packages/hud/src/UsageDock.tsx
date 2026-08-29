@@ -2,14 +2,19 @@ import {
   cardHeightForBuckets,
   cardMessageHeight,
   DEMO_NOW_ISO,
+  DOCK_STYLES,
+  type DockStyle,
   HUD,
+  HUD_THEMES,
   type HudMetrics,
+  type HudTheme,
   hudMetrics,
   joinOffsetForIndex,
   MOTION,
   type ProviderId,
   placeholderSnapshots,
   railLengthForCount,
+  styleSupportsNotch,
   type UsageSnapshot,
 } from "@capsule/config";
 import {
@@ -20,7 +25,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { type CardGrowth, HudFrame } from "./HudFrame.tsx";
+import { type CardGrowth, type HitRegions, HudFrame } from "./HudFrame.tsx";
 import { UsageCard } from "./UsageCard.tsx";
 import { UsageMeter } from "./UsageMeter.tsx";
 
@@ -30,6 +35,8 @@ export function UsageDock({
   cardGrowth,
   notch = false,
   metrics: metricsProp,
+  theme = HUD_THEMES.midnight,
+  dockStyle = DOCK_STYLES.rail,
   now,
   forceOpenProviderId = null,
   onOpenChange,
@@ -37,12 +44,15 @@ export function UsageDock({
   onPressedChange,
   onMoveStart,
   onMoveEnd,
+  onHitRegions,
 }: {
   snapshots: UsageSnapshot[];
   orientation: "vertical" | "horizontal";
   cardGrowth: CardGrowth;
   notch?: boolean;
   metrics?: HudMetrics;
+  theme?: HudTheme;
+  dockStyle?: DockStyle;
   now?: Date;
   forceOpenProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
@@ -51,6 +61,8 @@ export function UsageDock({
   onPressedChange?: (pressed: boolean) => void;
   onMoveStart?: (screenX: number, screenY: number) => void;
   onMoveEnd?: () => void;
+  /** Reports the areas that should swallow the mouse, local to the dock. */
+  onHitRegions?: (regions: HitRegions) => void;
 }): ReactElement {
   const metrics = metricsProp ?? hudMetrics();
   const clock = now ?? new Date(DEMO_NOW_ISO);
@@ -186,7 +198,10 @@ export function UsageDock({
     }, 0);
   };
 
-  const compact = notch;
+  // A horizontal dock has to fit a meter's full height inside the rail's
+  // thickness, so the percent caption is dropped rather than overflowing it.
+  const compact = orientation === "horizontal";
+  const isNotch = notch && styleSupportsNotch(dockStyle);
 
   return (
     <div
@@ -210,17 +225,22 @@ export function UsageDock({
     >
       <HudFrame
         metrics={metrics}
+        theme={theme}
+        style={dockStyle}
         orientation={orientation}
         cardGrowth={cardGrowth}
-        notch={notch}
+        notch={isNotch}
+        compact={compact}
         open={openSnapshot !== null}
         joinOffset={joinOffsetForIndex(metrics, activeJoinIndex, compact)}
         dragging={dragging}
         railLength={railLengthForCount(metrics, meters.length, compact)}
         cardHeight={cardHeightFor(metrics, cardSnapshot)}
+        onHitRegions={onHitRegions}
         rail={meters.map((snapshot) => (
           <UsageMeter
             metrics={metrics}
+            theme={theme}
             key={snapshot.providerId}
             providerId={snapshot.providerId}
             percent={snapshot.primaryPercent}
@@ -253,6 +273,7 @@ export function UsageDock({
             >
               <UsageCard
                 metrics={metrics}
+                theme={theme}
                 snapshot={cardSnapshot}
                 now={clock}
               />

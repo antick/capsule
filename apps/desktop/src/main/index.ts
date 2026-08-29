@@ -1,13 +1,11 @@
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import {
   APP_NAME,
   type CapsuleSettings,
   CHROME_POLL_MS,
   IPC,
-  MOTION,
   type PlacementPreset,
   type ProviderId,
+  type Rect,
   type UsageSnapshot,
 } from "@capsule/config";
 import { app, BrowserWindow, ipcMain, powerMonitor, screen } from "electron";
@@ -62,6 +60,9 @@ function applySettings(next: CapsuleSettings): CapsuleSettings {
   if (demoChanged || pollChanged) {
     rebuildPoller();
   } else {
+    // Reconcile the provider list first so a toggle lands in the dock now
+    // rather than after the next round of network calls returns.
+    poller.sync();
     void poller.refresh();
   }
   void overlay.relayout();
@@ -115,7 +116,10 @@ app.whenReady().then(async () => {
     app.quit();
   });
   ipcMain.on(IPC.setPointerCapture, (_event, capture: boolean) => {
-    overlay.setPointerCapture(capture);
+    overlay.setPressed(capture);
+  });
+  ipcMain.on(IPC.setHitRegions, (_event, regions: Rect[]) => {
+    overlay.setHitRegions(regions);
   });
   ipcMain.on(
     IPC.setExpanded,
@@ -133,7 +137,9 @@ app.whenReady().then(async () => {
     }
   });
   ipcMain.on(IPC.contextMenu, () => {
-    appChrome?.popup();
+    // The dock outranks pop-up menus, so it has to step down for one.
+    overlay.suspendAlwaysOnTop();
+    appChrome?.popup(() => overlay.restoreAlwaysOnTop());
   });
 
   app.on("activate", () => {
@@ -157,21 +163,6 @@ app.whenReady().then(async () => {
       )
       .join(" "),
   );
-  if (!app.isPackaged) {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1500);
-    });
-    broadcast();
-    const overlayInfo = await overlay.debugState();
-    console.info("Capsule overlay", overlayInfo);
-    await overlay.openProvider("grok");
-    await new Promise((resolve) => {
-      setTimeout(resolve, MOTION.openMs + MOTION.slideMs);
-    });
-    const dest = join(tmpdir(), "capsule-app.png");
-    const captured = await overlay.capturePng(dest);
-    console.info("Capsule capture", captured);
-  }
   if (!settings.demoMode && snapshots.every((item) => item.status !== "ok")) {
     await openSettingsWindow("/onboarding");
   }
@@ -193,6 +184,7 @@ app.whenReady().then(async () => {
   app.on("before-quit", () => {
     clearInterval(chromeTimer);
     poller.stop();
+    overlay.destroy();
   });
 });
 

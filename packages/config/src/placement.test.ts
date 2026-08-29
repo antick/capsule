@@ -25,6 +25,7 @@ const hud: HudSize = {
   shadowPadding: m.shadowPadding,
   joinWidth: m.tailLength + m.joinGap,
   edgeFlare: m.edgeFlare,
+  edgeGap: 0,
 };
 
 const chrome = (overrides: Partial<ChromeSnapshot> = {}): ChromeSnapshot => ({
@@ -106,6 +107,28 @@ describe("computePlacement", () => {
     expect(result.y + result.height).toBe(
       display.bounds.y + display.bounds.height,
     );
+  });
+
+  it("holds a detached style clear of the edge it is docked against", () => {
+    const gap = 12;
+    const flush = computePlacement("right-edge", chrome(), hud, PLACEMENT);
+    const detached = computePlacement(
+      "right-edge",
+      chrome(),
+      { ...hud, edgeGap: gap },
+      PLACEMENT,
+    );
+    expect(detached.width).toBe(flush.width + gap);
+    // The window still meets the screen edge; the gap lives inside it.
+    expect(detached.x + detached.width).toBe(display.bounds.width);
+  });
+
+  it("starts a non-notch top dock below the menu bar", () => {
+    const result = computePlacement("top-edge", chrome(), hud, PLACEMENT, {
+      notchAllowed: false,
+    });
+    expect(result.notch).toBe(false);
+    expect(result.y).toBe(display.workArea.y);
   });
 
   it("grows the window inward when expanded on the right edge", () => {
