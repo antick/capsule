@@ -1,15 +1,45 @@
 @import "tailwindcss";
 
+/*
+ * Tailwind's automatic source detection starts at the app importing this file,
+ * so the shared components living beside it would otherwise be scanned for
+ * class names — and their utilities silently dropped from the bundle.
+ */
+@source "./";
+
+@theme {
+  --color-shell-base: #0d0d0f;
+  --color-shell-panel: #16161a;
+  --color-shell-raised: #1e1e24;
+  --color-shell-line: #2a2a32;
+  --color-shell-text: #f4f4f5;
+  --color-shell-muted: #8b8b96;
+  --color-shell-accent: #00f58a;
+}
+
 html,
 body,
 #root {
   min-height: 100%;
+  height: 100%;
 }
 
 body {
   margin: 0;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-  background: #f6f6f7;
-  color: #111;
+  background: var(--color-shell-base);
+  color: var(--color-shell-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The settings window is frameless, so the header doubles as the title bar. */
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.drag-region button,
+.drag-region a,
+.drag-region input {
+  -webkit-app-region: no-drag;
 }

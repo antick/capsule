@@ -14,7 +14,6 @@ export interface CapsuleBridge {
   setPointerCapture: (capture: boolean) => void;
   setExpanded: (open: boolean, providerId: ProviderId | null) => void;
   startMove: (screenX: number, screenY: number) => void;
-  moveWindow: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
   showContextMenu: () => void;
   getSnapshots: () => Promise<{
@@ -40,9 +39,6 @@ const capsule: CapsuleBridge = {
   },
   startMove: (screenX, screenY) => {
     ipcRenderer.send(IPC.startMove, screenX, screenY);
-  },
-  moveWindow: (screenX, screenY) => {
-    ipcRenderer.send(IPC.moveWindow, screenX, screenY);
   },
   endMove: () => ipcRenderer.invoke(IPC.endMove),
   showContextMenu: () => {

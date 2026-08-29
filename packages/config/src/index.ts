@@ -14,27 +14,22 @@ export {
   CODEX_USAGE_FALLBACK_URL,
   CODEX_USAGE_URL,
   COPY,
-  cardHeightForBuckets,
-  cardMessageHeight,
   GROK_AUTH_PATH_SEGMENTS,
   GROK_BILLING_URL,
   GROK_HOME_ENV,
   GROK_TOKEN_AUTH_VALUE,
   GROK_USER_ID_HEADER,
   HUD,
+  HUD_BASE,
   IPC,
-  joinOffsetForIndex,
   MOTION,
-  meterBlockSize,
-  meterStrideSize,
   PLACEMENT,
+  PLACEMENT_HINTS,
   PLACEMENT_LABELS,
-  PLACEMENT_MENU_GROUPS,
   PLACEMENT_PRESETS,
   POLL_INTERVAL_MS,
   PROVIDER_IDS,
   PROVIDER_LABELS,
-  railLengthForCount,
   SEVERITY_BANDS,
   SEVERITY_COLORS,
   USAGE_USER_AGENT,
@@ -44,14 +39,33 @@ export {
   DEMO_SNAPSHOTS,
   placeholderSnapshots,
 } from "./demo.ts";
+export type { HudMetrics } from "./metrics.ts";
+export {
+  cardHeightForBuckets,
+  cardMessageHeight,
+  clampHudScale,
+  HUD_SCALE,
+  hudMetrics,
+  joinOffsetForIndex,
+  meterBlockSize,
+  meterStrideSize,
+  nextHudScale,
+  railLengthForCount,
+} from "./metrics.ts";
 export type {
   ChromeSnapshot,
   DockOrientation,
   HudSize,
   PlacementResult,
   Rect,
+  ScreenEdge,
 } from "./placement.ts";
-export { computePlacement, layoutForPreset } from "./placement.ts";
+export {
+  computePlacement,
+  edgeForPreset,
+  layoutForPreset,
+  presetForEdge,
+} from "./placement.ts";
 export type { CapsuleSettings } from "./settings.ts";
 export {
   defaultSettings,
@@ -59,13 +73,7 @@ export {
   settingsSchema,
 } from "./settings.ts";
 export { severityForPercent } from "./severity.ts";
-export type { ScreenEdge } from "./snap.ts";
-export {
-  nearestEdge,
-  presetForEdge,
-  slideAlongEdge,
-  snapAfterDrag,
-} from "./snap.ts";
+export { edgeAffinity, nearestEdgeForPoint, slideAlongEdge } from "./snap.ts";
 export type {
   UsageBucket,
   UsageSnapshot,

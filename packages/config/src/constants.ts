@@ -9,34 +9,31 @@ export const PROVIDER_LABELS = {
   grok: "Grok",
 } as const satisfies Record<ProviderId, string>;
 
+/**
+ * The dock always rides a screen edge. Dragging it re-docks to whichever edge
+ * the cursor is nearest, so these four presets are the whole placement model.
+ */
 export const PLACEMENT_PRESETS = [
   "right-edge",
   "left-edge",
   "top-edge",
   "bottom-edge",
-  "dock-flank-left",
-  "dock-flank-right",
-  "stage-manager-top",
-  "stage-manager-bottom",
 ] as const;
 export type PlacementPreset = (typeof PLACEMENT_PRESETS)[number];
 
 export const PLACEMENT_LABELS = {
-  "right-edge": "Right side",
-  "left-edge": "Left side",
-  "bottom-edge": "Bottom",
-  "top-edge": "Top",
-  "dock-flank-left": "Dock, left",
-  "dock-flank-right": "Dock, right",
-  "stage-manager-top": "Stage Manager, top",
-  "stage-manager-bottom": "Stage Manager, bottom",
+  "right-edge": "Right edge",
+  "left-edge": "Left edge",
+  "bottom-edge": "Bottom, beside the Dock",
+  "top-edge": "Top, as a notch",
 } as const satisfies Record<PlacementPreset, string>;
 
-export const PLACEMENT_MENU_GROUPS = [
-  ["right-edge", "left-edge", "bottom-edge", "top-edge"],
-  ["dock-flank-left", "dock-flank-right"],
-  ["stage-manager-top", "stage-manager-bottom"],
-] as const satisfies ReadonlyArray<ReadonlyArray<PlacementPreset>>;
+export const PLACEMENT_HINTS = {
+  "right-edge": "Slides up and down the right side of the screen.",
+  "left-edge": "Slides up and down the left side of the screen.",
+  "bottom-edge": "Sits level with the macOS Dock so you can park it alongside.",
+  "top-edge": "Hangs from the menu bar like the MacBook notch.",
+} as const satisfies Record<PlacementPreset, string>;
 
 export const SEVERITY_BANDS = {
   low: 39,
@@ -54,6 +51,7 @@ export const SEVERITY_COLORS = {
 
 export type Severity = keyof typeof SEVERITY_COLORS;
 
+/** Colours, type family and timings: never scaled with the dock. */
 export const HUD = {
   surface: "#000000",
   text: "#FFFFFF",
@@ -62,19 +60,30 @@ export const HUD = {
   barTrack: "#2E2E2E",
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif',
+  hoverOpenDelayMs: 70,
+  hoverCloseDelayMs: 220,
+  meterCountDefault: 3,
+} as const;
+
+/**
+ * Every dimension of the dock at scale 1, measured from the reference design.
+ * Read these through `hudMetrics(scale)` rather than directly, so the user's
+ * size preference reaches all of them.
+ */
+export const HUD_BASE = {
   railWidth: 95,
   railPaddingX: 18,
-  railPaddingY: 38,
+  railPaddingY: 26,
   railRadius: 47,
   // Concave fillet that blends the rail into the screen edge it sits against.
   edgeFlare: 48,
   meterSize: 58,
   ringStroke: 6,
   iconSize: 24,
-  meterLabelGap: 18,
+  meterLabelGap: 14,
   percentBlock: 18,
   percentFontSize: 18,
-  itemGap: 47,
+  itemGap: 30,
   cardWidth: 307,
   cardRadius: 22,
   cardPaddingX: 16,
@@ -97,9 +106,8 @@ export const HUD = {
   tailLength: 37,
   joinGap: 16,
   shadowPadding: 26,
-  hoverOpenDelayMs: 70,
-  hoverCloseDelayMs: 220,
-  meterCountDefault: 3,
+  notchRadius: 26,
+  notchPaddingY: 16,
 } as const;
 
 export const MOTION = {
@@ -113,7 +121,6 @@ export const MOTION = {
   // Slight overshoot so the bubble pops out of the dock.
   popEasing: "cubic-bezier(0.18, 0.89, 0.32, 1.15)",
   closeEasing: "cubic-bezier(0.4, 0, 0.9, 0.6)",
-  snapDistancePx: 72,
   dragThresholdPx: 5,
   dragPollMs: 8,
   meterIdleOpacity: 0.92,
@@ -124,53 +131,16 @@ export const MOTION = {
   shadowOpacity: 0.5,
 } as const;
 
-export function meterBlockSize(): number {
-  return HUD.meterSize + HUD.meterLabelGap + HUD.percentBlock;
-}
-
-export function meterStrideSize(): number {
-  return meterBlockSize() + HUD.itemGap;
-}
-
-export function railLengthForCount(count: number): number {
-  const n = Math.max(1, count);
-  return HUD.railPaddingY * 2 + n * meterBlockSize() + (n - 1) * HUD.itemGap;
-}
-
-export function joinOffsetForIndex(index: number): number {
-  return HUD.railPaddingY + index * meterStrideSize() + HUD.meterSize / 2;
-}
-
-export function cardHeightForBuckets(count: number): number {
-  const rows = Math.max(1, count);
-  const bucket = HUD.cardTextLine * 2 + HUD.cardBucketGap * 2 + HUD.barHeight;
-  return (
-    HUD.cardPaddingTop +
-    HUD.cardTitleLine +
-    HUD.cardTitleGap +
-    rows * bucket +
-    (rows - 1) * HUD.cardSectionGap +
-    HUD.cardPaddingBottom
-  );
-}
-
-export function cardMessageHeight(): number {
-  return (
-    HUD.cardPaddingTop +
-    HUD.cardTitleLine +
-    HUD.cardTitleGap +
-    HUD.cardTextLine +
-    HUD.cardPaddingBottom
-  );
-}
-
 export const PLACEMENT = {
-  gutterInsetPx: 0,
-  stageManagerStripWidthPx: 180,
-  stageManagerThumbStackInsetPx: 96,
-  dockFlankMarginPx: 16,
+  /**
+   * Widest the macOS Dock is assumed to be. The bottom preset parks the HUD
+   * outside this centred span so the two never overlap.
+   */
   dockCenteredIconSpanPx: 420,
-  windowShadowPaddingPx: 24,
+  /** Breathing room between the HUD and the Dock when they share the bottom. */
+  dockFlankMarginPx: 12,
+  /** Keeps the notch clear of the camera housing on notched displays. */
+  notchSideInsetPx: 8,
 } as const;
 
 export const POLL_INTERVAL_MS = 60_000;
@@ -213,7 +183,6 @@ export const IPC = {
   setExpanded: "capsule:set-expanded",
   contextMenu: "capsule:context-menu",
   startMove: "capsule:start-move",
-  moveWindow: "capsule:move-window",
   endMove: "capsule:end-move",
 } as const;
 
@@ -238,10 +207,34 @@ export const COPY = {
   position: "Position",
   quit: "Quit Capsule",
   demoMode: "Demo mode",
+  demoModeHint: "Show sample numbers instead of your real usage.",
   launchAtLogin: "Launch at login",
-  pollInterval: "Refresh interval (ms)",
+  launchAtLoginHint: "Start Capsule automatically when you log in.",
+  pollInterval: "Refresh every",
+  pollIntervalHint: "How often Capsule re-reads usage from each provider.",
   placement: "Placement",
+  placementHint:
+    "Or just drag the dock — it snaps to whichever edge you drop it near.",
   providers: "Providers",
+  appearance: "Appearance",
+  general: "General",
+  preview: "Preview",
+  dockSize: "Dock size",
+  dockSizeHint: "Scales the whole dock — rings, card and type together.",
+  decreaseSize: "Make the dock smaller",
+  increaseSize: "Make the dock bigger",
+  recentre: "Re-centre",
+  recentreHint:
+    "Forget where the dock was last dragged and centre it on its edge.",
+  providersHint:
+    "Capsule reads the logins these CLIs already keep on this Mac. Turn one off to hide its ring.",
+  statusLabels: {
+    ok: "Connected",
+    stale: "Last known numbers",
+    error: "Could not reach",
+    unauthenticated: "Not signed in",
+    idle: "Waiting",
+  },
   onboardingTitle: "Welcome to Capsule",
   onboardingBody:
     "Capsule reads Claude, Codex, and Grok logins already on this Mac. Sign in with those CLIs, or turn on demo mode to preview the dock.",

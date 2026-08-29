@@ -1,4 +1,4 @@
-import { cardHeightForBuckets, HUD } from "@capsule/config";
+import { cardHeightForBuckets, type HudMetrics } from "@capsule/config";
 
 export type CardGrowth = "left" | "right" | "up" | "down";
 
@@ -7,6 +7,15 @@ export interface Rect {
   y: number;
   width: number;
   height: number;
+}
+
+interface CanonicalFrame {
+  width: number;
+  height: number;
+  rail: Rect;
+  card: Rect;
+  joinY: number;
+  tipX: number;
 }
 
 export interface BlobLayout {
@@ -19,6 +28,8 @@ export interface BlobLayout {
   join: { x: number; y: number };
   /** Tail tip, used as the transform origin when the bubble opens. */
   tip: { x: number; y: number };
+  /** The unmapped frame the silhouettes are traced in. */
+  canonical: CanonicalFrame;
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -133,58 +144,79 @@ class PathBuilder {
   }
 }
 
+function isVertical(growth: CardGrowth): boolean {
+  return growth === "left" || growth === "right";
+}
+
+/**
+ * The card is always read landscape, whichever edge the dock is on. In the
+ * canonical frame the axis running away from the rail is "across" and the one
+ * running along it is "along", so a horizontal dock simply swaps which side of
+ * the card takes which role — rather than rotating the card with the frame.
+ */
+function cardExtent(
+  m: HudMetrics,
+  growth: CardGrowth,
+  cardHeight: number,
+): { cardAcross: number; cardAlong: number } {
+  return isVertical(growth)
+    ? { cardAcross: m.cardWidth, cardAlong: cardHeight }
+    : { cardAcross: cardHeight, cardAlong: m.cardWidth };
+}
+
 /** Canonical geometry: rail flush right, card to its left. */
-function canonicalLayout(input: {
-  railLength: number;
-  joinOffset: number;
-  cardHeight: number;
-}): {
-  width: number;
-  height: number;
-  rail: Rect;
-  card: Rect;
-  joinY: number;
-  tipX: number;
-} {
-  const flare = HUD.edgeFlare;
-  const width = HUD.cardWidth + HUD.tailLength + HUD.joinGap + HUD.railWidth;
-  const height = input.railLength + flare * 2;
-  const railX = HUD.cardWidth + HUD.tailLength + HUD.joinGap;
-  const joinY = flare + input.joinOffset;
+function canonicalLayout(
+  m: HudMetrics,
+  input: {
+    railLength: number;
+    joinOffset: number;
+    cardAcross: number;
+    cardAlong: number;
+  },
+): CanonicalFrame {
+  const flare = m.edgeFlare;
+  const width = input.cardAcross + m.tailLength + m.joinGap + m.railWidth;
+  const height = Math.max(input.railLength + flare * 2, input.cardAlong);
+  const railX = input.cardAcross + m.tailLength + m.joinGap;
+  const railY = (height - input.railLength) / 2;
+  const joinY = railY + input.joinOffset;
   const cardY = clamp(
-    joinY - input.cardHeight / 2,
+    joinY - input.cardAlong / 2,
     0,
-    Math.max(0, height - input.cardHeight),
+    Math.max(0, height - input.cardAlong),
   );
   return {
     width,
     height,
     rail: {
       x: railX,
-      y: flare,
-      width: HUD.railWidth,
+      y: railY,
+      width: m.railWidth,
       height: input.railLength,
     },
-    card: { x: 0, y: cardY, width: HUD.cardWidth, height: input.cardHeight },
+    card: { x: 0, y: cardY, width: input.cardAcross, height: input.cardAlong },
     joinY,
-    tipX: HUD.cardWidth + HUD.tailLength,
+    tipX: input.cardAcross + m.tailLength,
   };
 }
 
-export function blobLayout(input: {
-  cardGrowth: CardGrowth;
-  railLength: number;
-  joinOffset: number;
-  cardHeight?: number;
-}): BlobLayout {
-  const cardHeight = input.cardHeight ?? cardHeightForBuckets(2);
-  const base = canonicalLayout({
+export function blobLayout(
+  m: HudMetrics,
+  input: {
+    cardGrowth: CardGrowth;
+    railLength: number;
+    joinOffset: number;
+    cardHeight?: number;
+  },
+): BlobLayout {
+  const cardHeight = input.cardHeight ?? cardHeightForBuckets(m, 2);
+  const growth = input.cardGrowth;
+  const base = canonicalLayout(m, {
     railLength: input.railLength,
     joinOffset: input.joinOffset,
-    cardHeight,
+    ...cardExtent(m, growth, cardHeight),
   });
-  const growth = input.cardGrowth;
-  const vertical = growth === "left" || growth === "right";
+  const vertical = isVertical(growth);
   const mapper = mapperFor(growth, base.width);
   const [joinX, joinYMapped] = mapper.point(base.rail.x, base.joinY);
   const [tipX, tipY] = mapper.point(base.tipX, base.joinY);
@@ -195,31 +227,32 @@ export function blobLayout(input: {
     card: mapRect(base.card, growth, base.width),
     join: { x: joinX, y: joinYMapped },
     tip: { x: tipX, y: tipY },
+    canonical: base,
   };
 }
 
 /**
  * The rail: rounded on the inner side, and blended into the screen edge it
- * rests against by a concave fillet at each end.
+ * rests against by a concave fillet at each end. As a notch the fillets stay —
+ * they are what make it read as carved out of the screen rather than stuck on
+ * top — but the corners tighten so it matches the menu-bar silhouette.
  */
-export function railPath(growth: CardGrowth, layout: BlobLayout): string {
-  const railLength =
-    growth === "left" || growth === "right"
-      ? layout.rail.height
-      : layout.rail.width;
-  const base = canonicalLayout({
-    railLength,
-    joinOffset: 0,
-    cardHeight: 0,
-  });
+export function railPath(
+  m: HudMetrics,
+  growth: CardGrowth,
+  layout: BlobLayout,
+  notch = false,
+): string {
+  const base = layout.canonical;
   const mapper = mapperFor(growth, base.width);
   const rail = base.rail;
   const outer = rail.x + rail.width;
   const inner = rail.x;
   const top = rail.y;
   const bottom = rail.y + rail.height;
-  const radius = Math.min(HUD.railRadius, rail.width / 2, rail.height / 2);
-  const flare = Math.min(HUD.edgeFlare, rail.height / 2);
+  const cornerBase = notch ? m.notchRadius : m.railRadius;
+  const radius = Math.min(cornerBase, rail.width / 2, rail.height / 2);
+  const flare = Math.min(m.edgeFlare, rail.height / 2);
 
   return new PathBuilder(mapper)
     .move(outer, top - flare)
@@ -239,25 +272,17 @@ export function railPath(growth: CardGrowth, layout: BlobLayout): string {
  * stops short of the rail rather than merging into it.
  */
 export function bubblePath(
+  m: HudMetrics,
   growth: CardGrowth,
   layout: BlobLayout,
-  joinOffset: number,
-  cardHeight: number,
 ): string {
-  const railLength =
-    growth === "left" || growth === "right"
-      ? layout.rail.height
-      : layout.rail.width;
-  const base = canonicalLayout({ railLength, joinOffset, cardHeight });
+  const base = layout.canonical;
   const mapper = mapperFor(growth, base.width);
   const card = base.card;
-  const radius = Math.min(HUD.cardRadius, card.width / 2, card.height / 2);
+  const radius = Math.min(m.cardRadius, card.width / 2, card.height / 2);
   const edge = card.x + card.width;
-  const half = Math.min(
-    HUD.tailBase / 2,
-    Math.max(0, card.height / 2 - radius),
-  );
-  const length = HUD.tailLength;
+  const half = Math.min(m.tailBase / 2, Math.max(0, card.height / 2 - radius));
+  const length = m.tailLength;
   const cy = clamp(
     base.joinY,
     card.y + radius + half,
@@ -291,13 +316,16 @@ export function bubblePath(
 }
 
 /** Shadow gutter, omitted on the side that sits flush against the screen. */
-export function framePadding(growth: CardGrowth): {
+export function framePadding(
+  m: HudMetrics,
+  growth: CardGrowth,
+): {
   top: number;
   right: number;
   bottom: number;
   left: number;
 } {
-  const pad = HUD.shadowPadding;
+  const pad = m.shadowPadding;
   if (growth === "left") {
     return { top: pad, right: 0, bottom: pad, left: pad };
   }

@@ -86,9 +86,21 @@ app.whenReady().then(async () => {
       });
     },
     openSettings: () => {
-      void openSettingsWindow("/placement");
+      void openSettingsWindow("/");
     },
     quit: () => app.quit(),
+  });
+
+  // Dragging past a screen edge re-docks the HUD, and the renderer has to
+  // re-orient with it. Keep this in memory only; endMove writes the result.
+  overlay.onPresetChange((preset) => {
+    if (settings.placementPreset === preset) {
+      return;
+    }
+    settings = { ...settings, placementPreset: preset };
+    overlay.setSettings(settings);
+    broadcast();
+    appChrome?.sync(settings);
   });
 
   ipcMain.handle(IPC.getSettings, () => settings);
@@ -114,9 +126,6 @@ app.whenReady().then(async () => {
   ipcMain.on(IPC.startMove, (_event, screenX: number, screenY: number) => {
     overlay.startMove(screenX, screenY);
   });
-  ipcMain.on(IPC.moveWindow, (_event, screenX: number, screenY: number) => {
-    overlay.moveWindow(screenX, screenY);
-  });
   ipcMain.handle(IPC.endMove, () => {
     const next = overlay.endMove();
     if (next) {
@@ -128,7 +137,7 @@ app.whenReady().then(async () => {
   });
 
   app.on("activate", () => {
-    void openSettingsWindow("/placement");
+    void openSettingsWindow("/");
   });
 
   await overlay.create(() => {

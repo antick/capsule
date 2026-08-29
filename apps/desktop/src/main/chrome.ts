@@ -28,11 +28,10 @@ export async function readChromeSnapshot(display: {
   bounds: { x: number; y: number; width: number; height: number };
   workArea: { x: number; y: number; width: number; height: number };
 }): Promise<ChromeSnapshot> {
-  const [orientation, autohide, tilesize, stageManager] = await Promise.all([
+  const [orientation, autohide, tilesize] = await Promise.all([
     defaultsRead("com.apple.dock", "orientation"),
     defaultsRead("com.apple.dock", "autohide"),
     defaultsRead("com.apple.dock", "tilesize"),
-    defaultsRead("com.apple.WindowManager", "GloballyEnabled"),
   ]);
 
   return {
@@ -42,6 +41,5 @@ export async function readChromeSnapshot(display: {
       autohide: autohide === "1",
       tilesize: Number(tilesize ?? "48") || 48,
     },
-    stageManagerEnabled: stageManager === "1",
   };
 }

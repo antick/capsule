@@ -3,6 +3,7 @@ import {
   DEMO_NOW_ISO,
   DEMO_SNAPSHOTS,
   defaultSettings,
+  hudMetrics,
   layoutForPreset,
   type ProviderId,
   placeholderSnapshots,
@@ -16,46 +17,62 @@ export function OverlayHud() {
     placeholderSnapshots(),
   );
   const [settings, setSettings] = useState<CapsuleSettings>(defaultSettings);
-  const dragging = useRef(false);
+  // Held from pointerdown until pointerup, which is wider than `dragging`:
+  // click-through must stay off during the pre-threshold press too, or the
+  // window goes transparent to the mouse before the drag ever starts.
+  const pressed = useRef(false);
   const lastCapture = useRef<boolean | null>(null);
 
   const setCapture = useCallback((capture: boolean) => {
-    if (lastCapture.current === capture) {
+    const next = capture || pressed.current;
+    if (lastCapture.current === next) {
       return;
     }
-    lastCapture.current = capture;
-    window.capsule?.setPointerCapture(capture);
+    lastCapture.current = next;
+    window.capsule?.setPointerCapture(next);
   }, []);
+
+  const setPressed = useCallback(
+    (value: boolean) => {
+      pressed.current = value;
+      setCapture(value);
+    },
+    [setCapture],
+  );
 
   useEffect(() => {
     const onMove = (event: PointerEvent) => {
-      if (dragging.current) {
-        setCapture(true);
+      if (pressed.current) {
         return;
       }
       const el = document.elementFromPoint(event.clientX, event.clientY);
       setCapture(Boolean(el?.closest('[data-hud-hit="true"]')));
     };
     const onLeave = () => {
-      if (!dragging.current) {
+      if (!pressed.current) {
         setCapture(false);
       }
     };
+    // Safety net: if the dock never sees the release (the pointer left the
+    // window, or capture was lost), end the drag anyway.
     const onUp = () => {
-      if (dragging.current) {
-        dragging.current = false;
+      if (pressed.current) {
+        pressed.current = false;
         window.capsule?.endMove();
+        setCapture(false);
       }
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerleave", onLeave);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onUp);
+    window.addEventListener("blur", onUp);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("blur", onUp);
     };
   }, [setCapture]);
 
@@ -74,6 +91,10 @@ export function OverlayHud() {
   const layout = useMemo(
     () => layoutForPreset(settings.placementPreset),
     [settings.placementPreset],
+  );
+  const metrics = useMemo(
+    () => hudMetrics(settings.hudScale),
+    [settings.hudScale],
   );
 
   const packToEnd = layout.cardGrowth === "left" || layout.cardGrowth === "up";
@@ -106,24 +127,18 @@ export function OverlayHud() {
               ? DEMO_SNAPSHOTS
               : placeholderSnapshots()
         }
+        metrics={metrics}
         orientation={layout.orientation}
         cardGrowth={layout.cardGrowth}
+        notch={layout.notch}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
         forceOpenProviderId={previewOpen ? "claude" : null}
         onOpenChange={onOpenChange}
+        onPressedChange={setPressed}
         onMoveStart={(screenX, screenY) => {
-          dragging.current = true;
-          setCapture(true);
           window.capsule?.startMove(screenX, screenY);
         }}
-        onMove={(screenX, screenY) => {
-          window.capsule?.moveWindow(screenX, screenY);
-        }}
         onMoveEnd={() => {
-          if (!dragging.current) {
-            return;
-          }
-          dragging.current = false;
           window.capsule?.endMove();
         }}
         onContextMenu={(event) => {

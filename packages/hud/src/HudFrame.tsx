@@ -1,4 +1,9 @@
-import { cardHeightForBuckets, HUD, MOTION } from "@capsule/config";
+import {
+  cardHeightForBuckets,
+  HUD,
+  type HudMetrics,
+  MOTION,
+} from "@capsule/config";
 import type { ReactElement, ReactNode } from "react";
 import {
   blobLayout,
@@ -12,11 +17,11 @@ import { useAnimatedNumber } from "./use-animated-number.ts";
 
 export type { CardGrowth };
 
-const SHADOW = `drop-shadow(0 ${MOTION.shadowDy}px ${MOTION.shadowBlur}px rgba(0, 0, 0, ${MOTION.shadowOpacity}))`;
-
 export function HudFrame({
+  metrics,
   orientation,
   cardGrowth,
+  notch,
   open,
   joinOffset,
   dragging,
@@ -25,8 +30,10 @@ export function HudFrame({
   rail,
   card,
 }: {
+  metrics: HudMetrics;
   orientation: "vertical" | "horizontal";
   cardGrowth: CardGrowth;
+  notch?: boolean;
   open: boolean;
   joinOffset: number;
   dragging: boolean;
@@ -35,18 +42,27 @@ export function HudFrame({
   rail: ReactNode;
   card: ReactNode;
 }): ReactElement {
-  const height = cardHeight ?? cardHeightForBuckets(2);
+  const height = cardHeight ?? cardHeightForBuckets(metrics, 2);
   // The tail slides between meters instead of jumping.
   const join = useAnimatedNumber(joinOffset, MOTION.slideMs);
-  const layout = blobLayout({
+  const layout = blobLayout(metrics, {
     cardGrowth,
     railLength,
     joinOffset: join,
     cardHeight: height,
   });
-  const pad = framePadding(cardGrowth);
+  const pad = framePadding(metrics, cardGrowth);
   const visible = open && !dragging;
   const interactive = visible;
+  const shadow = `drop-shadow(0 ${Math.round(
+    MOTION.shadowDy * metrics.scale,
+  )}px ${Math.round(MOTION.shadowBlur * metrics.scale)}px rgba(0, 0, 0, ${
+    MOTION.shadowOpacity
+  }))`;
+  const railPadding =
+    orientation === "vertical"
+      ? `${notch ? metrics.notchPaddingY : metrics.railPaddingY}px ${metrics.railPaddingX}px`
+      : `${metrics.railPaddingX}px ${notch ? metrics.notchPaddingY : metrics.railPaddingY}px`;
 
   return (
     <div
@@ -83,14 +99,14 @@ export function HudFrame({
             inset: 0,
             overflow: "visible",
             pointerEvents: "none",
-            filter: SHADOW,
+            filter: shadow,
             transform: dragging ? `scale(${MOTION.liftScale})` : "scale(1)",
             transformOrigin: railOrigin(cardGrowth),
             transition: `transform ${MOTION.openMs}ms ${MOTION.easing}`,
           }}
         >
           <path
-            d={railPath(cardGrowth, layout)}
+            d={railPath(metrics, cardGrowth, layout, notch)}
             fill={HUD.surface}
             data-hud-hit="true"
             style={{
@@ -128,11 +144,11 @@ export function HudFrame({
               inset: 0,
               overflow: "visible",
               pointerEvents: "none",
-              filter: SHADOW,
+              filter: shadow,
             }}
           >
             <path
-              d={bubblePath(cardGrowth, layout, join, height)}
+              d={bubblePath(metrics, cardGrowth, layout)}
               fill={HUD.surface}
               data-hud-hit={interactive ? "true" : undefined}
               style={{ pointerEvents: interactive ? "fill" : "none" }}
@@ -168,11 +184,8 @@ export function HudFrame({
             flexDirection: orientation === "vertical" ? "column" : "row",
             alignItems: "center",
             justifyContent: "center",
-            gap: HUD.itemGap,
-            padding:
-              orientation === "vertical"
-                ? `${HUD.railPaddingY}px ${HUD.railPaddingX}px`
-                : `${HUD.railPaddingX}px ${HUD.railPaddingY}px`,
+            gap: metrics.itemGap,
+            padding: railPadding,
             pointerEvents: "none",
             cursor: dragging ? "grabbing" : "grab",
           }}

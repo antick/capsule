@@ -6,12 +6,14 @@ import {
   cardHeightForBuckets,
   computePlacement,
   HUD,
-  layoutForPreset,
+  hudMetrics,
   MOTION,
+  nearestEdgeForPoint,
   PLACEMENT,
   type PlacementPreset,
   type PlacementResult,
   type ProviderId,
+  presetForEdge,
   railLengthForCount,
   slideAlongEdge,
 } from "@capsule/config";
@@ -19,19 +21,22 @@ import { BrowserWindow, screen, shell } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
 
+interface DragState {
+  preset: PlacementPreset;
+  placement: PlacementResult;
+  /** Cursor offset from the leading edge of the window, along the slide axis. */
+  grabOffset: number;
+}
+
 export class OverlayController {
   window: BrowserWindow | null = null;
   private settings: CapsuleSettings;
   private meterCount: number = HUD.meterCountDefault;
   private settingsDisplayId: number | null = null;
-  private dragging = false;
-  private dragOffsetX = 0;
-  private dragOffsetY = 0;
-  private dragLockX = 0;
-  private dragLockY = 0;
-  private dragOrientation: "vertical" | "horizontal" = "vertical";
+  private drag: DragState | null = null;
   private dragTimer: ReturnType<typeof setInterval> | null = null;
   private ignoreMouse = true;
+  private onPresetPreview: ((preset: PlacementPreset) => void) | null = null;
 
   constructor(settings: CapsuleSettings) {
     this.settings = settings;
@@ -45,6 +50,11 @@ export class OverlayController {
     this.meterCount = Math.max(1, count);
   }
 
+  /** Lets the app broadcast a live orientation change while the dock is dragged. */
+  onPresetChange(listener: (preset: PlacementPreset) => void): void {
+    this.onPresetPreview = listener;
+  }
+
   async create(onReady?: () => void): Promise<BrowserWindow> {
     if (this.window && !this.window.isDestroyed()) {
       return this.window;
@@ -52,7 +62,7 @@ export class OverlayController {
 
     const win = new BrowserWindow({
       title: APP_NAME,
-      width: HUD.railWidth,
+      width: 320,
       height: 280,
       x: 0,
       y: 0,
@@ -79,7 +89,8 @@ export class OverlayController {
       },
     });
 
-    win.setAlwaysOnTop(true, "floating");
+    // "screen-saver" keeps the notch above the menu bar; "floating" sits under it.
+    win.setAlwaysOnTop(true, "screen-saver");
     win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false });
     win.setIgnoreMouseEvents(true, { forward: true });
     win.setMenuBarVisibility(false);
@@ -116,7 +127,7 @@ export class OverlayController {
   }
 
   setPointerCapture(capture: boolean): void {
-    if (this.dragging) {
+    if (this.drag) {
       this.setIgnore(false);
       return;
     }
@@ -124,7 +135,7 @@ export class OverlayController {
   }
 
   setExpanded(_open: boolean, _providerId: ProviderId | null): void {
-    // Window stays card-sized so the blob can animate without clipping.
+    // Window stays card-sized so the bubble can animate without clipping.
   }
 
   startMove(screenX: number, screenY: number): void {
@@ -133,31 +144,25 @@ export class OverlayController {
       return;
     }
     const bounds = win.getBounds();
-    this.dragging = true;
-    this.dragOffsetX = screenX - bounds.x;
-    this.dragOffsetY = screenY - bounds.y;
-    // The dock stays welded to its edge; a drag only slides it along that edge.
-    this.dragLockX = bounds.x;
-    this.dragLockY = bounds.y;
-    this.dragOrientation = layoutForPreset(
-      this.settings.placementPreset,
-    ).orientation;
-    this.setIgnore(false);
-    this.stopDragPoll();
-    this.dragTimer = setInterval(() => {
-      if (!this.dragging || !this.window || this.window.isDestroyed()) {
-        return;
-      }
-      const point = screen.getCursorScreenPoint();
-      this.applyDragPosition(point.x, point.y);
-    }, MOTION.dragPollMs);
-  }
-
-  moveWindow(screenX: number, screenY: number): void {
-    if (!this.dragging) {
+    const placement = this.placementFor(this.settings.placementPreset);
+    if (!placement) {
       return;
     }
-    this.applyDragPosition(screenX, screenY);
+    this.drag = {
+      preset: this.settings.placementPreset,
+      placement,
+      grabOffset:
+        placement.slide.axis === "x" ? screenX - bounds.x : screenY - bounds.y,
+    };
+    this.setIgnore(false);
+    this.stopDragPoll();
+    // Follow the cursor from the main process. A click-through overlay stops
+    // receiving pointer events the moment it is no longer under the cursor,
+    // so the renderer cannot be the source of truth for a drag.
+    this.dragTimer = setInterval(() => {
+      this.trackCursor();
+    }, MOTION.dragPollMs);
+    this.trackCursor();
   }
 
   endMove(): {
@@ -165,31 +170,21 @@ export class OverlayController {
     customPosition: { x: number; y: number } | null;
   } | null {
     this.stopDragPoll();
-    if (!this.dragging) {
+    const drag = this.drag;
+    this.drag = null;
+    if (!drag) {
       return null;
     }
-    this.dragging = false;
     const win = this.window;
     if (!win || win.isDestroyed()) {
       return null;
     }
     const bounds = win.getBounds();
-    const display = screen.getDisplayMatching(bounds);
-    const work = display.workArea;
-    // Only the free axis needs clamping; the locked one is already flush.
-    const vertical = this.dragOrientation === "vertical";
-    const x = vertical
-      ? this.dragLockX
-      : clamp(bounds.x, work.x, work.x + work.width - bounds.width);
-    const y = vertical
-      ? clamp(bounds.y, work.y, work.y + work.height - bounds.height)
-      : this.dragLockY;
-    win.setBounds({ x, y, width: bounds.width, height: bounds.height }, false);
-    this.settingsDisplayId = display.id;
+    this.settingsDisplayId = drag.placement.displayId;
     this.setIgnore(true);
     return {
-      placementPreset: this.settings.placementPreset,
-      customPosition: { x, y },
+      placementPreset: drag.preset,
+      customPosition: { x: bounds.x, y: bounds.y },
     };
   }
 
@@ -240,45 +235,30 @@ export class OverlayController {
 
   async relayout(): Promise<PlacementResult | null> {
     const win = this.window;
-    if (!win || win.isDestroyed() || this.dragging) {
+    if (!win || win.isDestroyed() || this.drag) {
       return null;
     }
-    const primary = screen.getPrimaryDisplay();
-    const displays = screen.getAllDisplays();
-    const display =
-      displays.find((item) => item.id === this.settingsDisplayId) ?? primary;
-    this.settingsDisplayId = display.id;
-    const chrome = await readChromeSnapshot({
-      id: display.id,
-      bounds: display.bounds,
-      workArea: display.workArea,
-    });
-    const placement = computePlacement(
+    const placement = await this.placementForAsync(
       this.settings.placementPreset,
-      chrome,
-      {
-        railWidth: HUD.railWidth,
-        railLength: railLengthForCount(this.meterCount),
-        cardWidth: HUD.cardWidth,
-        cardHeight: cardHeightForBuckets(2),
-        expanded: true,
-        shadowPadding: HUD.shadowPadding,
-        joinWidth: HUD.tailLength + HUD.joinGap,
-        edgeFlare: HUD.edgeFlare,
-      },
-      PLACEMENT,
     );
-    let x = placement.x;
-    let y = placement.y;
+    if (!placement) {
+      return null;
+    }
+    this.settingsDisplayId = placement.displayId;
     const custom = this.settings.customPosition;
-    const work = chrome.display.workArea;
+    let { x, y } = placement;
     if (custom) {
-      // A remembered position only overrides how far along the edge the dock
-      // sits; the axis pinned to the edge always comes from the placement.
-      if (placement.orientation === "vertical") {
-        y = clamp(custom.y, work.y, work.y + work.height - placement.height);
+      // A remembered position only says how far along the edge the dock sits;
+      // the axis pinned to the edge always comes from the placement.
+      const along = placement.slide.axis === "x" ? custom.x : custom.y;
+      const clamped = Math.min(
+        placement.slide.max,
+        Math.max(placement.slide.min, along),
+      );
+      if (placement.slide.axis === "x") {
+        x = clamped;
       } else {
-        x = clamp(custom.x, work.x, work.x + work.width - placement.width);
+        y = clamped;
       }
     }
     const bounds = {
@@ -291,30 +271,108 @@ export class OverlayController {
     return { ...placement, x: bounds.x, y: bounds.y };
   }
 
-  private applyDragPosition(screenX: number, screenY: number): void {
-    const win = this.window;
-    if (!win || win.isDestroyed() || !this.dragging) {
-      return;
-    }
-    const bounds = win.getBounds();
-    const display = screen.getDisplayNearestPoint({
-      x: this.dragLockX,
-      y: screenY,
+  /** Window geometry for a preset on the display the dock currently lives on. */
+  private placementFor(preset: PlacementPreset): PlacementResult | null {
+    const displays = screen.getAllDisplays();
+    const display =
+      displays.find((item) => item.id === this.settingsDisplayId) ??
+      screen.getPrimaryDisplay();
+    return this.computeFor(preset, {
+      display: {
+        id: display.id,
+        bounds: display.bounds,
+        workArea: display.workArea,
+      },
+      // Dock metrics only matter for the bottom preset, and the work-area
+      // inset already tells us the Dock's thickness during a drag.
+      dock: { orientation: "bottom", autohide: false, tilesize: 48 },
     });
-    const next = slideAlongEdge({
-      orientation: this.dragOrientation,
-      lockedX: this.dragLockX,
-      lockedY: this.dragLockY,
-      width: bounds.width,
-      height: bounds.height,
-      screenX,
-      screenY,
-      offsetX: this.dragOffsetX,
-      offsetY: this.dragOffsetY,
+  }
+
+  private async placementForAsync(
+    preset: PlacementPreset,
+  ): Promise<PlacementResult | null> {
+    const displays = screen.getAllDisplays();
+    const display =
+      displays.find((item) => item.id === this.settingsDisplayId) ??
+      screen.getPrimaryDisplay();
+    const chrome = await readChromeSnapshot({
+      id: display.id,
+      bounds: display.bounds,
       workArea: display.workArea,
     });
+    return this.computeFor(preset, chrome);
+  }
+
+  private computeFor(
+    preset: PlacementPreset,
+    chrome: Parameters<typeof computePlacement>[1],
+  ): PlacementResult {
+    const metrics = hudMetrics(this.settings.hudScale);
+    const notch = preset === "top-edge";
+    return computePlacement(
+      preset,
+      chrome,
+      {
+        railWidth: metrics.railWidth,
+        railLength: railLengthForCount(metrics, this.meterCount, notch),
+        cardWidth: metrics.cardWidth,
+        cardHeight: cardHeightForBuckets(metrics, 2),
+        expanded: true,
+        shadowPadding: metrics.shadowPadding,
+        joinWidth: metrics.tailLength + metrics.joinGap,
+        edgeFlare: metrics.edgeFlare,
+      },
+      PLACEMENT,
+    );
+  }
+
+  /**
+   * Re-docks to whichever screen edge the cursor is nearest, then slides the
+   * dock along that edge. Crossing into another edge's wedge flips the whole
+   * layout mid-drag.
+   */
+  private trackCursor(): void {
+    const win = this.window;
+    const drag = this.drag;
+    if (!win || win.isDestroyed() || !drag) {
+      return;
+    }
+    const cursor = screen.getCursorScreenPoint();
+    const display = screen.getDisplayNearestPoint(cursor);
+    const edge = nearestEdgeForPoint(cursor, display.bounds);
+    const preset = presetForEdge(edge);
+
+    let placement = drag.placement;
+    if (preset !== drag.preset || display.id !== placement.displayId) {
+      this.settingsDisplayId = display.id;
+      const next = this.placementFor(preset);
+      if (next) {
+        placement = next;
+        // Re-grab from the middle so the dock does not lurch when it rotates.
+        const span =
+          placement.slide.axis === "x" ? placement.width : placement.height;
+        drag.grabOffset = span / 2;
+        drag.preset = preset;
+        drag.placement = placement;
+        this.onPresetPreview?.(preset);
+      }
+    }
+
+    const next = slideAlongEdge({
+      slide: placement.slide,
+      anchorX: placement.x,
+      anchorY: placement.y,
+      cursor,
+      grabOffset: drag.grabOffset,
+    });
     win.setBounds(
-      { ...bounds, x: Math.round(next.x), y: Math.round(next.y) },
+      {
+        x: next.x,
+        y: next.y,
+        width: Math.round(placement.width),
+        height: Math.round(placement.height),
+      },
       false,
     );
   }
@@ -337,8 +395,4 @@ export class OverlayController {
     this.ignoreMouse = ignore;
     win.setIgnoreMouseEvents(ignore, { forward: true });
   }
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
 }

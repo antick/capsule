@@ -1,97 +1,59 @@
-import { MOTION, type PlacementPreset } from "./constants.ts";
-import type { Rect } from "./placement.ts";
-
-export type ScreenEdge = "left" | "right" | "top" | "bottom";
+import type { Rect, ScreenEdge } from "./placement.ts";
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export function distancesToEdges(
-  win: Rect,
-  display: Rect,
+export type { ScreenEdge };
+
+/**
+ * Distance from a point to each screen edge, expressed as a fraction of the
+ * display so a wide screen does not make the top and bottom edges win by
+ * default. The result partitions the screen into four diagonal wedges.
+ */
+export function edgeAffinity(
+  point: { x: number; y: number },
+  bounds: Rect,
 ): Record<ScreenEdge, number> {
+  const width = Math.max(1, bounds.width);
+  const height = Math.max(1, bounds.height);
   return {
-    left: win.x - display.x,
-    right: display.x + display.width - (win.x + win.width),
-    top: win.y - display.y,
-    bottom: display.y + display.height - (win.y + win.height),
+    left: (point.x - bounds.x) / width,
+    right: (bounds.x + bounds.width - point.x) / width,
+    top: (point.y - bounds.y) / height,
+    bottom: (bounds.y + bounds.height - point.y) / height,
   };
 }
 
-export function nearestEdge(win: Rect, display: Rect): ScreenEdge {
-  const distances = distancesToEdges(win, display);
-  const entries = Object.entries(distances) as Array<[ScreenEdge, number]>;
+export function nearestEdgeForPoint(
+  point: { x: number; y: number },
+  bounds: Rect,
+): ScreenEdge {
+  const affinity = edgeAffinity(point, bounds);
+  const entries = Object.entries(affinity) as Array<[ScreenEdge, number]>;
   entries.sort((left, right) => left[1] - right[1]);
   return entries[0]?.[0] ?? "right";
 }
 
-export function presetForEdge(edge: ScreenEdge): PlacementPreset {
-  if (edge === "left") {
-    return "left-edge";
-  }
-  if (edge === "top") {
-    return "top-edge";
-  }
-  if (edge === "bottom") {
-    return "bottom-edge";
-  }
-  return "right-edge";
-}
-
-export function snapAfterDrag(
-  win: Rect,
-  display: Rect,
-  snapDistance: number = MOTION.snapDistancePx,
-): {
-  x: number;
-  y: number;
-  preset: PlacementPreset;
-  snapped: boolean;
-} {
-  const distances = distancesToEdges(win, display);
-  const edge = nearestEdge(win, display);
-  const snapped = distances[edge] <= snapDistance;
-  const maxX = display.x + display.width - win.width;
-  const maxY = display.y + display.height - win.height;
-  let x = clamp(win.x, display.x, maxX);
-  let y = clamp(win.y, display.y, maxY);
-  if (snapped) {
-    if (edge === "right") {
-      x = maxX;
-    } else if (edge === "left") {
-      x = display.x;
-    } else if (edge === "top") {
-      y = display.y;
-    } else {
-      y = maxY;
-    }
-  }
-  return { x, y, preset: presetForEdge(edge), snapped };
-}
-
+/**
+ * Where the dock should sit while being dragged along `edge`. The axis pinned
+ * to the edge is fixed by the placement; only the other one follows the cursor.
+ */
 export function slideAlongEdge(input: {
-  orientation: "vertical" | "horizontal";
-  lockedX: number;
-  lockedY: number;
-  width: number;
-  height: number;
-  screenX: number;
-  screenY: number;
-  offsetX: number;
-  offsetY: number;
-  workArea: Rect;
+  slide: { axis: "x" | "y"; min: number; max: number };
+  anchorX: number;
+  anchorY: number;
+  cursor: { x: number; y: number };
+  grabOffset: number;
 }): { x: number; y: number } {
-  const maxX = input.workArea.x + input.workArea.width - input.width;
-  const maxY = input.workArea.y + input.workArea.height - input.height;
-  if (input.orientation === "vertical") {
-    return {
-      x: input.lockedX,
-      y: clamp(input.screenY - input.offsetY, input.workArea.y, maxY),
-    };
+  const along = clamp(
+    (input.slide.axis === "x" ? input.cursor.x : input.cursor.y) -
+      input.grabOffset,
+    input.slide.min,
+    input.slide.max,
+  );
+  if (input.slide.axis === "x") {
+    return { x: Math.round(along), y: Math.round(input.anchorY) };
   }
-  return {
-    x: clamp(input.screenX - input.offsetX, input.workArea.x, maxX),
-    y: input.lockedY,
-  };
+  return { x: Math.round(input.anchorX), y: Math.round(along) };
 }

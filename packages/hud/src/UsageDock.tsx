@@ -3,6 +3,8 @@ import {
   cardMessageHeight,
   DEMO_NOW_ISO,
   HUD,
+  type HudMetrics,
+  hudMetrics,
   joinOffsetForIndex,
   MOTION,
   type ProviderId,
@@ -26,25 +28,31 @@ export function UsageDock({
   snapshots,
   orientation,
   cardGrowth,
+  notch = false,
+  metrics: metricsProp,
   now,
   forceOpenProviderId = null,
   onOpenChange,
   onContextMenu,
+  onPressedChange,
   onMoveStart,
-  onMove,
   onMoveEnd,
 }: {
   snapshots: UsageSnapshot[];
   orientation: "vertical" | "horizontal";
   cardGrowth: CardGrowth;
+  notch?: boolean;
+  metrics?: HudMetrics;
   now?: Date;
   forceOpenProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
   onContextMenu?: (event: MouseEvent) => void;
+  /** Fires while the pointer is held down, so the host can pin mouse capture. */
+  onPressedChange?: (pressed: boolean) => void;
   onMoveStart?: (screenX: number, screenY: number) => void;
-  onMove?: (screenX: number, screenY: number) => void;
   onMoveEnd?: () => void;
 }): ReactElement {
+  const metrics = metricsProp ?? hudMetrics();
   const clock = now ?? new Date(DEMO_NOW_ISO);
   const meters = snapshots.length > 0 ? snapshots : placeholderSnapshots();
   const [hovered, setHovered] = useState<ProviderId | null>(null);
@@ -123,11 +131,14 @@ export function UsageDock({
       startY: event.screenY,
       active: false,
     };
-    if (event.target instanceof Element) {
-      event.target.setPointerCapture(event.pointerId);
-    } else {
+    // Capture on the dock root, never the pressed child: the rail path, card
+    // and meters all re-render mid-drag, and capture dies with the old node.
+    try {
       event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Pointer already released; the pointerup handler will tidy up.
     }
+    onPressedChange?.(true);
   };
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -135,21 +146,23 @@ export function UsageDock({
     if (!state || state.pointerId !== event.pointerId) {
       return;
     }
+    if (state.active) {
+      return;
+    }
     const dx = event.screenX - state.startX;
     const dy = event.screenY - state.startY;
-    const distance = Math.hypot(dx, dy);
-    if (!state.active && distance >= MOTION.dragThresholdPx) {
-      state.active = true;
-      didDrag.current = true;
-      setDragging(true);
-      setPinned(null);
-      setHovered(null);
-      clearTimers();
-      onMoveStart?.(event.screenX, event.screenY);
+    if (Math.hypot(dx, dy) < MOTION.dragThresholdPx) {
+      return;
     }
-    if (state.active) {
-      onMove?.(event.screenX, event.screenY);
-    }
+    state.active = true;
+    didDrag.current = true;
+    setDragging(true);
+    setPinned(null);
+    setHovered(null);
+    clearTimers();
+    // From here the main process follows the cursor itself, so the drag keeps
+    // working even when the window stops receiving pointer events.
+    onMoveStart?.(event.screenX, event.screenY);
   };
 
   const finishDrag = (event: PointerEvent<HTMLDivElement>) => {
@@ -162,10 +175,18 @@ export function UsageDock({
     }
     setDragging(false);
     drag.current = null;
+    onPressedChange?.(false);
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // Capture was already lost; nothing to release.
+    }
     window.setTimeout(() => {
       didDrag.current = false;
     }, 0);
   };
+
+  const compact = notch;
 
   return (
     <div
@@ -175,6 +196,7 @@ export function UsageDock({
       onPointerMove={onPointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
+      onLostPointerCapture={finishDrag}
       onPointerEnter={() => {
         if (!dragging) {
           clearTimers();
@@ -187,19 +209,23 @@ export function UsageDock({
       style={{ display: "inline-flex", pointerEvents: "none" }}
     >
       <HudFrame
+        metrics={metrics}
         orientation={orientation}
         cardGrowth={cardGrowth}
+        notch={notch}
         open={openSnapshot !== null}
-        joinOffset={joinOffsetForIndex(activeJoinIndex)}
+        joinOffset={joinOffsetForIndex(metrics, activeJoinIndex, compact)}
         dragging={dragging}
-        railLength={railLengthForCount(meters.length)}
-        cardHeight={cardHeightFor(cardSnapshot)}
+        railLength={railLengthForCount(metrics, meters.length, compact)}
+        cardHeight={cardHeightFor(metrics, cardSnapshot)}
         rail={meters.map((snapshot) => (
           <UsageMeter
+            metrics={metrics}
             key={snapshot.providerId}
             providerId={snapshot.providerId}
             percent={snapshot.primaryPercent}
             active={openId === snapshot.providerId}
+            compact={compact}
             onPointerEnter={() => scheduleOpen(snapshot.providerId)}
             onPointerLeave={() => undefined}
             onClick={() => {
@@ -225,7 +251,11 @@ export function UsageDock({
                 }
               }}
             >
-              <UsageCard snapshot={cardSnapshot} now={clock} />
+              <UsageCard
+                metrics={metrics}
+                snapshot={cardSnapshot}
+                now={clock}
+              />
             </div>
           ) : null
         }
@@ -234,10 +264,13 @@ export function UsageDock({
   );
 }
 
-function cardHeightFor(snapshot: UsageSnapshot | null): number {
+function cardHeightFor(
+  metrics: HudMetrics,
+  snapshot: UsageSnapshot | null,
+): number {
   const count = snapshot?.buckets.length ?? 0;
   if (count === 0 || snapshot?.status === "unauthenticated") {
-    return cardMessageHeight();
+    return cardMessageHeight(metrics);
   }
-  return cardHeightForBuckets(count);
+  return cardHeightForBuckets(metrics, count);
 }

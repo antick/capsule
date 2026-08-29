@@ -3,7 +3,7 @@ import {
   type CapsuleSettings,
   COPY,
   PLACEMENT_LABELS,
-  PLACEMENT_MENU_GROUPS,
+  PLACEMENT_PRESETS,
   type PlacementPreset,
 } from "@capsule/config";
 import { app, Menu, type MenuItemConstructorOptions, Tray } from "electron";
@@ -111,19 +111,10 @@ function placementTemplate(
   current: PlacementPreset,
   handlers: AppChromeHandlers,
 ): MenuItemConstructorOptions[] {
-  const items: MenuItemConstructorOptions[] = [];
-  for (const [groupIndex, group] of PLACEMENT_MENU_GROUPS.entries()) {
-    if (groupIndex > 0) {
-      items.push({ type: "separator" });
-    }
-    for (const preset of group) {
-      items.push({
-        type: "radio",
-        label: PLACEMENT_LABELS[preset],
-        checked: preset === current,
-        click: () => handlers.applyPlacement(preset),
-      });
-    }
-  }
-  return items;
+  return PLACEMENT_PRESETS.map((preset) => ({
+    type: "radio",
+    label: PLACEMENT_LABELS[preset],
+    checked: preset === current,
+    click: () => handlers.applyPlacement(preset),
+  }));
 }

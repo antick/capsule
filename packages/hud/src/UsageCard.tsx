@@ -1,6 +1,7 @@
 import {
   COPY,
   HUD,
+  type HudMetrics,
   MOTION,
   SEVERITY_COLORS,
   severityForPercent,
@@ -11,10 +12,12 @@ import type { ReactElement } from "react";
 import { ProviderIcon } from "./icons.tsx";
 
 function BucketRow({
+  metrics,
   label,
   percentUsed,
   resetCopy,
 }: {
+  metrics: HudMetrics;
   label: string;
   percentUsed: number;
   resetCopy: string;
@@ -25,7 +28,7 @@ function BucketRow({
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: HUD.cardBucketGap,
+        gap: metrics.cardBucketGap,
       }}
     >
       <div
@@ -33,21 +36,21 @@ function BucketRow({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "baseline",
-          gap: HUD.cardResetGap,
-          height: HUD.cardTextLine,
-          lineHeight: `${HUD.cardTextLine}px`,
+          gap: metrics.cardResetGap,
+          height: metrics.cardTextLine,
+          lineHeight: `${metrics.cardTextLine}px`,
         }}
       >
-        <span style={{ fontSize: HUD.cardLabelSize, color: HUD.text }}>
+        <span style={{ fontSize: metrics.cardLabelSize, color: HUD.text }}>
           {label}
         </span>
-        <span style={{ fontSize: HUD.cardResetSize, color: HUD.textMuted }}>
+        <span style={{ fontSize: metrics.cardResetSize, color: HUD.textMuted }}>
           {resetCopy}
         </span>
       </div>
       <div
         style={{
-          height: HUD.barHeight,
+          height: metrics.barHeight,
           borderRadius: 99,
           background: HUD.barTrack,
           overflow: "hidden",
@@ -65,10 +68,10 @@ function BucketRow({
       </div>
       <span
         style={{
-          fontSize: HUD.cardLabelSize,
+          fontSize: metrics.cardLabelSize,
           color: HUD.text,
-          height: HUD.cardTextLine,
-          lineHeight: `${HUD.cardTextLine}px`,
+          height: metrics.cardTextLine,
+          lineHeight: `${metrics.cardTextLine}px`,
         }}
       >
         {percentUsed}
@@ -78,15 +81,21 @@ function BucketRow({
   );
 }
 
-function Message({ text }: { text: string }): ReactElement {
+function Message({
+  metrics,
+  text,
+}: {
+  metrics: HudMetrics;
+  text: string;
+}): ReactElement {
   return (
     <p
       style={{
         margin: 0,
-        fontSize: HUD.cardLabelSize,
+        fontSize: metrics.cardLabelSize,
         color: HUD.textMuted,
-        height: HUD.cardTextLine,
-        lineHeight: `${HUD.cardTextLine}px`,
+        height: metrics.cardTextLine,
+        lineHeight: `${metrics.cardTextLine}px`,
       }}
     >
       {text}
@@ -95,9 +104,11 @@ function Message({ text }: { text: string }): ReactElement {
 }
 
 export function UsageCard({
+  metrics,
   snapshot,
   now,
 }: {
+  metrics: HudMetrics;
   snapshot: UsageSnapshot;
   now: Date;
 }): ReactElement {
@@ -105,10 +116,11 @@ export function UsageCard({
 
   let body: ReactElement;
   if (snapshot.status === "unauthenticated") {
-    body = <Message text={COPY.notConnected} />;
+    body = <Message metrics={metrics} text={COPY.notConnected} />;
   } else if (snapshot.buckets.length === 0) {
     body = (
       <Message
+        metrics={metrics}
         text={snapshot.status === "stale" ? COPY.staleData : COPY.unavailable}
       />
     );
@@ -118,11 +130,12 @@ export function UsageCard({
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: HUD.cardSectionGap,
+          gap: metrics.cardSectionGap,
         }}
       >
         {snapshot.buckets.map((bucket) => (
           <BucketRow
+            metrics={metrics}
             key={bucket.id}
             label={bucket.label}
             percentUsed={Math.round(bucket.percentUsed)}
@@ -139,10 +152,10 @@ export function UsageCard({
       style={{
         width: "100%",
         height: "100%",
-        paddingTop: HUD.cardPaddingTop,
-        paddingBottom: HUD.cardPaddingBottom,
-        paddingLeft: HUD.cardPaddingX,
-        paddingRight: HUD.cardPaddingX,
+        paddingTop: metrics.cardPaddingTop,
+        paddingBottom: metrics.cardPaddingBottom,
+        paddingLeft: metrics.cardPaddingX,
+        paddingRight: metrics.cardPaddingX,
         color: HUD.text,
         boxSizing: "border-box",
       }}
@@ -151,10 +164,10 @@ export function UsageCard({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: HUD.cardIconGap,
-          height: HUD.cardTitleLine,
-          marginBottom: HUD.cardTitleGap,
-          fontSize: HUD.cardTitleSize,
+          gap: metrics.cardIconGap,
+          height: metrics.cardTitleLine,
+          marginBottom: metrics.cardTitleGap,
+          fontSize: metrics.cardTitleSize,
           fontWeight: 400,
           letterSpacing: -0.1,
         }}
@@ -162,7 +175,7 @@ export function UsageCard({
         <ProviderIcon
           id={snapshot.iconId}
           color={HUD.text}
-          size={HUD.cardIconSize}
+          size={metrics.cardIconSize}
         />
         <span>{title}</span>
       </div>

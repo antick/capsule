@@ -17,13 +17,14 @@ export async function openSettingsWindow(hash = "/"): Promise<BrowserWindow> {
 
   const win = new BrowserWindow({
     title: `${APP_NAME} Settings`,
-    width: 520,
-    height: 640,
-    minWidth: 420,
-    minHeight: 480,
+    width: 820,
+    height: 700,
+    minWidth: 720,
+    minHeight: 560,
     show: false,
+    backgroundColor: "#0d0d0f",
     titleBarStyle: "hiddenInset",
-    trafficLightPosition: { x: 16, y: 16 },
+    trafficLightPosition: { x: 16, y: 18 },
     webPreferences: {
       // electron-vite rewrites this static join(__dirname) path in dev.
       preload: join(__dirname, "../preload/index.js"),

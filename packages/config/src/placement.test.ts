@@ -1,103 +1,111 @@
 import { describe, expect, it } from "vitest";
-import { HUD, PLACEMENT } from "./constants.ts";
+import { PLACEMENT } from "./constants.ts";
+import { hudMetrics } from "./metrics.ts";
 import {
   type ChromeSnapshot,
   computePlacement,
   type HudSize,
 } from "./placement.ts";
 
+const m = hudMetrics(1);
+
 const display = {
   id: 1,
   bounds: { x: 0, y: 0, width: 1440, height: 900 },
+  // 25px menu bar at the top, 75px Dock at the bottom.
   workArea: { x: 0, y: 25, width: 1440, height: 800 },
 };
 
 const hud: HudSize = {
-  railWidth: HUD.railWidth,
+  railWidth: m.railWidth,
   railLength: 280,
-  cardWidth: HUD.cardWidth,
+  cardWidth: m.cardWidth,
   cardHeight: 168,
   expanded: false,
-  shadowPadding: HUD.shadowPadding,
-  joinWidth: HUD.tailLength + HUD.joinGap,
-  edgeFlare: HUD.edgeFlare,
+  shadowPadding: m.shadowPadding,
+  joinWidth: m.tailLength + m.joinGap,
+  edgeFlare: m.edgeFlare,
 };
 
 const chrome = (overrides: Partial<ChromeSnapshot> = {}): ChromeSnapshot => ({
   display,
   dock: { orientation: "bottom", autohide: false, tilesize: 48 },
-  stageManagerEnabled: false,
   ...overrides,
 });
 
 describe("computePlacement", () => {
-  it("defaults right-edge flush to the display right", () => {
+  it("puts right-edge flush against the display right", () => {
     const result = computePlacement("right-edge", chrome(), hud, PLACEMENT);
     expect(result.edge).toBe("right");
     expect(result.orientation).toBe("vertical");
     expect(result.cardGrowth).toBe("left");
+    expect(result.notch).toBe(false);
     expect(result.x + result.width).toBe(display.bounds.width);
-    expect(result.y).toBeGreaterThanOrEqual(display.workArea.y);
   });
 
-  it("places left-edge flush to the display left", () => {
+  it("puts left-edge flush against the display left", () => {
     const result = computePlacement("left-edge", chrome(), hud, PLACEMENT);
     expect(result.x).toBe(0);
     expect(result.cardGrowth).toBe("right");
     expect(result.orientation).toBe("vertical");
   });
 
-  it("falls back to left-edge when Stage Manager is off", () => {
-    const result = computePlacement(
-      "stage-manager-bottom",
-      chrome({ stageManagerEnabled: false }),
-      hud,
-      PLACEMENT,
+  it("keeps vertical docks clear of the menu bar", () => {
+    const result = computePlacement("right-edge", chrome(), hud, PLACEMENT);
+    expect(result.slide.axis).toBe("y");
+    expect(result.slide.min).toBe(display.workArea.y);
+    expect(result.slide.max).toBe(
+      display.workArea.y + display.workArea.height - result.height,
     );
-    expect(result.visualPreset).toBe("left-edge");
-    expect(result.x).toBe(0);
+    expect(result.y).toBeGreaterThanOrEqual(result.slide.min);
+    expect(result.y).toBeLessThanOrEqual(result.slide.max);
   });
 
-  it("uses the left strip when Stage Manager is on", () => {
-    const result = computePlacement(
-      "stage-manager-bottom",
-      chrome({ stageManagerEnabled: true }),
-      hud,
-      PLACEMENT,
-    );
-    expect(result.visualPreset).toBe("stage-manager-bottom");
-    expect(result.x).toBeLessThan(PLACEMENT.stageManagerStripWidthPx);
-    expect(result.y + result.height).toBeLessThanOrEqual(
-      display.workArea.y + display.workArea.height,
-    );
-  });
-
-  it("places a horizontal rail in the right Dock flank", () => {
-    const result = computePlacement(
-      "dock-flank-right",
-      chrome(),
-      hud,
-      PLACEMENT,
-    );
+  it("hangs the top edge from the physical screen top as a notch", () => {
+    const result = computePlacement("top-edge", chrome(), hud, PLACEMENT);
+    expect(result.notch).toBe(true);
     expect(result.orientation).toBe("horizontal");
+    expect(result.cardGrowth).toBe("down");
+    // Over the menu bar, not below it.
+    expect(result.y).toBe(display.bounds.y);
+    expect(result.y).toBeLessThan(display.workArea.y);
+    expect(result.slide.axis).toBe("x");
+  });
+
+  it("rides the physical screen bottom so it is level with the Dock", () => {
+    const result = computePlacement("bottom-edge", chrome(), hud, PLACEMENT);
     expect(result.edge).toBe("bottom");
-    expect(result.x + result.width).toBeLessThanOrEqual(
-      display.workArea.x + display.workArea.width,
+    expect(result.orientation).toBe("horizontal");
+    // Below the work area, i.e. in the band the Dock occupies.
+    expect(result.y + result.height).toBeGreaterThan(
+      display.workArea.y + display.workArea.height,
     );
     expect(result.y + result.height).toBeLessThanOrEqual(
-      display.workArea.y + display.workArea.height,
+      display.bounds.y + display.bounds.height,
     );
   });
 
-  it("places a horizontal rail in the left Dock flank", () => {
-    const result = computePlacement(
-      "dock-flank-left",
-      chrome(),
-      hud,
-      PLACEMENT,
+  it("parks the bottom dock clear of the centred macOS Dock", () => {
+    const result = computePlacement("bottom-edge", chrome(), hud, PLACEMENT);
+    const dockLeft =
+      (display.bounds.width - PLACEMENT.dockCenteredIconSpanPx) / 2;
+    const dockRight = dockLeft + PLACEMENT.dockCenteredIconSpanPx;
+    const clearsLeft = result.x + result.width <= dockLeft;
+    const clearsRight = result.x >= dockRight;
+    expect(clearsLeft || clearsRight).toBe(true);
+  });
+
+  it("sits flush at the screen bottom when the Dock is hidden", () => {
+    const noDock = chrome({
+      display: {
+        ...display,
+        workArea: { x: 0, y: 25, width: 1440, height: 875 },
+      },
+    });
+    const result = computePlacement("bottom-edge", noDock, hud, PLACEMENT);
+    expect(result.y + result.height).toBe(
+      display.bounds.y + display.bounds.height,
     );
-    expect(result.orientation).toBe("horizontal");
-    expect(result.x).toBeGreaterThanOrEqual(display.workArea.x);
   });
 
   it("grows the window inward when expanded on the right edge", () => {
