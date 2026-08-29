@@ -73,15 +73,17 @@ describe("computePlacement", () => {
     expect(result.slide.axis).toBe("x");
   });
 
-  it("rides the physical screen bottom so it is level with the Dock", () => {
+  it("rides the physical screen bottom, not the top of the Dock", () => {
+    // The Dock here is 75px tall and the HUD is thinner than that. Aligning
+    // the two by their tops would strand the HUD above the screen edge with a
+    // band of empty desktop under it.
     const result = computePlacement("bottom-edge", chrome(), hud, PLACEMENT);
     expect(result.edge).toBe("bottom");
     expect(result.orientation).toBe("horizontal");
-    // Below the work area, i.e. in the band the Dock occupies.
-    expect(result.y + result.height).toBeGreaterThan(
-      display.workArea.y + display.workArea.height,
+    expect(result.height).toBeLessThan(
+      display.bounds.height - display.workArea.height,
     );
-    expect(result.y + result.height).toBeLessThanOrEqual(
+    expect(result.y + result.height).toBe(
       display.bounds.y + display.bounds.height,
     );
   });
@@ -96,17 +98,21 @@ describe("computePlacement", () => {
     expect(clearsLeft || clearsRight).toBe(true);
   });
 
-  it("sits flush at the screen bottom when the Dock is hidden", () => {
-    const noDock = chrome({
-      display: {
-        ...display,
-        workArea: { x: 0, y: 25, width: 1440, height: 875 },
-      },
-    });
-    const result = computePlacement("bottom-edge", noDock, hud, PLACEMENT);
-    expect(result.y + result.height).toBe(
-      display.bounds.y + display.bounds.height,
-    );
+  it("centres on the bottom edge when no Dock is sharing it", () => {
+    for (const dock of [
+      { orientation: "left", autohide: false, tilesize: 48 },
+      { orientation: "bottom", autohide: true, tilesize: 48 },
+    ] as const) {
+      const result = computePlacement(
+        "bottom-edge",
+        chrome({ dock }),
+        hud,
+        PLACEMENT,
+      );
+      expect(result.x).toBe(
+        Math.round((display.bounds.width - result.width) / 2),
+      );
+    }
   });
 
   it("holds a detached style clear of the edge it is docked against", () => {

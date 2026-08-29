@@ -63,51 +63,56 @@ export const HUD = {
   hoverOpenDelayMs: 70,
   hoverCloseDelayMs: 220,
   meterCountDefault: 3,
+  /**
+   * Most rows any provider's card can show. The window is sized for this so a
+   * taller-than-usual card is never clipped by the frame it opens inside.
+   */
+  maxCardBuckets: 3,
 } as const;
 
 /**
- * Every dimension of the dock at scale 1, measured from the reference design.
- * Read these through `hudMetrics(scale)` rather than directly, so the user's
- * size preference reaches all of them.
+ * Every dimension of the dock at scale 1, which is the size it ships at. Read
+ * these through `hudMetrics(scale)` rather than directly, so the user's size
+ * preference reaches all of them.
  */
 export const HUD_BASE = {
-  railWidth: 95,
-  railPaddingX: 18,
-  railPaddingY: 26,
-  railRadius: 47,
+  railWidth: 58,
+  railPaddingX: 8,
+  railPaddingY: 12,
+  railRadius: 29,
   // Concave fillet that blends the rail into the screen edge it sits against.
-  edgeFlare: 48,
-  meterSize: 58,
-  ringStroke: 6,
-  iconSize: 24,
-  meterLabelGap: 14,
-  percentBlock: 18,
-  percentFontSize: 18,
-  itemGap: 30,
-  cardWidth: 307,
-  cardRadius: 22,
-  cardPaddingX: 16,
-  cardPaddingTop: 14,
-  cardPaddingBottom: 16,
-  cardTitleSize: 17,
-  cardTitleLine: 22,
-  cardTitleGap: 14,
-  cardIconSize: 26,
-  cardIconGap: 10,
-  cardLabelSize: 12,
-  cardResetSize: 12,
-  cardResetGap: 12,
-  cardTextLine: 17,
-  cardBucketGap: 6,
-  cardSectionGap: 12,
-  barHeight: 7,
+  edgeFlare: 26,
+  meterSize: 38,
+  ringStroke: 4,
+  iconSize: 16,
+  meterLabelGap: 4,
+  percentBlock: 12,
+  percentFontSize: 11,
+  itemGap: 12,
+  cardWidth: 232,
+  cardRadius: 16,
+  cardPaddingX: 14,
+  cardPaddingTop: 12,
+  cardPaddingBottom: 13,
+  cardTitleSize: 14,
+  cardTitleLine: 18,
+  cardTitleGap: 11,
+  cardIconSize: 18,
+  cardIconGap: 8,
+  cardLabelSize: 11,
+  cardResetSize: 11,
+  cardResetGap: 10,
+  cardTextLine: 15,
+  cardBucketGap: 5,
+  cardSectionGap: 10,
+  barHeight: 6,
   // Speech-bubble tail: a pointed spur that stops short of the rail.
-  tailBase: 60,
-  tailLength: 37,
-  joinGap: 16,
-  shadowPadding: 26,
-  notchRadius: 26,
-  notchPaddingY: 16,
+  tailBase: 30,
+  tailLength: 16,
+  joinGap: 6,
+  shadowPadding: 18,
+  notchRadius: 16,
+  notchPaddingY: 8,
 } as const;
 
 export const MOTION = {
@@ -191,6 +196,8 @@ export const IPC = {
   setPointerCapture: "capsule:set-pointer-capture",
   setHitRegions: "capsule:set-hit-regions",
   setExpanded: "capsule:set-expanded",
+  /** Main tells an open settings window which page to show. */
+  navigate: "capsule:navigate",
   contextMenu: "capsule:context-menu",
   startMove: "capsule:start-move",
   endMove: "capsule:end-move",

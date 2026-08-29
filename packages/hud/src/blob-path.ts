@@ -170,7 +170,15 @@ function cardExtent(
     : { cardAcross: cardHeight, cardAlong: m.cardWidth };
 }
 
-/** Canonical geometry: rail flush right, card to its left. */
+/**
+ * Canonical geometry: rail flush right, card to its left.
+ *
+ * The frame is traced against the reserved card extent rather than the card
+ * actually being shown, because the window around it is sized once for the
+ * tallest card any provider can produce. Tracing against a shorter card would
+ * make the frame narrower than its window, and since the frame is pinned to
+ * the docked edge the difference would hang off the far side and clip.
+ */
 function canonicalLayout(
   m: HudMetrics,
   input: {
@@ -178,12 +186,17 @@ function canonicalLayout(
     joinOffset: number;
     cardAcross: number;
     cardAlong: number;
+    reserveAcross: number;
+    reserveAlong: number;
+    flare: number;
   },
 ): CanonicalFrame {
-  const flare = m.edgeFlare;
-  const width = input.cardAcross + m.tailLength + m.joinGap + m.railWidth;
-  const height = Math.max(input.railLength + flare * 2, input.cardAlong);
-  const railX = input.cardAcross + m.tailLength + m.joinGap;
+  const width = input.reserveAcross + m.tailLength + m.joinGap + m.railWidth;
+  const height = Math.max(
+    input.railLength + input.flare * 2,
+    input.reserveAlong,
+  );
+  const railX = input.reserveAcross + m.tailLength + m.joinGap;
   const railY = (height - input.railLength) / 2;
   const joinY = railY + input.joinOffset;
   const cardY = clamp(
@@ -200,9 +213,16 @@ function canonicalLayout(
       width: m.railWidth,
       height: input.railLength,
     },
-    card: { x: 0, y: cardY, width: input.cardAcross, height: input.cardAlong },
+    // The card keeps its own size but stays against the tail, so a short card
+    // does not float away from the rail inside the reserved space.
+    card: {
+      x: input.reserveAcross - input.cardAcross,
+      y: cardY,
+      width: input.cardAcross,
+      height: input.cardAlong,
+    },
     joinY,
-    tipX: input.cardAcross + m.tailLength,
+    tipX: input.reserveAcross + m.tailLength,
   };
 }
 
@@ -213,14 +233,23 @@ export function blobLayout(
     railLength: number;
     joinOffset: number;
     cardHeight?: number;
+    /** Tallest card the window was sized for; defaults to the card shown. */
+    cardReserve?: number;
+    style?: DockStyle;
   },
 ): BlobLayout {
   const cardHeight = input.cardHeight ?? cardHeightForBuckets(m, 2);
   const growth = input.cardGrowth;
+  const style = input.style ?? DOCK_STYLES.rail;
+  const card = cardExtent(m, growth, cardHeight);
+  const reserve = cardExtent(m, growth, input.cardReserve ?? cardHeight);
   const base = canonicalLayout(m, {
     railLength: input.railLength,
     joinOffset: input.joinOffset,
-    ...cardExtent(m, growth, cardHeight),
+    ...card,
+    reserveAcross: Math.max(reserve.cardAcross, card.cardAcross),
+    reserveAlong: Math.max(reserve.cardAlong, card.cardAlong),
+    flare: m.edgeFlare * style.flare,
   });
   const vertical = isVertical(growth);
   const mapper = mapperFor(growth, base.width);

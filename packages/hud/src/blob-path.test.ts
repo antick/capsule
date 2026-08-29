@@ -53,10 +53,25 @@ describe("blobLayout", () => {
   });
 
   it("centres the card on the meter its tail points at", () => {
-    for (const index of [0, 1, 2]) {
+    const layout = layoutFor("left", 1);
+    const centre = layout.card.y + layout.card.height / 2;
+    expect(Math.abs(centre - layout.join.y)).toBeLessThanOrEqual(1);
+  });
+
+  it("keeps the tail on the card's flat side at the end meters", () => {
+    // A card taller than the distance from the rail's end to its first meter
+    // cannot centre on that meter without hanging out of the frame, so it
+    // slides instead — but the tail still has to meet a flat edge.
+    for (const index of [0, 2]) {
       const layout = layoutFor("left", index);
-      const centre = layout.card.y + layout.card.height / 2;
-      expect(Math.abs(centre - layout.join.y)).toBeLessThanOrEqual(1);
+      expect(layout.card.y).toBeGreaterThanOrEqual(0);
+      expect(layout.card.y + layout.card.height).toBeLessThanOrEqual(
+        layout.height,
+      );
+      expect(layout.join.y).toBeGreaterThan(layout.card.y + m.cardRadius);
+      expect(layout.join.y).toBeLessThan(
+        layout.card.y + layout.card.height - m.cardRadius,
+      );
     }
   });
 

@@ -58,7 +58,6 @@ export {
   meterBlockSize,
   meterStrideSize,
   nextHudScale,
-  REFERENCE_RATIO,
   railLengthForCount,
 } from "./metrics.ts";
 export type {

@@ -2,16 +2,22 @@ import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  cardHeightForBuckets,
+  cardMessageHeight,
   computePlacement,
   DOCK_STYLES,
   type DockStyle,
   dockEdgeGap,
+  HUD,
   HUD_SCALE,
   hudMetrics,
+  joinOffsetForIndex,
   PLACEMENT,
   type PlacementPreset,
+  railLengthForCount,
   styleSupportsNotch,
 } from "@capsule/config";
+import { blobLayout, framePadding } from "@capsule/hud";
 import { describe, expect, it } from "vitest";
 
 // A 14" MacBook Pro: notched display, menu bar at 38px, Dock at the bottom.
@@ -24,6 +30,13 @@ const chrome = {
   dock: { orientation: "bottom" as const, autohide: false, tilesize: 48 },
 };
 
+const METERS = 3;
+
+function isCompact(preset: PlacementPreset): boolean {
+  return preset === "top-edge" || preset === "bottom-edge";
+}
+
+/** Mirrors OverlayController.computeFor: the window the dock is given. */
 function place(
   preset: PlacementPreset,
   scale = HUD_SCALE.default,
@@ -36,13 +49,13 @@ function place(
     chrome,
     {
       railWidth: m.railWidth,
-      railLength: 280,
+      railLength: railLengthForCount(m, METERS, isCompact(preset)),
       cardWidth: m.cardWidth,
-      cardHeight: 188,
+      cardHeight: cardHeightForBuckets(m, HUD.maxCardBuckets),
       expanded: true,
       shadowPadding: m.shadowPadding,
       joinWidth: m.tailLength + m.joinGap,
-      edgeFlare: notchAllowed ? m.edgeFlare : 0,
+      edgeFlare: m.edgeFlare * style.flare,
       edgeGap: dockEdgeGap(m, style),
     },
     PLACEMENT,
@@ -90,6 +103,54 @@ describe("desktop placement wiring", () => {
     expect(tray.width).toBeGreaterThan(flush.width);
     expect(tray.x + tray.width).toBe(1512);
   });
+});
+
+/**
+ * The window is sized by the main process and the dock is drawn by the
+ * renderer, from the same numbers but through different code. When the two
+ * disagree the frame is pinned to the docked edge and the surplus hangs off
+ * the far side, where the window clips it — which is how an open card came to
+ * lose its left edge along the bottom of the screen.
+ */
+describe("window and frame agree", () => {
+  const presets: PlacementPreset[] = [
+    "right-edge",
+    "left-edge",
+    "top-edge",
+    "bottom-edge",
+  ];
+
+  for (const preset of presets) {
+    for (const style of Object.values(DOCK_STYLES)) {
+      it(`fits every card in a ${style.id} dock on the ${preset}`, () => {
+        const m = hudMetrics(HUD_SCALE.default);
+        const compact = isCompact(preset);
+        const window = place(preset, HUD_SCALE.default, style);
+        const cards = [
+          cardMessageHeight(m),
+          ...Array.from({ length: HUD.maxCardBuckets }, (_, index) =>
+            cardHeightForBuckets(m, index + 1),
+          ),
+        ];
+
+        for (const cardHeight of cards) {
+          for (let index = 0; index < METERS; index += 1) {
+            const layout = blobLayout(m, {
+              cardGrowth: window.cardGrowth,
+              railLength: railLengthForCount(m, METERS, compact),
+              joinOffset: joinOffsetForIndex(m, index, compact),
+              cardHeight,
+              cardReserve: cardHeightForBuckets(m, HUD.maxCardBuckets),
+              style,
+            });
+            const pad = framePadding(m, window.cardGrowth, style);
+            expect(layout.width + pad.left + pad.right).toBe(window.width);
+            expect(layout.height + pad.top + pad.bottom).toBe(window.height);
+          }
+        }
+      });
+    }
+  }
 });
 
 describe("app chrome assets", () => {

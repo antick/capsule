@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { APP_NAME } from "@capsule/config";
+import { APP_NAME, IPC } from "@capsule/config";
 import { app, BrowserWindow, shell } from "electron";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
 
@@ -7,20 +7,38 @@ let settingsWindow: BrowserWindow | null = null;
 
 /** The overlay is not focusable, so the app itself may not be frontmost. */
 function bringForward(win: BrowserWindow): void {
-  win.show();
-  win.focus();
+  if (win.isDestroyed()) {
+    return;
+  }
   if (process.platform === "darwin") {
+    // Capsule lives in the menu bar with no Dock tile, so nothing else will
+    // bring it forward for us.
     app.focus({ steal: true });
   }
+  // A minimised window ignores show(), and with no Dock tile there is nothing
+  // to click to get it back — so it would look like settings never opened.
+  if (win.isMinimized()) {
+    win.restore();
+  }
+  win.show();
+  win.focus();
 }
 
-export async function openSettingsWindow(hash = "/"): Promise<BrowserWindow> {
-  if (settingsWindow && !settingsWindow.isDestroyed()) {
-    await settingsWindow.webContents.executeJavaScript(
-      `window.location.hash = ${JSON.stringify(`#${hash}`)}`,
-    );
-    bringForward(settingsWindow);
-    return settingsWindow;
+/**
+ * Opens settings, or raises the window that is already open.
+ *
+ * Nothing here waits on the renderer. An earlier version asked the open window
+ * to change its own hash with `executeJavaScript` and awaited the result: if
+ * that renderer was gone or wedged the promise never settled, so every later
+ * attempt to open settings silently did nothing at all. The window is shown
+ * first and told where to navigate afterwards, one-way.
+ */
+export function openSettingsWindow(hash = "/"): BrowserWindow {
+  const existing = settingsWindow;
+  if (existing && !existing.isDestroyed()) {
+    existing.webContents.send(IPC.navigate, hash);
+    bringForward(existing);
+    return existing;
   }
 
   const win = new BrowserWindow({
@@ -51,19 +69,31 @@ export async function openSettingsWindow(hash = "/"): Promise<BrowserWindow> {
   // attached afterwards misses the event and leaves the window hidden.
   win.once("ready-to-show", () => bringForward(win));
   win.on("closed", () => {
-    settingsWindow = null;
+    if (settingsWindow === win) {
+      settingsWindow = null;
+    }
   });
   settingsWindow = win;
 
   const devUrl = rendererDevUrl("settings");
-  if (devUrl) {
-    await win.loadURL(`${devUrl}#${hash}`);
-  } else {
-    await win.loadFile(rendererHtml("settings"), { hash });
-  }
+  const load = devUrl
+    ? win.loadURL(`${devUrl}#${hash}`)
+    : win.loadFile(rendererHtml("settings"), { hash });
 
-  if (!win.isDestroyed()) {
-    bringForward(win);
-  }
+  load.then(
+    () => bringForward(win),
+    (error: unknown) => {
+      // A half-loaded window would be handed back to every later caller, so
+      // it is thrown away and the next attempt starts clean.
+      console.error("Capsule settings failed to load", error);
+      if (settingsWindow === win) {
+        settingsWindow = null;
+      }
+      if (!win.isDestroyed()) {
+        win.destroy();
+      }
+    },
+  );
+
   return win;
 }

@@ -66,10 +66,19 @@ export function ProvidersPage() {
                 checked={enabled}
                 aria-label={PROVIDER_LABELS[id]}
                 onCheckedChange={(checked) => {
-                  const enabledProviderIds = checked
-                    ? [...new Set([...settings.enabledProviderIds, id])]
-                    : settings.enabledProviderIds.filter((item) => item !== id);
-                  void update({ enabledProviderIds });
+                  // Rebuilt from the canonical list rather than appended to,
+                  // so re-enabling a provider puts its ring back where it was.
+                  const wanted = new Set(settings.enabledProviderIds);
+                  if (checked) {
+                    wanted.add(id);
+                  } else {
+                    wanted.delete(id);
+                  }
+                  void update({
+                    enabledProviderIds: PROVIDER_IDS.filter((item) =>
+                      wanted.has(item),
+                    ),
+                  });
                 }}
               />
             </div>

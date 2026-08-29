@@ -1,5 +1,6 @@
 import {
   type CapsuleSettings,
+  PROVIDER_LABELS,
   type ProviderId,
   placeholderSnapshots,
   type UsageSnapshot,
@@ -75,7 +76,7 @@ export function createPoller(options: {
           next.push(
             mergeSnapshot(previous, {
               providerId: provider.id,
-              displayName: provider.id,
+              displayName: PROVIDER_LABELS[provider.id],
               iconId: provider.id,
               primaryPercent: previous?.primaryPercent ?? null,
               buckets: previous?.buckets ?? [],

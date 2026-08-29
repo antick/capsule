@@ -129,18 +129,6 @@ function centerInRange(start: number, span: number, size: number): number {
   return Math.round(start + (span - size) / 2);
 }
 
-/**
- * How tall the Dock is on this display. macOS shrinks the work area by exactly
- * that much, so the difference tells us without reading private preferences.
- */
-function dockThickness(chrome: ChromeSnapshot): number {
-  const { bounds, workArea } = chrome.display;
-  if (chrome.dock.orientation !== "bottom") {
-    return 0;
-  }
-  return Math.max(0, bounds.y + bounds.height - (workArea.y + workArea.height));
-}
-
 export function computePlacement(
   preset: PlacementPreset,
   chrome: ChromeSnapshot,
@@ -205,23 +193,26 @@ export function computePlacement(
     };
   }
 
-  // Bottom: ride the physical screen bottom so the HUD is level with the Dock
-  // rather than floating above it, then default to the free space beside it.
-  const dock = dockThickness(chrome);
-  const y =
-    dock > 0
-      ? bounds.y + bounds.height - Math.max(size.height, dock)
-      : bounds.y + bounds.height - size.height;
-  const dockSpan = constants.dockCenteredIconSpanPx;
-  const dockLeft = centerInRange(bounds.x, bounds.width, dockSpan);
-  const besideDock =
-    dockLeft - constants.dockFlankMarginPx - size.width >= bounds.x
-      ? dockLeft - constants.dockFlankMarginPx - size.width
-      : dockLeft + dockSpan + constants.dockFlankMarginPx;
+  // Bottom: sit on the physical screen bottom, the same edge the Dock sits on,
+  // then default to the free space beside it.
+  const y = bounds.y + bounds.height - size.height;
+  const centred = centerInRange(bounds.x, bounds.width, size.width);
+  // Only a visible bottom Dock is in the way; a side or hidden one leaves the
+  // whole edge free, so the HUD may as well sit in the middle of it.
+  const sharesTheEdge =
+    chrome.dock.orientation === "bottom" && !chrome.dock.autohide;
+  const besideDock = () => {
+    const span = constants.dockCenteredIconSpanPx;
+    const left = centerInRange(bounds.x, bounds.width, span);
+    const toTheLeft = left - constants.dockFlankMarginPx - size.width;
+    return toTheLeft >= bounds.x
+      ? toTheLeft
+      : left + span + constants.dockFlankMarginPx;
+  };
 
   return {
     displayId: id,
-    x: clamp(besideDock, min, max),
+    x: clamp(sharesTheEdge ? besideDock() : centred, min, max),
     y: Math.round(y),
     ...size,
     orientation,

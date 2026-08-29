@@ -317,6 +317,8 @@ export class OverlayController {
     const metrics = hudMetrics(this.settings.hudScale);
     const style = dockStyleFor(this.settings.dockStyle);
     const notchAllowed = styleSupportsNotch(style);
+    // Matches UsageDock: a dock lying along an edge drops its percent
+    // captions, which makes its rail shorter than a vertical one.
     const compact = preset === "top-edge" || preset === "bottom-edge";
     return computePlacement(
       preset,
@@ -325,11 +327,13 @@ export class OverlayController {
         railWidth: metrics.railWidth,
         railLength: railLengthForCount(metrics, this.meterCount, compact),
         cardWidth: metrics.cardWidth,
-        cardHeight: cardHeightForBuckets(metrics, 2),
+        // Sized for the tallest card, since the window cannot resize itself
+        // mid-animation without the bubble tearing.
+        cardHeight: cardHeightForBuckets(metrics, HUD.maxCardBuckets),
         expanded: true,
         shadowPadding: metrics.shadowPadding,
         joinWidth: metrics.tailLength + metrics.joinGap,
-        edgeFlare: notchAllowed ? metrics.edgeFlare : 0,
+        edgeFlare: metrics.edgeFlare * style.flare,
         edgeGap: dockEdgeGap(metrics, style),
       },
       PLACEMENT,

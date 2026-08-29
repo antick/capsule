@@ -7,10 +7,10 @@ import {
   type ProviderId,
 } from "./constants.ts";
 import { DOCK_STYLE_IDS } from "./dock-style.ts";
-import { clampHudScale, HUD_SCALE, REFERENCE_RATIO } from "./metrics.ts";
+import { HUD_SCALE } from "./metrics.ts";
 import { HUD_THEME_IDS } from "./theme.ts";
 
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 
 const LEGACY_PROVIDER_IDS: Record<string, ProviderId> = {
   chatgpt: "codex",
@@ -34,12 +34,14 @@ export function migrateSettings(raw: unknown): unknown {
   }
   const input = raw as Record<string, unknown>;
   const enabled = Array.isArray(input.enabledProviderIds)
-    ? input.enabledProviderIds.map((id) => {
-        if (typeof id !== "string") {
-          return id;
-        }
-        return LEGACY_PROVIDER_IDS[id] ?? id;
-      })
+    ? providerOrder(
+        input.enabledProviderIds.map((id) => {
+          if (typeof id !== "string") {
+            return id;
+          }
+          return LEGACY_PROVIDER_IDS[id] ?? id;
+        }),
+      )
     : input.enabledProviderIds;
   const preset =
     typeof input.placementPreset === "string"
@@ -57,21 +59,26 @@ export function migrateSettings(raw: unknown): unknown {
     // A stored position belongs to the old placement model; let the new
     // engine re-anchor the dock rather than restoring a stale coordinate.
     customPosition: version < 3 ? null : input.customPosition,
-    hudScale: migrateHudScale(input.hudScale, version),
+    // The artwork was redrawn at a smaller size, so an old percentage no
+    // longer means what it did and is dropped rather than re-based.
+    hudScale: version < 5 ? HUD_SCALE.default : input.hudScale,
     schemaVersion: SCHEMA_VERSION,
   };
 }
 
 /**
- * Scale used to be measured against the reference drawing. It is now measured
- * against the size the dock ships at, so an old preference has to be divided
- * by the ratio between the two to keep the dock the size it already was.
+ * The dock renders providers in one fixed order. Storing the enabled set in
+ * whatever order it was toggled would let the dock re-shuffle itself the next
+ * time settings were saved, so the set is kept sorted and de-duplicated.
  */
-function migrateHudScale(raw: unknown, version: number): number {
-  if (typeof raw !== "number" || !Number.isFinite(raw)) {
-    return HUD_SCALE.default;
-  }
-  return clampHudScale(version < 4 ? raw / REFERENCE_RATIO : raw);
+function providerOrder(ids: unknown[]): unknown[] {
+  const wanted = new Set(ids);
+  const sorted: unknown[] = PROVIDER_IDS.filter((id) => wanted.has(id));
+  // Anything unrecognised is kept so the schema, not this, rejects it.
+  return [
+    ...sorted,
+    ...ids.filter((id) => !PROVIDER_IDS.includes(id as never)),
+  ];
 }
 
 export const settingsSchema = z.preprocess(

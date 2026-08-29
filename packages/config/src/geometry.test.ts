@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  HUD_BASE,
   PLACEMENT_HINTS,
   PLACEMENT_LABELS,
   PLACEMENT_PRESETS,
@@ -14,7 +15,6 @@ import {
   meterBlockSize,
   meterStrideSize,
   nextHudScale,
-  REFERENCE_RATIO,
   railLengthForCount,
 } from "./metrics.ts";
 
@@ -100,13 +100,20 @@ describe("hud scale", () => {
     expect(small.ringStroke).toBeGreaterThanOrEqual(1);
   });
 
-  it("measures 100% against the shipped size, not the reference drawing", () => {
+  it("draws the artwork at its authored size when set to 100%", () => {
     const shipped = hudMetrics(HUD_SCALE.default);
     expect(shipped.scale).toBe(1);
-    expect(shipped.unit).toBe(REFERENCE_RATIO);
-    expect(shipped.railWidth).toBeLessThan(
-      hudMetrics(1 / REFERENCE_RATIO).railWidth,
-    );
+    expect(shipped.unit).toBe(1);
+    expect(shipped.railWidth).toBe(HUD_BASE.railWidth);
+    expect(shipped.cardWidth).toBe(HUD_BASE.cardWidth);
+  });
+
+  it("keeps the whole dock narrower than a sliver of a laptop screen", () => {
+    // The dock is a passenger on the desktop, not a sidebar: at full size it
+    // still has to read as an accessory rather than a panel.
+    const largest = hudMetrics(HUD_SCALE.max);
+    expect(largest.railWidth).toBeLessThan(90);
+    expect(railLengthForCount(largest, 3)).toBeLessThan(300);
   });
 });
 

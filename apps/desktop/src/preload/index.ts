@@ -16,6 +16,8 @@ export interface CapsuleBridge {
   /** Window-local areas the dock wants the mouse for. */
   setHitRegions: (regions: Rect[]) => void;
   setExpanded: (open: boolean, providerId: ProviderId | null) => void;
+  /** Fires when main asks this window to show a different page. */
+  onNavigate: (listener: (hash: string) => void) => () => void;
   startMove: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
   showContextMenu: () => void;
@@ -42,6 +44,13 @@ const capsule: CapsuleBridge = {
   },
   setExpanded: (open, providerId) => {
     ipcRenderer.send(IPC.setExpanded, open, providerId);
+  },
+  onNavigate: (listener) => {
+    const handler = (_event: unknown, hash: string) => listener(hash);
+    ipcRenderer.on(IPC.navigate, handler);
+    return () => {
+      ipcRenderer.off(IPC.navigate, handler);
+    };
   },
   startMove: (screenX, screenY) => {
     ipcRenderer.send(IPC.startMove, screenX, screenY);

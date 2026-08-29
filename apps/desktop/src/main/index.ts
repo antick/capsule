@@ -87,7 +87,7 @@ app.whenReady().then(async () => {
       });
     },
     openSettings: () => {
-      void openSettingsWindow("/");
+      openSettingsWindow("/");
     },
     quit: () => app.quit(),
   });
@@ -109,9 +109,10 @@ app.whenReady().then(async () => {
   ipcMain.handle(IPC.setSettings, (_event, next: CapsuleSettings) =>
     applySettings(next),
   );
-  ipcMain.handle(IPC.openSettings, (_event, hash?: string) =>
-    openSettingsWindow(hash ?? "/"),
-  );
+  // Returns nothing on purpose: a BrowserWindow cannot cross the IPC bridge.
+  ipcMain.handle(IPC.openSettings, (_event, hash?: string) => {
+    openSettingsWindow(hash ?? "/");
+  });
   ipcMain.handle(IPC.quit, () => {
     app.quit();
   });
@@ -143,7 +144,7 @@ app.whenReady().then(async () => {
   });
 
   app.on("activate", () => {
-    void openSettingsWindow("/");
+    openSettingsWindow("/");
   });
 
   await overlay.create(() => {
@@ -164,7 +165,7 @@ app.whenReady().then(async () => {
       .join(" "),
   );
   if (!settings.demoMode && snapshots.every((item) => item.status !== "ok")) {
-    await openSettingsWindow("/onboarding");
+    openSettingsWindow("/onboarding");
   }
 
   const chromeTimer = setInterval(() => {

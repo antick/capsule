@@ -11,7 +11,10 @@ export interface DockStyle {
   flare: number;
   /** Corner radius: `pill` rounds to a half-width, a number scales railRadius. */
   radius: "pill" | number;
-  /** Gap left between the dock and the screen edge, scaling shadowPadding. */
+  /**
+   * Gap left between the dock and the screen edge, as a fraction of the rail's
+   * side padding. Enough to read as floating, not enough to look stranded.
+   */
   edgeGap: number;
   /** Hairline drawn around the surface. */
   outline: boolean;
@@ -41,8 +44,8 @@ export const DOCK_STYLES = {
     label: "Tray",
     hint: "A rounded panel with a hairline border, like the macOS Dock.",
     flare: 0,
-    radius: 0.42,
-    edgeGap: 0.45,
+    radius: 0.62,
+    edgeGap: 0.6,
     outline: true,
   },
 } as const satisfies Record<DockStyleId, DockStyle>;
@@ -56,7 +59,7 @@ export function dockEdgeGap(m: HudMetrics, style: DockStyle): number {
   if (style.edgeGap <= 0) {
     return 0;
   }
-  return Math.max(1, Math.round(m.shadowPadding * style.edgeGap));
+  return Math.max(1, Math.round(m.railPaddingX * style.edgeGap));
 }
 
 /** Only the rail style can pass for a notch; the others visibly float. */

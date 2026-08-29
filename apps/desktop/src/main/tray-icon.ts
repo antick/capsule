@@ -22,7 +22,3 @@ export function trayTemplateImage(): NativeImage {
   image.setTemplateImage(true);
   return image;
 }
-
-export function dockAppImage(): NativeImage {
-  return nativeImage.createFromPath(resourceFile("dock.png"));
-}

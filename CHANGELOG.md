@@ -23,21 +23,26 @@ All notable changes to Capsule are documented in this file.
 
 - The dock rides one of four screen edges, and dragging it re-docks to whichever edge the cursor is nearest — the layout, tail direction and slide axis all follow. The Dock-flank and Stage Manager presets are gone; stored settings fold onto the edge they sat on.
 - Every dimension of the dock is derived from a single size preference, adjustable from 55% to 120% with the -/+ stepper in Settings. It now ships smaller by default, with tighter spacing between the meter rings.
-- Dock size is now measured against the size Capsule ships at, so 100% is the size that used to read as 80% and the range runs 50% to 130%. An existing preference is re-based on load, leaving the dock exactly the size it already was.
+- The dock is redrawn smaller: the rail is a third narrower, the meter rings are smaller and the spacing between them is halved, so 100% is genuinely compact rather than a scaled-down copy of an oversized reference. Size runs 50% to 130% of that, and a preference chosen against the old artwork is dropped rather than carried over, since the percentage no longer means the same thing.
+- Styles that float clear of the screen edge now sit a few pixels off it rather than a fifth of an inch, and the bottom edge no longer lines its top up with the macOS Dock's — it sits on the screen edge itself, leaving no band of desktop underneath. Where the Dock is on a side, or hidden, the bottom dock centres on the edge instead of hiding beside icons that are not there.
 - Five HUD themes — Midnight, Graphite and Ink for dark desktops, Porcelain and Linen for light ones — plus an Auto option that follows the macOS appearance and swaps between Midnight and Porcelain.
 - Three dock styles: Rail (the original, melting into the edge), Capsule (a floating pill) and Tray (a rounded panel with a hairline border, parked just clear of the edge like the macOS Dock). Top-edge notch rendering is reserved for Rail, since the others visibly float.
 - On the bottom edge the dock drops its percent captions like the notch already did, so the meters fit the rail's thickness instead of spilling out below it.
 - The dock's context menu entry reads "Settings" rather than "Open Settings…".
 - On the top edge the dock renders as a notch: compact rings without percent captions, hung from the physical top of the screen over the menu bar.
-- On the bottom edge the dock sits level with the macOS Dock rather than floating above it, and parks in the free space beside its icons.
+- Capsule no longer takes a tile in the macOS Dock; it is reached from the menu bar and from the dock itself.
 - Settings is rebuilt around a sidebar with a live dock preview, a click-anywhere screen diagram for placement, the size stepper, and provider cards showing connection state and current usage.
 
 ### Fixed
 
 - Hovering and clicking the dock work again while another app is in front. macOS only forwards mouse-move events to a click-through window while the owning app is frontmost, so the renderer never learned the cursor had arrived and the dock stayed transparent to it — which also made dragging work only sometimes. The main process now reads the cursor position itself and hit-tests the regions the dock publishes, so nothing depends on which app has focus.
 - Capsule no longer starts with a usage card already open: a development-only hook that clicked a meter on launch to grab a screenshot has been removed.
-- Right-clicking the dock and choosing Settings opens the window. The window listened for `ready-to-show` after the load had already fired it, so the first open created a hidden window and only the second one showed anything.
+- Settings opens every time, from the menu bar and from the dock's own context menu. Re-opening asked the window that was already up to change its own page and waited for the answer; if that renderer was gone or minimised the answer never came, so the call hung and every later attempt silently did nothing. Nothing waits on the renderer now, a minimised window is restored, and a window whose load failed is thrown away instead of being handed to the next caller.
 - The dock's context menu is no longer drawn behind the dock. The overlay outranks pop-up menus, so it now steps down a level for as long as the menu is up.
+- The meters stopped shuffling when the dock is moved. Turning a provider back on appended it to the stored list, and since the dock draws them in stored order, the next save re-ordered the rings until the following refresh put them back. The enabled set is kept in one canonical order now.
+- The open card no longer loses its left edge on the bottom of the screen. The window was sized without the space the frame reserves for its edge flares, and for a two-row card rather than the tallest one a provider can produce; the frame is pinned to the docked edge, so the surplus hung off the far side and the window clipped it. Both now reserve the same room, and a test walks every edge, style and card size to keep them in step.
+- Grok's meter shows the xAI mark. The glyph drawn for it was a lattice of struts that read as Perplexity's logo.
+- A provider that fails to answer is named properly in its card ("Claude", not "claude").
 - Turning a provider off in Settings updates the dock immediately instead of waiting out the next round of network calls.
 - Dragging no longer dies part-way. Pointer capture is taken on the dock root instead of whichever child was pressed, so it survives the re-renders a drag causes; click-through stays off for the whole press rather than only after the drag threshold; and a missed pointer release is caught at the window so the dock cannot get stuck mid-drag.
 - The usage card stays landscape on every edge. It used to be rotated with the frame on the top and bottom edges, which turned it into an unreadable vertical strip — the reason moving the dock from the menu bar looked broken.

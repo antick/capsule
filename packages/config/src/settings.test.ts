@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HUD_SCALE, REFERENCE_RATIO } from "./metrics.ts";
+import { HUD_SCALE } from "./metrics.ts";
 import {
   defaultSettings,
   migrateSettings,
@@ -20,7 +20,17 @@ describe("migrateSettings", () => {
     );
     expect(migrated.enabledProviderIds).toEqual(["claude", "codex", "grok"]);
     expect(migrated.demoMode).toBe(false);
-    expect(migrated.schemaVersion).toBe(4);
+    expect(migrated.schemaVersion).toBe(5);
+  });
+
+  it("sorts the enabled providers so the dock cannot re-shuffle itself", () => {
+    // Toggling one back on used to append it, and the dock draws them in the
+    // stored order — so saving settings could reorder the rings.
+    const migrated = settingsSchema.parse({
+      ...defaultSettings(),
+      enabledProviderIds: ["grok", "claude"],
+    });
+    expect(migrated.enabledProviderIds).toEqual(["claude", "grok"]);
   });
 
   it("keeps an explicit demo toggle after migration", () => {
@@ -79,31 +89,22 @@ describe("migrateSettings", () => {
     expect(migrated.hudScale).toBeGreaterThan(0);
   });
 
-  it("re-bases a size chosen against the old reference so the dock stays put", () => {
+  it("forgets a size chosen against the older, larger artwork", () => {
     const migrated = settingsSchema.parse({
       ...defaultSettings(),
-      hudScale: REFERENCE_RATIO,
-      schemaVersion: 3,
-    });
-    expect(migrated.hudScale).toBe(1);
-  });
-
-  it("leaves a size already stored in the current units alone", () => {
-    const migrated = settingsSchema.parse({
-      ...defaultSettings(),
-      hudScale: 1.2,
+      hudScale: 1.25,
       schemaVersion: 4,
     });
-    expect(migrated.hudScale).toBe(1.2);
+    expect(migrated.hudScale).toBe(HUD_SCALE.default);
   });
 
-  it("clamps a re-based size that lands outside the new range", () => {
+  it("keeps a size chosen against the current artwork", () => {
     const migrated = settingsSchema.parse({
       ...defaultSettings(),
       hudScale: 1.2,
-      schemaVersion: 3,
+      schemaVersion: 5,
     });
-    expect(migrated.hudScale).toBe(HUD_SCALE.max);
+    expect(migrated.hudScale).toBe(1.2);
   });
 
   it("defaults the theme and dock style for older settings", () => {

@@ -7,7 +7,7 @@ import {
   type PlacementPreset,
 } from "@capsule/config";
 import { app, Menu, type MenuItemConstructorOptions, Tray } from "electron";
-import { dockAppImage, trayTemplateImage } from "./tray-icon.ts";
+import { trayTemplateImage } from "./tray-icon.ts";
 
 export interface AppChromeHandlers {
   getSettings: () => CapsuleSettings;
@@ -27,18 +27,15 @@ export function createAppChrome(handlers: AppChromeHandlers): {
   });
 
   if (process.platform === "darwin") {
-    app.dock?.show();
-    app.dock?.setIcon(dockAppImage());
+    // Capsule is reached from the menu bar and the dock itself, so a Dock tile
+    // would be a second copy of the same commands taking up space.
+    app.dock?.hide();
   }
 
   const sync = (settings: CapsuleSettings) => {
-    const trayMenu = Menu.buildFromTemplate(
-      capsuleCommandTemplate(settings, handlers),
+    tray.setContextMenu(
+      Menu.buildFromTemplate(capsuleCommandTemplate(settings, handlers)),
     );
-    tray.setContextMenu(trayMenu);
-    if (process.platform === "darwin") {
-      app.dock?.setMenu(trayMenu);
-    }
     Menu.setApplicationMenu(
       Menu.buildFromTemplate(applicationMenuTemplate(settings, handlers)),
     );

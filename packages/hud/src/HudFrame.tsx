@@ -65,6 +65,8 @@ export function HudFrame({
     railLength,
     joinOffset: join,
     cardHeight: height,
+    cardReserve: cardHeightForBuckets(metrics, HUD.maxCardBuckets),
+    style,
   });
   const pad = framePadding(metrics, cardGrowth, style);
   const visible = open && !dragging;
