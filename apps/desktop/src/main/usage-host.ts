@@ -15,7 +15,7 @@ import {
   createPoller,
   type Poller,
 } from "@capsule/usage";
-import { app, powerMonitor, session } from "electron";
+import { app, powerMonitor } from "electron";
 
 const execFileAsync = promisify(execFile);
 
@@ -89,29 +89,10 @@ export function createUsageHost(
   });
 }
 
-let usageFetcher: typeof fetch | null = null;
-
 const usageFetch: typeof fetch = (input, init) => {
-  if (!usageFetcher) {
-    const usageSession = session.fromPartition("capsule-usage");
-    usageSession.setUserAgent(USAGE_USER_AGENT);
-    usageFetcher = (async (nextInput, nextInit) => {
-      const url =
-        typeof nextInput === "string"
-          ? nextInput
-          : nextInput instanceof URL
-            ? nextInput.toString()
-            : nextInput.url;
-      const headers = new Headers(nextInit?.headers);
-      if (!headers.has("User-Agent")) {
-        headers.set("User-Agent", USAGE_USER_AGENT);
-      }
-      return usageSession.fetch(url, {
-        ...(nextInit ?? {}),
-        headers,
-        bypassCustomProtocolHandlers: true,
-      });
-    }) as typeof fetch;
+  const headers = new Headers(init?.headers);
+  if (!headers.has("User-Agent")) {
+    headers.set("User-Agent", USAGE_USER_AGENT);
   }
-  return usageFetcher(input, init);
+  return globalThis.fetch(input, { ...init, headers });
 };

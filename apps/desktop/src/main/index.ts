@@ -1,8 +1,11 @@
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   APP_NAME,
   type CapsuleSettings,
   CHROME_POLL_MS,
   IPC,
+  MOTION,
   type PlacementPreset,
   type ProviderId,
   type UsageSnapshot,
@@ -136,6 +139,30 @@ app.whenReady().then(async () => {
   await poller.refresh();
   broadcast();
   overlay.show();
+  console.info(
+    "Capsule usage",
+    snapshots
+      .map(
+        (item) =>
+          `${item.providerId}:${item.status}:${item.primaryPercent ?? "—"}`,
+      )
+      .join(" "),
+  );
+  if (!app.isPackaged) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1500);
+    });
+    broadcast();
+    const overlayInfo = await overlay.debugState();
+    console.info("Capsule overlay", overlayInfo);
+    await overlay.openProvider("grok");
+    await new Promise((resolve) => {
+      setTimeout(resolve, MOTION.cardMs + MOTION.blobMs);
+    });
+    const dest = join(tmpdir(), "capsule-app.png");
+    const captured = await overlay.capturePng(dest);
+    console.info("Capsule capture", captured);
+  }
   if (!settings.demoMode && snapshots.every((item) => item.status !== "ok")) {
     await openSettingsWindow("/onboarding");
   }

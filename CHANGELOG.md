@@ -22,7 +22,9 @@ All notable changes to Capsule are documented in this file.
 ### Fixed
 
 - HUD silhouette now matches the reference: a flush square outer rail, inner bite, and a pointed speech-bubble tail instead of a peanut-waist goo blob.
-- Codex and Grok meters read live CLI usage; Claude falls back to `~/.claude.json` when the OAuth usage API rate-limits instead of showing Not connected.
+- The card tail is a single solid path so the rail bite is no longer a see-through hole.
+- Overlay preload now externalizes `electron`, so the HUD actually receives live snapshots instead of staying on Not connected.
+- Codex and Grok meters read live CLI usage via Node fetch (Chromium fetch was dropping auth); Claude falls back to `~/.claude.json` when the OAuth usage API rate-limits instead of showing Not connected.
 - Migrated settings are saved so demo mode and legacy ChatGPT/Spark provider ids do not stay stuck on disk.
 - The dock no longer renders as an empty black pill while usage is loading or a provider is signed out; meters stay visible with empty rings until live data arrives.
 - Usage card no longer clips into a distorted rectangle: the overlay stays large enough for the blob, and transparent pixels click through.

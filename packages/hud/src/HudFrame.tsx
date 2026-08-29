@@ -107,7 +107,7 @@ export function HudFrame({
             </clipPath>
           </defs>
           <g clipPath="url(#capsule-hud-flush)">
-            <path d={blobD} fill={HUD.surface} />
+            <path d={blobD} fill={HUD.surface} fillRule="nonzero" />
           </g>
         </svg>
         <svg

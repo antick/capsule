@@ -1,3 +1,4 @@
+import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   APP_NAME,
@@ -191,6 +192,43 @@ export class OverlayController {
 
   show(): void {
     this.window?.showInactive();
+  }
+
+  async debugState(): Promise<{ capsule: string; text: string } | null> {
+    const win = this.window;
+    if (!win || win.isDestroyed()) {
+      return null;
+    }
+    return win.webContents.executeJavaScript(`({
+      capsule: typeof window.capsule,
+      text: (document.body.innerText || "").replace(/\\s+/g, " ").trim(),
+    })`);
+  }
+
+  async openProvider(providerId: ProviderId): Promise<void> {
+    const win = this.window;
+    if (!win || win.isDestroyed()) {
+      return;
+    }
+    await win.webContents.executeJavaScript(
+      `(() => {
+        const el = document.querySelector('[data-provider="${providerId}"]');
+        if (!el) return false;
+        el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+        el.click();
+        return true;
+      })()`,
+    );
+  }
+
+  async capturePng(dest: string): Promise<string | null> {
+    const win = this.window;
+    if (!win || win.isDestroyed()) {
+      return null;
+    }
+    const image = await win.webContents.capturePage();
+    await writeFile(dest, image.toPNG());
+    return dest;
   }
 
   async relayout(): Promise<PlacementResult | null> {

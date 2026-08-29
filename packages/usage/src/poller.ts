@@ -61,7 +61,11 @@ export function createPoller(options: {
         try {
           const fetched = await provider.fetchSnapshot(context());
           next.push(mergeSnapshot(previous, fetched));
-        } catch {
+        } catch (error) {
+          console.warn(
+            `Capsule ${provider.id} failed`,
+            error instanceof Error ? error.message : error,
+          );
           next.push(
             mergeSnapshot(previous, {
               providerId: provider.id,

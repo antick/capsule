@@ -330,7 +330,7 @@ function connectedVertical(
   const { card, rail } = layout;
   const cr = Math.min(HUD.cardRadius, card.width / 2, card.height / 2);
   const rr = Math.min(HUD.railRadius, rail.width / 2, rail.height / 2);
-  const bite = Math.min(
+  const scoop = Math.min(
     HUD.biteRadius,
     Math.max(1, (rail.height - rr * 2) / 2),
   );
@@ -338,29 +338,26 @@ function connectedVertical(
   const outerX = growth === "left" ? rail.x + rail.width : rail.x;
   const inset = growth === "left" ? rr : -rr;
   const sweep = growth === "left" ? 1 : 0;
-  const into = growth === "left" ? 0 : 1;
-  const tipX = growth === "left" ? innerX + bite : innerX - bite;
+  const out = growth === "left" ? 1 : -1;
   const cardEdge = growth === "left" ? card.x + card.width : card.x;
   const cy = clamp(
     joinOffset,
-    rail.y + rr + bite,
-    rail.y + rail.height - rr - bite,
+    rail.y + rr + scoop,
+    rail.y + rail.height - rr - scoop,
   );
   const half = HUD.tailBase / 2;
   const tailTop = clamp(cy - half, card.y + cr, card.y + card.height - cr);
   const tailBot = clamp(cy + half, card.y + cr, card.y + card.height - cr);
-  const reach = Math.abs(tipX - cardEdge);
-  const out = growth === "left" ? 1 : -1;
-  const neck = HUD.tailControl;
+  const railBot = cy + scoop;
+  const railTop = cy - scoop;
 
   return [
     `M ${n(outerX)} ${n(rail.y)}`,
     `L ${n(outerX)} ${n(rail.y + rail.height)}`,
     `L ${n(innerX + inset)} ${n(rail.y + rail.height)}`,
     `A ${n(rr)} ${n(rr)} 0 0 ${sweep} ${n(innerX)} ${n(rail.y + rail.height - rr)}`,
-    `L ${n(innerX)} ${n(cy + bite)}`,
-    `A ${n(bite)} ${n(bite)} 0 0 ${into} ${n(tipX)} ${n(cy)}`,
-    `C ${n(tipX - out * bite * 0.45)} ${n(cy + neck)}, ${n(cardEdge + out * reach * 0.35)} ${n(tailBot)}, ${n(cardEdge)} ${n(tailBot)}`,
+    `L ${n(innerX)} ${n(railBot)}`,
+    `C ${n(innerX + out * scoop)} ${n(cy)}, ${n((innerX + cardEdge) / 2)} ${n(tailBot)}, ${n(cardEdge)} ${n(tailBot)}`,
     `L ${n(cardEdge)} ${n(card.y + card.height - cr)}`,
     `A ${n(cr)} ${n(cr)} 0 0 ${sweep} ${n(cardEdge - out * cr)} ${n(card.y + card.height)}`,
     `L ${n(card.x + (growth === "left" ? cr : card.width - cr))} ${n(card.y + card.height)}`,
@@ -370,8 +367,7 @@ function connectedVertical(
     `L ${n(cardEdge - out * cr)} ${n(card.y)}`,
     `A ${n(cr)} ${n(cr)} 0 0 ${sweep} ${n(cardEdge)} ${n(card.y + cr)}`,
     `L ${n(cardEdge)} ${n(tailTop)}`,
-    `C ${n(cardEdge + out * reach * 0.35)} ${n(tailTop)}, ${n(tipX - out * bite * 0.45)} ${n(cy - neck)}, ${n(tipX)} ${n(cy)}`,
-    `A ${n(bite)} ${n(bite)} 0 0 ${into} ${n(innerX)} ${n(cy - bite)}`,
+    `C ${n((innerX + cardEdge) / 2)} ${n(tailTop)}, ${n(innerX + out * scoop)} ${n(cy)}, ${n(innerX)} ${n(railTop)}`,
     `L ${n(innerX)} ${n(rail.y + rr)}`,
     `A ${n(rr)} ${n(rr)} 0 0 ${sweep} ${n(innerX + inset)} ${n(rail.y)}`,
     "Z",
@@ -386,34 +382,34 @@ function connectedHorizontal(
   const { card, rail } = layout;
   const cr = Math.min(HUD.cardRadius, card.width / 2, card.height / 2);
   const rr = Math.min(HUD.railRadius, rail.width / 2, rail.height / 2);
-  const bite = Math.min(HUD.biteRadius, Math.max(1, (rail.width - rr * 2) / 2));
+  const scoop = Math.min(
+    HUD.biteRadius,
+    Math.max(1, (rail.width - rr * 2) / 2),
+  );
   const innerY = growth === "up" ? rail.y : rail.y + rail.height;
   const outerY = growth === "up" ? rail.y + rail.height : rail.y;
   const inset = growth === "up" ? -rr : rr;
   const sweep = growth === "up" ? 1 : 0;
-  const into = growth === "up" ? 0 : 1;
-  const tipY = growth === "up" ? innerY + bite : innerY - bite;
+  const out = growth === "up" ? 1 : -1;
   const cardEdge = growth === "up" ? card.y + card.height : card.y;
   const cx = clamp(
     joinOffset,
-    rail.x + rr + bite,
-    rail.x + rail.width - rr - bite,
+    rail.x + rr + scoop,
+    rail.x + rail.width - rr - scoop,
   );
   const half = HUD.tailBase / 2;
   const tailLeft = clamp(cx - half, card.x + cr, card.x + card.width - cr);
   const tailRight = clamp(cx + half, card.x + cr, card.x + card.width - cr);
-  const reach = Math.abs(tipY - cardEdge);
-  const out = growth === "up" ? 1 : -1;
-  const neck = HUD.tailControl;
+  const railRight = cx + scoop;
+  const railLeft = cx - scoop;
 
   return [
     `M ${n(rail.x)} ${n(outerY)}`,
     `L ${n(rail.x + rail.width)} ${n(outerY)}`,
     `L ${n(rail.x + rail.width)} ${n(innerY + inset)}`,
     `A ${n(rr)} ${n(rr)} 0 0 ${sweep} ${n(rail.x + rail.width - rr)} ${n(innerY)}`,
-    `L ${n(cx + bite)} ${n(innerY)}`,
-    `A ${n(bite)} ${n(bite)} 0 0 ${into} ${n(cx)} ${n(tipY)}`,
-    `C ${n(cx + neck)} ${n(tipY - out * bite * 0.45)}, ${n(tailRight)} ${n(cardEdge + out * reach * 0.35)}, ${n(tailRight)} ${n(cardEdge)}`,
+    `L ${n(railRight)} ${n(innerY)}`,
+    `C ${n(cx)} ${n(innerY + out * scoop)}, ${n(tailRight)} ${n((innerY + cardEdge) / 2)}, ${n(tailRight)} ${n(cardEdge)}`,
     `L ${n(card.x + card.width - cr)} ${n(cardEdge)}`,
     `A ${n(cr)} ${n(cr)} 0 0 ${sweep} ${n(card.x + card.width)} ${n(cardEdge - out * cr)}`,
     `L ${n(card.x + card.width)} ${n(growth === "up" ? card.y + cr : card.y + card.height - cr)}`,
@@ -423,8 +419,7 @@ function connectedHorizontal(
     `L ${n(card.x)} ${n(cardEdge - out * cr)}`,
     `A ${n(cr)} ${n(cr)} 0 0 ${sweep} ${n(card.x + cr)} ${n(cardEdge)}`,
     `L ${n(tailLeft)} ${n(cardEdge)}`,
-    `C ${n(tailLeft)} ${n(cardEdge + out * reach * 0.35)}, ${n(cx - neck)} ${n(tipY - out * bite * 0.45)}, ${n(cx)} ${n(tipY)}`,
-    `A ${n(bite)} ${n(bite)} 0 0 ${into} ${n(cx - bite)} ${n(innerY)}`,
+    `C ${n(tailLeft)} ${n((innerY + cardEdge) / 2)}, ${n(cx)} ${n(innerY + out * scoop)}, ${n(railLeft)} ${n(innerY)}`,
     `L ${n(rail.x + rr)} ${n(innerY)}`,
     `A ${n(rr)} ${n(rr)} 0 0 ${sweep} ${n(rail.x)} ${n(innerY + inset)}`,
     "Z",

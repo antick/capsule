@@ -132,22 +132,30 @@ export function createClaudeProvider(): UsageProvider {
         : ((await context.readSecret?.(CLAUDE_KEYCHAIN_SERVICE)) ?? null);
       const token = fromFile ?? keychainToken(fromKeychain);
       if (token) {
-        const response = await context.fetch(ANTHROPIC_OAUTH_USAGE_URL, {
-          headers: usageHeaders({
-            Authorization: `Bearer ${token}`,
-            "anthropic-beta": ANTHROPIC_OAUTH_BETA_HEADER,
-          }),
-        });
-        if (response.ok) {
-          const payload = (await response.json()) as ClaudeUsageResponse;
-          return mapClaudeUsage(payload, context.now);
-        }
-        if (response.status !== 401 && response.status !== 403) {
+        try {
+          const response = await context.fetch(ANTHROPIC_OAUTH_USAGE_URL, {
+            headers: usageHeaders({
+              Authorization: `Bearer ${token}`,
+              "anthropic-beta": ANTHROPIC_OAUTH_BETA_HEADER,
+            }),
+          });
+          if (response.ok) {
+            const payload = (await response.json()) as ClaudeUsageResponse;
+            return mapClaudeUsage(payload, context.now);
+          }
+          if (response.status !== 401 && response.status !== 403) {
+            const cached = await cachedClaudeSnapshot(context);
+            if (cached) {
+              return cached;
+            }
+            throw new Error(`Claude usage HTTP ${response.status}`);
+          }
+        } catch (error) {
           const cached = await cachedClaudeSnapshot(context);
           if (cached) {
             return cached;
           }
-          throw new Error(`Claude usage HTTP ${response.status}`);
+          throw error;
         }
       }
       const cached = await cachedClaudeSnapshot(context);
