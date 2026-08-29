@@ -63,6 +63,17 @@ export function AppearancePage() {
           }
         />
         <Row
+          label={COPY.autoHide}
+          hint={COPY.autoHideHint}
+          control={
+            <Switch
+              aria-label={COPY.autoHide}
+              checked={settings.autoHide}
+              onCheckedChange={(checked) => void update({ autoHide: checked })}
+            />
+          }
+        />
+        <Row
           label={COPY.cornerArc}
           hint={COPY.cornerArcHint}
           control={

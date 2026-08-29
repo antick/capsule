@@ -90,6 +90,11 @@ export interface HudMetrics {
   notchRadius: number;
   /** Along-axis padding inside the notch, which is tighter than the rail. */
   notchPaddingY: number;
+  /** The tab a retracted dock leaves in the screen edge. */
+  latchThickness: number;
+  latchLength: number;
+  /** How far in from the edge that tab answers the mouse. */
+  latchReach: number;
 }
 
 /** Keys scaled by {@link hudMetrics}; everything else on HUD is presentational. */
@@ -129,6 +134,9 @@ const SCALED_KEYS = [
   "shadowPadding",
   "notchRadius",
   "notchPaddingY",
+  "latchThickness",
+  "latchLength",
+  "latchReach",
 ] as const satisfies ReadonlyArray<keyof typeof HUD_BASE>;
 
 /**

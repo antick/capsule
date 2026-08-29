@@ -465,13 +465,101 @@ export function hitRegions(
   layout: BlobLayout,
   padding: { top: number; left: number },
   open: boolean,
+  /** Set while the dock is retracted: only its latch answers the mouse. */
+  peek?: { metrics: HudMetrics; growth: CardGrowth } | null,
 ): HitRegions {
+  if (peek) {
+    const zone = latchHotZone(peek.metrics, peek.growth, layout);
+    return {
+      rail: [offsetRect(zone, padding.left, padding.top)],
+      open: null,
+    };
+  }
   const rail = offsetRect(layout.rail, padding.left, padding.top);
   if (!open) {
     return { rail: [rail], open: null };
   }
   const card = offsetRect(layout.card, padding.left, padding.top);
   return { rail: [rail], open: unionRect(rail, card) };
+}
+
+/**
+ * Which way the rail leaves the screen when the dock retracts, and how far it
+ * has to travel to be gone. Overshooting the frame is deliberate: the window
+ * clips it, and stopping exactly on the boundary leaves a hairline of surface
+ * showing on styles that float clear of the edge.
+ */
+export function peekShift(
+  m: HudMetrics,
+  growth: CardGrowth,
+  layout: BlobLayout,
+): { x: number; y: number } {
+  const over = m.shadowPadding;
+  if (growth === "left") {
+    return { x: layout.width - layout.rail.x + over, y: 0 };
+  }
+  if (growth === "right") {
+    return { x: -(layout.rail.x + layout.rail.width + over), y: 0 };
+  }
+  if (growth === "up") {
+    return { x: 0, y: layout.height - layout.rail.y + over };
+  }
+  return { x: 0, y: -(layout.rail.y + layout.rail.height + over) };
+}
+
+/** The tab left behind at the edge, sitting on the rail's outer face. */
+export function latchRect(
+  m: HudMetrics,
+  growth: CardGrowth,
+  layout: BlobLayout,
+): Rect {
+  const thick = m.latchThickness;
+  const long = Math.min(m.latchLength, railSpan(growth, layout));
+  const rail = layout.rail;
+  if (growth === "left" || growth === "right") {
+    return {
+      x: growth === "left" ? rail.x + rail.width - thick : rail.x,
+      y: rail.y + (rail.height - long) / 2,
+      width: thick,
+      height: long,
+    };
+  }
+  return {
+    x: rail.x + (rail.width - long) / 2,
+    y: growth === "up" ? rail.y + rail.height - thick : rail.y,
+    width: long,
+    height: thick,
+  };
+}
+
+/**
+ * The band a retracted dock answers to. The latch is only a few pixels thick,
+ * so aiming at it would be a chore; the dock instead wakes for anywhere along
+ * its own length within easy reach of the edge.
+ */
+export function latchHotZone(
+  m: HudMetrics,
+  growth: CardGrowth,
+  layout: BlobLayout,
+): Rect {
+  const latch = latchRect(m, growth, layout);
+  const reach = m.latchReach;
+  if (growth === "left") {
+    return { ...latch, x: latch.x + latch.width - reach, width: reach };
+  }
+  if (growth === "right") {
+    return { ...latch, width: reach };
+  }
+  if (growth === "up") {
+    return { ...latch, y: latch.y + latch.height - reach, height: reach };
+  }
+  return { ...latch, height: reach };
+}
+
+function railSpan(growth: CardGrowth, layout: BlobLayout): number {
+  return growth === "left" || growth === "right"
+    ? layout.rail.height
+    : layout.rail.width;
 }
 
 function offsetRect(rect: Rect, dx: number, dy: number): Rect {

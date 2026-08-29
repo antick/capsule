@@ -35,6 +35,49 @@ describe("UsageDock", () => {
     expect(html.includes("0% Used")).toBe(false);
   });
 
+  it("chases the ring of a provider that is being refreshed, and only that one", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS.map((item, index) =>
+          index === 0 ? { ...item, refreshing: true } : item,
+        ),
+        orientation: "vertical",
+        cardGrowth: "left",
+        now: new Date(DEMO_NOW_ISO),
+      }),
+    );
+    expect(html.match(/data-hud-sweep/g)).toHaveLength(1);
+    // The real number stays put underneath the sweep.
+    expect(html).toContain("73%");
+  });
+
+  it("rests as a latch when auto-hide is on, and shows the rail when it is off", () => {
+    const stowed = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now: new Date(DEMO_NOW_ISO),
+        autoHide: true,
+      }),
+    );
+    const shown = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now: new Date(DEMO_NOW_ISO),
+        autoHide: false,
+      }),
+    );
+    // The latch is always in the markup; retracting is what makes it show.
+    expect(stowed).toContain('data-hud-latch="true"');
+    expect(stowed).toContain('data-hud-hit="true"');
+    expect(stowed).toContain("opacity:1");
+    expect(shown).toContain('data-hud-latch="true"');
+    expect(shown).toContain("opacity:0");
+  });
+
   it("does not invent 0% Used for unauthenticated providers", () => {
     const html = renderToStaticMarkup(
       createElement(UsageDock, {

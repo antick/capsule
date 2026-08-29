@@ -92,3 +92,35 @@ describe("poller.sync", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 });
+
+describe("poller.refresh", () => {
+  it("flags every enabled provider while its fetch is in the air", async () => {
+    const { poller } = setup(["claude", "codex"]);
+    poller.start();
+
+    // Providers never resolve here, so this is the mid-flight state.
+    void poller.refresh();
+    await Promise.resolve();
+
+    expect(
+      poller.getSnapshots().map((item) => [item.providerId, item.refreshing]),
+    ).toEqual([
+      ["claude", true],
+      ["codex", true],
+    ]);
+  });
+
+  it("keeps the numbers already on screen while the sweep runs", async () => {
+    const { poller } = setup(["claude"]);
+    poller.start();
+    const before = poller.getSnapshots()[0];
+
+    void poller.refresh();
+    await Promise.resolve();
+
+    const during = poller.getSnapshots()[0];
+    expect(during?.refreshing).toBe(true);
+    expect(during?.primaryPercent).toBe(before?.primaryPercent);
+    expect(during?.status).toBe(before?.status);
+  });
+});

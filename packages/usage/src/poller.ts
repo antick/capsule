@@ -50,6 +50,20 @@ export function createPoller(options: {
     homeDir: options.host.homeDir(),
   });
 
+  /** Flags the providers still being waited on, keeping their last numbers. */
+  const markRefreshing = (ids: Set<ProviderId>) => {
+    const next = snapshots.map((item) =>
+      item.refreshing === ids.has(item.providerId)
+        ? item
+        : { ...item, refreshing: ids.has(item.providerId) },
+    );
+    if (next.every((item, index) => item === snapshots[index])) {
+      return;
+    }
+    snapshots = next;
+    options.onChange(snapshots);
+  };
+
   const refresh = async () => {
     if (inFlight) {
       return inFlight;
@@ -57,6 +71,10 @@ export function createPoller(options: {
     inFlight = (async () => {
       const settings = options.getSettings();
       const enabled = new Set<ProviderId>(settings.enabledProviderIds);
+      // Providers are fetched in turn, so clearing each one as it lands makes
+      // the rail settle in order rather than all at once.
+      const pending = new Set<ProviderId>(enabled);
+      markRefreshing(pending);
       const next: UsageSnapshot[] = [];
       for (const provider of options.providers) {
         if (!enabled.has(provider.id)) {
@@ -85,8 +103,10 @@ export function createPoller(options: {
             }),
           );
         }
+        pending.delete(provider.id);
+        markRefreshing(pending);
       }
-      snapshots = next;
+      snapshots = next.map((item) => ({ ...item, refreshing: false }));
       options.onChange(snapshots);
     })().finally(() => {
       inFlight = null;

@@ -18,6 +18,9 @@ export function UsageMeter({
   percent,
   active,
   compact = false,
+  refreshing = false,
+  stowed = false,
+  revealDelayMs = 0,
   onPointerEnter,
   onPointerLeave,
   onClick,
@@ -29,6 +32,12 @@ export function UsageMeter({
   active: boolean;
   /** Horizontal docks drop the percent caption so they stay edge-thin. */
   compact?: boolean;
+  /** A fetch is in the air: chase the ring until it lands. */
+  refreshing?: boolean;
+  /** Riding out of view with a retracted dock. */
+  stowed?: boolean;
+  /** Held back this long on the way in, so the meters arrive in order. */
+  revealDelayMs?: number;
   onPointerEnter: () => void;
   onPointerLeave: () => void;
   onClick: () => void;
@@ -70,8 +79,13 @@ export function UsageMeter({
         color: theme.text,
         pointerEvents: "auto",
         // Meters keep a fixed size; the card's tail marks the active one.
-        opacity: active ? 1 : MOTION.meterIdleOpacity,
-        transition: `opacity ${MOTION.meterMs}ms ${MOTION.easing}`,
+        opacity: stowed ? 0 : active ? 1 : MOTION.meterIdleOpacity,
+        // Each one lands a beat after the one before it, so the rail reads as
+        // unrolling rather than arriving whole.
+        transform: stowed ? `scale(${MOTION.stowedMeterScale})` : "scale(1)",
+        transition: stowed
+          ? `opacity ${MOTION.peekOutMs}ms ${MOTION.closeEasing}, transform ${MOTION.peekOutMs}ms ${MOTION.closeEasing}`
+          : `opacity ${MOTION.meterMs}ms ${MOTION.easing} ${revealDelayMs}ms, transform ${MOTION.peekMs}ms ${MOTION.popEasing} ${revealDelayMs}ms`,
       }}
     >
       <svg
@@ -105,6 +119,27 @@ export function UsageMeter({
               transition: `stroke-dashoffset ${MOTION.ringMs}ms ${MOTION.easing}, stroke ${MOTION.meterMs}ms ${MOTION.easing}`,
             }}
             transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        ) : null}
+        {refreshing ? (
+          <circle
+            data-hud-sweep="true"
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={theme.text}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            // A short bright segment with the rest of the lap left empty, spun
+            // round the ring: the arc underneath keeps showing the real number
+            // while the sweep says the number is being checked.
+            strokeDasharray={`${circumference * MOTION.sweepArc} ${circumference}`}
+            style={{
+              transformBox: "fill-box",
+              transformOrigin: "center",
+              animation: `capsule-sweep ${MOTION.sweepMs}ms linear infinite`,
+            }}
           />
         ) : null}
         <g

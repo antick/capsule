@@ -119,12 +119,40 @@ export const HUD_BASE = {
   shadowPadding: 18,
   notchRadius: 16,
   notchPaddingY: 8,
+  /**
+   * The latch: all that is left of the dock once it retracts into the screen
+   * edge. A thin tab, long enough to read as a deliberate handle rather than a
+   * rendering artefact, and rounded on the side that faces the desktop.
+   */
+  latchThickness: 5,
+  latchLength: 64,
+  /**
+   * How far in from the edge the latch listens. The tab itself is too thin to
+   * aim at, so it answers to a band around it that the user never sees.
+   */
+  latchReach: 18,
 } as const;
 
 export const MOTION = {
   openMs: 260,
   closeMs: 170,
   slideMs: 320,
+  /** The dock unrolling out of its latch, and retracting back into it. */
+  peekMs: 300,
+  peekOutMs: 220,
+  /**
+   * Grace after the pointer leaves before the dock retracts, so crossing a
+   * corner of the card on the way to something else does not dismiss it.
+   */
+  peekHoldMs: 460,
+  /** Gap between one meter arriving and the next, during the unroll. */
+  meterStaggerMs: 45,
+  /** How small a meter is while it waits out of view. */
+  stowedMeterScale: 0.55,
+  /** One lap of the arc that chases a ring while its provider reloads. */
+  sweepMs: 1100,
+  /** How much of the ring that chasing arc covers. */
+  sweepArc: 0.18,
   /** Resizing the dock eases through the sizes in between instead of jumping. */
   zoomMs: 280,
   /** Grace before the window shrinks back onto the eased-down artwork. */
@@ -283,6 +311,9 @@ export const COPY = {
   cornerArc: "Curl into corners",
   cornerArcHint:
     "Drag the dock all the way to a corner and it bends into a quarter arc that traces it.",
+  autoHide: "Hide until needed",
+  autoHideHint:
+    "The dock rests as a slim latch in the screen edge and unrolls when you reach for it.",
   providersHint:
     "Capsule reads the logins these CLIs already keep on this Mac. Turn one off to hide its ring.",
   statusLabels: {

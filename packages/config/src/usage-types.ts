@@ -18,4 +18,9 @@ export interface UsageSnapshot {
   buckets: UsageBucket[];
   status: UsageStatus;
   fetchedAt: string;
+  /**
+   * A fetch for this provider is in the air. The last good numbers stay on
+   * screen while it runs; the meter just says so with a sweep round its ring.
+   */
+  refreshing?: boolean;
 }

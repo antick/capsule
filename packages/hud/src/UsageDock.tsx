@@ -31,6 +31,11 @@ import { type CardGrowth, type HitRegions, HudFrame } from "./HudFrame.tsx";
 import { UsageCard } from "./UsageCard.tsx";
 import { UsageMeter } from "./UsageMeter.tsx";
 
+const SWEEP_KEYFRAMES = `@keyframes capsule-sweep {
+  from { transform: rotate(-90deg); }
+  to { transform: rotate(270deg); }
+}`;
+
 export function UsageDock({
   snapshots,
   orientation,
@@ -42,6 +47,7 @@ export function UsageDock({
   now,
   railBias = null,
   corner = null,
+  autoHide = false,
   forceOpenProviderId = null,
   onOpenChange,
   onContextMenu,
@@ -62,6 +68,8 @@ export function UsageDock({
   railBias?: number | null;
   /** Set when the dock has curled into a screen corner as an arc. */
   corner?: Corner | null;
+  /** Rest as a latch in the screen edge until the pointer comes for it. */
+  autoHide?: boolean;
   forceOpenProviderId?: ProviderId | null;
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
   onContextMenu?: (event: MouseEvent) => void;
@@ -78,8 +86,10 @@ export function UsageDock({
   const [hovered, setHovered] = useState<ProviderId | null>(null);
   const [pinned, setPinned] = useState<ProviderId | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [woken, setWoken] = useState(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const drag = useRef<{
     pointerId: number;
     startX: number;
@@ -88,8 +98,12 @@ export function UsageDock({
   } | null>(null);
   const didDrag = useRef(false);
 
+  // Retracted until something asks for it: a preview, a drag, or the pointer.
+  const peek = autoHide && !woken && !dragging && forceOpenProviderId === null;
+
   const lastCard = useRef<UsageSnapshot | null>(null);
-  const openId = dragging ? null : (forceOpenProviderId ?? pinned ?? hovered);
+  const openId =
+    dragging || peek ? null : (forceOpenProviderId ?? pinned ?? hovered);
   const openSnapshot =
     meters.find((item) => item.providerId === openId) ?? null;
   if (openSnapshot) {
@@ -107,6 +121,14 @@ export function UsageDock({
     onOpenChange?.(openSnapshot !== null, openSnapshot?.providerId ?? null);
   }, [openSnapshot, onOpenChange]);
 
+  // Turning auto-hide on puts the dock away rather than waiting for the
+  // pointer to leave first.
+  useEffect(() => {
+    if (autoHide) {
+      setWoken(false);
+    }
+  }, [autoHide]);
+
   const clearTimers = () => {
     if (openTimer.current) {
       clearTimeout(openTimer.current);
@@ -114,6 +136,28 @@ export function UsageDock({
     if (closeTimer.current) {
       clearTimeout(closeTimer.current);
     }
+    if (peekTimer.current) {
+      clearTimeout(peekTimer.current);
+    }
+  };
+
+  const wake = () => {
+    if (peekTimer.current) {
+      clearTimeout(peekTimer.current);
+    }
+    setWoken(true);
+  };
+
+  const scheduleSleep = () => {
+    if (!autoHide || pinned || dragging) {
+      return;
+    }
+    if (peekTimer.current) {
+      clearTimeout(peekTimer.current);
+    }
+    peekTimer.current = setTimeout(() => {
+      setWoken(false);
+    }, MOTION.peekHoldMs);
   };
 
   const scheduleOpen = (id: ProviderId) => {
@@ -213,7 +257,7 @@ export function UsageDock({
   const compact = orientation === "horizontal" || corner !== null;
   const isNotch = notch && styleSupportsNotch(dockStyle);
 
-  const meterNodes = meters.map((snapshot) => (
+  const meterNodes = meters.map((snapshot, index) => (
     <UsageMeter
       metrics={metrics}
       theme={theme}
@@ -222,6 +266,9 @@ export function UsageDock({
       percent={snapshot.primaryPercent}
       active={openId === snapshot.providerId}
       compact={compact}
+      refreshing={snapshot.refreshing === true}
+      stowed={peek}
+      revealDelayMs={index * MOTION.meterStaggerMs}
       onPointerEnter={() => scheduleOpen(snapshot.providerId)}
       onPointerLeave={() => undefined}
       onClick={() => {
@@ -268,14 +315,19 @@ export function UsageDock({
       onPointerEnter={() => {
         if (!dragging) {
           clearTimers();
+          wake();
         }
       }}
       onPointerLeave={() => {
         scheduleClose();
+        scheduleSleep();
       }}
       onContextMenu={onContextMenu}
       style={{ display: "inline-flex", pointerEvents: "none" }}
     >
+      {/* Declared with the dock rather than in each host's stylesheet, so the
+          sweep works anywhere the dock is rendered. */}
+      <style>{SWEEP_KEYFRAMES}</style>
       {corner ? (
         <CornerFrame
           metrics={metrics}
@@ -305,6 +357,7 @@ export function UsageDock({
           railLength={railLengthForCount(metrics, meters.length, compact)}
           cardHeight={cardHeightFor(metrics, cardSnapshot)}
           railBias={railBias}
+          peek={peek}
           onHitRegions={onHitRegions}
           rail={meterNodes}
           card={cardNode}

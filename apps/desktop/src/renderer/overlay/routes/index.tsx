@@ -181,6 +181,7 @@ export function OverlayHud() {
         notch={layout.notch}
         railBias={frame.railBias}
         corner={frame.corner}
+        autoHide={settings.autoHide}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
         forceOpenProviderId={previewOpen ? "claude" : null}
         onOpenChange={onOpenChange}

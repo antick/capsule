@@ -18,6 +18,9 @@ import {
   framePadding,
   type HitRegions,
   hitRegions,
+  latchHotZone,
+  latchRect,
+  peekShift,
   railPath,
 } from "./blob-path.ts";
 import { dockShadow } from "./shadow.ts";
@@ -39,6 +42,7 @@ export function HudFrame({
   railLength,
   cardHeight,
   railBias = null,
+  peek = false,
   rail,
   card,
   onHitRegions,
@@ -58,6 +62,8 @@ export function HudFrame({
   cardHeight?: number;
   /** Where the rail sits inside the frame, from the placement engine. */
   railBias?: number | null;
+  /** Retracted into the screen edge, showing only its latch. */
+  peek?: boolean;
   rail: ReactNode;
   card: ReactNode;
   onHitRegions?: (regions: HitRegions) => void;
@@ -75,8 +81,20 @@ export function HudFrame({
     railBias,
   });
   const pad = framePadding(metrics, cardGrowth, style);
-  const visible = open && !dragging;
+  const visible = open && !dragging && !peek;
   const interactive = visible;
+  const shift = peekShift(metrics, cardGrowth, layout);
+  const latch = latchRect(metrics, cardGrowth, layout);
+  const zone = latchHotZone(metrics, cardGrowth, layout);
+  // The rail rides out to the edge and back; the latch cross-fades with it so
+  // the dock never reads as two objects at once.
+  const unroll = {
+    transform: peek ? `translate(${shift.x}px, ${shift.y}px)` : "translate(0)",
+    transition: `transform ${peek ? MOTION.peekOutMs : MOTION.peekMs}ms ${
+      peek ? MOTION.closeEasing : MOTION.popEasing
+    }`,
+    willChange: "transform",
+  } as const;
   const shadow = dockShadow(metrics, theme);
   const alongPadding = compact ? metrics.notchPaddingY : metrics.railPaddingY;
   const railPadding =
@@ -99,7 +117,14 @@ export function HudFrame({
 
   // Serialised so the effect fires on a geometry change rather than on every
   // render, since the regions themselves are rebuilt each time.
-  const hitKey = JSON.stringify(hitRegions(layout, pad, interactive));
+  const hitKey = JSON.stringify(
+    hitRegions(
+      layout,
+      pad,
+      interactive,
+      peek ? { metrics, growth: cardGrowth } : null,
+    ),
+  );
   useEffect(() => {
     onHitRegions?.(JSON.parse(hitKey) as HitRegions);
   }, [hitKey, onHitRegions]);
@@ -151,9 +176,11 @@ export function HudFrame({
               inset: 0,
               overflow: "visible",
               pointerEvents: "none",
-              transform: dragging ? `scale(${MOTION.liftScale})` : "scale(1)",
               transformOrigin: railOrigin(cardGrowth),
-              transition: `transform ${MOTION.openMs}ms ${MOTION.easing}`,
+              ...unroll,
+              transform: `${unroll.transform} ${
+                dragging ? `scale(${MOTION.liftScale})` : "scale(1)"
+              }`,
             }}
           >
             <path
@@ -245,9 +272,51 @@ export function HudFrame({
             padding: railPadding,
             pointerEvents: "none",
             cursor: dragging ? "grabbing" : "grab",
+            ...unroll,
           }}
         >
           {rail}
+        </div>
+
+        {/* The hot zone is the element the pointer meets; the tab is painted
+            inside it. Making the tab itself interactive would mean aiming at
+            five pixels of screen edge. */}
+        <div
+          data-hud-latch="true"
+          data-hud-hit={peek ? "true" : undefined}
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: zone.x,
+            top: zone.y,
+            width: zone.width,
+            height: zone.height,
+            opacity: peek ? 1 : 0,
+            // Out of the way the instant the rail starts arriving, back only
+            // once it has left: the two never share the edge.
+            transition: peek
+              ? `opacity ${MOTION.peekOutMs}ms ${MOTION.closeEasing} ${MOTION.peekOutMs}ms`
+              : `opacity ${MOTION.closeMs}ms ${MOTION.closeEasing}`,
+            pointerEvents: peek ? "auto" : "none",
+            cursor: "pointer",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              left: latch.x - zone.x,
+              top: latch.y - zone.y,
+              width: latch.width,
+              height: latch.height,
+              borderRadius: latch.width / 2 + latch.height / 2,
+              background: theme.surface,
+              // A hairline as well as the fill: the tab is the dock's whole
+              // presence at rest, and a black tab on a black wallpaper is no
+              // presence at all.
+              boxShadow: `inset 0 0 0 1px ${theme.surfaceEdge}`,
+              filter: shadow,
+            }}
+          />
         </div>
       </div>
     </div>
