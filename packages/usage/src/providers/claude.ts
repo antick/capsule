@@ -80,6 +80,17 @@ export function mapClaudeUsage(
   };
 }
 
+function windowIsCurrent(
+  window: WindowUsage | null | undefined,
+  now: Date,
+): boolean {
+  if (!window?.resets_at) {
+    return false;
+  }
+  const resetsAt = new Date(window.resets_at).getTime();
+  return Number.isFinite(resetsAt) && resetsAt > now.getTime();
+}
+
 export function claudeUsageFromCache(raw: string): ClaudeUsageResponse | null {
   try {
     const parsed = JSON.parse(raw) as {
@@ -114,6 +125,13 @@ async function cachedClaudeSnapshot(
   if (!payload) {
     return null;
   }
+  // A cache whose windows have all rolled over says nothing about today's usage.
+  if (
+    !windowIsCurrent(payload.five_hour, context.now) &&
+    !windowIsCurrent(payload.seven_day, context.now)
+  ) {
+    return null;
+  }
   return { ...mapClaudeUsage(payload, context.now), status: "stale" };
 }
 
@@ -126,12 +144,15 @@ export function createClaudeProvider(): UsageProvider {
         ...CLAUDE_CREDENTIALS_PATH_SEGMENTS,
       );
       const raw = await context.readFile(credentialsPath);
-      const fromFile = raw ? tokenFromFile(raw) : null;
-      const fromKeychain = fromFile
-        ? null
-        : ((await context.readSecret?.(CLAUDE_KEYCHAIN_SERVICE)) ?? null);
-      const token = fromFile ?? keychainToken(fromKeychain);
-      if (token) {
+      const tokens = [
+        keychainToken(
+          (await context.readSecret?.(CLAUDE_KEYCHAIN_SERVICE)) ?? null,
+        ),
+        raw ? tokenFromFile(raw) : null,
+      ].filter((value): value is string => value !== null);
+
+      let lastError: Error | null = null;
+      for (const token of new Set(tokens)) {
         try {
           const response = await context.fetch(ANTHROPIC_OAUTH_USAGE_URL, {
             headers: usageHeaders({
@@ -143,24 +164,23 @@ export function createClaudeProvider(): UsageProvider {
             const payload = (await response.json()) as ClaudeUsageResponse;
             return mapClaudeUsage(payload, context.now);
           }
+          // 401/403 means this credential is dead; fall through to the next one.
           if (response.status !== 401 && response.status !== 403) {
-            const cached = await cachedClaudeSnapshot(context);
-            if (cached) {
-              return cached;
-            }
-            throw new Error(`Claude usage HTTP ${response.status}`);
+            lastError = new Error(`Claude usage HTTP ${response.status}`);
+            break;
           }
         } catch (error) {
-          const cached = await cachedClaudeSnapshot(context);
-          if (cached) {
-            return cached;
-          }
-          throw error;
+          lastError = error instanceof Error ? error : new Error(String(error));
+          break;
         }
       }
+
       const cached = await cachedClaudeSnapshot(context);
       if (cached) {
         return cached;
+      }
+      if (lastError) {
+        throw lastError;
       }
       return unauthenticatedSnapshot("claude", context.now);
     },

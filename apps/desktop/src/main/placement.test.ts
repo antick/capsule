@@ -24,7 +24,8 @@ describe("desktop placement wiring", () => {
         cardHeight: 188,
         expanded: true,
         shadowPadding: HUD.shadowPadding,
-        joinWidth: HUD.joinWidth,
+        joinWidth: HUD.tailLength + HUD.joinGap,
+        edgeFlare: HUD.edgeFlare,
       },
       PLACEMENT,
     );

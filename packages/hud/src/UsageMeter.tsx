@@ -58,8 +58,9 @@ export function UsageMeter({
         cursor: "pointer",
         color: HUD.text,
         pointerEvents: "auto",
-        transform: active ? `scale(${MOTION.meterHoverScale})` : "scale(1)",
-        transition: `transform ${MOTION.meterMs}ms ${MOTION.easing}`,
+        // Meters keep a fixed size; the card's tail is what marks the active one.
+        opacity: active ? 1 : MOTION.meterIdleOpacity,
+        transition: `opacity ${MOTION.meterMs}ms ${MOTION.easing}`,
       }}
     >
       <svg
@@ -68,6 +69,7 @@ export function UsageMeter({
         viewBox={`0 0 ${size} ${size}`}
         role="img"
         aria-label={`${providerId} ${rounded === null ? "unknown" : `${rounded}%`}`}
+        style={{ display: "block" }}
       >
         <circle
           cx={size / 2}
@@ -77,21 +79,23 @@ export function UsageMeter({
           stroke={HUD.ringTrack}
           strokeWidth={stroke}
         />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={dashOffset}
-          style={{
-            transition: `stroke-dashoffset ${MOTION.ringMs}ms ${MOTION.easing}, stroke ${MOTION.meterMs}ms ${MOTION.easing}`,
-          }}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
+        {rounded !== null && rounded > 0 ? (
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={color}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashOffset}
+            style={{
+              transition: `stroke-dashoffset ${MOTION.ringMs}ms ${MOTION.easing}, stroke ${MOTION.meterMs}ms ${MOTION.easing}`,
+            }}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        ) : null}
         <g
           transform={`translate(${(size - HUD.iconSize) / 2} ${(size - HUD.iconSize) / 2})`}
         >
@@ -100,10 +104,13 @@ export function UsageMeter({
       </svg>
       <span
         style={{
+          display: "block",
+          height: HUD.percentBlock,
+          lineHeight: `${HUD.percentBlock}px`,
           fontSize: HUD.percentFontSize,
-          lineHeight: 1,
-          fontWeight: 500,
-          letterSpacing: 0.2,
+          fontWeight: 400,
+          letterSpacing: 0.1,
+          fontVariantNumeric: "tabular-nums",
         }}
       >
         {rounded === null ? "—" : `${rounded}${COPY.percentSuffix}`}

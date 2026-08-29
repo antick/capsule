@@ -25,7 +25,7 @@ function BucketRow({
       style={{
         display: "flex",
         flexDirection: "column",
-        gap: HUD.meterLabelGap,
+        gap: HUD.cardBucketGap,
       }}
     >
       <div
@@ -33,7 +33,9 @@ function BucketRow({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "baseline",
-          gap: HUD.cardSectionGap,
+          gap: HUD.cardResetGap,
+          height: HUD.cardTextLine,
+          lineHeight: `${HUD.cardTextLine}px`,
         }}
       >
         <span style={{ fontSize: HUD.cardLabelSize, color: HUD.text }}>
@@ -61,11 +63,34 @@ function BucketRow({
           }}
         />
       </div>
-      <span style={{ fontSize: HUD.cardLabelSize, color: HUD.text }}>
+      <span
+        style={{
+          fontSize: HUD.cardLabelSize,
+          color: HUD.text,
+          height: HUD.cardTextLine,
+          lineHeight: `${HUD.cardTextLine}px`,
+        }}
+      >
         {percentUsed}
         {COPY.percentUsedSuffix}
       </span>
     </div>
+  );
+}
+
+function Message({ text }: { text: string }): ReactElement {
+  return (
+    <p
+      style={{
+        margin: 0,
+        fontSize: HUD.cardLabelSize,
+        color: HUD.textMuted,
+        height: HUD.cardTextLine,
+        lineHeight: `${HUD.cardTextLine}px`,
+      }}
+    >
+      {text}
+    </p>
   );
 }
 
@@ -80,20 +105,12 @@ export function UsageCard({
 
   let body: ReactElement;
   if (snapshot.status === "unauthenticated") {
-    body = (
-      <p
-        style={{ margin: 0, fontSize: HUD.cardLabelSize, color: HUD.textMuted }}
-      >
-        {COPY.notConnected}
-      </p>
-    );
+    body = <Message text={COPY.notConnected} />;
   } else if (snapshot.buckets.length === 0) {
     body = (
-      <p
-        style={{ margin: 0, fontSize: HUD.cardLabelSize, color: HUD.textMuted }}
-      >
-        {snapshot.status === "stale" ? COPY.staleData : COPY.unavailable}
-      </p>
+      <Message
+        text={snapshot.status === "stale" ? COPY.staleData : COPY.unavailable}
+      />
     );
   } else {
     body = (
@@ -104,17 +121,6 @@ export function UsageCard({
           gap: HUD.cardSectionGap,
         }}
       >
-        {snapshot.status === "stale" ? (
-          <p
-            style={{
-              margin: 0,
-              fontSize: HUD.cardResetSize,
-              color: HUD.textMuted,
-            }}
-          >
-            {COPY.staleData}
-          </p>
-        ) : null}
         {snapshot.buckets.map((bucket) => (
           <BucketRow
             key={bucket.id}
@@ -131,8 +137,12 @@ export function UsageCard({
     <div
       data-card={snapshot.providerId}
       style={{
-        width: HUD.cardWidth,
-        padding: HUD.cardPadding,
+        width: "100%",
+        height: "100%",
+        paddingTop: HUD.cardPaddingTop,
+        paddingBottom: HUD.cardPaddingBottom,
+        paddingLeft: HUD.cardPaddingX,
+        paddingRight: HUD.cardPaddingX,
         color: HUD.text,
         boxSizing: "border-box",
       }}
@@ -141,13 +151,19 @@ export function UsageCard({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 8,
-          marginBottom: HUD.cardSectionGap,
+          gap: HUD.cardIconGap,
+          height: HUD.cardTitleLine,
+          marginBottom: HUD.cardTitleGap,
           fontSize: HUD.cardTitleSize,
-          fontWeight: 600,
+          fontWeight: 400,
+          letterSpacing: -0.1,
         }}
       >
-        <ProviderIcon id={snapshot.iconId} color={HUD.text} size={14} />
+        <ProviderIcon
+          id={snapshot.iconId}
+          color={HUD.text}
+          size={HUD.cardIconSize}
+        />
         <span>{title}</span>
       </div>
       {body}

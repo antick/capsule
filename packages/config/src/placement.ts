@@ -31,6 +31,7 @@ export interface HudSize {
   expanded: boolean;
   shadowPadding: number;
   joinWidth: number;
+  edgeFlare: number;
 }
 
 export interface PlacementResult {
@@ -69,14 +70,14 @@ function verticalWindowSize(hud: HudSize): { width: number; height: number } {
   const extra = hud.expanded ? hud.cardWidth + hud.joinWidth : 0;
   return {
     width: hud.railWidth + extra + hud.shadowPadding,
-    height: hud.railLength + hud.shadowPadding * 2,
+    height: hud.railLength + hud.edgeFlare * 2 + hud.shadowPadding * 2,
   };
 }
 
 function horizontalWindowSize(hud: HudSize): { width: number; height: number } {
   const extra = hud.expanded ? hud.cardHeight + hud.joinWidth : 0;
   return {
-    width: hud.railLength + hud.shadowPadding * 2,
+    width: hud.railLength + hud.edgeFlare * 2 + hud.shadowPadding * 2,
     height: hud.railWidth + extra + hud.shadowPadding,
   };
 }

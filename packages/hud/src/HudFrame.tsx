@@ -1,18 +1,18 @@
-import { HUD, MOTION, railLengthForCount } from "@capsule/config";
+import { cardHeightForBuckets, HUD, MOTION } from "@capsule/config";
 import type { ReactElement, ReactNode } from "react";
 import {
   blobLayout,
+  bubbleOrigin,
+  bubblePath,
   type CardGrowth,
-  cardPath,
-  connectedPath,
-  flushClipRect,
-  flushPadding,
+  framePadding,
   railPath,
-  tailPath,
 } from "./blob-path.ts";
 import { useAnimatedNumber } from "./use-animated-number.ts";
 
 export type { CardGrowth };
+
+const SHADOW = `drop-shadow(0 ${MOTION.shadowDy}px ${MOTION.shadowBlur}px rgba(0, 0, 0, ${MOTION.shadowOpacity}))`;
 
 export function HudFrame({
   orientation,
@@ -20,7 +20,7 @@ export function HudFrame({
   open,
   joinOffset,
   dragging,
-  meterCount,
+  railLength,
   cardHeight,
   rail,
   card,
@@ -30,30 +30,23 @@ export function HudFrame({
   open: boolean;
   joinOffset: number;
   dragging: boolean;
-  meterCount: number;
+  railLength: number;
   cardHeight?: number;
   rail: ReactNode;
   card: ReactNode;
 }): ReactElement {
-  const railLength = railLengthForCount(meterCount);
-  const join = useAnimatedNumber(joinOffset, MOTION.blobMs);
-  const progress = useAnimatedNumber(open && !dragging ? 1 : 0, MOTION.blobMs);
+  const height = cardHeight ?? cardHeightForBuckets(2);
+  // The tail slides between meters instead of jumping.
+  const join = useAnimatedNumber(joinOffset, MOTION.slideMs);
   const layout = blobLayout({
     cardGrowth,
     railLength,
     joinOffset: join,
-    cardHeight: cardHeight ?? HUD.cardHeight,
+    cardHeight: height,
   });
-  const pad = flushPadding(cardGrowth);
-  const clip = flushClipRect(cardGrowth, layout);
-  const showCard = progress > 0.02;
-  const cardHits = progress > 0.55 && !dragging;
-  const motion = `${MOTION.cardMs}ms ${MOTION.easing}`;
-  const railD = railPath(cardGrowth, layout.rail, {
-    joinOffset: join,
-    progress,
-  });
-  const blobD = showCard ? connectedPath(cardGrowth, layout, join) : railD;
+  const pad = framePadding(cardGrowth);
+  const visible = open && !dragging;
+  const interactive = visible;
 
   return (
     <div
@@ -80,7 +73,7 @@ export function HudFrame({
         }}
       >
         <svg
-          data-hud-blob="true"
+          data-hud-rail-shape="true"
           width={layout.width}
           height={layout.height}
           viewBox={`0 0 ${layout.width} ${layout.height}`}
@@ -90,82 +83,78 @@ export function HudFrame({
             inset: 0,
             overflow: "visible",
             pointerEvents: "none",
-            filter: `drop-shadow(0 ${MOTION.shadowDy}px ${MOTION.shadowBlur}px rgba(0, 0, 0, ${MOTION.shadowOpacity}))`,
+            filter: SHADOW,
             transform: dragging ? `scale(${MOTION.liftScale})` : "scale(1)",
-            transformOrigin: blobOrigin(cardGrowth),
-            transition: `transform ${motion}`,
-          }}
-        >
-          <defs>
-            <clipPath id="capsule-hud-flush">
-              <rect
-                x={clip.x}
-                y={clip.y}
-                width={clip.width}
-                height={clip.height}
-              />
-            </clipPath>
-          </defs>
-          <g clipPath="url(#capsule-hud-flush)">
-            <path d={blobD} fill={HUD.surface} fillRule="nonzero" />
-          </g>
-        </svg>
-        <svg
-          width={layout.width}
-          height={layout.height}
-          viewBox={`0 0 ${layout.width} ${layout.height}`}
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            overflow: "visible",
-            pointerEvents: "none",
+            transformOrigin: railOrigin(cardGrowth),
+            transition: `transform ${MOTION.openMs}ms ${MOTION.easing}`,
           }}
         >
           <path
-            d={railD}
-            fill="transparent"
+            d={railPath(cardGrowth, layout)}
+            fill={HUD.surface}
             data-hud-hit="true"
             style={{
               pointerEvents: "fill",
               cursor: dragging ? "grabbing" : "grab",
             }}
           />
-          {cardHits ? (
-            <>
-              <path
-                d={cardPath(layout.card)}
-                fill="transparent"
-                data-hud-hit="true"
-                style={{ pointerEvents: "fill" }}
-              />
-              <path
-                d={tailPath(cardGrowth, layout.card, layout.rail, join)}
-                fill="transparent"
-                data-hud-hit="true"
-                style={{ pointerEvents: "fill" }}
-              />
-            </>
-          ) : null}
         </svg>
+
         <div
-          data-card-wrap="true"
+          data-hud-bubble="true"
           data-card-open={open ? "true" : "false"}
-          data-hud-hit={cardHits ? "true" : "false"}
           style={{
             position: "absolute",
-            left: layout.card.x,
-            top: layout.card.y,
-            width: layout.card.width,
-            boxSizing: "border-box",
-            opacity: progress,
-            transform: cardTransform(progress, cardGrowth),
-            transformOrigin: cardOrigin(cardGrowth),
-            pointerEvents: cardHits ? "auto" : "none",
+            inset: 0,
+            opacity: visible ? 1 : 0,
+            transform: visible
+              ? "scale(1)"
+              : `scale(${MOTION.closedBubbleScale})`,
+            transformOrigin: bubbleOrigin(layout),
+            transition: visible
+              ? `opacity ${MOTION.openMs}ms ${MOTION.easing}, transform ${MOTION.openMs}ms ${MOTION.popEasing}`
+              : `opacity ${MOTION.closeMs}ms ${MOTION.closeEasing}, transform ${MOTION.closeMs}ms ${MOTION.closeEasing}`,
+            pointerEvents: "none",
+            willChange: "transform, opacity",
           }}
         >
-          {card}
+          <svg
+            width={layout.width}
+            height={layout.height}
+            viewBox={`0 0 ${layout.width} ${layout.height}`}
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              overflow: "visible",
+              pointerEvents: "none",
+              filter: SHADOW,
+            }}
+          >
+            <path
+              d={bubblePath(cardGrowth, layout, join, height)}
+              fill={HUD.surface}
+              data-hud-hit={interactive ? "true" : undefined}
+              style={{ pointerEvents: interactive ? "fill" : "none" }}
+            />
+          </svg>
+          <div
+            data-card-wrap="true"
+            data-hud-hit={interactive ? "true" : undefined}
+            style={{
+              position: "absolute",
+              left: layout.card.x,
+              top: layout.card.y,
+              width: layout.card.width,
+              height: layout.card.height,
+              boxSizing: "border-box",
+              pointerEvents: interactive ? "auto" : "none",
+            }}
+          >
+            {card}
+          </div>
         </div>
+
         <div
           data-hud-rail="true"
           style={{
@@ -195,7 +184,7 @@ export function HudFrame({
   );
 }
 
-function blobOrigin(growth: CardGrowth): string {
+function railOrigin(growth: CardGrowth): string {
   if (growth === "left") {
     return "right center";
   }
@@ -206,24 +195,4 @@ function blobOrigin(growth: CardGrowth): string {
     return "center bottom";
   }
   return "center top";
-}
-
-function cardOrigin(growth: CardGrowth): string {
-  return blobOrigin(growth);
-}
-
-function cardTransform(progress: number, growth: CardGrowth): string {
-  const scale =
-    MOTION.closedCardScale + (1 - MOTION.closedCardScale) * progress;
-  const shift = MOTION.closedCardShiftPx * (1 - progress);
-  if (growth === "left") {
-    return `translateX(${shift}px) scale(${scale})`;
-  }
-  if (growth === "right") {
-    return `translateX(${-shift}px) scale(${scale})`;
-  }
-  if (growth === "up") {
-    return `translateY(${shift}px) scale(${scale})`;
-  }
-  return `translateY(${-shift}px) scale(${scale})`;
 }

@@ -93,6 +93,27 @@ describe("mapGrokCredits", () => {
     expect(snapshot.buckets[1]?.percentUsed).toBe(18);
   });
 
+  it("drops a product row that just echoes the headline percent", () => {
+    const snapshot = mapGrokCredits(
+      {
+        config: {
+          creditUsagePercent: 41,
+          currentPeriod: { end: "2026-08-30T08:15:36Z" },
+          onDemandCap: { val: 0 },
+          onDemandUsed: { val: 0 },
+          productUsage: [
+            { product: "GrokBuild", usagePercent: 41 },
+            { product: "GrokChat" },
+          ],
+        },
+      },
+      new Date("2026-08-29T05:30:00.000Z"),
+    );
+    expect(snapshot.primaryPercent).toBe(41);
+    expect(snapshot.buckets).toHaveLength(1);
+    expect(snapshot.buckets[0]?.label).toBe("Weekly credits");
+  });
+
   it("reads a JWT from nested Grok CLI auth.json", () => {
     const token = grokTokenFromFile(
       JSON.stringify({
@@ -150,8 +171,14 @@ describe("claude cache", () => {
           return JSON.stringify({
             cachedUsageUtilization: {
               utilization: {
-                five_hour: { utilization: 73 },
-                seven_day: { utilization: 7 },
+                five_hour: {
+                  utilization: 73,
+                  resets_at: "2026-08-27T12:13:00Z",
+                },
+                seven_day: {
+                  utilization: 7,
+                  resets_at: "2026-09-03T00:00:00Z",
+                },
               },
             },
           });
@@ -163,6 +190,73 @@ describe("claude cache", () => {
     expect(snapshot.status).toBe("stale");
     expect(snapshot.primaryPercent).toBe(73);
     expect(snapshot.buckets[1]?.percentUsed).toBe(7);
+  });
+
+  it("rejects a cache whose windows already rolled over", async () => {
+    const provider = createClaudeProvider();
+    await expect(
+      provider.fetchSnapshot({
+        now: new Date("2026-08-27T11:22:00.000Z"),
+        fetch: async () =>
+          new Response(JSON.stringify({ error: "rate" }), { status: 429 }),
+        readFile: async (path) => {
+          if (path.endsWith(".credentials.json")) {
+            return JSON.stringify({
+              claudeAiOauth: { accessToken: "sk-ant-oat-test" },
+            });
+          }
+          if (path.endsWith(".claude.json")) {
+            return JSON.stringify({
+              cachedUsageUtilization: {
+                utilization: {
+                  five_hour: {
+                    utilization: 73,
+                    resets_at: "2026-08-20T12:13:00Z",
+                  },
+                  seven_day: {
+                    utilization: 7,
+                    resets_at: "2026-08-22T00:00:00Z",
+                  },
+                },
+              },
+            });
+          }
+          return null;
+        },
+        homeDir: "/tmp",
+      }),
+    ).rejects.toThrow("Claude usage HTTP 429");
+  });
+
+  it("falls back to the keychain when the file token is rejected", async () => {
+    const provider = createClaudeProvider();
+    const seen: string[] = [];
+    const snapshot = await provider.fetchSnapshot({
+      now: new Date("2026-08-27T11:22:00.000Z"),
+      fetch: async (_input, init) => {
+        const auth = new Headers(init?.headers).get("Authorization") ?? "";
+        seen.push(auth);
+        if (auth.endsWith("sk-ant-oat-keychain-000000000000")) {
+          return new Response(
+            JSON.stringify({
+              five_hour: { utilization: 73, resets_at: "2026-08-27T12:13:00Z" },
+              seven_day: { utilization: 7, resets_at: "2026-09-03T00:00:00Z" },
+            }),
+            { status: 200 },
+          );
+        }
+        return new Response("nope", { status: 401 });
+      },
+      readFile: async (path) =>
+        path.endsWith(".credentials.json")
+          ? JSON.stringify({ claudeAiOauth: { accessToken: "stale-token" } })
+          : null,
+      readSecret: async () => "sk-ant-oat-keychain-000000000000",
+      homeDir: "/tmp",
+    });
+    expect(seen[0]).toBe("Bearer sk-ant-oat-keychain-000000000000");
+    expect(snapshot.status).toBe("ok");
+    expect(snapshot.primaryPercent).toBe(73);
   });
 });
 

@@ -173,7 +173,12 @@ export function mapGrokCredits(
   );
   const build = products.find((item) => /build/i.test(item.product ?? ""));
   const extra = build ?? products[0];
-  if (extra && extra.usagePercent != null) {
+  // xAI reports the headline credit percent again as a product row; skip the echo.
+  if (
+    extra &&
+    extra.usagePercent != null &&
+    toPercent(extra.usagePercent) !== weeklyPercent
+  ) {
     buckets.push({
       id: "product",
       label: productLabel(extra.product),

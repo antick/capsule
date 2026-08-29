@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  cardHeightForBuckets,
+  cardMessageHeight,
   HUD,
   joinOffsetForIndex,
   meterBlockSize,
+  meterStrideSize,
   PLACEMENT_LABELS,
   PLACEMENT_MENU_GROUPS,
   PLACEMENT_PRESETS,
@@ -10,12 +13,36 @@ import {
 } from "./constants.ts";
 
 describe("rail geometry", () => {
-  it("stacks meters with padding and gaps", () => {
-    const length = railLengthForCount(3);
-    expect(length).toBe(
-      HUD.railPaddingY * 2 + 3 * meterBlockSize() - HUD.itemGap,
+  it("stacks meters with padding between and around them", () => {
+    expect(meterBlockSize()).toBe(
+      HUD.meterSize + HUD.meterLabelGap + HUD.percentBlock,
     );
+    expect(railLengthForCount(3)).toBe(
+      HUD.railPaddingY * 2 + 3 * meterBlockSize() + 2 * HUD.itemGap,
+    );
+  });
+
+  it("centres the join on each meter ring", () => {
     expect(joinOffsetForIndex(0)).toBe(HUD.railPaddingY + HUD.meterSize / 2);
+    expect(joinOffsetForIndex(1) - joinOffsetForIndex(0)).toBe(
+      meterStrideSize(),
+    );
+    const last = joinOffsetForIndex(2) + HUD.meterSize / 2;
+    expect(last).toBeLessThan(railLengthForCount(3));
+  });
+});
+
+describe("card sizing", () => {
+  it("grows by one row per usage bucket", () => {
+    const one = cardHeightForBuckets(1);
+    const two = cardHeightForBuckets(2);
+    expect(two - one).toBe(
+      HUD.cardTextLine * 2 +
+        HUD.cardBucketGap * 2 +
+        HUD.barHeight +
+        HUD.cardSectionGap,
+    );
+    expect(cardMessageHeight()).toBeLessThan(one);
   });
 });
 

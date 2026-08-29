@@ -1,10 +1,13 @@
 import {
+  cardHeightForBuckets,
+  cardMessageHeight,
   DEMO_NOW_ISO,
   HUD,
   joinOffsetForIndex,
   MOTION,
   type ProviderId,
   placeholderSnapshots,
+  railLengthForCount,
   type UsageSnapshot,
 } from "@capsule/config";
 import {
@@ -189,7 +192,7 @@ export function UsageDock({
         open={openSnapshot !== null}
         joinOffset={joinOffsetForIndex(activeJoinIndex)}
         dragging={dragging}
-        meterCount={Math.max(1, meters.length)}
+        railLength={railLengthForCount(meters.length)}
         cardHeight={cardHeightFor(cardSnapshot)}
         rail={meters.map((snapshot) => (
           <UsageMeter
@@ -214,6 +217,7 @@ export function UsageDock({
         card={
           cardSnapshot ? (
             <div
+              style={{ width: "100%", height: "100%" }}
               onPointerEnter={() => {
                 if (!dragging) {
                   clearTimers();
@@ -232,11 +236,8 @@ export function UsageDock({
 
 function cardHeightFor(snapshot: UsageSnapshot | null): number {
   const count = snapshot?.buckets.length ?? 0;
-  if (count >= 2) {
-    return HUD.cardHeight;
+  if (count === 0 || snapshot?.status === "unauthenticated") {
+    return cardMessageHeight();
   }
-  if (count === 1) {
-    return HUD.cardSingleHeight;
-  }
-  return HUD.cardCompactHeight;
+  return cardHeightForBuckets(count);
 }

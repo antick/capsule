@@ -46,90 +46,122 @@ export const SEVERITY_BANDS = {
 } as const;
 
 export const SEVERITY_COLORS = {
-  low: "#34D399",
-  mid: "#E8E04A",
-  high: "#FF5A36",
-  critical: "#EF4444",
+  low: "#00F58A",
+  mid: "#E8F50A",
+  high: "#FA4405",
+  critical: "#FF2D1F",
 } as const;
 
 export type Severity = keyof typeof SEVERITY_COLORS;
 
 export const HUD = {
-  surface: "#0A0A0A",
+  surface: "#000000",
   text: "#FFFFFF",
-  textMuted: "#9A9A9A",
-  ringTrack: "#2C2C2C",
-  barTrack: "#2C2C2C",
+  textMuted: "#8C8C8C",
+  ringTrack: "#303030",
+  barTrack: "#2E2E2E",
   fontFamily:
     '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif',
-  railWidth: 76,
-  railPaddingX: 14,
-  railPaddingY: 32,
-  meterSize: 48,
-  ringStroke: 3.5,
-  itemGap: 18,
-  percentFontSize: 12,
+  railWidth: 95,
+  railPaddingX: 18,
+  railPaddingY: 38,
+  railRadius: 47,
+  // Concave fillet that blends the rail into the screen edge it sits against.
+  edgeFlare: 48,
+  meterSize: 58,
+  ringStroke: 6,
+  iconSize: 24,
+  meterLabelGap: 18,
   percentBlock: 18,
-  iconSize: 18,
-  meterLabelGap: 6,
-  cardWidth: 304,
-  cardPadding: 16,
+  percentFontSize: 18,
+  itemGap: 47,
+  cardWidth: 307,
   cardRadius: 22,
-  cardHeight: 188,
-  cardCompactHeight: 96,
-  cardSingleHeight: 136,
-  cardTitleSize: 14,
+  cardPaddingX: 16,
+  cardPaddingTop: 14,
+  cardPaddingBottom: 16,
+  cardTitleSize: 17,
+  cardTitleLine: 22,
+  cardTitleGap: 14,
+  cardIconSize: 26,
+  cardIconGap: 10,
   cardLabelSize: 12,
-  cardResetSize: 11,
-  cardSectionGap: 14,
-  barHeight: 5,
-  railRadius: 32,
-  joinWidth: 16,
-  tailBase: 52,
-  tailControl: 12,
-  biteRadius: 28,
-  connectorRadius: 0,
-  blobBlur: 0,
-  blobGooAlpha: 36,
-  blobGooBias: -16,
-  cardTailOffsetY: 56,
-  shadowPadding: 24,
+  cardResetSize: 12,
+  cardResetGap: 12,
+  cardTextLine: 17,
+  cardBucketGap: 6,
+  cardSectionGap: 12,
+  barHeight: 7,
+  // Speech-bubble tail: a pointed spur that stops short of the rail.
+  tailBase: 60,
+  tailLength: 37,
+  joinGap: 16,
+  shadowPadding: 26,
   hoverOpenDelayMs: 70,
   hoverCloseDelayMs: 220,
   meterCountDefault: 3,
 } as const;
 
 export const MOTION = {
-  cardMs: 280,
-  blobMs: 280,
+  openMs: 260,
+  closeMs: 170,
+  slideMs: 320,
   ringMs: 560,
   barMs: 420,
   meterMs: 180,
   easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+  // Slight overshoot so the bubble pops out of the dock.
+  popEasing: "cubic-bezier(0.18, 0.89, 0.32, 1.15)",
+  closeEasing: "cubic-bezier(0.4, 0, 0.9, 0.6)",
   snapDistancePx: 72,
-  dragThresholdPx: 6,
+  dragThresholdPx: 5,
   dragPollMs: 8,
-  meterHoverScale: 1.06,
-  closedCardShiftPx: 16,
-  closedCardScale: 0.94,
-  liftScale: 1.03,
-  shadowDy: 14,
-  shadowBlur: 18,
-  shadowOpacity: 0.42,
-  railShadow: "0 14px 40px rgba(0, 0, 0, 0.42)",
+  meterIdleOpacity: 0.92,
+  closedBubbleScale: 0.62,
+  liftScale: 1.04,
+  shadowDy: 12,
+  shadowBlur: 22,
+  shadowOpacity: 0.5,
 } as const;
 
 export function meterBlockSize(): number {
-  return HUD.meterSize + HUD.itemGap + HUD.percentBlock;
+  return HUD.meterSize + HUD.meterLabelGap + HUD.percentBlock;
+}
+
+export function meterStrideSize(): number {
+  return meterBlockSize() + HUD.itemGap;
 }
 
 export function railLengthForCount(count: number): number {
   const n = Math.max(1, count);
-  return HUD.railPaddingY * 2 + n * meterBlockSize() - HUD.itemGap;
+  return HUD.railPaddingY * 2 + n * meterBlockSize() + (n - 1) * HUD.itemGap;
 }
 
 export function joinOffsetForIndex(index: number): number {
-  return HUD.railPaddingY + index * meterBlockSize() + HUD.meterSize / 2;
+  return HUD.railPaddingY + index * meterStrideSize() + HUD.meterSize / 2;
+}
+
+export function cardHeightForBuckets(count: number): number {
+  const rows = Math.max(1, count);
+  const bucket = HUD.cardTextLine * 2 + HUD.cardBucketGap * 2 + HUD.barHeight;
+  return (
+    HUD.cardPaddingTop +
+    HUD.cardTitleLine +
+    HUD.cardTitleGap +
+    rows * bucket +
+    (rows - 1) * HUD.cardSectionGap +
+    HUD.cardPaddingBottom
+  );
+}
+
+export function cardMessageHeight(): number {
+  return (
+    HUD.cardPaddingTop +
+    HUD.cardTitleLine +
+    HUD.cardTitleGap +
+    HUD.cardTextLine +
+    HUD.cardPaddingBottom
+  );
 }
 
 export const PLACEMENT = {

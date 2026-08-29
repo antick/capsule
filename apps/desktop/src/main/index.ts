@@ -157,7 +157,7 @@ app.whenReady().then(async () => {
     console.info("Capsule overlay", overlayInfo);
     await overlay.openProvider("grok");
     await new Promise((resolve) => {
-      setTimeout(resolve, MOTION.cardMs + MOTION.blobMs);
+      setTimeout(resolve, MOTION.openMs + MOTION.slideMs);
     });
     const dest = join(tmpdir(), "capsule-app.png");
     const captured = await overlay.capturePng(dest);

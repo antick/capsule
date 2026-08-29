@@ -3,15 +3,17 @@ import { join } from "node:path";
 import {
   APP_NAME,
   type CapsuleSettings,
+  cardHeightForBuckets,
   computePlacement,
   HUD,
+  layoutForPreset,
   MOTION,
   PLACEMENT,
   type PlacementPreset,
   type PlacementResult,
   type ProviderId,
   railLengthForCount,
-  snapAfterDrag,
+  slideAlongEdge,
 } from "@capsule/config";
 import { BrowserWindow, screen, shell } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
@@ -25,6 +27,9 @@ export class OverlayController {
   private dragging = false;
   private dragOffsetX = 0;
   private dragOffsetY = 0;
+  private dragLockX = 0;
+  private dragLockY = 0;
+  private dragOrientation: "vertical" | "horizontal" = "vertical";
   private dragTimer: ReturnType<typeof setInterval> | null = null;
   private ignoreMouse = true;
 
@@ -131,6 +136,12 @@ export class OverlayController {
     this.dragging = true;
     this.dragOffsetX = screenX - bounds.x;
     this.dragOffsetY = screenY - bounds.y;
+    // The dock stays welded to its edge; a drag only slides it along that edge.
+    this.dragLockX = bounds.x;
+    this.dragLockY = bounds.y;
+    this.dragOrientation = layoutForPreset(
+      this.settings.placementPreset,
+    ).orientation;
     this.setIgnore(false);
     this.stopDragPoll();
     this.dragTimer = setInterval(() => {
@@ -164,25 +175,21 @@ export class OverlayController {
     }
     const bounds = win.getBounds();
     const display = screen.getDisplayMatching(bounds);
-    const snapped = snapAfterDrag(
-      bounds,
-      display.workArea,
-      MOTION.snapDistancePx,
-    );
-    win.setBounds(
-      {
-        x: snapped.x,
-        y: snapped.y,
-        width: bounds.width,
-        height: bounds.height,
-      },
-      false,
-    );
+    const work = display.workArea;
+    // Only the free axis needs clamping; the locked one is already flush.
+    const vertical = this.dragOrientation === "vertical";
+    const x = vertical
+      ? this.dragLockX
+      : clamp(bounds.x, work.x, work.x + work.width - bounds.width);
+    const y = vertical
+      ? clamp(bounds.y, work.y, work.y + work.height - bounds.height)
+      : this.dragLockY;
+    win.setBounds({ x, y, width: bounds.width, height: bounds.height }, false);
     this.settingsDisplayId = display.id;
     this.setIgnore(true);
     return {
-      placementPreset: snapped.preset,
-      customPosition: { x: snapped.x, y: snapped.y },
+      placementPreset: this.settings.placementPreset,
+      customPosition: { x, y },
     };
   }
 
@@ -253,10 +260,11 @@ export class OverlayController {
         railWidth: HUD.railWidth,
         railLength: railLengthForCount(this.meterCount),
         cardWidth: HUD.cardWidth,
-        cardHeight: HUD.cardHeight,
+        cardHeight: cardHeightForBuckets(2),
         expanded: true,
         shadowPadding: HUD.shadowPadding,
-        joinWidth: HUD.joinWidth,
+        joinWidth: HUD.tailLength + HUD.joinGap,
+        edgeFlare: HUD.edgeFlare,
       },
       PLACEMENT,
     );
@@ -265,18 +273,13 @@ export class OverlayController {
     const custom = this.settings.customPosition;
     const work = chrome.display.workArea;
     if (custom) {
-      const snapped = snapAfterDrag(
-        {
-          x: custom.x,
-          y: custom.y,
-          width: placement.width,
-          height: placement.height,
-        },
-        work,
-        MOTION.snapDistancePx,
-      );
-      x = snapped.x;
-      y = snapped.y;
+      // A remembered position only overrides how far along the edge the dock
+      // sits; the axis pinned to the edge always comes from the placement.
+      if (placement.orientation === "vertical") {
+        y = clamp(custom.y, work.y, work.y + work.height - placement.height);
+      } else {
+        x = clamp(custom.x, work.x, work.x + work.width - placement.width);
+      }
     }
     const bounds = {
       x: Math.round(x),
@@ -294,19 +297,26 @@ export class OverlayController {
       return;
     }
     const bounds = win.getBounds();
-    const display = screen.getDisplayNearestPoint({ x: screenX, y: screenY });
-    const work = display.workArea;
-    const x = clamp(
-      Math.round(screenX - this.dragOffsetX),
-      work.x,
-      work.x + work.width - bounds.width,
+    const display = screen.getDisplayNearestPoint({
+      x: this.dragLockX,
+      y: screenY,
+    });
+    const next = slideAlongEdge({
+      orientation: this.dragOrientation,
+      lockedX: this.dragLockX,
+      lockedY: this.dragLockY,
+      width: bounds.width,
+      height: bounds.height,
+      screenX,
+      screenY,
+      offsetX: this.dragOffsetX,
+      offsetY: this.dragOffsetY,
+      workArea: display.workArea,
+    });
+    win.setBounds(
+      { ...bounds, x: Math.round(next.x), y: Math.round(next.y) },
+      false,
     );
-    const y = clamp(
-      Math.round(screenY - this.dragOffsetY),
-      work.y,
-      work.y + work.height - bounds.height,
-    );
-    win.setBounds({ ...bounds, x, y }, false);
   }
 
   private stopDragPoll(): void {
