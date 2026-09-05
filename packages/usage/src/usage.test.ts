@@ -1,5 +1,6 @@
 import { DEMO_SNAPSHOTS, defaultSettings } from "@capsule/config";
 import { describe, expect, it } from "vitest";
+import { RateLimitedError } from "./backoff.ts";
 import { mergeSnapshot } from "./merge.ts";
 import { createPoller } from "./poller.ts";
 import {
@@ -155,41 +156,46 @@ describe("claude cache", () => {
     expect(payload?.seven_day?.utilization).toBe(7);
   });
 
-  it("uses the local cache when oauth usage is rate limited", async () => {
+  it("reports a rate limit and carries the local cache along as the fallback", async () => {
     const provider = createClaudeProvider();
-    const snapshot = await provider.fetchSnapshot({
-      now: new Date("2026-08-27T11:22:00.000Z"),
-      fetch: async () =>
-        new Response(JSON.stringify({ error: "rate" }), { status: 429 }),
-      readFile: async (path) => {
-        if (path.endsWith(".credentials.json")) {
-          return JSON.stringify({
-            claudeAiOauth: { accessToken: "sk-ant-oat-test" },
-          });
-        }
-        if (path.endsWith(".claude.json")) {
-          return JSON.stringify({
-            cachedUsageUtilization: {
-              utilization: {
-                five_hour: {
-                  utilization: 73,
-                  resets_at: "2026-08-27T12:13:00Z",
-                },
-                seven_day: {
-                  utilization: 7,
-                  resets_at: "2026-09-03T00:00:00Z",
+    const refusal = await provider
+      .fetchSnapshot({
+        now: new Date("2026-08-27T11:22:00.000Z"),
+        fetch: async () =>
+          new Response(JSON.stringify({ error: "rate" }), { status: 429 }),
+        readFile: async (path) => {
+          if (path.endsWith(".credentials.json")) {
+            return JSON.stringify({
+              claudeAiOauth: { accessToken: "sk-ant-oat-test" },
+            });
+          }
+          if (path.endsWith(".claude.json")) {
+            return JSON.stringify({
+              cachedUsageUtilization: {
+                utilization: {
+                  five_hour: {
+                    utilization: 73,
+                    resets_at: "2026-08-27T12:13:00Z",
+                  },
+                  seven_day: {
+                    utilization: 7,
+                    resets_at: "2026-09-03T00:00:00Z",
+                  },
                 },
               },
-            },
-          });
-        }
-        return null;
-      },
-      homeDir: "/tmp",
-    });
-    expect(snapshot.status).toBe("stale");
-    expect(snapshot.primaryPercent).toBe(73);
-    expect(snapshot.buckets[1]?.percentUsed).toBe(7);
+            });
+          }
+          return null;
+        },
+        homeDir: "/tmp",
+      })
+      .then(() => null)
+      .catch((error: unknown) => error);
+    expect(refusal).toBeInstanceOf(RateLimitedError);
+    const snapshot = (refusal as RateLimitedError).fallback;
+    expect(snapshot?.status).toBe("stale");
+    expect(snapshot?.primaryPercent).toBe(73);
+    expect(snapshot?.buckets[1]?.percentUsed).toBe(7);
   });
 
   it("rejects a cache whose windows already rolled over", async () => {
@@ -225,7 +231,7 @@ describe("claude cache", () => {
         },
         homeDir: "/tmp",
       }),
-    ).rejects.toThrow("Claude usage HTTP 429");
+    ).rejects.toMatchObject({ name: "RateLimitedError", fallback: null });
   });
 
   it("falls back to the keychain when the file token is rejected", async () => {

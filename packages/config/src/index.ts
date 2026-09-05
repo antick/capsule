@@ -1,3 +1,20 @@
+export type {
+  ActivityByProvider,
+  ActivityState,
+  ActivitySummary,
+  AgentSession,
+  AgentSessionState,
+} from "./activity.ts";
+export {
+  ACTIVITY,
+  activityColor,
+  anyAgentActive,
+  BACKOFF,
+  IDLE_POLL_INTERVAL_MS,
+  orderSessions,
+  sessionStateColor,
+  summarizeActivity,
+} from "./activity.ts";
 export type { PlacementPreset, ProviderId, Severity } from "./constants.ts";
 export {
   ANTHROPIC_OAUTH_BETA_HEADER,
@@ -62,20 +79,25 @@ export {
   dockStyleFor,
   styleSupportsNotch,
 } from "./dock-style.ts";
-export type { HudMetrics } from "./metrics.ts";
+export type { HardwareNotch, HudMetrics } from "./metrics.ts";
 export {
+  cardHeightFor,
   cardHeightForBuckets,
   cardMessageHeight,
+  cardReserveHeight,
   clampHudScale,
   HUD_SCALE,
   hudMetrics,
   hudScaleRange,
   hudScaleSteps,
+  joinedNotchRailLength,
   joinOffsetForIndex,
   meterBlockSize,
   meterStrideSize,
   nextHudScale,
+  railEndSpread,
   railLengthForCount,
+  sessionRowsShown,
 } from "./metrics.ts";
 export type {
   Spring,

@@ -1,4 +1,4 @@
-import { HUD_BASE } from "./constants.ts";
+import { HUD, HUD_BASE } from "./constants.ts";
 
 /**
  * The dock is authored once at scale 1 — the size it ships at — and every
@@ -97,9 +97,18 @@ export interface HudMetrics {
   latchReach: number;
   /** How far the meters slide toward the edge as the dock folds away. */
   stowShift: number;
+  activitySize: number;
+  activityStroke: number;
+  cardRule: number;
+  cardRuleGap: number;
+  cardStatusDot: number;
+  cardStatusStroke: number;
+  cardStatusGap: number;
+  notchBezelFillet: number;
 }
 
 /** Keys scaled by {@link hudMetrics}; everything else on HUD is presentational. */
+// biome-ignore format: one key per line reads as the checklist it is.
 const SCALED_KEYS = [
   "railWidth",
   "railPaddingX",
@@ -140,6 +149,14 @@ const SCALED_KEYS = [
   "latchLength",
   "latchReach",
   "stowShift",
+  "activitySize",
+  "activityStroke",
+  "cardRule",
+  "cardRuleGap",
+  "cardStatusDot",
+  "cardStatusStroke",
+  "cardStatusGap",
+  "notchBezelFillet",
 ] as const satisfies ReadonlyArray<keyof typeof HUD_BASE>;
 
 /**
@@ -189,25 +206,100 @@ export function joinOffsetForIndex(
   return padding + index * meterStrideSize(m, compact) + m.meterSize / 2;
 }
 
+/** How many session rows a card shows, and how many it only counts. */
+export function sessionRowsShown(count: number): {
+  rows: number;
+  hidden: number;
+} {
+  const rows = Math.max(0, Math.min(count, HUD.maxCardSessions));
+  return { rows, hidden: Math.max(0, count - rows) };
+}
+
+/**
+ * The card's height for what it has to show. Worked out here rather than
+ * measured, so the window, the hit region and the silhouette can all agree on
+ * it before anything is laid out.
+ */
+export function cardHeightFor(
+  m: HudMetrics,
+  input: { buckets: number; sessions?: number },
+): number {
+  let height =
+    m.cardPaddingTop + m.cardTitleLine + m.cardTitleGap + m.cardPaddingBottom;
+  if (input.buckets <= 0) {
+    // A status line instead of the bars.
+    height += m.cardTextLine;
+  } else {
+    const bucket = m.cardTextLine * 2 + m.cardBucketGap * 2 + m.barHeight;
+    height += input.buckets * bucket + (input.buckets - 1) * m.cardSectionGap;
+  }
+  const shown = sessionRowsShown(input.sessions ?? 0);
+  if (shown.rows > 0) {
+    const row = m.cardTextLine * 2 + m.cardBucketGap;
+    height +=
+      m.cardRuleGap * 2 +
+      m.cardRule +
+      shown.rows * row +
+      (shown.rows - 1) * m.cardSectionGap;
+    if (shown.hidden > 0) {
+      height += m.cardSectionGap + m.cardTextLine;
+    }
+  }
+  return height;
+}
+
 export function cardHeightForBuckets(m: HudMetrics, count: number): number {
-  const rows = Math.max(1, count);
-  const bucket = m.cardTextLine * 2 + m.cardBucketGap * 2 + m.barHeight;
-  return (
-    m.cardPaddingTop +
-    m.cardTitleLine +
-    m.cardTitleGap +
-    rows * bucket +
-    (rows - 1) * m.cardSectionGap +
-    m.cardPaddingBottom
-  );
+  return cardHeightFor(m, { buckets: Math.max(1, count) });
 }
 
 export function cardMessageHeight(m: HudMetrics): number {
-  return (
-    m.cardPaddingTop +
-    m.cardTitleLine +
-    m.cardTitleGap +
-    m.cardTextLine +
-    m.cardPaddingBottom
+  return cardHeightFor(m, { buckets: 0 });
+}
+
+/**
+ * The tallest card any provider can produce. The window is sized for this
+ * once, so a taller-than-usual card is never clipped by the frame it opens
+ * inside; being generous costs nothing, since the window is transparent.
+ */
+export function cardReserveHeight(m: HudMetrics): number {
+  return cardHeightFor(m, {
+    buckets: HUD.maxCardBuckets,
+    sessions: HUD.maxCardSessions + 1,
+  });
+}
+
+/** The display's own notch, when the dock has to share the bezel with one. */
+export interface HardwareNotch {
+  width: number;
+  height: number;
+}
+
+/**
+ * How long a compact rail has to be when it is drawn as the display's notch.
+ * A single ring makes a rail narrower than the hardware, and a bar the same
+ * width as the notch is a straight column that appears not to have opened at
+ * all. So the floor is the notch plus a corner's worth of opening each side.
+ */
+export function joinedNotchRailLength(
+  m: HudMetrics,
+  count: number,
+  notch: HardwareNotch,
+): number {
+  return Math.max(
+    railLengthForCount(m, count, true),
+    notch.width + 2 * m.notchRadius,
   );
+}
+
+/**
+ * Extra length at each end of a rail that has been stretched past what its
+ * meters need, so the meters — and the tails aimed at them — stay centred.
+ */
+export function railEndSpread(
+  m: HudMetrics,
+  count: number,
+  compact: boolean,
+  railLength: number,
+): number {
+  return Math.max(0, (railLength - railLengthForCount(m, count, compact)) / 2);
 }

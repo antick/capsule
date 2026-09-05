@@ -1,0 +1,25 @@
+{
+  "name": "@capsule/activity",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@capsule/config": "workspace:*"
+  },
+  "devDependencies": {
+    "@capsule/tsconfig": "workspace:*",
+    "@types/node": "24.2.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

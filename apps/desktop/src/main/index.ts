@@ -1,4 +1,6 @@
+import { createActivityMonitor } from "@capsule/activity";
 import {
+  type ActivityByProvider,
   APP_NAME,
   type CapsuleSettings,
   CHROME_POLL_MS,
@@ -9,6 +11,7 @@ import {
   type UsageSnapshot,
 } from "@capsule/config";
 import { app, BrowserWindow, ipcMain, powerMonitor, screen } from "electron";
+import { createActivityHost } from "./activity-host.ts";
 import { createAppChrome } from "./app-chrome.ts";
 import { hideFromMacDock } from "./macos-dock.ts";
 import { OverlayController } from "./overlay-window.ts";
@@ -25,7 +28,14 @@ app.on("will-finish-launching", () => {
 let settings = loadSettings();
 const overlay = new OverlayController(settings);
 let snapshots: UsageSnapshot[] = [];
+let activity: ActivityByProvider = {};
 let appChrome: ReturnType<typeof createAppChrome> | null = null;
+/**
+ * Whether an auto-hiding dock is being held out. A gesture, not a setting:
+ * it lasts as long as this run of the app, and main owns it so the dock and
+ * the menus agree.
+ */
+let keepOpen = false;
 
 const broadcast = () => {
   overlay.setMeterCount(snapshots.length || 1);
@@ -34,26 +44,47 @@ const broadcast = () => {
   }
 };
 
-let poller = createUsageHost(
-  () => settings,
-  (next) => {
-    snapshots = next;
-    broadcast();
-    void overlay.relayout();
-  },
-);
+const broadcastActivity = () => {
+  for (const win of BrowserWindow.getAllWindows()) {
+    win.webContents.send(IPC.activity, activity);
+  }
+};
 
-function rebuildPoller(): void {
-  poller.stop();
-  poller = createUsageHost(
+const monitor = createActivityMonitor({
+  host: createActivityHost(),
+  getEnabled: () => settings.enabledProviderIds,
+  onChange: (next) => {
+    activity = next;
+    broadcastActivity();
+  },
+});
+
+const usageHost = () =>
+  createUsageHost(
     () => settings,
     (next) => {
       snapshots = next;
       broadcast();
       void overlay.relayout();
     },
+    { isBusy: () => monitor.isBusy() },
   );
+
+let poller = usageHost();
+
+function rebuildPoller(): void {
+  poller.stop();
+  poller = usageHost();
   poller.start();
+}
+
+function setKeepOpen(next: boolean): void {
+  if (keepOpen === next) {
+    return;
+  }
+  keepOpen = next;
+  overlay.window?.webContents.send(IPC.keepOpen, keepOpen);
+  appChrome?.sync(settings);
 }
 
 function applySettings(next: CapsuleSettings): CapsuleSettings {
@@ -62,6 +93,11 @@ function applySettings(next: CapsuleSettings): CapsuleSettings {
   settings = saveSettings(next);
   overlay.setSettings(settings);
   app.setLoginItemSettings({ openAtLogin: settings.launchAtLogin });
+  // Always shown, the dock is already held out by a setting; a hand-made
+  // hold would only outlive a later switch back.
+  if (!settings.autoHide) {
+    setKeepOpen(false);
+  }
   if (demoChanged || pollChanged) {
     rebuildPoller();
   } else {
@@ -70,6 +106,7 @@ function applySettings(next: CapsuleSettings): CapsuleSettings {
     poller.sync();
     void poller.refresh();
   }
+  void monitor.rescan();
   void overlay.relayout();
   broadcast();
   appChrome?.sync(settings);
@@ -99,6 +136,8 @@ app.whenReady().then(async () => {
       openSettingsWindow("/");
     },
     revealDock: () => overlay.reveal(),
+    getKeepOpen: () => keepOpen,
+    toggleKeepOpen: () => setKeepOpen(!keepOpen),
     quit: () => app.quit(),
   });
 
@@ -154,6 +193,11 @@ app.whenReady().then(async () => {
   ipcMain.on(IPC.revealDock, () => {
     overlay.reveal();
   });
+  ipcMain.handle(IPC.getActivity, () => activity);
+  ipcMain.handle(IPC.getKeepOpen, () => keepOpen);
+  ipcMain.on(IPC.setKeepOpen, (_event, next: boolean) => {
+    setKeepOpen(next === true);
+  });
   ipcMain.on(IPC.contextMenu, () => {
     // The dock outranks pop-up menus, so it has to step down for one.
     overlay.suspendAlwaysOnTop();
@@ -169,6 +213,7 @@ app.whenReady().then(async () => {
     overlay.show();
   });
   hideFromMacDock();
+  monitor.start();
   poller.start();
   await poller.refresh();
   broadcast();
@@ -191,9 +236,15 @@ app.whenReady().then(async () => {
   }, CHROME_POLL_MS);
 
   screen.on("display-metrics-changed", () => {
+    overlay.invalidateHardwareNotch();
+    void overlay.relayout();
+  });
+  screen.on("display-added", () => {
+    overlay.invalidateHardwareNotch();
     void overlay.relayout();
   });
   screen.on("display-removed", () => {
+    overlay.invalidateHardwareNotch();
     void overlay.relayout();
   });
   powerMonitor.on("resume", () => {
@@ -203,6 +254,7 @@ app.whenReady().then(async () => {
   app.on("before-quit", () => {
     clearInterval(chromeTimer);
     poller.stop();
+    monitor.stop();
     overlay.destroy();
   });
 });

@@ -1,7 +1,8 @@
+export { backoffMs, RateLimitedError, retryAfterMs } from "./backoff.ts";
 export { clampPercent, toPercent } from "./clamp.ts";
 export { mergeSnapshot } from "./merge.ts";
 export type { Poller, PollerHost } from "./poller.ts";
-export { createPoller } from "./poller.ts";
+export { createPoller, shouldRefresh } from "./poller.ts";
 export { createClaudeProvider } from "./providers/claude.ts";
 export { createCodexProvider } from "./providers/codex.ts";
 export { createDemoProvider } from "./providers/demo.ts";

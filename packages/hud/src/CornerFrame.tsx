@@ -1,6 +1,7 @@
 import {
   type Corner,
   cardHeightForBuckets,
+  cardReserveHeight,
   DOCK_STYLES,
   type DockStyle,
   HUD,
@@ -56,7 +57,7 @@ export function CornerFrame({
     corner,
     meterCount: meters.length,
     cardHeight: height,
-    cardReserve: cardHeightForBuckets(metrics, HUD.maxCardBuckets),
+    cardReserve: cardReserveHeight(metrics),
     activeIndex,
     style,
   });

@@ -16,6 +16,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@capsule/activity": "workspace:*",
     "@capsule/config": "workspace:*",
     "@capsule/dates": "workspace:*",
     "@capsule/hud": "workspace:*",

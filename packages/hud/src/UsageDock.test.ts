@@ -1,4 +1,5 @@
 import {
+  type AgentSession,
   DEMO_NOW_ISO,
   DEMO_SNAPSHOTS,
   DOCK_STYLES,
@@ -175,5 +176,94 @@ describe("UsageDock", () => {
     // The hairline is the only 1px stroke; meter rings are far thicker.
     expect(render(DOCK_STYLES.tray)).toContain('stroke-width="1"');
     expect(render(DOCK_STYLES.rail)).not.toContain('stroke-width="1"');
+  });
+});
+
+describe("UsageDock activity", () => {
+  const now = new Date(DEMO_NOW_ISO);
+  const busy: AgentSession = {
+    id: "claude.1",
+    providerId: "claude",
+    name: "egglify-4e",
+    detail: "Desktop - egglify",
+    state: "busy",
+    waitingFor: null,
+    since: new Date(now.getTime() - 3 * 60_000).toISOString(),
+  };
+
+  it("marks a ring whose agent is working and lists the session in its card", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        activity: { claude: [busy] },
+        forceOpenProviderId: "claude",
+      }),
+    );
+    expect(html.match(/data-hud-activity="working"/g)).toHaveLength(1);
+    expect(html).toContain('data-session-list="true"');
+    expect(html).toContain("egglify-4e");
+    expect(html).toContain('data-hud-status="busy"');
+    expect(html).toContain("working");
+    expect(html).toContain("3 min");
+  });
+
+  it("breathes amber, and leads with what it wants, when an agent waits on you", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        activity: {
+          claude: [
+            { ...busy, state: "waiting", waitingFor: "Allow the edit?" },
+          ],
+        },
+        forceOpenProviderId: "claude",
+      }),
+    );
+    expect(html).toContain('data-hud-activity="waiting"');
+    expect(html).toContain("Allow the edit?");
+    expect(html).not.toContain("Desktop - egglify");
+  });
+
+  it("dates a stale reading in the card header", () => {
+    const stale = DEMO_SNAPSHOTS.map((item, index) =>
+      index === 0
+        ? {
+            ...item,
+            status: "stale" as const,
+            staleSince: new Date(now.getTime() - 12 * 60_000).toISOString(),
+          }
+        : item,
+    );
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: stale,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        forceOpenProviderId: "claude",
+      }),
+    );
+    expect(html).toContain('data-reading-age="true"');
+    expect(html).toContain("12 min ago");
+  });
+
+  it("stays unrolled while asked to keep open", () => {
+    const held = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        autoHide: true,
+        keepOpen: true,
+      }),
+    );
+    expect(held).not.toContain("clip-path:path(");
   });
 });

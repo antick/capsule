@@ -85,9 +85,12 @@ function canonicalLayout(
     reserveAlong: number;
     flare: number;
     railBias: number | null;
+    /** How deep the rail is across, from the edge to its inner face. */
+    railDepth: number;
   },
 ): CanonicalFrame {
-  const width = input.reserveAcross + m.tailLength + m.joinGap + m.railWidth;
+  const width =
+    input.reserveAcross + m.tailLength + m.joinGap + input.railDepth;
   const painted = input.railLength + input.flare * 2;
   const height = Math.max(painted, input.reserveAlong);
   const railX = input.reserveAcross + m.tailLength + m.joinGap;
@@ -112,7 +115,7 @@ function canonicalLayout(
     rail: {
       x: railX,
       y: railY,
-      width: m.railWidth,
+      width: input.railDepth,
       height: input.railLength,
     },
     // The card keeps its own size but stays against the tail, so a short card
@@ -142,6 +145,14 @@ export function blobLayout(
     style?: DockStyle;
     /** Rail offset inside the frame; centred when omitted. */
     railBias?: number | null;
+    /**
+     * The rail's depth across, when it is not the metrics' own: a bar drawn as
+     * the display's notch is deeper by the notch's height, so its readings
+     * start below the hole in the screen.
+     */
+    railDepth?: number;
+    /** The concave fillet into the edge, when it is not the style's own. */
+    flare?: number;
   },
 ): BlobLayout {
   const cardHeight = input.cardHeight ?? cardHeightForBuckets(m, 2);
@@ -155,8 +166,9 @@ export function blobLayout(
     ...card,
     reserveAcross: Math.max(reserve.cardAcross, card.cardAcross),
     reserveAlong: Math.max(reserve.cardAlong, card.cardAlong),
-    flare: m.edgeFlare * style.flare,
+    flare: input.flare ?? m.edgeFlare * style.flare,
     railBias: input.railBias ?? null,
+    railDepth: input.railDepth ?? m.railWidth,
   });
   const vertical = isVertical(growth);
   const mapper = mapperFor(growth, base.width);
@@ -198,7 +210,12 @@ export function railPath(
   m: HudMetrics,
   growth: CardGrowth,
   layout: BlobLayout,
-  options: { notch?: boolean; style?: DockStyle; rail?: Rect } = {},
+  options: {
+    notch?: boolean;
+    style?: DockStyle;
+    rail?: Rect;
+    flare?: number;
+  } = {},
 ): string {
   const base = layout.canonical;
   return traceRail(
@@ -217,10 +234,11 @@ export function traceRail(
   m: HudMetrics,
   mapper: Mapper,
   rail: Rect,
-  options: { notch?: boolean; style?: DockStyle } = {},
+  options: { notch?: boolean; style?: DockStyle; flare?: number } = {},
 ): string {
   const style = options.style ?? DOCK_STYLES.rail;
   const notch = options.notch ?? false;
+  const wantedFlare = options.flare ?? m.edgeFlare * style.flare;
   // Order matters. The corner is claimed first, out of half the width, and
   // the flare takes what is left across; then the corner gives way to the
   // flare along the length. Letting the flare take the full width collapses
@@ -229,7 +247,7 @@ export function traceRail(
   const wanted = railCornerRadius(m, style, rail, notch);
   const flare = Math.max(
     0,
-    Math.min(m.edgeFlare * style.flare, rail.height / 2, rail.width - wanted),
+    Math.min(wantedFlare, rail.height / 2, rail.width - wanted),
   );
   const radius = Math.max(0, Math.min(wanted, (rail.height - 2 * flare) / 2));
 

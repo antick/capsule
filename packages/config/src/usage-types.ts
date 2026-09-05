@@ -23,4 +23,10 @@ export interface UsageSnapshot {
    * screen while it runs; the meter just says so with a sweep round its ring.
    */
   refreshing?: boolean;
+  /**
+   * When the numbers on screen were last actually read, once they have gone
+   * stale. A remembered reading has to be dated, or it quietly passes itself
+   * off as live.
+   */
+  staleSince?: string;
 }

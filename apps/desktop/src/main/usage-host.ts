@@ -16,12 +16,17 @@ import {
   type Poller,
 } from "@capsule/usage";
 import { app, powerMonitor } from "electron";
+import { loadBackoff, saveBackoff } from "./store.ts";
 
 const execFileAsync = promisify(execFile);
 
 export function createUsageHost(
   getSettings: () => CapsuleSettings,
   onChange: (snapshots: UsageSnapshot[]) => void,
+  options: {
+    /** Whether an agent is working, so polling can slow down when none is. */
+    isBusy?: () => boolean;
+  } = {},
 ): Poller {
   const demo = getSettings().demoMode;
   const providers = demo
@@ -36,9 +41,12 @@ export function createUsageHost(
     providers,
     getSettings,
     onChange,
+    isBusy: options.isBusy,
     host: {
       now: () => new Date(),
       fetch: usageFetch,
+      loadBackoff,
+      saveBackoff,
       homeDir: () => {
         try {
           return app.getPath("home");

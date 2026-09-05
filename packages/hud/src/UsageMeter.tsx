@@ -1,4 +1,6 @@
 import {
+  type ActivitySummary,
+  activityColor,
   COPY,
   HUD_THEMES,
   type HudMetrics,
@@ -21,6 +23,7 @@ export function UsageMeter({
   active,
   compact = false,
   refreshing = false,
+  activity = null,
   stowed = false,
   stowShift = { x: 0, y: 0 },
   revealDelayMs = 0,
@@ -37,6 +40,8 @@ export function UsageMeter({
   compact?: boolean;
   /** A fetch is in the air: chase the ring until it lands. */
   refreshing?: boolean;
+  /** What this provider's agents are doing right now, if anything. */
+  activity?: ActivitySummary | null;
   /** Riding out of view with a retracted dock. */
   stowed?: boolean;
   /** Which way, and how far, it slides toward the edge while stowed. */
@@ -59,6 +64,8 @@ export function UsageMeter({
       ? circumference
       : circumference - (rounded / 100) * circumference;
   const label = rounded === null ? "—" : `${rounded}${COPY.percentSuffix}`;
+  const activityRadius = (metrics.activitySize - metrics.activityStroke) / 2;
+  const activityLap = 2 * Math.PI * activityRadius;
   const arrive = springTransition(SPRINGS.contents);
   const reading = springTransition(SPRINGS.reading);
   const press = springTransition(SPRINGS.press);
@@ -159,6 +166,38 @@ export function UsageMeter({
               transformOrigin: "center",
               animation: `capsule-sweep ${MOTION.sweepMs}ms linear infinite`,
             }}
+          />
+        ) : null}
+        {activity && activity.state !== "idle" ? (
+          // A second, thinner arc inside the ring, in the gap between the
+          // glyph and the track: a different radius, weight and colour, so it
+          // reads as a separate fact rather than as the usage number moving.
+          // It spins while an agent works and breathes while one waits on you.
+          <circle
+            data-hud-activity={activity.state}
+            cx={size / 2}
+            cy={size / 2}
+            r={activityRadius}
+            fill="none"
+            stroke={activityColor(activity.state, theme)}
+            strokeWidth={metrics.activityStroke}
+            strokeLinecap="round"
+            strokeDasharray={
+              activity.state === "working"
+                ? `${activityLap * MOTION.activityArc} ${activityLap}`
+                : undefined
+            }
+            style={
+              activity.state === "working"
+                ? {
+                    transformBox: "fill-box",
+                    transformOrigin: "center",
+                    animation: `capsule-sweep ${MOTION.activitySpinMs}ms linear infinite`,
+                  }
+                : {
+                    animation: `capsule-pulse ${MOTION.activityPulseMs}ms ease-in-out infinite alternate`,
+                  }
+            }
           />
         ) : null}
         <g

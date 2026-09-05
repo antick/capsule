@@ -1,6 +1,8 @@
 import {
+  type ActivityByProvider,
   type CapsuleSettings,
   type Corner,
+  type HardwareNotch,
   IPC,
   type ProviderId,
   type Rect,
@@ -12,6 +14,8 @@ import { contextBridge, ipcRenderer } from "electron";
 export interface DockFrame {
   railBias: number;
   corner: Corner | null;
+  /** The display's own notch, when the dock is drawn as it. */
+  hardwareNotch: HardwareNotch | null;
 }
 
 export interface CapsuleBridge {
@@ -35,6 +39,12 @@ export interface CapsuleBridge {
   revealDock: () => void;
   /** Fires on the overlay when that ask arrives. */
   onRevealDock: (listener: () => void) => () => void;
+  /** Live agent sessions by provider, now and whenever they change. */
+  onActivity: (listener: (activity: ActivityByProvider) => void) => () => void;
+  /** Hold an auto-hiding dock out, or let it go. */
+  setKeepOpen: (keepOpen: boolean) => void;
+  /** Whether the dock is being held out, now and whenever that changes. */
+  onKeepOpen: (listener: (keepOpen: boolean) => void) => () => void;
   startMove: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
   showContextMenu: () => void;
@@ -100,6 +110,30 @@ const capsule: CapsuleBridge = {
     ipcRenderer.on(IPC.revealDock, handler);
     return () => {
       ipcRenderer.off(IPC.revealDock, handler);
+    };
+  },
+  onActivity: (listener) => {
+    const handler = (_event: unknown, activity: ActivityByProvider) =>
+      listener(activity);
+    ipcRenderer.on(IPC.activity, handler);
+    void ipcRenderer
+      .invoke(IPC.getActivity)
+      .then((activity: ActivityByProvider) => listener(activity));
+    return () => {
+      ipcRenderer.off(IPC.activity, handler);
+    };
+  },
+  setKeepOpen: (keepOpen) => {
+    ipcRenderer.send(IPC.setKeepOpen, keepOpen);
+  },
+  onKeepOpen: (listener) => {
+    const handler = (_event: unknown, keepOpen: boolean) => listener(keepOpen);
+    ipcRenderer.on(IPC.keepOpen, handler);
+    void ipcRenderer
+      .invoke(IPC.getKeepOpen)
+      .then((keepOpen: boolean) => listener(keepOpen));
+    return () => {
+      ipcRenderer.off(IPC.keepOpen, handler);
     };
   },
   startMove: (screenX, screenY) => {

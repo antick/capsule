@@ -1,4 +1,5 @@
 import {
+  type ActivityByProvider,
   type CapsuleSettings,
   cornerIsBottom,
   cornerIsRight,
@@ -31,7 +32,11 @@ export function OverlayHud() {
   const [frame, setFrame] = useState<DockFrame>({
     railBias: 0,
     corner: null,
+    hardwareNotch: null,
   });
+  const [activity, setActivity] = useState<ActivityByProvider>({});
+  // Main owns this so the menu and the dock agree on it.
+  const [keepOpen, setKeepOpen] = useState(false);
   // Null until main's hit test has spoken, so the dock keeps trusting the DOM
   // on the very first frames.
   const [pointerInside, setPointerInside] = useState<boolean | null>(null);
@@ -90,6 +95,18 @@ export function OverlayHud() {
     return window.capsule?.onRevealDock(() => {
       setRevealNonce((current) => current + 1);
     });
+  }, []);
+
+  useEffect(() => {
+    return window.capsule?.onActivity(setActivity);
+  }, []);
+
+  useEffect(() => {
+    return window.capsule?.onKeepOpen(setKeepOpen);
+  }, []);
+
+  const onKeepOpenChange = useCallback((next: boolean) => {
+    window.capsule?.setKeepOpen(next);
   }, []);
 
   const refreshProvider = useCallback((providerId: ProviderId) => {
@@ -201,6 +218,10 @@ export function OverlayHud() {
         railBias={frame.railBias}
         corner={frame.corner}
         autoHide={settings.autoHide}
+        keepOpen={keepOpen}
+        onKeepOpenChange={onKeepOpenChange}
+        activity={activity}
+        hardwareNotch={frame.hardwareNotch}
         pointerInside={pointerInside}
         revealNonce={revealNonce}
         onRefresh={refreshProvider}

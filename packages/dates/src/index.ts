@@ -45,4 +45,31 @@ export function formatResetCopy(
   return formatResetAbsolute(resetsAt, locale);
 }
 
+/** Under this many seconds, a span is "just now" rather than a number. */
+const JUST_NOW_SECONDS = 45;
+
+/**
+ * How long something has been the way it is: "just now", "3 min", "2 hr",
+ * "2 hr 5 min". The second half of answering "is Claude still working".
+ */
+export function formatElapsed(since: Date, now: Date = new Date()): string {
+  const seconds = Math.max(0, (now.getTime() - since.getTime()) / 1000);
+  if (seconds < JUST_NOW_SECONDS) {
+    return "just now";
+  }
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) {
+    return `${Math.max(1, minutes)} min`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest === 0 ? `${hours} hr` : `${hours} hr ${rest} min`;
+}
+
+/** The same span, phrased as a point in the past. */
+export function formatAgo(since: Date, now: Date = new Date()): string {
+  const elapsed = formatElapsed(since, now);
+  return elapsed === "just now" ? elapsed : `${elapsed} ago`;
+}
+
 export { DAY_MS, HOUR_MS, MINUTE_MS };

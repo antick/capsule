@@ -1,0 +1,4 @@
+{
+  "extends": "@capsule/tsconfig/node.json",
+  "include": ["src"]
+}

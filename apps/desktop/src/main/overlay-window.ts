@@ -1,17 +1,12 @@
-import { join } from "node:path";
 import {
-  APP_NAME,
   type CapsuleSettings,
+  type ChromeSnapshot,
   type Corner,
-  cardHeightForBuckets,
-  computePlacement,
   cornerForRail,
-  cornerWindowSize,
   dockAlongEdge,
-  dockEdgeGap,
   dockStyleFor,
+  type HardwareNotch,
   HUD,
-  hudMetrics,
   IPC,
   MOTION,
   nearestEdgeForPoint,
@@ -21,21 +16,27 @@ import {
   type ProviderId,
   presetForEdge,
   type Rect,
-  railLengthForCount,
   railStartForCorner,
   slideAlongEdge,
   styleSupportsNotch,
   type WindowBox,
   zoomHoldBounds,
 } from "@capsule/config";
-import { BrowserWindow, screen, shell } from "electron";
+import { type BrowserWindow, screen } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
+import { HardwareNotchReader } from "./hardware-notch.ts";
+import { BoundsApplier } from "./overlay-bounds.ts";
+import {
+  createOverlayBrowserWindow,
+  MENU_SAFE_LEVEL,
+  TOP_LEVEL,
+} from "./overlay-browser-window.ts";
+import { HoverTracker } from "./overlay-hover.ts";
+import {
+  computeDockPlacement,
+  syntheticChromeFor,
+} from "./overlay-placement.ts";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
-
-/** Above the menu bar, so the notch can cover it. */
-const TOP_LEVEL = "screen-saver";
-/** Below pop-up menus, so a context menu is not hidden by the dock. */
-const MENU_SAFE_LEVEL = "floating";
 
 interface DragState {
   preset: PlacementPreset;
@@ -54,21 +55,26 @@ export class OverlayController {
   private settingsDisplayId: number | null = null;
   private drag: DragState | null = null;
   private dragTimer: ReturnType<typeof setInterval> | null = null;
-  private hoverTimer: ReturnType<typeof setInterval> | null = null;
-  private ignoreMouse = true;
   private pressed = false;
-  /** Window-local areas the dock wants the mouse for, reported by the renderer. */
-  private hitRegions: Rect[] = [];
+  private hover = new HoverTracker(
+    () => this.window,
+    () => this.pressed || this.drag !== null,
+  );
   private onPresetPreview: ((preset: PlacementPreset) => void) | null = null;
   /** Where the rail currently sits inside the window. */
   private railBias = 0;
   /** Corner the dock has curled into, or null while it lies along an edge. */
   private corner: Corner | null = null;
+  /**
+   * The display's own notch, while the dock is drawn as it. Only ever set on
+   * the top edge of a display that has one; everywhere else the dock is its
+   * own shape.
+   */
+  private hardwareNotch: HardwareNotch | null = null;
+  private notchReader = new HardwareNotchReader();
   /** What the renderer was last told, so a drag does not spam identical values. */
   private publishedFrame: string | null = null;
-  /** Size the window was last laid out for; null until it is first placed. */
-  private appliedScale: number | null = null;
-  private zoomHold: ReturnType<typeof setTimeout> | null = null;
+  private bounds = new BoundsApplier();
 
   constructor(settings: CapsuleSettings) {
     this.settings = settings;
@@ -92,51 +98,7 @@ export class OverlayController {
       return this.window;
     }
 
-    const win = new BrowserWindow({
-      title: APP_NAME,
-      width: 320,
-      height: 280,
-      x: 0,
-      y: 0,
-      show: false,
-      frame: false,
-      transparent: true,
-      backgroundColor: "#00000000",
-      hasShadow: false,
-      roundedCorners: false,
-      skipTaskbar: true,
-      focusable: false,
-      acceptFirstMouse: true,
-      resizable: false,
-      maximizable: false,
-      minimizable: false,
-      fullscreenable: false,
-      hiddenInMissionControl: true,
-      type: "panel",
-      webPreferences: {
-        preload: join(__dirname, "../preload/index.js"),
-        contextIsolation: true,
-        nodeIntegration: false,
-        sandbox: true,
-      },
-    });
-
-    win.setAlwaysOnTop(true, TOP_LEVEL);
-    // Electron's default here calls dock.show() when visibleOnFullScreen is
-    // false — that is what kept putting the Electron tile back in the Dock
-    // after every accessory-policy hide. Skip the process-type transform so
-    // the HUD can still ride every Space and stay off native fullscreen.
-    win.setVisibleOnAllWorkspaces(true, {
-      visibleOnFullScreen: false,
-      skipTransformProcessType: true,
-    });
-    win.setIgnoreMouseEvents(true, { forward: true });
-    win.setMenuBarVisibility(false);
-
-    win.webContents.setWindowOpenHandler((details) => {
-      void shell.openExternal(details.url);
-      return { action: "deny" };
-    });
+    const win = createOverlayBrowserWindow();
 
     this.window = win;
     await this.relayout();
@@ -164,7 +126,7 @@ export class OverlayController {
     }
 
     win.showInactive();
-    this.startHoverTracking();
+    this.hover.start();
     return win;
   }
 
@@ -177,17 +139,16 @@ export class OverlayController {
    * renderer publishes.
    */
   setHitRegions(regions: Rect[]): void {
-    this.hitRegions = regions;
-    this.updateHover();
+    this.hover.setHitRegions(regions);
   }
 
   /** Held from pointerdown to pointerup: never go click-through mid-press. */
   setPressed(pressed: boolean): void {
     this.pressed = pressed;
     if (pressed) {
-      this.setIgnore(false);
+      this.hover.setIgnore(false);
     } else {
-      this.updateHover();
+      this.hover.update();
     }
   }
 
@@ -241,7 +202,7 @@ export class OverlayController {
         (placement.slide.axis === "x" ? screenX : screenY) - railStart,
       railStart,
     };
-    this.setIgnore(false);
+    this.hover.setIgnore(false);
     this.stopDragPoll();
     // Follow the cursor from the main process. A click-through overlay stops
     // receiving pointer events the moment it is no longer under the cursor,
@@ -291,10 +252,7 @@ export class OverlayController {
 
   destroy(): void {
     this.stopDragPoll();
-    if (this.hoverTimer) {
-      clearInterval(this.hoverTimer);
-      this.hoverTimer = null;
-    }
+    this.hover.stop();
   }
 
   async relayout(): Promise<PlacementResult | null> {
@@ -304,10 +262,13 @@ export class OverlayController {
     }
     const preset = this.settings.placementPreset;
     const chrome = await this.chromeFor(preset);
+    this.hardwareNotch = await this.joinedNotchFor(preset);
     const edge = this.computeFor(preset, chrome, null);
     this.settingsDisplayId = edge.displayId;
 
-    const custom = this.settings.customPosition;
+    // Drawn as the display's notch, the dock stays over the display's notch:
+    // a remembered offset would leave a black bar beside the real one.
+    const custom = this.hardwareNotch ? null : this.settings.customPosition;
     // A remembered position only says how far along the edge the rail sits;
     // the axis pinned to the edge always comes from the placement.
     const railStart = custom
@@ -315,7 +276,7 @@ export class OverlayController {
         ? custom.x
         : custom.y
       : this.railStartOf(edge);
-    const corner = this.cornerFor(edge, railStart);
+    const corner = this.hardwareNotch ? null : this.cornerFor(edge, railStart);
     const placement = corner
       ? this.computeFor(preset, chrome, corner)
       : this.slid(edge, railStart);
@@ -326,7 +287,12 @@ export class OverlayController {
       width: Math.round(placement.width),
       height: Math.round(placement.height),
     };
-    this.applyBounds(win, bounds, placement.cardGrowth);
+    this.bounds.apply(
+      win,
+      bounds,
+      placement.cardGrowth,
+      this.settings.hudScale,
+    );
     this.publishFrame(placement.railBias, corner);
     return { ...placement, x: bounds.x, y: bounds.y };
   }
@@ -342,40 +308,39 @@ export class OverlayController {
     };
   }
 
-  /**
-   * Moves the window, holding it at the larger size for the length of a resize
-   * so the renderer can ease the artwork between the two without being clipped
-   * by its own window. The window is transparent, so nobody sees the slack.
-   */
-  private applyBounds(
-    win: BrowserWindow,
-    bounds: WindowBox,
-    cardGrowth: PlacementResult["cardGrowth"],
-  ): void {
-    if (this.zoomHold) {
-      clearTimeout(this.zoomHold);
-      this.zoomHold = null;
-    }
-    const zooming =
-      this.appliedScale !== null &&
-      this.appliedScale !== this.settings.hudScale;
-    this.appliedScale = this.settings.hudScale;
-    if (!zooming) {
-      win.setBounds(bounds, false);
-      return;
-    }
-    win.setBounds(zoomHoldBounds(bounds, win.getBounds(), cardGrowth), false);
-    this.zoomHold = setTimeout(() => {
-      this.zoomHold = null;
-      if (!win.isDestroyed()) {
-        win.setBounds(bounds, false);
-      }
-    }, MOTION.zoomMs + MOTION.zoomSettleMs);
+  /** How the overlay should currently draw itself, for a renderer that asks. */
+  dockFrame(): {
+    railBias: number;
+    corner: Corner | null;
+    hardwareNotch: HardwareNotch | null;
+  } {
+    return {
+      railBias: this.railBias,
+      corner: this.corner,
+      hardwareNotch: this.hardwareNotch,
+    };
   }
 
-  /** How the overlay should currently draw itself, for a renderer that asks. */
-  dockFrame(): { railBias: number; corner: Corner | null } {
-    return { railBias: this.railBias, corner: this.corner };
+  /** The display set changed; ask AppKit about notches again next time. */
+  invalidateHardwareNotch(): void {
+    this.notchReader.invalidate();
+  }
+
+  /**
+   * The notch to join, if any: only the top edge, only in a style that can
+   * pass for one, and only on a display that has one.
+   */
+  private async joinedNotchFor(
+    preset: PlacementPreset,
+  ): Promise<HardwareNotch | null> {
+    if (preset !== "top-edge") {
+      return null;
+    }
+    if (!styleSupportsNotch(dockStyleFor(this.settings.dockStyle))) {
+      return null;
+    }
+    const display = this.currentDisplay();
+    return this.notchReader.read({ id: display.id, bounds: display.bounds });
   }
 
   /** Tells the renderer how to draw itself in the window it was just given. */
@@ -384,7 +349,11 @@ export class OverlayController {
     if (!win || win.isDestroyed()) {
       return;
     }
-    const frame = { railBias: Math.round(bias), corner };
+    const frame = {
+      railBias: Math.round(bias),
+      corner,
+      hardwareNotch: this.hardwareNotch,
+    };
     this.railBias = frame.railBias;
     this.corner = corner;
     const key = JSON.stringify(frame);
@@ -418,19 +387,8 @@ export class OverlayController {
     return axis + placement.slide.gutter + placement.railBias;
   }
 
-  /** The display the dock currently lives on, without asking the system Dock. */
-  private syntheticChrome(): Parameters<typeof computePlacement>[1] {
-    const display = this.currentDisplay();
-    return {
-      display: {
-        id: display.id,
-        bounds: display.bounds,
-        workArea: display.workArea,
-      },
-      // Dock metrics only matter for the bottom preset, and the work-area
-      // inset already tells us the Dock's thickness during a drag.
-      dock: { orientation: "bottom", autohide: false, tilesize: 48 },
-    };
+  private syntheticChrome(): ChromeSnapshot {
+    return syntheticChromeFor(this.currentDisplay());
   }
 
   private currentDisplay() {
@@ -441,9 +399,7 @@ export class OverlayController {
     );
   }
 
-  private async chromeFor(
-    _preset: PlacementPreset,
-  ): Promise<Parameters<typeof computePlacement>[1]> {
+  private async chromeFor(_preset: PlacementPreset): Promise<ChromeSnapshot> {
     const display = this.currentDisplay();
     return readChromeSnapshot({
       id: display.id,
@@ -454,42 +410,17 @@ export class OverlayController {
 
   private computeFor(
     preset: PlacementPreset,
-    chrome: Parameters<typeof computePlacement>[1],
+    chrome: ChromeSnapshot,
     corner: Corner | null,
   ): PlacementResult {
-    const metrics = hudMetrics(this.settings.hudScale);
-    const style = dockStyleFor(this.settings.dockStyle);
-    const notchAllowed = styleSupportsNotch(style);
-    // Matches UsageDock: a dock lying along an edge drops its percent
-    // captions, which makes its rail shorter than a vertical one. An arc drops
-    // them too, so a corner dock measures as a compact one.
-    const compact =
-      corner !== null || preset === "top-edge" || preset === "bottom-edge";
-    const cardHeight = cardHeightForBuckets(metrics, HUD.maxCardBuckets);
-    return computePlacement(
+    return computeDockPlacement({
+      settings: this.settings,
+      meterCount: this.meterCount,
+      hardwareNotch: this.hardwareNotch,
       preset,
       chrome,
-      {
-        railWidth: metrics.railWidth,
-        railLength: railLengthForCount(metrics, this.meterCount, compact),
-        cardWidth: metrics.cardWidth,
-        // Sized for the tallest card, since the window cannot resize itself
-        // mid-animation without the bubble tearing.
-        cardHeight,
-        expanded: true,
-        shadowPadding: metrics.shadowPadding,
-        joinWidth: metrics.tailLength + metrics.joinGap,
-        edgeFlare: metrics.edgeFlare * style.flare,
-        edgeGap: dockEdgeGap(metrics, style),
-        corner: cornerWindowSize(metrics, {
-          meterCount: this.meterCount,
-          cardHeight,
-          style,
-        }),
-      },
-      PLACEMENT,
-      { notchAllowed, corner },
-    );
+      corner,
+    });
   }
 
   /**
@@ -551,67 +482,10 @@ export class OverlayController {
     this.publishFrame(curled ? 0 : next.railBias, corner);
   }
 
-  private startHoverTracking(): void {
-    if (this.hoverTimer) {
-      return;
-    }
-    this.hoverTimer = setInterval(() => {
-      this.updateHover();
-    }, MOTION.hoverPollMs);
-  }
-
-  private updateHover(): void {
-    const win = this.window;
-    if (!win || win.isDestroyed()) {
-      return;
-    }
-    // A press or a drag owns the mouse until it ends, whatever the cursor
-    // is over — the dock may well have slid out from under it.
-    if (this.pressed || this.drag) {
-      this.setIgnore(false);
-      return;
-    }
-    if (!win.isVisible() || this.hitRegions.length === 0) {
-      this.setIgnore(true);
-      return;
-    }
-    const cursor = screen.getCursorScreenPoint();
-    const bounds = win.getBounds();
-    const x = cursor.x - bounds.x;
-    const y = cursor.y - bounds.y;
-    this.setIgnore(!this.hitRegions.some((rect) => contains(rect, x, y)));
-  }
-
   private stopDragPoll(): void {
     if (this.dragTimer) {
       clearInterval(this.dragTimer);
       this.dragTimer = null;
     }
   }
-
-  private setIgnore(ignore: boolean): void {
-    const win = this.window;
-    if (!win || win.isDestroyed()) {
-      return;
-    }
-    if (this.ignoreMouse === ignore) {
-      return;
-    }
-    this.ignoreMouse = ignore;
-    win.setIgnoreMouseEvents(ignore, { forward: true });
-    // Going click-through does not raise pointerout in the renderer, so a dock
-    // that opened a card would sit there with it open for good. The hit test
-    // already knows the cursor has gone; say so.
-    win.webContents.send(IPC.pointerInside, !ignore);
-  }
-}
-
-function contains(rect: Rect, x: number, y: number): boolean {
-  const slop = MOTION.hoverSlopPx;
-  return (
-    x >= rect.x - slop &&
-    x <= rect.x + rect.width + slop &&
-    y >= rect.y - slop &&
-    y <= rect.y + rect.height + slop
-  );
 }

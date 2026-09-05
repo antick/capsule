@@ -148,3 +148,44 @@ describe("stowShift", () => {
     expect(stowShift(m, "down")).toEqual({ x: 0, y: -m.stowShift });
   });
 });
+
+describe("joined with the display's notch", () => {
+  const notch = { width: 200, height: 32 };
+
+  it("folds away to exactly the hardware notch, centred on the rail", () => {
+    const layout = blobLayout(m, {
+      cardGrowth: "down",
+      railLength: 300,
+      joinOffset: 60,
+      cardHeight: cardHeightForBuckets(m, 2),
+      railDepth: m.railWidth + notch.height,
+      flare: m.notchBezelFillet,
+    });
+    const rest = restingRail(m, layout, notch);
+    const rail = layout.canonical.rail;
+    expect(rest.width).toBe(notch.height);
+    expect(rest.height).toBe(notch.width);
+    expect(rest.x + rest.width).toBe(rail.x + rail.width);
+    expect(rest.y + rest.height / 2).toBeCloseTo(rail.y + rail.height / 2);
+    // Oriented for the top edge: as wide as the notch, hanging from the top.
+    const latch = latchRect(m, "down", layout, notch);
+    expect(latch.width).toBe(notch.width);
+    expect(latch.height).toBe(notch.height);
+    expect(latch.y).toBe(layout.rail.y);
+    // And the band that wakes it reaches below the hole.
+    const zone = latchHotZone(m, "down", layout, notch);
+    expect(zone.height).toBe(notch.height + m.latchReach);
+    const folded = railMorph(m, "down", layout, 0, {
+      notch: true,
+      flare: m.notchBezelFillet,
+      resting: rest,
+    });
+    for (const p of coords(folded.path)) {
+      expect(p.x).toBeGreaterThanOrEqual(latch.x - m.notchBezelFillet);
+      expect(p.x).toBeLessThanOrEqual(
+        latch.x + latch.width + m.notchBezelFillet,
+      );
+      expect(p.y).toBeLessThanOrEqual(latch.y + latch.height);
+    }
+  });
+});

@@ -14,5 +14,7 @@ export function mergeSnapshot(
     ...previous,
     status: "stale",
     fetchedAt: next.fetchedAt,
+    // The numbers are the old reading's, so they keep the old reading's date.
+    staleSince: previous.staleSince ?? previous.fetchedAt,
   };
 }

@@ -10,6 +10,7 @@ import {
   type UsageBucket,
   type UsageSnapshot,
 } from "@capsule/config";
+import { RateLimitedError, retryAfterMs } from "../backoff.ts";
 import { toPercent } from "../clamp.ts";
 import { usageHeaders } from "../headers.ts";
 import { credentialPath, resetIso, windowLabel } from "../reset.ts";
@@ -206,6 +207,11 @@ export function createCodexProvider(): UsageProvider {
       }
       if (response.status === 401 || response.status === 403) {
         return unauthenticatedSnapshot("codex", context.now);
+      }
+      if (response.status === 429) {
+        throw new RateLimitedError(
+          retryAfterMs(response.headers.get("Retry-After"), context.now),
+        );
       }
       if (!response.ok) {
         throw new Error(`Codex usage HTTP ${response.status}`);

@@ -1,4 +1,4 @@
-import type { DockStyle, HudMetrics } from "@capsule/config";
+import type { DockStyle, HardwareNotch, HudMetrics } from "@capsule/config";
 import { type BlobLayout, type Rect, traceRail } from "./blob-path.ts";
 import {
   type CardGrowth,
@@ -12,14 +12,23 @@ import {
  * rail's outer face, centred along it, so opening and closing share a centre
  * line and the dock never slides along the edge as it grows.
  */
-export function restingRail(m: HudMetrics, layout: BlobLayout): Rect {
+export function restingRail(
+  m: HudMetrics,
+  layout: BlobLayout,
+  joined: HardwareNotch | null = null,
+): Rect {
   const rail = layout.canonical.rail;
-  const long = Math.min(m.latchLength, rail.height);
+  // Drawn as the display's own notch, the dock folds away to exactly that
+  // notch — same width, same depth — so nothing shows at rest, and reaching
+  // for it makes the notch itself grow. A separate tab hanging below the
+  // hardware would be the very seam this placement exists to remove.
+  const across = joined ? joined.height : m.latchThickness;
+  const along = Math.min(joined ? joined.width : m.latchLength, rail.height);
   return {
-    x: rail.x + rail.width - m.latchThickness,
-    y: rail.y + (rail.height - long) / 2,
-    width: m.latchThickness,
-    height: long,
+    x: rail.x + rail.width - across,
+    y: rail.y + (rail.height - along) / 2,
+    width: across,
+    height: along,
   };
 }
 
@@ -28,8 +37,13 @@ export function latchRect(
   m: HudMetrics,
   growth: CardGrowth,
   layout: BlobLayout,
+  joined: HardwareNotch | null = null,
 ): Rect {
-  return mapRect(restingRail(m, layout), growth, layout.canonical.width);
+  return mapRect(
+    restingRail(m, layout, joined),
+    growth,
+    layout.canonical.width,
+  );
 }
 
 /**
@@ -41,19 +55,22 @@ export function latchHotZone(
   m: HudMetrics,
   growth: CardGrowth,
   layout: BlobLayout,
+  joined: HardwareNotch | null = null,
 ): Rect {
-  const latch = latchRect(m, growth, layout);
+  const latch = latchRect(m, growth, layout, joined);
   const reach = m.latchReach;
+  // The latch itself plus a band reaching inward from it: across a hardware
+  // notch that is the hole and the strip of screen just under it.
   if (growth === "left") {
-    return { ...latch, x: latch.x + latch.width - reach, width: reach };
+    return { ...latch, x: latch.x - reach, width: latch.width + reach };
   }
   if (growth === "right") {
-    return { ...latch, width: reach };
+    return { ...latch, width: latch.width + reach };
   }
   if (growth === "up") {
-    return { ...latch, y: latch.y + latch.height - reach, height: reach };
+    return { ...latch, y: latch.y - reach, height: latch.height + reach };
   }
-  return { ...latch, height: reach };
+  return { ...latch, height: latch.height + reach };
 }
 
 function lerp(a: number, b: number, t: number): number {
@@ -92,16 +109,19 @@ export function railMorph(
   growth: CardGrowth,
   layout: BlobLayout,
   openness: number,
-  options: { notch?: boolean; style?: DockStyle } = {},
+  options: {
+    notch?: boolean;
+    style?: DockStyle;
+    flare?: number;
+    /** What the rail folds down to, when it is not the plain latch. */
+    resting?: Rect;
+  } = {},
 ): RailMorph {
   const base = layout.canonical;
   const k = Math.min(1, Math.max(0, openness));
+  const resting = options.resting ?? restingRail(m, layout);
   const rail =
-    k >= 1
-      ? base.rail
-      : k <= 0
-        ? restingRail(m, layout)
-        : lerpRect(restingRail(m, layout), base.rail, k);
+    k >= 1 ? base.rail : k <= 0 ? resting : lerpRect(resting, base.rail, k);
   const mapper = mapperFor(growth, base.width);
   const box = layout.rail;
   const local: Mapper = {

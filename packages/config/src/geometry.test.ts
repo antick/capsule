@@ -1,22 +1,28 @@
 import { describe, expect, it } from "vitest";
 import {
+  HUD,
   HUD_BASE,
   PLACEMENT_HINTS,
   PLACEMENT_LABELS,
   PLACEMENT_PRESETS,
 } from "./constants.ts";
 import {
+  cardHeightFor,
   cardHeightForBuckets,
   cardMessageHeight,
+  cardReserveHeight,
   clampHudScale,
   HUD_SCALE,
   hudMetrics,
   hudScaleSteps,
+  joinedNotchRailLength,
   joinOffsetForIndex,
   meterBlockSize,
   meterStrideSize,
   nextHudScale,
+  railEndSpread,
   railLengthForCount,
+  sessionRowsShown,
 } from "./metrics.ts";
 
 const m = hudMetrics(1);
@@ -145,5 +151,61 @@ describe("placement copy", () => {
       expect(PLACEMENT_LABELS[preset].length).toBeGreaterThan(0);
       expect(PLACEMENT_HINTS[preset].length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("card height with sessions", () => {
+  it("adds a rule and two-line rows for live sessions", () => {
+    const bare = cardHeightFor(m, { buckets: 2 });
+    const one = cardHeightFor(m, { buckets: 2, sessions: 1 });
+    const two = cardHeightFor(m, { buckets: 2, sessions: 2 });
+    expect(bare).toBe(cardHeightForBuckets(m, 2));
+    expect(one - bare).toBe(
+      m.cardRuleGap * 2 + m.cardRule + m.cardTextLine * 2 + m.cardBucketGap,
+    );
+    expect(two - one).toBe(
+      m.cardSectionGap + m.cardTextLine * 2 + m.cardBucketGap,
+    );
+  });
+
+  it("stops growing at the cap and adds one line to count the rest", () => {
+    const capped = cardHeightFor(m, {
+      buckets: 2,
+      sessions: HUD.maxCardSessions,
+    });
+    const over = cardHeightFor(m, {
+      buckets: 2,
+      sessions: HUD.maxCardSessions + 3,
+    });
+    expect(over - capped).toBe(m.cardSectionGap + m.cardTextLine);
+    // The reserve holds the busiest provider with a list that had to be cut.
+    expect(cardReserveHeight(m)).toBeGreaterThan(
+      cardHeightForBuckets(m, HUD.maxCardBuckets),
+    );
+    expect(sessionRowsShown(HUD.maxCardSessions + 3)).toEqual({
+      rows: HUD.maxCardSessions,
+      hidden: 3,
+    });
+  });
+});
+
+describe("joined notch rail", () => {
+  const notch = { width: 200, height: 32 };
+
+  it("is never narrower than the hardware plus a corner each side", () => {
+    expect(joinedNotchRailLength(m, 1, notch)).toBe(
+      notch.width + 2 * m.notchRadius,
+    );
+    expect(joinedNotchRailLength(m, 3, notch)).toBeGreaterThanOrEqual(
+      railLengthForCount(m, 3, true),
+    );
+  });
+
+  it("spreads the surplus evenly so the meters stay centred", () => {
+    const length = joinedNotchRailLength(m, 1, notch);
+    expect(railEndSpread(m, 1, true, length)).toBe(
+      (length - railLengthForCount(m, 1, true)) / 2,
+    );
+    expect(railEndSpread(m, 3, false, railLengthForCount(m, 3))).toBe(0);
   });
 });

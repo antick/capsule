@@ -9,6 +9,7 @@ import {
   PROVIDER_LABELS,
   type UsageSnapshot,
 } from "@capsule/config";
+import { RateLimitedError, retryAfterMs } from "../backoff.ts";
 import { toPercent } from "../clamp.ts";
 import { usageHeaders } from "../headers.ts";
 import type { UsageProvider, UsageProviderContext } from "../types.ts";
@@ -152,6 +153,7 @@ export function createClaudeProvider(): UsageProvider {
       ].filter((value): value is string => value !== null);
 
       let lastError: Error | null = null;
+      let refused: RateLimitedError | null = null;
       for (const token of new Set(tokens)) {
         try {
           const response = await context.fetch(ANTHROPIC_OAUTH_USAGE_URL, {
@@ -163,6 +165,12 @@ export function createClaudeProvider(): UsageProvider {
           if (response.ok) {
             const payload = (await response.json()) as ClaudeUsageResponse;
             return mapClaudeUsage(payload, context.now);
+          }
+          if (response.status === 429) {
+            refused = new RateLimitedError(
+              retryAfterMs(response.headers.get("Retry-After"), context.now),
+            );
+            break;
           }
           // 401/403 means this credential is dead; fall through to the next one.
           if (response.status !== 401 && response.status !== 403) {
@@ -176,6 +184,12 @@ export function createClaudeProvider(): UsageProvider {
       }
 
       const cached = await cachedClaudeSnapshot(context);
+      // Told to wait: say so, so the poller backs off instead of knocking
+      // again next minute — which is what keeps the door shut. The local
+      // cache still rides along, for the poller to show meanwhile.
+      if (refused) {
+        throw new RateLimitedError(refused.retryAfterMs, cached);
+      }
       if (cached) {
         return cached;
       }

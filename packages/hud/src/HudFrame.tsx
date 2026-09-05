@@ -1,7 +1,9 @@
 import {
   cardHeightForBuckets,
+  cardReserveHeight,
   DOCK_STYLES,
   type DockStyle,
+  type HardwareNotch,
   HUD,
   HUD_THEMES,
   type HudMetrics,
@@ -20,7 +22,7 @@ import {
   type HitRegions,
   hitRegions,
 } from "./blob-path.ts";
-import { latchHotZone, railMorph } from "./latch-path.ts";
+import { latchHotZone, railMorph, restingRail } from "./latch-path.ts";
 import { cardReveal } from "./reveal.ts";
 import { dockShadow } from "./shadow.ts";
 import { useSpring } from "./use-spring.ts";
@@ -31,7 +33,6 @@ export function HudFrame({
   metrics,
   theme = HUD_THEMES.midnight,
   style = DOCK_STYLES.rail,
-  orientation,
   cardGrowth,
   notch,
   compact,
@@ -42,6 +43,7 @@ export function HudFrame({
   cardHeight,
   railBias = null,
   peek = false,
+  hardwareNotch = null,
   rail,
   card,
   onHitRegions,
@@ -49,7 +51,8 @@ export function HudFrame({
   metrics: HudMetrics;
   theme?: HudTheme;
   style?: DockStyle;
-  orientation: "vertical" | "horizontal";
+  /** Kept for callers that still pass it; the growth direction decides. */
+  orientation?: "vertical" | "horizontal";
   cardGrowth: CardGrowth;
   notch?: boolean;
   /** Horizontal docks drop the percent caption to stay edge-thin. */
@@ -63,6 +66,12 @@ export function HudFrame({
   railBias?: number | null;
   /** Retracted into the screen edge, showing only its latch. */
   peek?: boolean;
+  /**
+   * The display's own notch, when this rail is drawn as it: flush to the
+   * bezel, no flares, deeper by the notch's height so the readings sit below
+   * the hole, and folding away to exactly the notch's shape.
+   */
+  hardwareNotch?: HardwareNotch | null;
   rail: ReactNode;
   card: ReactNode;
   onHitRegions?: (regions: HitRegions) => void;
@@ -75,12 +84,19 @@ export function HudFrame({
   // 0 is the resting latch, 1 the open rail. One shape morphs between the
   // two: the latch *is* the rail, folded down to a sliver on the edge.
   const openness = useSpring(peek ? 0 : 1, SPRINGS.unfold);
+  const joined = hardwareNotch;
+  const inset = joined?.height ?? 0;
+  const flare = joined
+    ? metrics.notchBezelFillet
+    : metrics.edgeFlare * style.flare;
   const shape = {
     cardGrowth,
     railLength,
-    cardReserve: cardHeightForBuckets(metrics, HUD.maxCardBuckets),
+    cardReserve: cardReserveHeight(metrics),
     style,
     railBias,
+    railDepth: metrics.railWidth + inset,
+    flare,
   };
   const layout = blobLayout(metrics, {
     ...shape,
@@ -99,17 +115,15 @@ export function HudFrame({
   const pad = framePadding(metrics, cardGrowth, style);
   const visible = open && !dragging && !peek;
   const interactive = visible;
-  const zone = latchHotZone(metrics, cardGrowth, settled);
+  const zone = latchHotZone(metrics, cardGrowth, settled, joined);
   const shadow = dockShadow(metrics, theme);
-  const alongPadding = compact ? metrics.notchPaddingY : metrics.railPaddingY;
-  const railPadding =
-    orientation === "vertical"
-      ? `${alongPadding}px ${metrics.railPaddingX}px`
-      : `${metrics.railPaddingX}px ${alongPadding}px`;
+  const railPadding = railPaddingFor(metrics, cardGrowth, compact, inset);
 
   const morph = railMorph(metrics, cardGrowth, layout, openness, {
     notch,
     style,
+    flare,
+    resting: restingRail(metrics, layout, joined),
   });
   // Still folding, one way or the other: the meters are masked by the outline
   // so the shape swallows them rather than letting them slide out of its end.
@@ -192,7 +206,7 @@ export function HudFrame({
                 latch is its whole presence at rest, and a black sliver on a
                 black wallpaper is no presence at all. Outlined styles keep it
                 open too. */}
-            {style.outline || folding ? (
+            {style.outline || (folding && !joined) ? (
               <path
                 d={morph.path}
                 fill="none"
@@ -272,7 +286,7 @@ export function HudFrame({
             height: layout.rail.height,
             boxSizing: "border-box",
             display: "flex",
-            flexDirection: orientation === "vertical" ? "column" : "row",
+            flexDirection: isVertical(cardGrowth) ? "column" : "row",
             alignItems: "center",
             justifyContent: "center",
             gap: metrics.itemGap,
@@ -305,6 +319,36 @@ export function HudFrame({
       </div>
     </div>
   );
+}
+
+/**
+ * Room inside the rail around the meters. The side facing the screen edge
+ * carries the extra `inset` a bar drawn as the display's notch needs, so the
+ * readings start below the hole rather than inside it.
+ */
+function railPaddingFor(
+  m: HudMetrics,
+  growth: CardGrowth,
+  compact: boolean | undefined,
+  inset: number,
+): string {
+  const along = compact ? m.notchPaddingY : m.railPaddingY;
+  const across = m.railPaddingX;
+  const edge = across + inset;
+  if (growth === "left") {
+    return `${along}px ${edge}px ${along}px ${across}px`;
+  }
+  if (growth === "right") {
+    return `${along}px ${across}px ${along}px ${edge}px`;
+  }
+  if (growth === "up") {
+    return `${across}px ${along}px ${edge}px ${along}px`;
+  }
+  return `${edge}px ${along}px ${across}px ${along}px`;
+}
+
+function isVertical(growth: CardGrowth): boolean {
+  return growth === "left" || growth === "right";
 }
 
 function railOrigin(growth: CardGrowth): string {

@@ -15,7 +15,32 @@ export interface AppChromeHandlers {
   applyPlacement: (preset: PlacementPreset) => void;
   openSettings: () => void;
   revealDock: () => void;
+  /** Whether an auto-hiding dock is being held out right now. */
+  getKeepOpen: () => boolean;
+  toggleKeepOpen: () => void;
   quit: () => void;
+}
+
+/**
+ * "Keep open": checked while the dock is held out, but only changeable when
+ * the dock hides by itself. A dock that is always shown is already held out
+ * by a setting, and a menu item that silently loses is worse than one that
+ * says it is not yours to press.
+ */
+function keepOpenItem(
+  settings: CapsuleSettings,
+  handlers: AppChromeHandlers,
+  accelerator?: string,
+): MenuItemConstructorOptions {
+  return {
+    label: COPY.keepOpen,
+    type: "checkbox",
+    checked: handlers.getKeepOpen(),
+    enabled: settings.autoHide,
+    toolTip: settings.autoHide ? undefined : COPY.keepOpenDisabledHint,
+    accelerator,
+    click: () => handlers.toggleKeepOpen(),
+  };
 }
 
 export function createAppChrome(handlers: AppChromeHandlers): {
@@ -61,6 +86,7 @@ export function capsuleCommandTemplate(
       label: COPY.showDock,
       click: () => handlers.revealDock(),
     },
+    keepOpenItem(settings, handlers),
     {
       label: COPY.openSettings,
       click: () => handlers.openSettings(),
@@ -93,6 +119,7 @@ function applicationMenuTemplate(
           accelerator: "CommandOrControl+Shift+D",
           click: () => handlers.revealDock(),
         },
+        keepOpenItem(settings, handlers, "CommandOrControl+Shift+K"),
         {
           label: COPY.settings,
           accelerator: "CommandOrControl+,",

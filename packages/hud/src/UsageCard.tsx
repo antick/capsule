@@ -1,14 +1,18 @@
 import {
+  type AgentSession,
   COPY,
   HUD_THEMES,
   type HudMetrics,
   type HudTheme,
   MOTION,
+  orderSessions,
   SEVERITY_COLORS,
+  sessionRowsShown,
+  sessionStateColor,
   severityForPercent,
   type UsageSnapshot,
 } from "@capsule/config";
-import { formatResetCopy } from "@capsule/dates";
+import { formatAgo, formatElapsed, formatResetCopy } from "@capsule/dates";
 import type { ReactElement } from "react";
 import { ProviderIcon } from "./icons.tsx";
 
@@ -110,18 +114,200 @@ function Message({
   );
 }
 
+/** The tiny ring beside a session's status word: turning while the agent
+ * works, half while it waits, whole when it is idle — so the row says what is
+ * happening before the word is read. */
+function StatusRing({
+  metrics,
+  state,
+  color,
+}: {
+  metrics: HudMetrics;
+  state: AgentSession["state"];
+  color: string;
+}): ReactElement {
+  const size = metrics.cardStatusDot;
+  const radius = (size - metrics.cardStatusStroke) / 2;
+  const lap = 2 * Math.PI * radius;
+  const trim = state === "busy" ? 0.75 : state === "waiting" ? 0.5 : 1;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      aria-hidden="true"
+      style={{ display: "block", flex: "none" }}
+    >
+      <circle
+        data-hud-status={state}
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke={color}
+        strokeWidth={metrics.cardStatusStroke}
+        strokeLinecap="round"
+        strokeDasharray={`${lap * trim} ${lap}`}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        style={
+          state === "busy"
+            ? {
+                transformBox: "fill-box",
+                transformOrigin: "center",
+                animation: `capsule-sweep ${MOTION.statusSpinMs}ms linear infinite`,
+              }
+            : undefined
+        }
+      />
+    </svg>
+  );
+}
+
+function SessionRow({
+  metrics,
+  theme,
+  session,
+  now,
+}: {
+  metrics: HudMetrics;
+  theme: HudTheme;
+  session: AgentSession;
+  now: Date;
+}): ReactElement {
+  const color = sessionStateColor(session.state, theme);
+  const word =
+    session.state === "busy"
+      ? COPY.sessionBusy
+      : session.state === "waiting"
+        ? COPY.sessionWaiting
+        : COPY.sessionIdle;
+  // While blocked, what it is blocked on matters more than where it lives.
+  const detail =
+    session.state === "waiting" && session.waitingFor
+      ? session.waitingFor
+      : session.detail;
+  const line = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: metrics.cardResetGap,
+    height: metrics.cardTextLine,
+    lineHeight: `${metrics.cardTextLine}px`,
+    fontSize: metrics.cardLabelSize,
+    whiteSpace: "nowrap",
+  } as const;
+  const clip = { overflow: "hidden", textOverflow: "ellipsis" } as const;
+  return (
+    <div
+      data-session={session.id}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: metrics.cardBucketGap,
+      }}
+    >
+      <div style={line}>
+        <span style={{ ...clip, color: theme.text }}>{session.name}</span>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: metrics.cardStatusGap,
+            color,
+            flex: "none",
+          }}
+        >
+          <StatusRing metrics={metrics} state={session.state} color={color} />
+          {word}
+        </span>
+      </div>
+      <div style={{ ...line, color: theme.textMuted }}>
+        <span style={clip}>{detail}</span>
+        <span style={{ flex: "none" }}>
+          {formatElapsed(new Date(session.since), now)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The live sessions for this provider, under a rule that separates them from
+ * the limit windows above — they answer a different question. Only as many as
+ * the card's budgeted height can hold; the rest are counted rather than drawn.
+ */
+function SessionList({
+  metrics,
+  theme,
+  sessions,
+  now,
+}: {
+  metrics: HudMetrics;
+  theme: HudTheme;
+  sessions: AgentSession[];
+  now: Date;
+}): ReactElement {
+  const ordered = orderSessions(sessions);
+  const { rows, hidden } = sessionRowsShown(ordered.length);
+  return (
+    <div data-session-list="true">
+      <div
+        style={{
+          height: metrics.cardRule,
+          background: theme.barTrack,
+          marginTop: metrics.cardRuleGap,
+          marginBottom: metrics.cardRuleGap,
+        }}
+      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: metrics.cardSectionGap,
+        }}
+      >
+        {ordered.slice(0, rows).map((session) => (
+          <SessionRow
+            key={session.id}
+            metrics={metrics}
+            theme={theme}
+            session={session}
+            now={now}
+          />
+        ))}
+        {hidden > 0 ? (
+          <Message
+            metrics={metrics}
+            theme={theme}
+            text={`${COPY.moreSessionsPrefix}${hidden}${COPY.moreSessionsSuffix}`}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function UsageCard({
   metrics,
   theme = HUD_THEMES.midnight,
   snapshot,
+  sessions = [],
   now,
 }: {
   metrics: HudMetrics;
   theme?: HudTheme;
   snapshot: UsageSnapshot;
+  /** What this provider's agents are doing, listed under the readings. */
+  sessions?: AgentSession[];
   now: Date;
 }): ReactElement {
   const title = `${snapshot.displayName}${COPY.usageTitleSuffix}`;
+  // Only worth saying when the numbers are not current. A remembered reading
+  // has to be dated, or it quietly passes itself off as live.
+  const readingAge =
+    snapshot.status === "stale" && snapshot.staleSince
+      ? formatAgo(new Date(snapshot.staleSince), now)
+      : null;
 
   let body: ReactElement;
   if (snapshot.status === "unauthenticated") {
@@ -188,9 +374,30 @@ export function UsageCard({
           color={theme.text}
           size={metrics.cardIconSize}
         />
-        <span>{title}</span>
+        <span style={{ whiteSpace: "nowrap" }}>{title}</span>
+        {readingAge ? (
+          <span
+            data-reading-age="true"
+            style={{
+              marginLeft: "auto",
+              fontSize: metrics.cardResetSize,
+              color: theme.textMuted,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {readingAge}
+          </span>
+        ) : null}
       </div>
       {body}
+      {sessions.length > 0 ? (
+        <SessionList
+          metrics={metrics}
+          theme={theme}
+          sessions={sessions}
+          now={now}
+        />
+      ) : null}
     </div>
   );
 }

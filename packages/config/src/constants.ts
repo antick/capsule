@@ -69,6 +69,11 @@ export const HUD = {
    */
   maxCardBuckets: 3,
   /**
+   * Most live sessions a card lists before counting the rest. Past this the
+   * list has stopped being glanceable, and counting is the kinder answer.
+   */
+  maxCardSessions: 4,
+  /**
    * Smallest corner arc, as a multiple of the rail's thickness. Without a floor
    * a one- or two-meter arc curls up so tightly it reads as a blob rather than
    * a band tracing the corner.
@@ -137,6 +142,26 @@ export const HUD_BASE = {
    * and scaling on top of it reads as two effects fighting.
    */
   stowShift: 10,
+  /**
+   * The activity indicator: a thinner arc inside the ring, in the gap between
+   * the glyph and the track, so it reads as a separate fact rather than as
+   * the usage number moving.
+   */
+  activitySize: 23,
+  activityStroke: 2,
+  /** Rule above the session list in the card, and the room either side of it. */
+  cardRule: 1,
+  cardRuleGap: 10,
+  /** The tiny ring beside a session's status word. */
+  cardStatusDot: 8,
+  cardStatusStroke: 1.5,
+  cardStatusGap: 5,
+  /**
+   * The small inverse corner where a bar flush with the display's own notch
+   * meets the screen's frame. The hardware notch is moulded into the bezel
+   * rather than cut out of it; a raw square edge does not read that way.
+   */
+  notchBezelFillet: 8,
 } as const;
 
 export const MOTION = {
@@ -160,6 +185,16 @@ export const MOTION = {
   crossfadeMs: 160,
   /** How far a ring presses in while its provider is being re-read. */
   refreshPressScale: 0.93,
+  /** One turn of the activity arc while an agent works. */
+  activitySpinMs: 1100,
+  /** How much of the circle that moving arc covers. */
+  activityArc: 0.25,
+  /** One breath of the ring that pulses while an agent waits on you. */
+  activityPulseMs: 900,
+  /** How faint the pulse gets. */
+  activityPulseFloor: 0.3,
+  /** One turn of the small status ring beside a busy session in the card. */
+  statusSpinMs: 1400,
   /** One lap of the arc that chases a ring while its provider reloads. */
   sweepMs: 1100,
   /** How much of the ring that chasing arc covers. */
@@ -286,6 +321,17 @@ export const IPC = {
    * it lives.
    */
   revealDock: "capsule:reveal-dock",
+  /** Live agent sessions, by provider, from the monitors main runs. */
+  activity: "capsule:activity",
+  getActivity: "capsule:get-activity",
+  /**
+   * Holding an auto-hiding dock out. A gesture rather than a setting: it
+   * lasts as long as this session of looking at it, and either the dock or a
+   * menu can flip it.
+   */
+  keepOpen: "capsule:keep-open",
+  setKeepOpen: "capsule:set-keep-open",
+  getKeepOpen: "capsule:get-keep-open",
 } as const;
 
 export const COPY = {
@@ -357,4 +403,17 @@ export const COPY = {
   onboardingBody:
     "Capsule reads Claude, Codex, and Grok logins already on this Mac. Sign in with those CLIs, or turn on demo mode to preview the dock.",
   enableDemo: "Enable demo mode",
+  keepOpen: "Keep open",
+  keepOpenDisabledHint:
+    'The dock is always shown. Turn on "Hide until needed" to hold it out on demand.',
+  sessionBusy: "working",
+  sessionWaiting: "waiting",
+  sessionIdle: "idle",
+  sessionWorkingDetail: "Working",
+  moreSessionsPrefix: "and ",
+  moreSessionsSuffix: " more",
+  surfaceDesktop: "Desktop",
+  surfaceVsCode: "VS Code",
+  surfaceAgent: "Agent",
+  surfaceTerminal: "Terminal",
 } as const;

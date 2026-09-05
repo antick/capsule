@@ -5,7 +5,8 @@ import {
   type UsageSnapshot,
 } from "@capsule/config";
 import { describe, expect, it, vi } from "vitest";
-import { createPoller, type PollerHost } from "./poller.ts";
+import { RateLimitedError } from "./backoff.ts";
+import { createPoller, type PollerHost, shouldRefresh } from "./poller.ts";
 import type { UsageProvider } from "./types.ts";
 
 const host: PollerHost = {
@@ -162,5 +163,108 @@ describe("poller.refresh", () => {
     expect(during?.refreshing).toBe(true);
     expect(during?.primaryPercent).toBe(before?.primaryPercent);
     expect(during?.status).toBe(before?.status);
+  });
+});
+
+describe("poller scheduling", () => {
+  it("polls at full rate while an agent works and idles otherwise", () => {
+    expect(shouldRefresh(true, 0, 300_000)).toBe(true);
+    expect(shouldRefresh(false, 60_000, 300_000)).toBe(false);
+    expect(shouldRefresh(false, 300_000, 300_000)).toBe(true);
+  });
+
+  it("skips the interval tick while every agent is idle", () => {
+    let tick: (() => void) | null = null;
+    const fetchSnapshot = vi.fn(() =>
+      Promise.resolve<UsageSnapshot>({
+        providerId: "claude",
+        displayName: "Claude",
+        iconId: "claude",
+        primaryPercent: 10,
+        buckets: [],
+        status: "ok",
+        fetchedAt: host.now().toISOString(),
+      }),
+    );
+    const poller = createPoller({
+      providers: [{ id: "claude", fetchSnapshot }],
+      host: {
+        ...host,
+        interval: (_ms, fn) => {
+          tick = fn;
+          return () => undefined;
+        },
+      },
+      getSettings: () => ({
+        ...defaultSettings(),
+        enabledProviderIds: ["claude"],
+      }),
+      onChange: () => undefined,
+      isBusy: () => false,
+      idleIntervalMs: 300_000,
+    });
+    poller.start();
+    expect(fetchSnapshot).toHaveBeenCalledTimes(1);
+    (tick as unknown as () => void)();
+    // The clock has not moved, so the idle interval has not passed.
+    expect(fetchSnapshot).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("poller back-off", () => {
+  it("holds the last numbers, dated, and stops asking until the penalty ends", async () => {
+    let clock = new Date("2026-01-01T00:00:00.000Z");
+    const saved: Record<string, number>[] = [];
+    const good: UsageSnapshot = {
+      providerId: "claude",
+      displayName: "Claude",
+      iconId: "claude",
+      primaryPercent: 40,
+      buckets: [],
+      status: "ok",
+      fetchedAt: clock.toISOString(),
+    };
+    let answer: () => Promise<UsageSnapshot> = () => Promise.resolve(good);
+    const calls = vi.fn(() => answer());
+    const poller = createPoller({
+      providers: [{ id: "claude", fetchSnapshot: calls }],
+      host: {
+        ...host,
+        now: () => clock,
+        saveBackoff: (until) => {
+          saved.push(until);
+        },
+      },
+      getSettings: () => ({
+        ...defaultSettings(),
+        enabledProviderIds: ["claude"],
+      }),
+      onChange: () => undefined,
+    });
+    await poller.refresh();
+    expect(poller.getSnapshots()[0]?.status).toBe("ok");
+
+    clock = new Date(clock.getTime() + 60_000);
+    answer = () => Promise.reject(new RateLimitedError(0));
+    await poller.refresh();
+    const stale = poller.getSnapshots()[0];
+    expect(stale?.status).toBe("stale");
+    expect(stale?.primaryPercent).toBe(40);
+    expect(stale?.staleSince).toBe(good.fetchedAt);
+    expect(saved.at(-1)?.claude).toBe(clock.getTime() + 60_000);
+
+    // Inside the penalty nothing is fetched at all.
+    const before = calls.mock.calls.length;
+    clock = new Date(clock.getTime() + 30_000);
+    await poller.refresh();
+    expect(calls.mock.calls.length).toBe(before);
+    expect(poller.getSnapshots()[0]?.status).toBe("stale");
+
+    // Once it has passed, the next attempt goes through and clears it.
+    clock = new Date(clock.getTime() + 60_000);
+    answer = () => Promise.resolve({ ...good, fetchedAt: clock.toISOString() });
+    await poller.refresh();
+    expect(poller.getSnapshots()[0]?.status).toBe("ok");
+    expect(saved.at(-1)).toEqual({});
   });
 });

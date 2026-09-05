@@ -1,10 +1,12 @@
 import {
   type CapsuleSettings,
+  IDLE_POLL_INTERVAL_MS,
   PROVIDER_LABELS,
   type ProviderId,
   placeholderSnapshots,
   type UsageSnapshot,
 } from "@capsule/config";
+import { backoffMs, RateLimitedError } from "./backoff.ts";
 import { mergeSnapshot } from "./merge.ts";
 import type { UsageProvider, UsageProviderContext } from "./types.ts";
 
@@ -17,6 +19,25 @@ export interface PollerHost {
   interval: (ms: number, tick: () => void) => () => void;
   onResume: (tick: () => void) => () => void;
   onOnline: (tick: () => void) => () => void;
+  /**
+   * Where a rate-limit penalty is remembered across launches, so relaunching
+   * during one waits it out instead of spending an attempt on it. Keyed by
+   * provider, valued by the epoch millisecond the penalty ends.
+   */
+  loadBackoff?: () => Record<string, number>;
+  saveBackoff?: (until: Record<string, number>) => void;
+}
+
+/**
+ * Poll at full rate while an agent is working; otherwise wait out the idle
+ * interval. Pure, so the schedule can be tested without a clock.
+ */
+export function shouldRefresh(
+  busy: boolean,
+  sinceLastAttemptMs: number,
+  idleIntervalMs: number = IDLE_POLL_INTERVAL_MS,
+): boolean {
+  return busy || sinceLastAttemptMs >= idleIntervalMs;
 }
 
 export interface Poller {
@@ -39,10 +60,27 @@ export function createPoller(options: {
   host: PollerHost;
   getSettings: () => CapsuleSettings;
   onChange: (snapshots: UsageSnapshot[]) => void;
+  /**
+   * Whether any agent is working right now. Left out, the poller assumes it
+   * always is and polls at full rate.
+   */
+  isBusy?: () => boolean;
+  idleIntervalMs?: number;
 }): Poller {
   let snapshots: UsageSnapshot[] = [];
   let stopFns: Array<() => void> = [];
   let inFlight: Promise<void> | null = null;
+  let lastAttempt: number | null = null;
+  /** Epoch millisecond each rate-limited provider may be asked again. */
+  const blockedUntil = new Map<string, number>(
+    Object.entries(options.host.loadBackoff?.() ?? {}),
+  );
+  /** How many 429s in a row each provider has answered with. */
+  const refusals = new Map<string, number>();
+
+  const persistBackoff = () => {
+    options.host.saveBackoff?.(Object.fromEntries(blockedUntil));
+  };
 
   const context = (): UsageProviderContext => ({
     now: options.host.now(),
@@ -66,25 +104,60 @@ export function createPoller(options: {
     options.onChange(snapshots);
   };
 
+  /** The last numbers we had, dated, in place of a fetch that did not happen. */
+  const heldBack = (
+    provider: UsageProvider,
+    previous: UsageSnapshot | undefined,
+  ): UsageSnapshot =>
+    mergeSnapshot(previous, {
+      providerId: provider.id,
+      displayName: PROVIDER_LABELS[provider.id],
+      iconId: provider.id,
+      primaryPercent: previous?.primaryPercent ?? null,
+      buckets: previous?.buckets ?? [],
+      status: "error",
+      fetchedAt: options.host.now().toISOString(),
+    });
+
   /** One provider's turn on the network, with a failure folded into a snapshot. */
   const fetchOne = async (provider: UsageProvider): Promise<UsageSnapshot> => {
     const previous = snapshots.find((item) => item.providerId === provider.id);
+    const now = options.host.now().getTime();
+    // Inside a penalty the answer is already known: show the dated numbers
+    // rather than spend an attempt extending the penalty.
+    if ((blockedUntil.get(provider.id) ?? 0) > now) {
+      return heldBack(provider, previous);
+    }
     try {
-      return mergeSnapshot(previous, await provider.fetchSnapshot(context()));
-    } catch (error) {
-      console.warn(
-        `Capsule ${provider.id} failed`,
-        error instanceof Error ? error.message : error,
+      const fresh = mergeSnapshot(
+        previous,
+        await provider.fetchSnapshot(context()),
       );
-      return mergeSnapshot(previous, {
-        providerId: provider.id,
-        displayName: PROVIDER_LABELS[provider.id],
-        iconId: provider.id,
-        primaryPercent: previous?.primaryPercent ?? null,
-        buckets: previous?.buckets ?? [],
-        status: "error",
-        fetchedAt: options.host.now().toISOString(),
-      });
+      if (blockedUntil.delete(provider.id)) {
+        persistBackoff();
+      }
+      refusals.delete(provider.id);
+      return fresh;
+    } catch (error) {
+      if (error instanceof RateLimitedError) {
+        const attempt = (refusals.get(provider.id) ?? 0) + 1;
+        refusals.set(provider.id, attempt);
+        const wait = backoffMs(attempt, error.retryAfterMs);
+        blockedUntil.set(provider.id, now + wait);
+        persistBackoff();
+        console.warn(
+          `Capsule ${provider.id} rate limited (${attempt}x), next attempt in ${Math.round(wait / 1000)}s`,
+        );
+        if (error.fallback) {
+          return mergeSnapshot(previous, error.fallback);
+        }
+      } else {
+        console.warn(
+          `Capsule ${provider.id} failed`,
+          error instanceof Error ? error.message : error,
+        );
+      }
+      return heldBack(provider, previous);
     }
   };
 
@@ -92,6 +165,7 @@ export function createPoller(options: {
     if (inFlight) {
       return inFlight;
     }
+    lastAttempt = options.host.now().getTime();
     inFlight = (async () => {
       const settings = options.getSettings();
       const enabled = new Set<ProviderId>(settings.enabledProviderIds);
@@ -174,6 +248,21 @@ export function createPoller(options: {
       options.onChange(snapshots);
       stopFns = [
         options.host.interval(settings.pollIntervalMs, () => {
+          // Refreshing when nobody is working only spends rate limit on
+          // numbers that cannot have moved.
+          const waited =
+            lastAttempt === null
+              ? Number.POSITIVE_INFINITY
+              : options.host.now().getTime() - lastAttempt;
+          if (
+            !shouldRefresh(
+              options.isBusy?.() ?? true,
+              waited,
+              options.idleIntervalMs,
+            )
+          ) {
+            return;
+          }
           void refresh();
         }),
         options.host.onResume(() => {

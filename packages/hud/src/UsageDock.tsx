@@ -1,51 +1,42 @@
 import {
+  type ActivityByProvider,
+  type AgentSession,
   type Corner,
-  cardHeightForBuckets,
-  cardMessageHeight,
+  cardHeightFor,
   DEMO_NOW_ISO,
   DOCK_STYLES,
   type DockStyle,
+  type HardwareNotch,
   HUD,
   HUD_THEMES,
   type HudMetrics,
   type HudTheme,
   hudMetrics,
+  joinedNotchRailLength,
   joinOffsetForIndex,
   MOTION,
   type ProviderId,
   placeholderSnapshots,
+  railEndSpread,
   railLengthForCount,
   styleSupportsNotch,
+  summarizeActivity,
   type UsageSnapshot,
 } from "@capsule/config";
 import {
   type MouseEvent,
-  type PointerEvent,
   type ReactElement,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { CornerFrame } from "./CornerFrame.tsx";
+import { DOCK_STYLESHEET } from "./dock-stylesheet.ts";
 import { type CardGrowth, type HitRegions, HudFrame } from "./HudFrame.tsx";
 import { stowShift } from "./latch-path.ts";
 import { UsageCard } from "./UsageCard.tsx";
 import { UsageMeter } from "./UsageMeter.tsx";
-
-const DOCK_STYLESHEET = `@keyframes capsule-sweep {
-  from { transform: rotate(-90deg); }
-  to { transform: rotate(270deg); }
-}
-@keyframes capsule-crossfade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-usage-dock] * {
-    transition-duration: 0ms !important;
-    animation-duration: 0ms !important;
-  }
-}`;
+import { useDockDrag } from "./use-dock-drag.ts";
 
 export function UsageDock({
   snapshots,
@@ -59,6 +50,10 @@ export function UsageDock({
   railBias = null,
   corner = null,
   autoHide = false,
+  keepOpen = false,
+  onKeepOpenChange,
+  activity = {},
+  hardwareNotch = null,
   pointerInside = null,
   revealNonce = 0,
   forceOpenProviderId = null,
@@ -84,6 +79,16 @@ export function UsageDock({
   corner?: Corner | null;
   /** Rest as a latch in the screen edge until the pointer comes for it. */
   autoHide?: boolean;
+  /**
+   * Held out, so it stays unrolled after the pointer leaves. A gesture rather
+   * than a setting: clicking the rail toggles it, and so can a menu.
+   */
+  keepOpen?: boolean;
+  onKeepOpenChange?: (keepOpen: boolean) => void;
+  /** Live agent sessions, by provider, for the rings and the card. */
+  activity?: ActivityByProvider;
+  /** The display's own notch, when the top edge is drawn as it. */
+  hardwareNotch?: HardwareNotch | null;
   /**
    * The host's own verdict on whether the cursor is over the dock. A
    * click-through window raises no pointerout, so DOM events alone would leave
@@ -113,24 +118,32 @@ export function UsageDock({
   const meters = snapshots.length > 0 ? snapshots : placeholderSnapshots();
   const [hovered, setHovered] = useState<ProviderId | null>(null);
   const [pinned, setPinned] = useState<ProviderId | null>(null);
-  const [dragging, setDragging] = useState(false);
   const [woken, setWoken] = useState(false);
   const [held, setHeld] = useState(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const peekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const drag = useRef<{
-    pointerId: number;
-    startX: number;
-    startY: number;
-    active: boolean;
-  } | null>(null);
-  const didDrag = useRef(false);
+  const { dragging, didDrag, handlers } = useDockDrag({
+    onPressedChange,
+    onMoveStart,
+    onMoveEnd,
+    onDragBegin: () => {
+      setPinned(null);
+      setHovered(null);
+      clearTimers();
+    },
+  });
 
-  // Retracted until something asks for it: a preview, a drag, or the pointer.
+  // Retracted until something asks for it: a preview, a drag, the pointer,
+  // or a standing request to keep it out.
   const peek =
-    autoHide && !woken && !held && !dragging && forceOpenProviderId === null;
+    autoHide &&
+    !woken &&
+    !held &&
+    !dragging &&
+    !keepOpen &&
+    forceOpenProviderId === null;
 
   const lastCard = useRef<UsageSnapshot | null>(null);
   const openId =
@@ -180,7 +193,7 @@ export function UsageDock({
   };
 
   const scheduleSleep = () => {
-    if (!autoHide || pinned || dragging || held) {
+    if (!autoHide || pinned || dragging || held || keepOpen) {
       return;
     }
     if (peekTimer.current) {
@@ -230,7 +243,7 @@ export function UsageDock({
     closeTimer.current = setTimeout(() => {
       setHovered(null);
     }, HUD.hoverCloseDelayMs);
-    if (autoHide && !held) {
+    if (autoHide && !held && !keepOpen) {
       peekTimer.current = setTimeout(() => {
         setWoken(false);
       }, MOTION.peekHoldMs);
@@ -282,72 +295,6 @@ export function UsageDock({
     };
   }, [revealNonce]);
 
-  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) {
-      return;
-    }
-    didDrag.current = false;
-    drag.current = {
-      pointerId: event.pointerId,
-      startX: event.screenX,
-      startY: event.screenY,
-      active: false,
-    };
-    // Capture on the dock root, never the pressed child: the rail path, card
-    // and meters all re-render mid-drag, and capture dies with the old node.
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {
-      // Pointer already released; the pointerup handler will tidy up.
-    }
-    onPressedChange?.(true);
-  };
-
-  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    const state = drag.current;
-    if (!state || state.pointerId !== event.pointerId) {
-      return;
-    }
-    if (state.active) {
-      return;
-    }
-    const dx = event.screenX - state.startX;
-    const dy = event.screenY - state.startY;
-    if (Math.hypot(dx, dy) < MOTION.dragThresholdPx) {
-      return;
-    }
-    state.active = true;
-    didDrag.current = true;
-    setDragging(true);
-    setPinned(null);
-    setHovered(null);
-    clearTimers();
-    // From here the main process follows the cursor itself, so the drag keeps
-    // working even when the window stops receiving pointer events.
-    onMoveStart?.(event.screenX, event.screenY);
-  };
-
-  const finishDrag = (event: PointerEvent<HTMLDivElement>) => {
-    const state = drag.current;
-    if (!state || state.pointerId !== event.pointerId) {
-      return;
-    }
-    if (state.active) {
-      onMoveEnd?.();
-    }
-    setDragging(false);
-    drag.current = null;
-    onPressedChange?.(false);
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // Capture was already lost; nothing to release.
-    }
-    window.setTimeout(() => {
-      didDrag.current = false;
-    }, 0);
-  };
-
   // A horizontal dock has to fit a meter's full height inside the rail's
   // thickness, so the percent caption is dropped rather than overflowing it.
   // A corner arc is the same story: the caption has nowhere to sit on a band
@@ -355,6 +302,32 @@ export function UsageDock({
   const compact = orientation === "horizontal" || corner !== null;
   const isNotch = notch && styleSupportsNotch(dockStyle);
   const shift = stowShift(metrics, cardGrowth);
+  // Sharing the bezel with the display's own notch, the rail is at least as
+  // wide as the hardware, and the meters stay centred in the extra length.
+  const joined = isNotch && corner === null ? hardwareNotch : null;
+  const railLength = joined
+    ? joinedNotchRailLength(metrics, meters.length, joined)
+    : railLengthForCount(metrics, meters.length, compact);
+  const spread = railEndSpread(metrics, meters.length, compact, railLength);
+  const cardSessions: AgentSession[] = cardSnapshot
+    ? (activity[cardSnapshot.providerId] ?? [])
+    : [];
+  const cardHeight = cardHeightOf(metrics, cardSnapshot, cardSessions.length);
+
+  /**
+   * A click on the rail itself — not a meter, not the card — holds the dock
+   * out, or lets it go again. Only meaningful when it hides by itself.
+   */
+  const onRailClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (didDrag.current || !autoHide) {
+      return;
+    }
+    const target = event.target as Element | null;
+    if (target?.closest("[data-provider], [data-card-wrap]")) {
+      return;
+    }
+    onKeepOpenChange?.(!keepOpen);
+  };
 
   const meterNodes = meters.map((snapshot, index) => (
     <UsageMeter
@@ -366,6 +339,7 @@ export function UsageDock({
       active={openId === snapshot.providerId}
       compact={compact}
       refreshing={snapshot.refreshing === true}
+      activity={summarizeActivity(activity[snapshot.providerId])}
       stowed={peek}
       stowShift={shift}
       revealDelayMs={Math.min(
@@ -412,20 +386,19 @@ export function UsageDock({
         metrics={metrics}
         theme={theme}
         snapshot={cardSnapshot}
+        sessions={cardSessions}
         now={clock}
       />
     </div>
   ) : null;
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: the dock is a click-through overlay that never takes keyboard focus; the menu bar carries the keyboard route to the same command.
     <div
       data-usage-dock="true"
       role="application"
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={finishDrag}
-      onPointerCancel={finishDrag}
-      onLostPointerCapture={finishDrag}
+      {...handlers}
+      onClick={onRailClick}
       onPointerEnter={() => {
         if (!dragging) {
           clearTimers();
@@ -456,7 +429,7 @@ export function UsageDock({
           open={openSnapshot !== null}
           dragging={dragging}
           activeIndex={activeJoinIndex}
-          cardHeight={cardHeightFor(metrics, cardSnapshot)}
+          cardHeight={cardHeight}
           onHitRegions={onHitRegions}
           meters={meterNodes}
           card={cardNode}
@@ -471,12 +444,15 @@ export function UsageDock({
           notch={isNotch}
           compact={compact}
           open={openSnapshot !== null}
-          joinOffset={joinOffsetForIndex(metrics, activeJoinIndex, compact)}
+          joinOffset={
+            joinOffsetForIndex(metrics, activeJoinIndex, compact) + spread
+          }
           dragging={dragging}
-          railLength={railLengthForCount(metrics, meters.length, compact)}
-          cardHeight={cardHeightFor(metrics, cardSnapshot)}
+          railLength={railLength}
+          cardHeight={cardHeight}
           railBias={railBias}
           peek={peek}
+          hardwareNotch={joined}
           onHitRegions={onHitRegions}
           rail={meterNodes}
           card={cardNode}
@@ -486,13 +462,13 @@ export function UsageDock({
   );
 }
 
-function cardHeightFor(
+function cardHeightOf(
   metrics: HudMetrics,
   snapshot: UsageSnapshot | null,
+  sessions: number,
 ): number {
   const count = snapshot?.buckets.length ?? 0;
-  if (count === 0 || snapshot?.status === "unauthenticated") {
-    return cardMessageHeight(metrics);
-  }
-  return cardHeightForBuckets(metrics, count);
+  const buckets =
+    count === 0 || snapshot?.status === "unauthenticated" ? 0 : count;
+  return cardHeightFor(metrics, { buckets, sessions });
 }
