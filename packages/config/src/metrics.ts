@@ -95,6 +95,8 @@ export interface HudMetrics {
   latchLength: number;
   /** How far in from the edge that tab answers the mouse. */
   latchReach: number;
+  /** How far the meters slide toward the edge as the dock folds away. */
+  stowShift: number;
 }
 
 /** Keys scaled by {@link hudMetrics}; everything else on HUD is presentational. */
@@ -137,6 +139,7 @@ const SCALED_KEYS = [
   "latchThickness",
   "latchLength",
   "latchReach",
+  "stowShift",
 ] as const satisfies ReadonlyArray<keyof typeof HUD_BASE>;
 
 /**

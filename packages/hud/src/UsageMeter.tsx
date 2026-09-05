@@ -6,7 +6,9 @@ import {
   MOTION,
   type ProviderId,
   SEVERITY_COLORS,
+  SPRINGS,
   severityForPercent,
+  springTransition,
 } from "@capsule/config";
 import type { ReactElement } from "react";
 import { ProviderIcon } from "./icons.tsx";
@@ -20,6 +22,7 @@ export function UsageMeter({
   compact = false,
   refreshing = false,
   stowed = false,
+  stowShift = { x: 0, y: 0 },
   revealDelayMs = 0,
   onPointerEnter,
   onPointerLeave,
@@ -36,6 +39,8 @@ export function UsageMeter({
   refreshing?: boolean;
   /** Riding out of view with a retracted dock. */
   stowed?: boolean;
+  /** Which way, and how far, it slides toward the edge while stowed. */
+  stowShift?: { x: number; y: number };
   /** Held back this long on the way in, so the meters arrive in order. */
   revealDelayMs?: number;
   onPointerEnter: () => void;
@@ -54,6 +59,9 @@ export function UsageMeter({
       ? circumference
       : circumference - (rounded / 100) * circumference;
   const label = rounded === null ? "—" : `${rounded}${COPY.percentSuffix}`;
+  const arrive = springTransition(SPRINGS.contents);
+  const reading = springTransition(SPRINGS.reading);
+  const press = springTransition(SPRINGS.press);
 
   return (
     <button
@@ -80,12 +88,13 @@ export function UsageMeter({
         pointerEvents: "auto",
         // Meters keep a fixed size; the card's tail marks the active one.
         opacity: stowed ? 0 : active ? 1 : MOTION.meterIdleOpacity,
-        // Each one lands a beat after the one before it, so the rail reads as
-        // unrolling rather than arriving whole.
-        transform: stowed ? `scale(${MOTION.stowedMeterScale})` : "scale(1)",
-        transition: stowed
-          ? `opacity ${MOTION.peekOutMs}ms ${MOTION.closeEasing}, transform ${MOTION.peekOutMs}ms ${MOTION.closeEasing}`
-          : `opacity ${MOTION.meterMs}ms ${MOTION.easing} ${revealDelayMs}ms, transform ${MOTION.peekMs}ms ${MOTION.popEasing} ${revealDelayMs}ms`,
+        // Folded away, each meter slides a little toward the edge and fades,
+        // trailing the one before it, so the rail reads as unrolling rather
+        // than arriving whole. The shape's own outline does the concealing.
+        transform: stowed
+          ? `translate(${stowShift.x}px, ${stowShift.y}px)`
+          : "translate(0px, 0px)",
+        transition: `opacity ${arrive.durationMs}ms ${arrive.easing} ${revealDelayMs}ms, transform ${arrive.durationMs}ms ${arrive.easing} ${revealDelayMs}ms`,
       }}
     >
       <svg
@@ -94,7 +103,15 @@ export function UsageMeter({
         viewBox={`0 0 ${size} ${size}`}
         role="img"
         aria-label={`${providerId} ${rounded === null ? "unknown" : `${rounded}%`}`}
-        style={{ display: "block" }}
+        style={{
+          display: "block",
+          // Pressed in while it works, released when the answer lands. The
+          // ring is the button, so the ring is what should feel pressed.
+          transform: refreshing
+            ? `scale(${MOTION.refreshPressScale})`
+            : "scale(1)",
+          transition: `transform ${press.durationMs}ms ${press.easing}`,
+        }}
       >
         <circle
           cx={size / 2}
@@ -116,7 +133,9 @@ export function UsageMeter({
             strokeDasharray={circumference}
             strokeDashoffset={dashOffset}
             style={{
-              transition: `stroke-dashoffset ${MOTION.ringMs}ms ${MOTION.easing}, stroke ${MOTION.meterMs}ms ${MOTION.easing}`,
+              // A ring that snaps to a new value reads as a glitch; one that
+              // sweeps reads as a measurement being taken.
+              transition: `stroke-dashoffset ${reading.durationMs}ms ${reading.easing}, stroke ${MOTION.meterMs}ms ${MOTION.easing}`,
             }}
             transform={`rotate(-90 ${size / 2} ${size / 2})`}
           />

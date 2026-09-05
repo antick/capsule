@@ -70,12 +70,17 @@ describe("UsageDock", () => {
         autoHide: false,
       }),
     );
-    // The latch is always in the markup; retracting is what makes it show.
-    expect(stowed).toContain('data-hud-latch="true"');
-    expect(stowed).toContain('data-hud-hit="true"');
-    expect(stowed).toContain("opacity:1");
-    expect(shown).toContain('data-hud-latch="true"');
-    expect(shown).toContain("opacity:0");
+    // Only the latch's band answers the mouse while the dock rests.
+    expect(stowed).toContain('data-hud-latch="true" data-hud-hit="true"');
+    expect(shown).not.toContain('data-hud-latch="true" data-hud-hit="true"');
+    // The rail is one shape in both states, folded down to a sliver at rest,
+    // and the meters are masked by that same outline.
+    const railOf = (html: string) =>
+      html.match(/data-hud-rail-shape="true"[^>]*>.*?<path d="([^"]+)"/s)?.[1];
+    expect(railOf(stowed)).toBeDefined();
+    expect(railOf(stowed)).not.toBe(railOf(shown));
+    expect(stowed).toContain("clip-path:path(");
+    expect(shown).not.toContain("clip-path:path(");
   });
 
   it("does not invent 0% Used for unauthenticated providers", () => {

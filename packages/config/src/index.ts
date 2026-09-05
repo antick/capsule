@@ -78,6 +78,26 @@ export {
   railLengthForCount,
 } from "./metrics.ts";
 export type {
+  Spring,
+  SpringId,
+  SpringState,
+  SpringTransition,
+} from "./motion.ts";
+export {
+  SPRING_EASING_SAMPLES,
+  SPRING_MAX_FRAME_SECONDS,
+  SPRING_SETTLE_EPSILON,
+  SPRING_STEP_SECONDS,
+  SPRINGS,
+  springEasing,
+  springPosition,
+  springSettled,
+  springSettleMs,
+  springSettleSeconds,
+  springTransition,
+  stepSpring,
+} from "./motion.ts";
+export type {
   ChromeSnapshot,
   DockOrientation,
   HudSize,

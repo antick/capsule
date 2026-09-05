@@ -7,6 +7,7 @@ import {
   type HudMetrics,
   type HudTheme,
   MOTION,
+  SPRINGS,
 } from "@capsule/config";
 import { type ReactElement, type ReactNode, useEffect } from "react";
 import {
@@ -18,13 +19,11 @@ import {
   framePadding,
   type HitRegions,
   hitRegions,
-  latchHotZone,
-  latchRect,
-  peekShift,
-  railPath,
 } from "./blob-path.ts";
+import { latchHotZone, railMorph } from "./latch-path.ts";
+import { cardReveal } from "./reveal.ts";
 import { dockShadow } from "./shadow.ts";
-import { useAnimatedNumber } from "./use-animated-number.ts";
+import { useSpring } from "./use-spring.ts";
 
 export type { CardGrowth, HitRegions };
 
@@ -60,7 +59,7 @@ export function HudFrame({
   dragging: boolean;
   railLength: number;
   cardHeight?: number;
-  /** Where the rail sits inside the frame, from the placement engine. */
+  /** Where the rail sits in the frame, from the placement engine. */
   railBias?: number | null;
   /** Retracted into the screen edge, showing only its latch. */
   peek?: boolean;
@@ -69,34 +68,38 @@ export function HudFrame({
   onHitRegions?: (regions: HitRegions) => void;
 }): ReactElement {
   const height = cardHeight ?? cardHeightForBuckets(metrics, 2);
-  // The tail slides between meters instead of jumping.
-  const join = useAnimatedNumber(joinOffset, MOTION.slideMs);
-  const layout = blobLayout(metrics, {
+  // The tail glides between meters and the card's height follows a swap, on
+  // the same spring, so the card and its tail never come apart on the way.
+  const join = useSpring(joinOffset, SPRINGS.glide);
+  const cardAlong = useSpring(height, SPRINGS.glide);
+  // 0 is the resting latch, 1 the open rail. One shape morphs between the
+  // two: the latch *is* the rail, folded down to a sliver on the edge.
+  const openness = useSpring(peek ? 0 : 1, SPRINGS.unfold);
+  const shape = {
     cardGrowth,
     railLength,
-    joinOffset: join,
-    cardHeight: height,
     cardReserve: cardHeightForBuckets(metrics, HUD.maxCardBuckets),
     style,
     railBias,
+  };
+  const layout = blobLayout(metrics, {
+    ...shape,
+    joinOffset: join,
+    cardHeight: cardAlong,
+  });
+  // Where everything will be once it has stopped moving. The hit regions are
+  // cut from this rather than from each frame in between, so the pointer is
+  // answered by where the card is going, and main is not told about a new
+  // region sixty times a second.
+  const settled = blobLayout(metrics, {
+    ...shape,
+    joinOffset,
+    cardHeight: height,
   });
   const pad = framePadding(metrics, cardGrowth, style);
   const visible = open && !dragging && !peek;
   const interactive = visible;
-  const shift = peekShift(metrics, cardGrowth, layout);
-  const latch = latchRect(metrics, cardGrowth, layout);
-  const zone = latchHotZone(metrics, cardGrowth, layout);
-  // The rail rides out to the edge and back; the latch cross-fades with it so
-  // the dock never reads as two objects at once. This settles rather than
-  // springs: an overshoot here would carry the rail clear of the screen edge
-  // on arrival and flash the gap behind it.
-  const unroll = {
-    transform: peek ? `translate(${shift.x}px, ${shift.y}px)` : "translate(0)",
-    transition: `transform ${peek ? MOTION.peekOutMs : MOTION.peekMs}ms ${
-      peek ? MOTION.closeEasing : MOTION.easing
-    }`,
-    willChange: "transform",
-  } as const;
+  const zone = latchHotZone(metrics, cardGrowth, settled);
   const shadow = dockShadow(metrics, theme);
   const alongPadding = compact ? metrics.notchPaddingY : metrics.railPaddingY;
   const railPadding =
@@ -104,28 +107,22 @@ export function HudFrame({
       ? `${alongPadding}px ${metrics.railPaddingX}px`
       : `${metrics.railPaddingX}px ${alongPadding}px`;
 
-  const railShape = railPath(metrics, cardGrowth, layout, { notch, style });
+  const morph = railMorph(metrics, cardGrowth, layout, openness, {
+    notch,
+    style,
+  });
+  // Still folding, one way or the other: the meters are masked by the outline
+  // so the shape swallows them rather than letting them slide out of its end.
+  const folding = openness < 1;
   const bubbleShape = bubblePath(metrics, cardGrowth, layout);
   // The card's own reveal, shared by its silhouette and its contents — they
   // live in different layers so that the shadow filter never touches the text.
-  const reveal = {
-    opacity: visible ? 1 : 0,
-    transform: visible ? "scale(1)" : `scale(${MOTION.closedBubbleScale})`,
-    transition: visible
-      ? `opacity ${MOTION.openMs}ms ${MOTION.easing}, transform ${MOTION.openMs}ms ${MOTION.popEasing}`
-      : `opacity ${MOTION.closeMs}ms ${MOTION.closeEasing}, transform ${MOTION.closeMs}ms ${MOTION.closeEasing}`,
-    willChange: "transform, opacity",
-  } as const;
+  const reveal = cardReveal(visible);
 
   // Serialised so the effect fires on a geometry change rather than on every
   // render, since the regions themselves are rebuilt each time.
   const hitKey = JSON.stringify(
-    hitRegions(
-      layout,
-      pad,
-      interactive,
-      peek ? { metrics, growth: cardGrowth } : null,
-    ),
+    hitRegions(settled, pad, interactive, peek ? zone : null),
   );
   useEffect(() => {
     onHitRegions?.(JSON.parse(hitKey) as HitRegions);
@@ -179,14 +176,11 @@ export function HudFrame({
               overflow: "visible",
               pointerEvents: "none",
               transformOrigin: railOrigin(cardGrowth),
-              ...unroll,
-              transform: `${unroll.transform} ${
-                dragging ? `scale(${MOTION.liftScale})` : "scale(1)"
-              }`,
+              transform: dragging ? `scale(${MOTION.liftScale})` : "scale(1)",
             }}
           >
             <path
-              d={railShape}
+              d={morph.path}
               fill={theme.surface}
               data-hud-hit="true"
               style={{
@@ -194,13 +188,20 @@ export function HudFrame({
                 cursor: dragging ? "grabbing" : "grab",
               }}
             />
-            {style.outline ? (
+            {/* A hairline as well as the fill while the dock is folded: the
+                latch is its whole presence at rest, and a black sliver on a
+                black wallpaper is no presence at all. Outlined styles keep it
+                open too. */}
+            {style.outline || folding ? (
               <path
-                d={railShape}
+                d={morph.path}
                 fill="none"
                 stroke={theme.surfaceEdge}
                 strokeWidth={1}
-                style={{ pointerEvents: "none" }}
+                style={{
+                  pointerEvents: "none",
+                  opacity: style.outline ? 1 : 1 - openness,
+                }}
               />
             ) : null}
           </svg>
@@ -249,6 +250,10 @@ export function HudFrame({
             width: layout.card.width,
             height: layout.card.height,
             boxSizing: "border-box",
+            // The contents are laid out once at their natural size; it is the
+            // box that changes size over them while a swap eases through.
+            overflow: "hidden",
+            borderRadius: metrics.cardRadius,
             transformOrigin: cardOrigin(layout),
             pointerEvents: interactive ? "auto" : "none",
             ...reveal,
@@ -274,15 +279,15 @@ export function HudFrame({
             padding: railPadding,
             pointerEvents: "none",
             cursor: dragging ? "grabbing" : "grab",
-            ...unroll,
+            clipPath: folding ? `path("${morph.clip}")` : undefined,
           }}
         >
           {rail}
         </div>
 
-        {/* The hot zone is the element the pointer meets; the tab is painted
-            inside it. Making the tab itself interactive would mean aiming at
-            five pixels of screen edge. */}
+        {/* The band the pointer meets while the dock rests. The latch itself is
+            a few pixels of edge and no target at all, so it answers to this
+            wider, invisible zone instead. */}
         <div
           data-hud-latch="true"
           data-hud-hit={peek ? "true" : undefined}
@@ -293,33 +298,10 @@ export function HudFrame({
             top: zone.y,
             width: zone.width,
             height: zone.height,
-            opacity: peek ? 1 : 0,
-            // Out of the way the instant the rail starts arriving, back only
-            // once it has left: the two never share the edge.
-            transition: peek
-              ? `opacity ${MOTION.peekOutMs}ms ${MOTION.closeEasing} ${MOTION.peekOutMs}ms`
-              : `opacity ${MOTION.closeMs}ms ${MOTION.closeEasing}`,
             pointerEvents: peek ? "auto" : "none",
             cursor: "pointer",
           }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              left: latch.x - zone.x,
-              top: latch.y - zone.y,
-              width: latch.width,
-              height: latch.height,
-              borderRadius: latch.width / 2 + latch.height / 2,
-              background: theme.surface,
-              // A hairline as well as the fill: the tab is the dock's whole
-              // presence at rest, and a black tab on a black wallpaper is no
-              // presence at all.
-              boxShadow: `inset 0 0 0 1px ${theme.surfaceEdge}`,
-              filter: shadow,
-            }}
-          />
-        </div>
+        />
       </div>
     </div>
   );

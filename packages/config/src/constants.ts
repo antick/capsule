@@ -131,15 +131,17 @@ export const HUD_BASE = {
    * aim at, so it answers to a band around it that the user never sees.
    */
   latchReach: 18,
+  /**
+   * How far the meters slide toward the screen edge as the dock folds away.
+   * A short slide, no scaling: the shape's own outline does the concealing,
+   * and scaling on top of it reads as two effects fighting.
+   */
+  stowShift: 10,
 } as const;
 
 export const MOTION = {
   openMs: 260,
   closeMs: 170,
-  slideMs: 320,
-  /** The dock unrolling out of its latch, and retracting back into it. */
-  peekMs: 300,
-  peekOutMs: 220,
   /**
    * Grace after the pointer leaves before the dock retracts, so crossing a
    * corner of the card on the way to something else does not dismiss it.
@@ -149,8 +151,15 @@ export const MOTION = {
   revealHoldMs: 3200,
   /** Gap between one meter arriving and the next, during the unroll. */
   meterStaggerMs: 45,
-  /** How small a meter is while it waits out of view. */
-  stowedMeterScale: 0.55,
+  /** The stagger stops growing here, so a long rail never feels sluggish. */
+  meterStaggerCapMs: 180,
+  /**
+   * The card's contents changing while the card itself is still moving. An
+   * ease rather than a spring: a crossfade has nothing to overshoot.
+   */
+  crossfadeMs: 160,
+  /** How far a ring presses in while its provider is being re-read. */
+  refreshPressScale: 0.93,
   /** One lap of the arc that chases a ring while its provider reloads. */
   sweepMs: 1100,
   /** How much of the ring that chasing arc covers. */
@@ -159,12 +168,13 @@ export const MOTION = {
   zoomMs: 280,
   /** Grace before the window shrinks back onto the eased-down artwork. */
   zoomSettleMs: 60,
-  ringMs: 560,
   barMs: 420,
   meterMs: 180,
   easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-  // Slight overshoot so the bubble pops out of the dock.
-  popEasing: "cubic-bezier(0.18, 0.89, 0.32, 1.15)",
+  /**
+   * Things being absorbed accelerate as they go, so anything folding shut
+   * eases in rather than out.
+   */
   closeEasing: "cubic-bezier(0.4, 0, 0.9, 0.6)",
   dragThresholdPx: 5,
   dragPollMs: 8,

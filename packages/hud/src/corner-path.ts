@@ -15,12 +15,8 @@ import {
   dockEdgeGap,
   type HudMetrics,
 } from "@capsule/config";
-import {
-  type Mapper,
-  PathBuilder,
-  type Rect,
-  roundedRect,
-} from "./blob-path.ts";
+import type { Rect } from "./blob-path.ts";
+import { type Mapper, PathBuilder, roundedRect } from "./path-builder.ts";
 
 export interface CornerLayout {
   /** The drawing area, excluding the shadow gutter around it. */

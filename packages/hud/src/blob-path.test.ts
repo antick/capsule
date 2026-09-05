@@ -198,6 +198,24 @@ describe("silhouettes", () => {
     );
   });
 
+  it("keeps a thin rail's flare inside its width", () => {
+    // The rail folds down to a sliver a few pixels across. A flare clamped
+    // only by the rail's length would be wider than the whole shape and turn
+    // the outline inside out.
+    const layout = layoutFor("left", 0);
+    const thin = { ...layout.canonical.rail, width: 5 };
+    const path = railPath(m, "left", layout, { rail: thin });
+    const radii = [...path.matchAll(/A ([\d.]+) /g)].map((hit) =>
+      Number(hit[1]),
+    );
+    expect(radii.length).toBeGreaterThan(0);
+    for (const radius of radii) {
+      expect(radius).toBeLessThanOrEqual(2.5);
+    }
+    expect(path.endsWith("Z")).toBe(true);
+    expect(path).not.toContain("NaN");
+  });
+
   it("moves the tail when the open meter changes", () => {
     expect(bubblePath(m, "left", layoutFor("left", 0))).not.toBe(
       bubblePath(m, "left", layoutFor("left", 2)),

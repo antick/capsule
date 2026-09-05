@@ -5,15 +5,18 @@ import {
   dockEdgeGap,
   type HudMetrics,
 } from "@capsule/config";
+import {
+  type CardGrowth,
+  type Mapper,
+  mapperFor,
+  mapRect,
+  n,
+  PathBuilder,
+  type Rect,
+  roundedRect,
+} from "./path-builder.ts";
 
-export type CardGrowth = "left" | "right" | "up" | "down";
-
-export interface Rect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+export type { CardGrowth, Mapper, Rect } from "./path-builder.ts";
 
 interface CanonicalFrame {
   width: number;
@@ -40,114 +43,6 @@ export interface BlobLayout {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
-}
-
-function n(value: number): string {
-  return (Math.round(value * 100) / 100).toString();
-}
-
-/**
- * Every silhouette is authored once in a canonical frame — rail flush against
- * the right edge, meters stacked downward — then mapped into the requested
- * orientation. Mirroring transforms reverse arc sweeps.
- */
-export interface Mapper {
-  point: (x: number, y: number) => [number, number];
-  mirrored: boolean;
-}
-
-function mapperFor(growth: CardGrowth, canonicalWidth: number): Mapper {
-  if (growth === "right") {
-    return {
-      point: (x, y) => [canonicalWidth - x, y],
-      mirrored: true,
-    };
-  }
-  if (growth === "up") {
-    return { point: (x, y) => [y, x], mirrored: true };
-  }
-  if (growth === "down") {
-    return { point: (x, y) => [y, canonicalWidth - x], mirrored: false };
-  }
-  return { point: (x, y) => [x, y], mirrored: false };
-}
-
-function mapRect(rect: Rect, growth: CardGrowth, canonicalWidth: number): Rect {
-  if (growth === "left") {
-    return rect;
-  }
-  if (growth === "right") {
-    return {
-      x: canonicalWidth - (rect.x + rect.width),
-      y: rect.y,
-      width: rect.width,
-      height: rect.height,
-    };
-  }
-  if (growth === "up") {
-    return {
-      x: rect.y,
-      y: rect.x,
-      width: rect.height,
-      height: rect.width,
-    };
-  }
-  return {
-    x: rect.y,
-    y: canonicalWidth - (rect.x + rect.width),
-    width: rect.height,
-    height: rect.width,
-  };
-}
-
-export class PathBuilder {
-  private parts: string[] = [];
-
-  constructor(private readonly mapper: Mapper) {}
-
-  private at(x: number, y: number): string {
-    const [a, b] = this.mapper.point(x, y);
-    return `${n(a)} ${n(b)}`;
-  }
-
-  move(x: number, y: number): this {
-    this.parts.push(`M ${this.at(x, y)}`);
-    return this;
-  }
-
-  line(x: number, y: number): this {
-    this.parts.push(`L ${this.at(x, y)}`);
-    return this;
-  }
-
-  arc(radius: number, sweep: 0 | 1, x: number, y: number): this {
-    const flag = this.mapper.mirrored ? 1 - sweep : sweep;
-    this.parts.push(`A ${n(radius)} ${n(radius)} 0 0 ${flag} ${this.at(x, y)}`);
-    return this;
-  }
-
-  curve(
-    c1x: number,
-    c1y: number,
-    c2x: number,
-    c2y: number,
-    x: number,
-    y: number,
-  ): this {
-    this.parts.push(
-      `C ${this.at(c1x, c1y)}, ${this.at(c2x, c2y)}, ${this.at(x, y)}`,
-    );
-    return this;
-  }
-
-  close(): this {
-    this.parts.push("Z");
-    return this;
-  }
-
-  toString(): string {
-    return this.parts.join(" ");
-  }
 }
 
 function isVertical(growth: CardGrowth): boolean {
@@ -292,31 +187,6 @@ function railCornerRadius(
   return Math.min(base, rail.width / 2, rail.height / 2);
 }
 
-/** A plain rounded rectangle, traced clockwise in the canonical frame. */
-export function roundedRect(
-  mapper: Mapper,
-  rect: Rect,
-  radius: number,
-): string {
-  const r = Math.min(radius, rect.width / 2, rect.height / 2);
-  const left = rect.x;
-  const right = rect.x + rect.width;
-  const top = rect.y;
-  const bottom = rect.y + rect.height;
-  return new PathBuilder(mapper)
-    .move(left + r, top)
-    .line(right - r, top)
-    .arc(r, 1, right, top + r)
-    .line(right, bottom - r)
-    .arc(r, 1, right - r, bottom)
-    .line(left + r, bottom)
-    .arc(r, 1, left, bottom - r)
-    .line(left, top + r)
-    .arc(r, 1, left + r, top)
-    .close()
-    .toString();
-}
-
 /**
  * The rail. In the default style it is rounded on the inner side and blended
  * into the screen edge by a concave fillet at each end; as a notch the fillets
@@ -328,15 +198,40 @@ export function railPath(
   m: HudMetrics,
   growth: CardGrowth,
   layout: BlobLayout,
+  options: { notch?: boolean; style?: DockStyle; rail?: Rect } = {},
+): string {
+  const base = layout.canonical;
+  return traceRail(
+    m,
+    mapperFor(growth, base.width),
+    options.rail ?? base.rail,
+    options,
+  );
+}
+
+/**
+ * The rail traced through `mapper`, for whatever rect it currently occupies —
+ * the full rail, the resting latch, or anything the fold passes through.
+ */
+export function traceRail(
+  m: HudMetrics,
+  mapper: Mapper,
+  rail: Rect,
   options: { notch?: boolean; style?: DockStyle } = {},
 ): string {
   const style = options.style ?? DOCK_STYLES.rail;
   const notch = options.notch ?? false;
-  const base = layout.canonical;
-  const mapper = mapperFor(growth, base.width);
-  const rail = base.rail;
-  const radius = railCornerRadius(m, style, rail, notch);
-  const flare = Math.min(m.edgeFlare * style.flare, rail.height / 2);
+  // Order matters. The corner is claimed first, out of half the width, and
+  // the flare takes what is left across; then the corner gives way to the
+  // flare along the length. Letting the flare take the full width collapses
+  // a thin shape into a self-crossing outline — and thin is exactly what the
+  // rail is while it is folding out of its latch.
+  const wanted = railCornerRadius(m, style, rail, notch);
+  const flare = Math.max(
+    0,
+    Math.min(m.edgeFlare * style.flare, rail.height / 2, rail.width - wanted),
+  );
+  const radius = Math.max(0, Math.min(wanted, (rail.height - 2 * flare) / 2));
 
   if (flare <= 0) {
     return roundedRect(mapper, rail, radius);
@@ -465,13 +360,12 @@ export function hitRegions(
   layout: BlobLayout,
   padding: { top: number; left: number },
   open: boolean,
-  /** Set while the dock is retracted: only its latch answers the mouse. */
-  peek?: { metrics: HudMetrics; growth: CardGrowth } | null,
+  /** Set while the dock is retracted: only this band, around its latch, answers the mouse. */
+  latchZone?: Rect | null,
 ): HitRegions {
-  if (peek) {
-    const zone = latchHotZone(peek.metrics, peek.growth, layout);
+  if (latchZone) {
     return {
-      rail: [offsetRect(zone, padding.left, padding.top)],
+      rail: [offsetRect(latchZone, padding.left, padding.top)],
       open: null,
     };
   }
@@ -481,85 +375,6 @@ export function hitRegions(
   }
   const card = offsetRect(layout.card, padding.left, padding.top);
   return { rail: [rail], open: unionRect(rail, card) };
-}
-
-/**
- * Which way the rail leaves the screen when the dock retracts, and how far it
- * has to travel to be gone. Overshooting the frame is deliberate: the window
- * clips it, and stopping exactly on the boundary leaves a hairline of surface
- * showing on styles that float clear of the edge.
- */
-export function peekShift(
-  m: HudMetrics,
-  growth: CardGrowth,
-  layout: BlobLayout,
-): { x: number; y: number } {
-  const over = m.shadowPadding;
-  if (growth === "left") {
-    return { x: layout.width - layout.rail.x + over, y: 0 };
-  }
-  if (growth === "right") {
-    return { x: -(layout.rail.x + layout.rail.width + over), y: 0 };
-  }
-  if (growth === "up") {
-    return { x: 0, y: layout.height - layout.rail.y + over };
-  }
-  return { x: 0, y: -(layout.rail.y + layout.rail.height + over) };
-}
-
-/** The tab left behind at the edge, sitting on the rail's outer face. */
-export function latchRect(
-  m: HudMetrics,
-  growth: CardGrowth,
-  layout: BlobLayout,
-): Rect {
-  const thick = m.latchThickness;
-  const long = Math.min(m.latchLength, railSpan(growth, layout));
-  const rail = layout.rail;
-  if (growth === "left" || growth === "right") {
-    return {
-      x: growth === "left" ? rail.x + rail.width - thick : rail.x,
-      y: rail.y + (rail.height - long) / 2,
-      width: thick,
-      height: long,
-    };
-  }
-  return {
-    x: rail.x + (rail.width - long) / 2,
-    y: growth === "up" ? rail.y + rail.height - thick : rail.y,
-    width: long,
-    height: thick,
-  };
-}
-
-/**
- * The band a retracted dock answers to. The latch is only a few pixels thick,
- * so aiming at it would be a chore; the dock instead wakes for anywhere along
- * its own length within easy reach of the edge.
- */
-export function latchHotZone(
-  m: HudMetrics,
-  growth: CardGrowth,
-  layout: BlobLayout,
-): Rect {
-  const latch = latchRect(m, growth, layout);
-  const reach = m.latchReach;
-  if (growth === "left") {
-    return { ...latch, x: latch.x + latch.width - reach, width: reach };
-  }
-  if (growth === "right") {
-    return { ...latch, width: reach };
-  }
-  if (growth === "up") {
-    return { ...latch, y: latch.y + latch.height - reach, height: reach };
-  }
-  return { ...latch, height: reach };
-}
-
-function railSpan(growth: CardGrowth, layout: BlobLayout): number {
-  return growth === "left" || growth === "right"
-    ? layout.rail.height
-    : layout.rail.width;
 }
 
 function offsetRect(rect: Rect, dx: number, dy: number): Rect {

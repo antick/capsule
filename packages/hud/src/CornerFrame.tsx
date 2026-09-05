@@ -7,7 +7,6 @@ import {
   HUD_THEMES,
   type HudMetrics,
   type HudTheme,
-  MOTION,
 } from "@capsule/config";
 import {
   isValidElement,
@@ -17,6 +16,7 @@ import {
 } from "react";
 import type { HitRegions } from "./blob-path.ts";
 import { cornerLayout } from "./corner-path.ts";
+import { cardReveal } from "./reveal.ts";
 import { dockShadow } from "./shadow.ts";
 
 /**
@@ -63,14 +63,7 @@ export function CornerFrame({
   const visible = open && !dragging;
   const shadow = dockShadow(metrics, theme);
   const pad = layout.padding;
-  const reveal = {
-    opacity: visible ? 1 : 0,
-    transform: visible ? "scale(1)" : `scale(${MOTION.closedBubbleScale})`,
-    transition: visible
-      ? `opacity ${MOTION.openMs}ms ${MOTION.easing}, transform ${MOTION.openMs}ms ${MOTION.popEasing}`
-      : `opacity ${MOTION.closeMs}ms ${MOTION.closeEasing}, transform ${MOTION.closeMs}ms ${MOTION.closeEasing}`,
-    willChange: "transform, opacity",
-  } as const;
+  const reveal = cardReveal(visible);
 
   const hitKey = JSON.stringify(regionsFor(layout, pad, visible));
   useEffect(() => {

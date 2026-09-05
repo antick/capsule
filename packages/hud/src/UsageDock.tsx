@@ -28,12 +28,23 @@ import {
 } from "react";
 import { CornerFrame } from "./CornerFrame.tsx";
 import { type CardGrowth, type HitRegions, HudFrame } from "./HudFrame.tsx";
+import { stowShift } from "./latch-path.ts";
 import { UsageCard } from "./UsageCard.tsx";
 import { UsageMeter } from "./UsageMeter.tsx";
 
-const SWEEP_KEYFRAMES = `@keyframes capsule-sweep {
+const DOCK_STYLESHEET = `@keyframes capsule-sweep {
   from { transform: rotate(-90deg); }
   to { transform: rotate(270deg); }
+}
+@keyframes capsule-crossfade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-usage-dock] * {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
 }`;
 
 export function UsageDock({
@@ -343,6 +354,7 @@ export function UsageDock({
   // that curves away under it.
   const compact = orientation === "horizontal" || corner !== null;
   const isNotch = notch && styleSupportsNotch(dockStyle);
+  const shift = stowShift(metrics, cardGrowth);
 
   const meterNodes = meters.map((snapshot, index) => (
     <UsageMeter
@@ -355,7 +367,11 @@ export function UsageDock({
       compact={compact}
       refreshing={snapshot.refreshing === true}
       stowed={peek}
-      revealDelayMs={index * MOTION.meterStaggerMs}
+      stowShift={shift}
+      revealDelayMs={Math.min(
+        index * MOTION.meterStaggerMs,
+        MOTION.meterStaggerCapMs,
+      )}
       onPointerEnter={() => scheduleOpen(snapshot.providerId)}
       onPointerLeave={() => undefined}
       onClick={() => {
@@ -375,8 +391,16 @@ export function UsageDock({
   ));
 
   const cardNode = cardSnapshot ? (
+    // Keyed by provider so one card's rows are never interpolated into
+    // another's; the new contents fade in instead, as part of the movement
+    // rather than a cut in the middle of it.
     <div
-      style={{ width: "100%", height: "100%" }}
+      key={cardSnapshot.providerId}
+      style={{
+        width: "100%",
+        height: "100%",
+        animation: `capsule-crossfade ${MOTION.crossfadeMs}ms ease-in-out`,
+      }}
       onPointerEnter={() => {
         if (!dragging) {
           clearTimers();
@@ -421,8 +445,8 @@ export function UsageDock({
       style={{ display: "inline-flex", pointerEvents: "none" }}
     >
       {/* Declared with the dock rather than in each host's stylesheet, so the
-          sweep works anywhere the dock is rendered. */}
-      <style>{SWEEP_KEYFRAMES}</style>
+          keyframes work anywhere the dock is rendered. */}
+      <style>{DOCK_STYLESHEET}</style>
       {corner ? (
         <CornerFrame
           metrics={metrics}
