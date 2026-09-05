@@ -90,6 +90,9 @@ export interface HudMetrics {
   notchRadius: number;
   /** Along-axis padding inside the notch, which is tighter than the rail. */
   notchPaddingY: number;
+  /** The notch the dock draws for itself where the display has none. */
+  notchWidth: number;
+  notchDepth: number;
   /** The tab a retracted dock leaves in the screen edge. */
   latchThickness: number;
   latchLength: number;
@@ -145,6 +148,8 @@ const SCALED_KEYS = [
   "shadowPadding",
   "notchRadius",
   "notchPaddingY",
+  "notchWidth",
+  "notchDepth",
   "latchThickness",
   "latchLength",
   "latchReach",
@@ -272,6 +277,22 @@ export function cardReserveHeight(m: HudMetrics): number {
 export interface HardwareNotch {
   width: number;
   height: number;
+}
+
+/**
+ * The notch to draw on a display that has none of its own: a MacBook's width,
+ * and exactly the menu bar's height so the resting tab sits inside the bar
+ * the way the real notch does. Hardware sizes are never scaled, but this one
+ * is the dock's own, so it grows and shrinks with it.
+ */
+export function virtualNotch(
+  m: HudMetrics,
+  menuBarHeight: number,
+): HardwareNotch {
+  return {
+    width: m.notchWidth,
+    height: menuBarHeight > 0 ? Math.round(menuBarHeight) : m.notchDepth,
+  };
 }
 
 /**

@@ -125,6 +125,13 @@ export const HUD_BASE = {
   notchRadius: 16,
   notchPaddingY: 8,
   /**
+   * The notch the dock draws for itself on a display that has none. As wide
+   * as a MacBook's, and as deep as the menu bar it sits in — this is the
+   * fallback depth for when there is no menu bar to measure.
+   */
+  notchWidth: 200,
+  notchDepth: 32,
+  /**
    * The latch: all that is left of the dock once it retracts into the screen
    * edge. A thin tab, long enough to read as a deliberate handle rather than a
    * rendering artefact, and rounded on the side that faces the desktop.
@@ -389,9 +396,9 @@ export const COPY = {
   cornerArc: "Curl into corners",
   cornerArcHint:
     "Drag the dock all the way to a corner and it bends into a quarter arc that traces it.",
-  joinNotch: "Merge with the MacBook notch",
-  joinNotchHint:
-    "On a MacBook display the top dock takes the notch's own shape and stays centred over it. Turn off to keep it as its own shape, free to drag along the edge.",
+  topEdgeNotch: "Draw as a notch",
+  topEdgeNotchHint:
+    "Centred at the top like the MacBook notch: straight sides, a rounded underside, and at rest a notch-sized tab in the menu bar. On a MacBook display it merges with the real notch. Turn off for a plain bar you can drag along the edge.",
   autoHide: "Hide until needed",
   autoHideHint:
     "The dock rests as a slim latch in the screen edge and unrolls when you reach for it.",

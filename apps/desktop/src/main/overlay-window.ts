@@ -7,6 +7,7 @@ import {
   dockStyleFor,
   type HardwareNotch,
   HUD,
+  hudMetrics,
   IPC,
   MOTION,
   nearestEdgeForPoint,
@@ -19,6 +20,7 @@ import {
   railStartForCorner,
   slideAlongEdge,
   styleSupportsNotch,
+  virtualNotch,
   type WindowBox,
   zoomHoldBounds,
 } from "@capsule/config";
@@ -66,9 +68,9 @@ export class OverlayController {
   /** Corner the dock has curled into, or null while it lies along an edge. */
   private corner: Corner | null = null;
   /**
-   * The display's own notch, while the dock is drawn as it. Only ever set on
-   * the top edge of a display that has one; everywhere else the dock is its
-   * own shape.
+   * The notch the dock is drawn as, while it is on the top edge in notch
+   * style: the display's own where it has one, otherwise one the dock draws
+   * for itself in the menu bar. Null everywhere else.
    */
   private hardwareNotch: HardwareNotch | null = null;
   private notchReader = new HardwareNotchReader();
@@ -327,20 +329,32 @@ export class OverlayController {
   }
 
   /**
-   * The notch to join, if any: only the top edge, only in a style that can
-   * pass for one, and only on a display that has one.
+   * The notch to draw as, if any: only the top edge, in notch style, in a dock
+   * style that can pass for one. A display with a notch of its own lends its
+   * exact size, so the two merge; any other display gets a notch the dock
+   * draws for itself, sized to the menu bar it sits in.
    */
   private async joinedNotchFor(
     preset: PlacementPreset,
   ): Promise<HardwareNotch | null> {
-    if (preset !== "top-edge" || !this.settings.joinHardwareNotch) {
+    if (preset !== "top-edge" || !this.settings.topEdgeNotch) {
       return null;
     }
     if (!styleSupportsNotch(dockStyleFor(this.settings.dockStyle))) {
       return null;
     }
     const display = this.currentDisplay();
-    return this.notchReader.read({ id: display.id, bounds: display.bounds });
+    const hardware = await this.notchReader.read({
+      id: display.id,
+      bounds: display.bounds,
+    });
+    return (
+      hardware ??
+      virtualNotch(
+        hudMetrics(this.settings.hudScale),
+        display.workArea.y - display.bounds.y,
+      )
+    );
   }
 
   /** Tells the renderer how to draw itself in the window it was just given. */

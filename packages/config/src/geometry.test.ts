@@ -23,6 +23,7 @@ import {
   railEndSpread,
   railLengthForCount,
   sessionRowsShown,
+  virtualNotch,
 } from "./metrics.ts";
 
 const m = hudMetrics(1);
@@ -207,5 +208,18 @@ describe("joined notch rail", () => {
       (length - railLengthForCount(m, 1, true)) / 2,
     );
     expect(railEndSpread(m, 3, false, railLengthForCount(m, 3))).toBe(0);
+  });
+});
+
+describe("virtualNotch", () => {
+  it("is a MacBook's width and exactly the menu bar's height", () => {
+    expect(virtualNotch(m, 25)).toEqual({ width: m.notchWidth, height: 25 });
+  });
+
+  it("falls back to its own depth when there is no menu bar to measure", () => {
+    expect(virtualNotch(m, 0)).toEqual({
+      width: m.notchWidth,
+      height: m.notchDepth,
+    });
   });
 });

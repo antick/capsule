@@ -91,14 +91,14 @@ export function AppearancePage() {
         ) : null}
         {settings.placementPreset === "top-edge" ? (
           <Row
-            label={COPY.joinNotch}
-            hint={COPY.joinNotchHint}
+            label={COPY.topEdgeNotch}
+            hint={COPY.topEdgeNotchHint}
             control={
               <Switch
-                aria-label={COPY.joinNotch}
-                checked={settings.joinHardwareNotch}
+                aria-label={COPY.topEdgeNotch}
+                checked={settings.topEdgeNotch}
                 onCheckedChange={(checked) =>
-                  void update({ joinHardwareNotch: checked })
+                  void update({ topEdgeNotch: checked })
                 }
               />
             }

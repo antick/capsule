@@ -99,6 +99,7 @@ export {
   railEndSpread,
   railLengthForCount,
   sessionRowsShown,
+  virtualNotch,
 } from "./metrics.ts";
 export type {
   Spring,
