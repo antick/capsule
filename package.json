@@ -1,7 +1,7 @@
 {
   "name": "capsule",
   "private": true,
-  "packageManager": "pnpm@11.22.0",
+  "packageManager": "pnpm@11.25.0",
   "scripts": {
     "dev": "turbo run dev --filter=@capsule/desktop",
     "build": "turbo run build",
