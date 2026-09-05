@@ -282,6 +282,11 @@ export const CODEX_AUTH_PATH_SEGMENTS = [".codex", "auth.json"] as const;
 export const GROK_AUTH_PATH_SEGMENTS = [".grok", "auth.json"] as const;
 export const CODEX_HOME_ENV = "CODEX_HOME";
 export const GROK_HOME_ENV = "GROK_HOME";
+/**
+ * Pretend the display has a notch of this size, as "200x37", for trying the
+ * joined top edge on a Mac that has none. Development only.
+ */
+export const FAKE_NOTCH_ENV = "CAPSULE_FAKE_NOTCH";
 
 export const IPC = {
   snapshots: "capsule:snapshots",
@@ -384,6 +389,9 @@ export const COPY = {
   cornerArc: "Curl into corners",
   cornerArcHint:
     "Drag the dock all the way to a corner and it bends into a quarter arc that traces it.",
+  joinNotch: "Merge with the MacBook notch",
+  joinNotchHint:
+    "On a MacBook display the top dock takes the notch's own shape and stays centred over it. Turn off to keep it as its own shape, free to drag along the edge.",
   autoHide: "Hide until needed",
   autoHideHint:
     "The dock rests as a slim latch in the screen edge and unrolls when you reach for it.",

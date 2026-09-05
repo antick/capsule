@@ -110,6 +110,12 @@ export const settingsSchema = z.preprocess(
     cornerArc: z.boolean().default(false).catch(false),
     /** Rest as a latch in the screen edge until the pointer comes for it. */
     autoHide: z.boolean().default(true).catch(true),
+    /**
+     * On a MacBook display, draw the top edge as the hardware notch itself and
+     * keep it centred over it. Off, the top dock is its own shape and slides
+     * along the edge like any other.
+     */
+    joinHardwareNotch: z.boolean().default(true).catch(true),
     customPosition: z
       .object({
         x: z.number(),
@@ -135,6 +141,7 @@ export function defaultSettings(): CapsuleSettings {
     dockStyle: "rail",
     cornerArc: false,
     autoHide: true,
+    joinHardwareNotch: true,
     customPosition: null,
     schemaVersion: SCHEMA_VERSION,
   };

@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import type { HardwareNotch } from "@capsule/config";
+import { FAKE_NOTCH_ENV, type HardwareNotch } from "@capsule/config";
 
 const execFileAsync = promisify(execFile);
 
@@ -61,6 +61,17 @@ export function notchFromProbe(
   return null;
 }
 
+/** A notch to pretend the display has, from "200x37"; nothing otherwise. */
+export function fakeNotchFrom(value: string | undefined): HardwareNotch | null {
+  const match = value?.trim().match(/^(\d+)x(\d+)$/);
+  if (!match) {
+    return null;
+  }
+  const width = Number(match[1]);
+  const height = Number(match[2]);
+  return width > 0 && height > 0 ? { width, height } : null;
+}
+
 export async function probeScreens(): Promise<NotchProbeScreen[]> {
   try {
     const { stdout } = await execFileAsync("osascript", [
@@ -89,6 +100,10 @@ export class HardwareNotchReader {
     id: number;
     bounds: { width: number; height: number };
   }): Promise<HardwareNotch | null> {
+    const pretend = fakeNotchFrom(process.env[FAKE_NOTCH_ENV]);
+    if (pretend) {
+      return pretend;
+    }
     const known = this.cache.get(display.id);
     if (known !== undefined) {
       return known;

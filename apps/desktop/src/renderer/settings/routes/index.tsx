@@ -89,6 +89,21 @@ export function AppearancePage() {
             }
           />
         ) : null}
+        {settings.placementPreset === "top-edge" ? (
+          <Row
+            label={COPY.joinNotch}
+            hint={COPY.joinNotchHint}
+            control={
+              <Switch
+                aria-label={COPY.joinNotch}
+                checked={settings.joinHardwareNotch}
+                onCheckedChange={(checked) =>
+                  void update({ joinHardwareNotch: checked })
+                }
+              />
+            }
+          />
+        ) : null}
         <Row
           label={COPY.cornerArc}
           hint={COPY.cornerArcHint}

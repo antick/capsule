@@ -333,7 +333,7 @@ export class OverlayController {
   private async joinedNotchFor(
     preset: PlacementPreset,
   ): Promise<HardwareNotch | null> {
-    if (preset !== "top-edge") {
+    if (preset !== "top-edge" || !this.settings.joinHardwareNotch) {
       return null;
     }
     if (!styleSupportsNotch(dockStyleFor(this.settings.dockStyle))) {

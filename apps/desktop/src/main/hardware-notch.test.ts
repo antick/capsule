@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { notchFromProbe } from "./hardware-notch.ts";
+import { fakeNotchFrom, notchFromProbe } from "./hardware-notch.ts";
 
 describe("notchFromProbe", () => {
   const macbook = { w: 1512, h: 982, top: 37, left: 656, right: 656 };
@@ -22,5 +22,15 @@ describe("notchFromProbe", () => {
     expect(
       notchFromProbe([macbook], { bounds: { width: 2560, height: 1440 } }),
     ).toBeNull();
+  });
+});
+
+describe("fakeNotchFrom", () => {
+  it("reads a width by height, and nothing else", () => {
+    expect(fakeNotchFrom("200x37")).toEqual({ width: 200, height: 37 });
+    expect(fakeNotchFrom(" 200x37 ")).toEqual({ width: 200, height: 37 });
+    expect(fakeNotchFrom("0x37")).toBeNull();
+    expect(fakeNotchFrom("wide")).toBeNull();
+    expect(fakeNotchFrom(undefined)).toBeNull();
   });
 });
