@@ -16,7 +16,7 @@ import {
   railLengthForCount,
   styleSupportsNotch,
 } from "@capsule/config";
-import type { Display } from "electron";
+import { type Display, screen } from "electron";
 
 /**
  * Where the dock's window goes for the current settings, sized for the rail
@@ -74,6 +74,19 @@ export function computeDockPlacement(input: {
   );
 }
 
+/** The display the dock was last placed on, or the primary one if it has gone. */
+export function displayFor(displayId: number | null): Display {
+  return (
+    screen.getAllDisplays().find((item) => item.id === displayId) ??
+    screen.getPrimaryDisplay()
+  );
+}
+
+/** The three facts about a display the placement engine reads. */
+export function describeDisplay(display: Display): ChromeSnapshot["display"] {
+  return { id: display.id, bounds: display.bounds, workArea: display.workArea };
+}
+
 /**
  * The display the dock lives on, without asking the system Dock. Dock metrics
  * only matter for the bottom preset, and the work-area inset already tells us
@@ -81,11 +94,7 @@ export function computeDockPlacement(input: {
  */
 export function syntheticChromeFor(display: Display): ChromeSnapshot {
   return {
-    display: {
-      id: display.id,
-      bounds: display.bounds,
-      workArea: display.workArea,
-    },
+    display: describeDisplay(display),
     dock: { orientation: "bottom", autohide: false, tilesize: 48 },
   };
 }

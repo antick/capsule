@@ -22,9 +22,25 @@ describe("formatResetRelative", () => {
 });
 
 describe("formatResetAbsolute", () => {
+  const now = new Date("2026-08-27T11:22:00");
+
   it("formats Thursday midnight", () => {
     const resetsAt = new Date("2026-09-03T00:00:00");
-    expect(formatResetAbsolute(resetsAt, "en-US")).toBe("Resets Thu 12:00 AM");
+    expect(formatResetAbsolute(resetsAt, "en-US", now)).toBe(
+      "Resets Thu 12:00 AM",
+    );
+  });
+
+  it("says today and tomorrow when that is what they are", () => {
+    expect(
+      formatResetAbsolute(new Date("2026-08-27T15:00:00"), "en-US", now),
+    ).toBe("Resets today 3:00 PM");
+    expect(
+      formatResetAbsolute(new Date("2026-08-28T00:00:00"), "en-US", now),
+    ).toBe("Resets tomorrow 12:00 AM");
+    expect(
+      formatResetAbsolute(new Date("2026-08-29T09:30:00"), "en-US", now),
+    ).toBe("Resets Sat 9:30 AM");
   });
 });
 

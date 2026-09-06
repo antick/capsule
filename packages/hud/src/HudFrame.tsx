@@ -1,4 +1,6 @@
 import {
+  type ActivityState,
+  activityColor,
   cardHeightForBuckets,
   cardReserveHeight,
   DOCK_STYLES,
@@ -22,7 +24,12 @@ import {
   type HitRegions,
   hitRegions,
 } from "./blob-path.ts";
-import { latchHotZone, railMorph, restingRail } from "./latch-path.ts";
+import {
+  latchHotZone,
+  latchRect,
+  railMorph,
+  restingRail,
+} from "./latch-path.ts";
 import { cardReveal } from "./reveal.ts";
 import { dockShadow } from "./shadow.ts";
 import { useSpring } from "./use-spring.ts";
@@ -44,6 +51,7 @@ export function HudFrame({
   railBias = null,
   peek = false,
   hardwareNotch = null,
+  beacon = null,
   rail,
   card,
   onHitRegions,
@@ -72,6 +80,12 @@ export function HudFrame({
    * the hole, and folding away to exactly the notch's shape.
    */
   hardwareNotch?: HardwareNotch | null;
+  /**
+   * What the folded dock carries as a dot: amber while an agent waits on you,
+   * white while one works. The glance has to work while the dock is hidden,
+   * which is when it matters most.
+   */
+  beacon?: Exclude<ActivityState, "idle"> | null;
   rail: ReactNode;
   card: ReactNode;
   onHitRegions?: (regions: HitRegions) => void;
@@ -116,6 +130,7 @@ export function HudFrame({
   const visible = open && !dragging && !peek;
   const interactive = visible;
   const zone = latchHotZone(metrics, cardGrowth, settled, joined);
+  const tab = latchRect(metrics, cardGrowth, settled, joined);
   const shadow = dockShadow(metrics, theme);
   const railPadding = railPaddingFor(metrics, cardGrowth, compact, inset);
 
@@ -206,6 +221,33 @@ export function HudFrame({
                 latch is its whole presence at rest, and a black sliver on a
                 black wallpaper is no presence at all. Outlined styles keep it
                 open too. */}
+            {beacon && folding ? (
+              <g
+                data-hud-beacon={beacon}
+                style={{ opacity: 1 - openness, pointerEvents: "none" }}
+              >
+                {beacon === "waiting" ? (
+                  <circle
+                    cx={tab.x + tab.width / 2}
+                    cy={tab.y + tab.height / 2}
+                    r={metrics.beaconSize}
+                    fill={activityColor("waiting", theme)}
+                    opacity={MOTION.activityPulseFloor}
+                    style={{
+                      transformBox: "fill-box",
+                      transformOrigin: "center",
+                      animation: `capsule-pulse ${MOTION.activityPulseMs}ms ease-in-out infinite alternate`,
+                    }}
+                  />
+                ) : null}
+                <circle
+                  cx={tab.x + tab.width / 2}
+                  cy={tab.y + tab.height / 2}
+                  r={metrics.beaconSize / 2}
+                  fill={activityColor(beacon, theme)}
+                />
+              </g>
+            ) : null}
             {style.outline || (folding && !joined) ? (
               <path
                 d={morph.path}

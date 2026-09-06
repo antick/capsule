@@ -15,3 +15,19 @@ export type { ActivityHost } from "./host.ts";
 export { JsonRpc, record } from "./json-rpc.ts";
 export type { ActivityMonitor } from "./monitor.ts";
 export { createActivityMonitor } from "./monitor.ts";
+export type {
+  DayHistogram,
+  LogFile,
+  TokenFileCache,
+  TokenFileEntry,
+  TokenScanHost,
+  TokenScanner,
+} from "./tokens.ts";
+export {
+  claudeRowTokens,
+  codexRowTokens,
+  createTokenScanner,
+  histogramTotals,
+  pruneTokenCache,
+  scanTokenLogs,
+} from "./tokens.ts";

@@ -1,6 +1,19 @@
-import { COPY, POLL_INTERVAL_MS, POLL_INTERVAL_OPTIONS } from "@capsule/config";
+import {
+  COPY,
+  POLL_INTERVAL_MS,
+  POLL_INTERVAL_OPTIONS,
+  type UsageDisplay,
+} from "@capsule/config";
 import { Switch } from "@capsule/ui";
 import { Row, Section } from "../components/section.tsx";
+import { Segmented } from "../components/segmented.tsx";
+
+const USAGE_DISPLAY_OPTIONS: readonly { value: UsageDisplay; label: string }[] =
+  [
+    { value: "used", label: COPY.usageDisplayUsed },
+    { value: "remaining", label: COPY.usageDisplayRemaining },
+  ];
+
 import { useCapsuleSettings } from "../use-settings.ts";
 
 export function GeneralPage() {
@@ -47,6 +60,18 @@ export function GeneralPage() {
               </option>
             ))}
           </select>
+        }
+      />
+      <Row
+        label={COPY.usageDisplay}
+        hint={COPY.usageDisplayHint}
+        control={
+          <Segmented
+            label={COPY.usageDisplay}
+            value={settings.usageDisplay}
+            options={USAGE_DISPLAY_OPTIONS}
+            onChange={(value) => void update({ usageDisplay: value })}
+          />
         }
       />
       <Row

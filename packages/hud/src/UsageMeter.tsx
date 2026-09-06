@@ -12,6 +12,7 @@ import {
   SPRINGS,
   severityForPercent,
   springTransition,
+  type UsageDisplay,
 } from "@capsule/config";
 import type { ReactElement } from "react";
 import { ProviderIcon } from "./icons.tsx";
@@ -21,6 +22,7 @@ export function UsageMeter({
   theme = HUD_THEMES.midnight,
   providerId,
   percent,
+  display = "used",
   active,
   compact = false,
   refreshing = false,
@@ -39,6 +41,8 @@ export function UsageMeter({
   theme?: HudTheme;
   providerId: ProviderId;
   percent: number | null;
+  /** Whether the ring and caption count what is used or what is left. */
+  display?: UsageDisplay;
   active: boolean;
   /** Horizontal docks drop the percent caption so they stay edge-thin. */
   compact?: boolean;
@@ -64,12 +68,16 @@ export function UsageMeter({
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const rounded = percent === null ? null : Math.round(percent);
+  // The colour always answers "how close to the wall", whichever end the
+  // number is read from.
   const severity = rounded === null ? null : severityForPercent(rounded);
   const color = severity ? SEVERITY_COLORS[severity] : theme.ringTrack;
+  const shown =
+    rounded === null ? null : display === "remaining" ? 100 - rounded : rounded;
   const dashOffset =
-    rounded === null
+    shown === null
       ? circumference
-      : circumference - (rounded / 100) * circumference;
+      : circumference - (shown / 100) * circumference;
   const workingCount =
     activity?.sessions.filter(
       (session) => session.state === "busy" && session.confirmed !== false,
@@ -80,7 +88,7 @@ export function UsageMeter({
       (session) => session.state === "waiting" && session.confirmed !== false,
     ).length ?? 0,
   );
-  const label = rounded === null ? "—" : `${rounded}${COPY.percentSuffix}`;
+  const label = shown === null ? "—" : `${shown}${COPY.percentSuffix}`;
   const accessibleLabel = `${providerId} ${label}`;
   const activityRadius = (metrics.activitySize - metrics.activityStroke) / 2;
   const activityLap = 2 * Math.PI * activityRadius;
@@ -153,7 +161,7 @@ export function UsageMeter({
             stroke={theme.ringTrack}
             strokeWidth={stroke}
           />
-          {rounded !== null && rounded > 0 ? (
+          {shown !== null && shown > 0 ? (
             <circle
               cx={size / 2}
               cy={size / 2}

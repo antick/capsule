@@ -16,15 +16,40 @@ export function formatResetRelative(
   return `Resets in ${hours}h ${minutes} min`;
 }
 
-export function formatResetAbsolute(resetsAt: Date, locale?: string): string {
-  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
-    resetsAt,
+function sameLocalDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
   );
+}
+
+/**
+ * "Resets today 3:00 PM", "Resets tomorrow 12:00 AM", else the weekday. A
+ * weekday for something happening in a few hours reads like a calendar;
+ * "today" reads like a clock.
+ */
+export function formatResetAbsolute(
+  resetsAt: Date,
+  locale?: string,
+  now: Date = new Date(),
+): string {
   const time = new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   }).format(resetsAt);
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  if (sameLocalDay(resetsAt, now)) {
+    return `Resets today ${time}`;
+  }
+  if (sameLocalDay(resetsAt, tomorrow)) {
+    return `Resets tomorrow ${time}`;
+  }
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" }).format(
+    resetsAt,
+  );
   return `Resets ${weekday} ${time}`;
 }
 
@@ -38,11 +63,11 @@ export function formatResetCopy(
   if (style === "relative") {
     const delta = Math.max(0, resetsAt.getTime() - now.getTime());
     if (delta >= DAY_MS) {
-      return formatResetAbsolute(resetsAt, locale);
+      return formatResetAbsolute(resetsAt, locale, now);
     }
     return formatResetRelative(resetsAt, now);
   }
-  return formatResetAbsolute(resetsAt, locale);
+  return formatResetAbsolute(resetsAt, locale, now);
 }
 
 /** Under this many seconds, a span is "just now" rather than a number. */

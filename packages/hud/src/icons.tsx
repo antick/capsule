@@ -77,6 +77,35 @@ function GrokIcon({ color, size }: IconProps): ReactElement {
   );
 }
 
+/**
+ * Cursor's cube, in one colour: three faces told apart by weight rather than
+ * hue, so it sits with the other marks at ring size.
+ */
+function CursorIcon({ color, size }: IconProps): ReactElement {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <g fill={color}>
+        <path d="M12 2.2 21 7.1 12 12 3 7.1Z" opacity={0.55} />
+        <path d="M3 7.1 12 12v9.8L3 16.9Z" opacity={0.8} />
+        <path d="M21 7.1 12 12v9.8l9-4.9Z" />
+      </g>
+    </svg>
+  );
+}
+
+/** GitHub Copilot's goggles: the visor with two eyes cut out of it. */
+function CopilotIcon({ color, size }: IconProps): ReactElement {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill={color}
+        fillRule="evenodd"
+        d="M12 3.2c4.9 0 8.3 2.6 8.3 6.6v4.9c0 1.9-1.4 3.4-3.3 3.6-1.6.2-3.3.3-5 .3s-3.4-.1-5-.3c-1.9-.2-3.3-1.7-3.3-3.6V9.8c0-4 3.4-6.6 8.3-6.6Zm-3.6 7.1c-.6 0-1 .5-1 1v2.6c0 .6.4 1 1 1s1-.4 1-1v-2.6c0-.5-.4-1-1-1Zm7.2 0c-.6 0-1 .5-1 1v2.6c0 .6.4 1 1 1s1-.4 1-1v-2.6c0-.5-.4-1-1-1Z"
+      />
+    </svg>
+  );
+}
+
 export function ProviderIcon({
   id,
   color,
@@ -91,6 +120,12 @@ export function ProviderIcon({
   }
   if (id === "grok") {
     return <GrokIcon color={color} size={size} />;
+  }
+  if (id === "cursor") {
+    return <CursorIcon color={color} size={size} />;
+  }
+  if (id === "copilot") {
+    return <CopilotIcon color={color} size={size} />;
   }
   return <ClaudeIcon color={color} size={size} />;
 }

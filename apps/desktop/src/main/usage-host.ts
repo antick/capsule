@@ -10,15 +10,25 @@ import {
 import {
   createClaudeProvider,
   createCodexProvider,
+  createCopilotProvider,
+  createCursorProvider,
   createDemoProvider,
   createGrokProvider,
   createPoller,
   type Poller,
 } from "@capsule/usage";
 import { app, powerMonitor } from "electron";
-import { loadBackoff, saveBackoff } from "./store.ts";
+import {
+  loadBackoff,
+  loadSnapshots,
+  saveBackoff,
+  saveSnapshots,
+} from "./store.ts";
 
 const execFileAsync = promisify(execFile);
+
+/** Long enough for `gh` to wake up, short enough that a hung tool cannot stall a poll. */
+const COMMAND_TIMEOUT_MS = 8000;
 
 export function createUsageHost(
   getSettings: () => CapsuleSettings,
@@ -35,7 +45,13 @@ export function createUsageHost(
         createDemoProvider("codex"),
         createDemoProvider("grok"),
       ]
-    : [createClaudeProvider(), createCodexProvider(), createGrokProvider()];
+    : [
+        createClaudeProvider(),
+        createCodexProvider(),
+        createGrokProvider(),
+        createCursorProvider(),
+        createCopilotProvider(),
+      ];
 
   return createPoller({
     providers,
@@ -47,6 +63,19 @@ export function createUsageHost(
       fetch: usageFetch,
       loadBackoff,
       saveBackoff,
+      loadSnapshots,
+      saveSnapshots,
+      runCommand: async (file, args) => {
+        try {
+          const { stdout } = await execFileAsync(file, [...args], {
+            timeout: COMMAND_TIMEOUT_MS,
+            env: { ...process.env, PATH: commandPath() },
+          });
+          return stdout;
+        } catch {
+          return null;
+        }
+      },
       homeDir: () => {
         try {
           return app.getPath("home");
@@ -95,6 +124,20 @@ export function createUsageHost(
       },
     },
   });
+}
+
+/**
+ * A menu-bar app launched from Finder inherits a bare PATH, so the places
+ * Homebrew and the CLIs' own installers put things are added explicitly.
+ */
+function commandPath(): string {
+  const extra = [
+    "/opt/homebrew/bin",
+    "/usr/local/bin",
+    `${homedir()}/.local/bin`,
+  ];
+  const current = (process.env.PATH ?? "").split(":").filter(Boolean);
+  return [...new Set([...current, ...extra])].join(":");
 }
 
 const usageFetch: typeof fetch = (input, init) => {

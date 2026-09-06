@@ -16,6 +16,7 @@ import {
   placeholderSnapshots,
   type Rect,
   resolveHudTheme,
+  type TokenUsageByProvider,
   type UsageSnapshot,
 } from "@capsule/config";
 import { type HitRegions, UsageDock, useAnimatedNumber } from "@capsule/hud";
@@ -36,6 +37,8 @@ export function OverlayHud() {
     hardwareNotch: null,
   });
   const [activity, setActivity] = useState<ActivityByProvider>({});
+  const [tokens, setTokens] = useState<TokenUsageByProvider>({});
+  useEffect(() => window.capsule?.onTokens(setTokens), []);
   const [notices, setNotices] = useState<ActivityNotice[]>([]);
   useEffect(() => window.capsule?.onActivityNotices(setNotices), []);
   // Main owns this so the menu and the dock agree on it.
@@ -224,6 +227,8 @@ export function OverlayHud() {
         keepOpen={keepOpen}
         onKeepOpenChange={onKeepOpenChange}
         activity={activity}
+        tokens={tokens}
+        usageDisplay={settings.usageDisplay}
         notices={notices}
         onDismissNotice={(id) => window.capsule?.dismissActivityNotice(id)}
         hardwareNotch={frame.hardwareNotch}

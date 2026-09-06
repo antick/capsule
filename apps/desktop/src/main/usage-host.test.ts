@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
   claude: vi.fn(() => ({ id: "claude" })),
   codex: vi.fn(() => ({ id: "codex" })),
   grok: vi.fn(() => ({ id: "grok" })),
+  cursor: vi.fn(() => ({ id: "cursor" })),
+  copilot: vi.fn(() => ({ id: "copilot" })),
   demo: vi.fn((id: string) => ({ id, demo: true })),
 }));
 vi.mock("@capsule/usage", () => ({
@@ -14,9 +16,16 @@ vi.mock("@capsule/usage", () => ({
   createClaudeProvider: mocks.claude,
   createCodexProvider: mocks.codex,
   createGrokProvider: mocks.grok,
+  createCursorProvider: mocks.cursor,
+  createCopilotProvider: mocks.copilot,
   createDemoProvider: mocks.demo,
 }));
-vi.mock("./store.ts", () => ({ loadBackoff: vi.fn(), saveBackoff: vi.fn() }));
+vi.mock("./store.ts", () => ({
+  loadBackoff: vi.fn(),
+  saveBackoff: vi.fn(),
+  loadSnapshots: vi.fn(() => []),
+  saveSnapshots: vi.fn(),
+}));
 vi.mock("electron", () => ({ app: {}, powerMonitor: {} }));
 beforeEach(() => vi.clearAllMocks());
 
@@ -27,10 +36,18 @@ it("connects the existing usage providers to the poller with activity-aware timi
   expect(mocks.claude).toHaveBeenCalledOnce();
   expect(mocks.codex).toHaveBeenCalledOnce();
   expect(mocks.grok).toHaveBeenCalledOnce();
+  expect(mocks.cursor).toHaveBeenCalledOnce();
+  expect(mocks.copilot).toHaveBeenCalledOnce();
   expect(mocks.demo).not.toHaveBeenCalled();
   expect(mocks.poller).toHaveBeenCalledWith(
     expect.objectContaining({
-      providers: [{ id: "claude" }, { id: "codex" }, { id: "grok" }],
+      providers: [
+        { id: "claude" },
+        { id: "codex" },
+        { id: "grok" },
+        { id: "cursor" },
+        { id: "copilot" },
+      ],
       isBusy,
     }),
   );

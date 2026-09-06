@@ -1,5 +1,6 @@
 import { createActivityMonitor } from "@capsule/activity/monitor";
 import { createNoticeTracker } from "@capsule/activity/notices";
+import { createTokenScanner } from "@capsule/activity/tokens";
 import {
   type ActivityByProvider,
   APP_NAME,
@@ -10,6 +11,7 @@ import {
   type PlacementPreset,
   type ProviderId,
   type Rect,
+  type TokenUsageByProvider,
   type UsageSnapshot,
 } from "@capsule/config";
 import { app, BrowserWindow, ipcMain, powerMonitor, screen } from "electron";
@@ -18,7 +20,12 @@ import { createAppChrome } from "./app-chrome.ts";
 import { hideFromMacDock } from "./macos-dock.ts";
 import { OverlayController } from "./overlay-window.ts";
 import { openSettingsWindow } from "./settings-window.ts";
-import { loadSettings, saveSettings } from "./store.ts";
+import {
+  loadSettings,
+  loadTokenCache,
+  saveSettings,
+  saveTokenCache,
+} from "./store.ts";
 import { createUsageHost } from "./usage-host.ts";
 
 app.setName(APP_NAME);
@@ -31,6 +38,7 @@ let settings = loadSettings();
 const overlay = new OverlayController(settings);
 let snapshots: UsageSnapshot[] = [];
 let activity: ActivityByProvider = {};
+let tokens: TokenUsageByProvider = {};
 const notices = createNoticeTracker();
 let appChrome: ReturnType<typeof createAppChrome> | null = null;
 /**
@@ -53,14 +61,33 @@ const broadcastActivity = () => {
   }
 };
 
+// The token scanner's cache lives in the readings store; the host itself is
+// kept free of the store so it can be exercised without Electron around.
+const activityHost = {
+  ...createActivityHost(),
+  loadTokenCache,
+  saveTokenCache,
+};
+
 const monitor = createActivityMonitor({
-  host: createActivityHost(),
+  host: activityHost,
   getEnabled: () => settings.enabledProviderIds,
   onChange: (next) => {
     activity = next;
     broadcastActivity();
     const pending = notices.update(next);
     overlay.window?.webContents.send(NOTICE_IPC.changed, pending);
+  },
+});
+
+const tokenScanner = createTokenScanner({
+  host: activityHost,
+  getEnabled: () => settings.enabledProviderIds,
+  onChange: (next) => {
+    tokens = next;
+    for (const win of BrowserWindow.getAllWindows()) {
+      win.webContents.send(IPC.tokens, tokens);
+    }
   },
 });
 
@@ -112,6 +139,7 @@ function applySettings(next: CapsuleSettings): CapsuleSettings {
     void poller.refresh();
   }
   void monitor.rescan();
+  void tokenScanner.rescan();
   void overlay.relayout();
   broadcast();
   appChrome?.sync(settings);
@@ -199,6 +227,7 @@ app.whenReady().then(async () => {
     overlay.reveal();
   });
   ipcMain.handle(IPC.getActivity, () => activity);
+  ipcMain.handle(IPC.getTokens, () => tokens);
   ipcMain.handle(NOTICE_IPC.get, (event) =>
     event.sender === overlay.window?.webContents ? notices.get() : [],
   );
@@ -227,6 +256,7 @@ app.whenReady().then(async () => {
   });
   hideFromMacDock();
   monitor.start();
+  tokenScanner.start();
   poller.start();
   await poller.refresh();
   broadcast();
@@ -268,6 +298,7 @@ app.whenReady().then(async () => {
     clearInterval(chromeTimer);
     poller.stop();
     monitor.stop();
+    tokenScanner.stop();
     overlay.destroy();
   });
 });

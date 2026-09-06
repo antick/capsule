@@ -21,10 +21,8 @@ import {
   slideAlongEdge,
   styleSupportsNotch,
   virtualNotch,
-  type WindowBox,
-  zoomHoldBounds,
 } from "@capsule/config";
-import { type BrowserWindow, screen } from "electron";
+import { type BrowserWindow, type Display, screen } from "electron";
 import { readChromeSnapshot } from "./chrome.ts";
 import { HardwareNotchReader } from "./hardware-notch.ts";
 import { BoundsApplier } from "./overlay-bounds.ts";
@@ -36,6 +34,8 @@ import {
 import { HoverTracker } from "./overlay-hover.ts";
 import {
   computeDockPlacement,
+  describeDisplay,
+  displayFor,
   syntheticChromeFor,
 } from "./overlay-placement.ts";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
@@ -187,7 +187,7 @@ export class OverlayController {
     const bounds = win.getBounds();
     const placement = this.computeFor(
       this.settings.placementPreset,
-      this.syntheticChrome(),
+      syntheticChromeFor(this.currentDisplay()),
       null,
     );
     // Grab the rail, not the window: where the window has been stopped by a
@@ -401,25 +401,12 @@ export class OverlayController {
     return axis + placement.slide.gutter + placement.railBias;
   }
 
-  private syntheticChrome(): ChromeSnapshot {
-    return syntheticChromeFor(this.currentDisplay());
+  private currentDisplay(): Display {
+    return displayFor(this.settingsDisplayId);
   }
 
-  private currentDisplay() {
-    const displays = screen.getAllDisplays();
-    return (
-      displays.find((item) => item.id === this.settingsDisplayId) ??
-      screen.getPrimaryDisplay()
-    );
-  }
-
-  private async chromeFor(_preset: PlacementPreset): Promise<ChromeSnapshot> {
-    const display = this.currentDisplay();
-    return readChromeSnapshot({
-      id: display.id,
-      bounds: display.bounds,
-      workArea: display.workArea,
-    });
+  private chromeFor(_preset: PlacementPreset): Promise<ChromeSnapshot> {
+    return readChromeSnapshot(describeDisplay(this.currentDisplay()));
   }
 
   private computeFor(
@@ -456,7 +443,11 @@ export class OverlayController {
     let placement = drag.placement;
     if (preset !== drag.preset || display.id !== placement.displayId) {
       this.settingsDisplayId = display.id;
-      placement = this.computeFor(preset, this.syntheticChrome(), null);
+      placement = this.computeFor(
+        preset,
+        syntheticChromeFor(this.currentDisplay()),
+        null,
+      );
       // Re-grab the rail from its middle so the dock does not lurch when it
       // rotates onto a new edge.
       drag.grabOffset = placement.slide.railLength / 2;
@@ -475,7 +466,11 @@ export class OverlayController {
     drag.railStart = next.railStart;
     const corner = this.cornerFor(placement, next.railStart);
     const curled = corner
-      ? this.computeFor(preset, this.syntheticChrome(), corner)
+      ? this.computeFor(
+          preset,
+          syntheticChromeFor(this.currentDisplay()),
+          corner,
+        )
       : null;
     win.setBounds(
       curled

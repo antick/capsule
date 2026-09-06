@@ -36,6 +36,9 @@ export function createActivityMonitor(options: {
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let inFlight: Promise<void> | null = null;
 
+  // Cursor and Copilot leave no session record this can read honestly, so
+  // they report nothing rather than guess from the process table.
+  const noSessions = async () => [];
   const readers: Record<
     ProviderId,
     (host: ActivityHost) => Promise<ActivityByProvider[ProviderId]>
@@ -43,6 +46,8 @@ export function createActivityMonitor(options: {
     claude: readClaudeSessions,
     codex: readCodexSessions,
     grok: readGrokSessions,
+    cursor: noSessions,
+    copilot: noSessions,
   };
 
   const rescan = (): Promise<void> => {

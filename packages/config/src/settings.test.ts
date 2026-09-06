@@ -131,3 +131,26 @@ describe("migrateSettings", () => {
     expect(migrated.dockStyle).toBe("rail");
   });
 });
+
+describe("usage display", () => {
+  it("counts what was used unless told otherwise, and shrugs at nonsense", () => {
+    expect(defaultSettings().usageDisplay).toBe("used");
+    const parsed = settingsSchema.parse({
+      ...defaultSettings(),
+      usageDisplay: "remaining",
+    });
+    expect(parsed.usageDisplay).toBe("remaining");
+    expect(
+      settingsSchema.parse({ ...defaultSettings(), usageDisplay: "sideways" })
+        .usageDisplay,
+    ).toBe("used");
+  });
+
+  it("leaves the editor-backed providers off until asked for", () => {
+    expect(defaultSettings().enabledProviderIds).toEqual([
+      "claude",
+      "codex",
+      "grok",
+    ]);
+  });
+});

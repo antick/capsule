@@ -1,10 +1,11 @@
 import { execFile } from "node:child_process";
-import { promises as fs, watch } from "node:fs";
+import { createReadStream, promises as fs, watch } from "node:fs";
 import type { FileHandle } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, sep } from "node:path";
+import { createInterface } from "node:readline";
 import { promisify } from "node:util";
-import type { ActivityHost } from "@capsule/activity";
+import type { LogFile, TokenScanHost } from "@capsule/activity/tokens";
 import { ACTIVITY, ACTIVITY_NOTICES } from "@capsule/config";
 import { app } from "electron";
 
@@ -39,7 +40,56 @@ export function parseSqliteRows(stdout: string): string[][] {
  * asked through `ps`, Codex's stores through the `sqlite3` that ships with
  * macOS, the same way the Dock is asked through `defaults`.
  */
-export function createActivityHost(): ActivityHost {
+/** Every regular file under `dir`, with the two facts the token cache keys on. */
+async function walk(dir: string): Promise<LogFile[]> {
+  const out: LogFile[] = [];
+  const pending = [dir];
+  while (pending.length > 0) {
+    const current = pending.pop() as string;
+    let entries: import("node:fs").Dirent[];
+    try {
+      entries = await fs.readdir(current, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith(".")) {
+        continue;
+      }
+      const path = join(current, entry.name);
+      if (entry.isDirectory()) {
+        pending.push(path);
+      } else if (entry.isFile()) {
+        try {
+          const stat = await fs.stat(path);
+          out.push({ path, size: stat.size, modifiedMs: stat.mtimeMs });
+        } catch {
+          // Gone between listing and stat; nothing to count.
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/** Streams a file line by line, so a gigabyte of transcript never sits in memory. */
+function eachLine(
+  path: string,
+  onLine: (line: string) => void,
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    const stream = createReadStream(path, { encoding: "utf8" });
+    const lines = createInterface({ input: stream, crlfDelay: Infinity });
+    lines.on("line", onLine);
+    lines.on("close", () => resolve(true));
+    stream.on("error", () => {
+      lines.close();
+      resolve(false);
+    });
+  });
+}
+
+export function createActivityHost(): TokenScanHost {
   // Bounded tail cache: unchanged logs cost one stat, not repeated transcript reads.
   const tails = new Map<string, { stamp: string; text: string }>();
   return {
@@ -153,6 +203,8 @@ export function createActivityHost(): ActivityHost {
       const id = setInterval(tick, ms);
       return () => clearInterval(id);
     },
+    walk,
+    eachLine,
     watchDir: (dir, onChange) => {
       try {
         const watcher = watch(dir, () => onChange());

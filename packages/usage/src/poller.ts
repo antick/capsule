@@ -15,6 +15,10 @@ export interface PollerHost {
   fetch: typeof fetch;
   readFile: (absolutePath: string) => Promise<string | null>;
   readSecret?: (service: string) => Promise<string | null>;
+  runCommand?: (
+    file: string,
+    args: readonly string[],
+  ) => Promise<string | null>;
   homeDir: () => string;
   interval: (ms: number, tick: () => void) => () => void;
   onResume: (tick: () => void) => () => void;
@@ -26,6 +30,41 @@ export interface PollerHost {
    */
   loadBackoff?: () => Record<string, number>;
   saveBackoff?: (until: Record<string, number>) => void;
+  /**
+   * The last readings, remembered across launches so the dock has numbers the
+   * moment it appears rather than a row of dashes until the first fetch lands.
+   */
+  loadSnapshots?: () => UsageSnapshot[];
+  saveSnapshots?: (snapshots: UsageSnapshot[]) => void;
+}
+
+/**
+ * What to show at launch: the remembered reading for each enabled provider,
+ * dated and marked stale so it never passes for live, or a placeholder where
+ * nothing useful was remembered.
+ */
+export function rememberedSnapshots(
+  enabled: readonly ProviderId[],
+  remembered: readonly UsageSnapshot[],
+): UsageSnapshot[] {
+  return placeholderSnapshots(enabled).map((placeholder) => {
+    const old = remembered.find(
+      (item) => item.providerId === placeholder.providerId,
+    );
+    if (
+      !old ||
+      (old.status !== "ok" && old.status !== "stale") ||
+      old.buckets.length === 0
+    ) {
+      return placeholder;
+    }
+    return {
+      ...old,
+      status: "stale",
+      staleSince: old.staleSince ?? old.fetchedAt,
+      refreshing: false,
+    };
+  });
 }
 
 /**
@@ -87,8 +126,16 @@ export function createPoller(options: {
     fetch: options.host.fetch,
     readFile: options.host.readFile,
     readSecret: options.host.readSecret,
+    runCommand: options.host.runCommand,
     homeDir: options.host.homeDir(),
   });
+
+  /** Writes the readings down, minus the in-flight flag that means nothing later. */
+  const remember = () => {
+    options.host.saveSnapshots?.(
+      snapshots.map(({ refreshing: _refreshing, ...item }) => item),
+    );
+  };
 
   /** Flags the providers still being waited on, keeping their last numbers. */
   const markRefreshing = (ids: Set<ProviderId>) => {
@@ -184,6 +231,7 @@ export function createPoller(options: {
       }
       snapshots = next.map((item) => ({ ...item, refreshing: false }));
       options.onChange(snapshots);
+      remember();
     })().finally(() => {
       inFlight = null;
     });
@@ -212,6 +260,7 @@ export function createPoller(options: {
       item.providerId === providerId ? { ...fetched, refreshing: false } : item,
     );
     options.onChange(snapshots);
+    remember();
   };
 
   const refreshingIds = (): Set<ProviderId> =>
@@ -244,7 +293,10 @@ export function createPoller(options: {
     start: () => {
       stop();
       const settings = options.getSettings();
-      snapshots = placeholderSnapshots(settings.enabledProviderIds);
+      snapshots = rememberedSnapshots(
+        settings.enabledProviderIds,
+        options.host.loadSnapshots?.() ?? [],
+      );
       options.onChange(snapshots);
       stopFns = [
         options.host.interval(settings.pollIntervalMs, () => {

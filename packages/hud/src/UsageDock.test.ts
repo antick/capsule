@@ -5,6 +5,7 @@ import {
   DEMO_SNAPSHOTS,
   DOCK_STYLES,
   HUD_THEMES,
+  placeholderSnapshots,
 } from "@capsule/config";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -290,5 +291,115 @@ describe("UsageDock activity", () => {
       }),
     );
     expect(held).not.toContain("clip-path:path(");
+  });
+});
+
+describe("UsageDock from the second round of ports", () => {
+  const now = new Date(DEMO_NOW_ISO);
+  const busy: AgentSession = {
+    id: "claude.2",
+    providerId: "claude",
+    name: "egglify-4e",
+    detail: "Desktop - egglify",
+    state: "busy",
+    waitingFor: null,
+    since: now.toISOString(),
+  };
+
+  it("draws Cursor and Copilot with their own marks", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: [...placeholderSnapshots(["cursor", "copilot"], now)],
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+      }),
+    );
+    expect(html).toContain('data-provider="cursor"');
+    expect(html).toContain('data-provider="copilot"');
+  });
+
+  it("lists tokens spent today and this month under the readings", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        tokens: {
+          claude: {
+            providerId: "claude",
+            todayTokens: 1_200_000,
+            monthTokens: 48_300_000,
+            scannedAt: now.toISOString(),
+          },
+        },
+        forceOpenProviderId: "claude",
+      }),
+    );
+    expect(html).toContain('data-token-usage="true"');
+    expect(html).toContain(">1.2m<");
+    expect(html).toContain(">48.3m<");
+    const codex = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        forceOpenProviderId: "codex",
+      }),
+    );
+    expect(codex).not.toContain('data-token-usage="true"');
+  });
+
+  it("reads the same numbers from the other end when asked for remaining", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        usageDisplay: "remaining",
+        forceOpenProviderId: "claude",
+      }),
+    );
+    expect(html).toContain(">27%<");
+    expect(html).toContain("27% Remaining");
+    expect(html).not.toContain("73% Used");
+  });
+
+  it("carries an activity dot on the folded latch", () => {
+    const working = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        autoHide: true,
+        activity: { claude: [busy] },
+      }),
+    );
+    expect(working).toContain('data-hud-beacon="working"');
+    const waiting = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        autoHide: true,
+        activity: { claude: [{ ...busy, state: "waiting" }] },
+      }),
+    );
+    expect(waiting).toContain('data-hud-beacon="waiting"');
+    const quiet = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        orientation: "vertical",
+        cardGrowth: "left",
+        now,
+        autoHide: true,
+      }),
+    );
+    expect(quiet).not.toContain("data-hud-beacon");
   });
 });

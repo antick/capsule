@@ -1,6 +1,7 @@
 import {
   type AgentSession,
   COPY,
+  formatCompactCount,
   HUD_THEMES,
   type HudMetrics,
   type HudTheme,
@@ -10,6 +11,8 @@ import {
   sessionRowsShown,
   sessionStateColor,
   severityForPercent,
+  type TokenUsage,
+  type UsageDisplay,
   type UsageSnapshot,
 } from "@capsule/config";
 import { formatAgo, formatElapsed, formatResetCopy } from "@capsule/dates";
@@ -21,15 +24,22 @@ function BucketRow({
   theme,
   label,
   percentUsed,
+  display,
   resetCopy,
 }: {
   metrics: HudMetrics;
   theme: HudTheme;
   label: string;
   percentUsed: number;
+  display: UsageDisplay;
   resetCopy: string;
 }): ReactElement {
   const color = SEVERITY_COLORS[severityForPercent(percentUsed)];
+  const shown = display === "remaining" ? 100 - percentUsed : percentUsed;
+  const suffix =
+    display === "remaining"
+      ? COPY.percentRemainingSuffix
+      : COPY.percentUsedSuffix;
   return (
     <div
       style={{
@@ -67,7 +77,7 @@ function BucketRow({
       >
         <div
           style={{
-            width: `${percentUsed}%`,
+            width: `${shown}%`,
             height: "100%",
             background: color,
             borderRadius: 99,
@@ -83,9 +93,59 @@ function BucketRow({
           lineHeight: `${metrics.cardTextLine}px`,
         }}
       >
-        {percentUsed}
-        {COPY.percentUsedSuffix}
+        {shown}
+        {suffix}
       </span>
+    </div>
+  );
+}
+
+/**
+ * How much the provider's agents have got through, from their own logs. A
+ * heading and two quiet rows: today, and the last thirty days.
+ */
+function TokenSection({
+  metrics,
+  theme,
+  tokens,
+}: {
+  metrics: HudMetrics;
+  theme: HudTheme;
+  tokens: TokenUsage;
+}): ReactElement {
+  const line = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    gap: metrics.cardResetGap,
+    height: metrics.cardTextLine,
+    lineHeight: `${metrics.cardTextLine}px`,
+    fontSize: metrics.cardLabelSize,
+    whiteSpace: "nowrap",
+  } as const;
+  const value = {
+    color: theme.text,
+    fontVariantNumeric: "tabular-nums",
+  } as const;
+  return (
+    <div
+      data-token-usage="true"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: metrics.cardBucketGap,
+        marginTop: metrics.cardSectionGap,
+      }}
+    >
+      <span style={{ ...line, color: theme.text }}>{COPY.tokenUsage}</span>
+      <div style={{ ...line, color: theme.textMuted }}>
+        <span>{COPY.tokensToday}</span>
+        <span style={value}>{formatCompactCount(tokens.todayTokens)}</span>
+      </div>
+      <div style={{ ...line, color: theme.textMuted }}>
+        <span>{COPY.tokensMonth}</span>
+        <span style={value}>{formatCompactCount(tokens.monthTokens)}</span>
+      </div>
     </div>
   );
 }
@@ -295,6 +355,8 @@ export function UsageCard({
   theme = HUD_THEMES.midnight,
   snapshot,
   sessions = [],
+  tokens = null,
+  display = "used",
   now,
 }: {
   metrics: HudMetrics;
@@ -302,6 +364,10 @@ export function UsageCard({
   snapshot: UsageSnapshot;
   /** What this provider's agents are doing, listed under the readings. */
   sessions?: AgentSession[];
+  /** Tokens its agents have got through, from their local logs. */
+  tokens?: TokenUsage | null;
+  /** Whether the bars count what is used or what is left. */
+  display?: UsageDisplay;
   now: Date;
 }): ReactElement {
   const title = `${snapshot.displayName}${COPY.usageTitleSuffix}`;
@@ -343,6 +409,7 @@ export function UsageCard({
             key={bucket.id}
             label={bucket.label}
             percentUsed={Math.round(bucket.percentUsed)}
+            display={display}
             resetCopy={formatResetCopy(bucket.resetsAt, bucket.resetStyle, now)}
           />
         ))}
@@ -397,6 +464,9 @@ export function UsageCard({
         ) : null}
       </div>
       {body}
+      {tokens ? (
+        <TokenSection metrics={metrics} theme={theme} tokens={tokens} />
+      ) : null}
       {sessions.length > 0 ? (
         <SessionList
           metrics={metrics}

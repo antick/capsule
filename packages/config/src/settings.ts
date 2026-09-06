@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  DEFAULT_ENABLED_PROVIDER_IDS,
   PLACEMENT_PRESETS,
   type PlacementPreset,
   POLL_INTERVAL_MS,
@@ -11,6 +12,9 @@ import { clampHudScale, HUD_SCALE } from "./metrics.ts";
 import { HUD_THEME_IDS } from "./theme.ts";
 
 const SCHEMA_VERSION = 6;
+
+export const USAGE_DISPLAYS = ["used", "remaining"] as const;
+export type UsageDisplay = (typeof USAGE_DISPLAYS)[number];
 
 const LEGACY_PROVIDER_IDS: Record<string, ProviderId> = {
   chatgpt: "codex",
@@ -117,6 +121,11 @@ export const settingsSchema = z.preprocess(
      * dock is its own shape and slides along the edge like any other.
      */
     topEdgeNotch: z.boolean().default(true).catch(true),
+    /**
+     * Whether the rings, bars and percentages count what has been used or
+     * what is left. The same numbers either way, read from the other end.
+     */
+    usageDisplay: z.enum(USAGE_DISPLAYS).default("used").catch("used"),
     customPosition: z
       .object({
         x: z.number(),
@@ -133,7 +142,7 @@ export type CapsuleSettings = z.infer<typeof settingsSchema>;
 export function defaultSettings(): CapsuleSettings {
   return {
     placementPreset: "right-edge" satisfies PlacementPreset,
-    enabledProviderIds: [...PROVIDER_IDS] as ProviderId[],
+    enabledProviderIds: [...DEFAULT_ENABLED_PROVIDER_IDS] as ProviderId[],
     demoMode: false,
     pollIntervalMs: POLL_INTERVAL_MS,
     launchAtLogin: false,
@@ -143,6 +152,7 @@ export function defaultSettings(): CapsuleSettings {
     cornerArc: false,
     autoHide: true,
     topEdgeNotch: true,
+    usageDisplay: "used",
     customPosition: null,
     schemaVersion: SCHEMA_VERSION,
   };

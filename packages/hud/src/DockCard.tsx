@@ -6,6 +6,8 @@ import {
   type HudMetrics,
   type HudTheme,
   MOTION,
+  type TokenUsage,
+  type UsageDisplay,
   type UsageSnapshot,
 } from "@capsule/config";
 import type { ReactElement } from "react";
@@ -17,6 +19,7 @@ export function dockCardHeight(
   snapshot: UsageSnapshot | null,
   sessions: number,
   notices: number,
+  tokens = false,
 ): number {
   const count = snapshot?.buckets.length ?? 0;
   const buckets =
@@ -34,13 +37,15 @@ export function dockCardHeight(
         : 0)
     );
   }
-  return cardHeightFor(metrics, { buckets, sessions });
+  return cardHeightFor(metrics, { buckets, sessions, tokens });
 }
 
 export function DockCard({
   snapshot,
   sessions,
   notices,
+  tokens = null,
+  display = "used",
   metrics,
   theme,
   now,
@@ -51,6 +56,8 @@ export function DockCard({
   snapshot: UsageSnapshot;
   sessions: AgentSession[];
   notices: ActivityNotice[];
+  tokens?: TokenUsage | null;
+  display?: UsageDisplay;
   metrics: HudMetrics;
   theme: HudTheme;
   now: Date;
@@ -82,6 +89,8 @@ export function DockCard({
         <UsageCard
           snapshot={snapshot}
           sessions={sessions}
+          tokens={tokens}
+          display={display}
           metrics={metrics}
           theme={theme}
           now={now}

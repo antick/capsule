@@ -93,6 +93,8 @@ export interface HudMetrics {
   /** The notch the dock draws for itself where the display has none. */
   notchWidth: number;
   notchDepth: number;
+  /** The activity dot a folded dock carries. */
+  beaconSize: number;
   /** The tab a retracted dock leaves in the screen edge. */
   latchThickness: number;
   latchLength: number;
@@ -150,6 +152,7 @@ const SCALED_KEYS = [
   "notchPaddingY",
   "notchWidth",
   "notchDepth",
+  "beaconSize",
   "latchThickness",
   "latchLength",
   "latchReach",
@@ -227,7 +230,7 @@ export function sessionRowsShown(count: number): {
  */
 export function cardHeightFor(
   m: HudMetrics,
-  input: { buckets: number; sessions?: number },
+  input: { buckets: number; sessions?: number; tokens?: boolean },
 ): number {
   let height =
     m.cardPaddingTop + m.cardTitleLine + m.cardTitleGap + m.cardPaddingBottom;
@@ -237,6 +240,10 @@ export function cardHeightFor(
   } else {
     const bucket = m.cardTextLine * 2 + m.cardBucketGap * 2 + m.barHeight;
     height += input.buckets * bucket + (input.buckets - 1) * m.cardSectionGap;
+  }
+  if (input.tokens) {
+    // A heading and two rows, one line each.
+    height += m.cardSectionGap + m.cardTextLine * 3 + m.cardBucketGap * 2;
   }
   const shown = sessionRowsShown(input.sessions ?? 0);
   if (shown.rows > 0) {
@@ -270,6 +277,7 @@ export function cardReserveHeight(m: HudMetrics): number {
   return cardHeightFor(m, {
     buckets: HUD.maxCardBuckets,
     sessions: HUD.maxCardSessions + 1,
+    tokens: true,
   });
 }
 

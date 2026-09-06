@@ -10,6 +10,7 @@ import {
   NOTICE_IPC,
   type ProviderId,
   type Rect,
+  type TokenUsageByProvider,
   type UsageSnapshot,
 } from "@capsule/config";
 import { contextBridge, ipcRenderer } from "electron";
@@ -61,6 +62,8 @@ export interface CapsuleBridge {
   onRevealDock: (listener: () => void) => () => void;
   /** Live agent sessions by provider, now and whenever they change. */
   onActivity: (listener: (activity: ActivityByProvider) => void) => () => void;
+  /** Tokens spent by provider, from local logs, now and whenever they change. */
+  onTokens: (listener: (tokens: TokenUsageByProvider) => void) => () => void;
   /** Hold an auto-hiding dock out, or let it go. */
   setKeepOpen: (keepOpen: boolean) => void;
   /** Whether the dock is being held out, now and whenever that changes. */
@@ -170,6 +173,17 @@ const capsule: CapsuleBridge = {
       .then((activity: ActivityByProvider) => listener(activity));
     return () => {
       ipcRenderer.off(IPC.activity, handler);
+    };
+  },
+  onTokens: (listener) => {
+    const handler = (_event: unknown, next: TokenUsageByProvider) =>
+      listener(next);
+    ipcRenderer.on(IPC.tokens, handler);
+    void ipcRenderer
+      .invoke(IPC.getTokens)
+      .then((next: TokenUsageByProvider) => listener(next));
+    return () => {
+      ipcRenderer.off(IPC.tokens, handler);
     };
   },
   setKeepOpen: (keepOpen) => {

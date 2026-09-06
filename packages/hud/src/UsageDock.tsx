@@ -1,16 +1,10 @@
 import {
-  type ActivityByProvider,
   type ActivityNotice,
   type AgentSession,
-  type Corner,
   DEMO_NOW_ISO,
   DOCK_STYLES,
-  type DockStyle,
-  type HardwareNotch,
   HUD,
   HUD_THEMES,
-  type HudMetrics,
-  type HudTheme,
   hudMetrics,
   joinedNotchRailLength,
   joinOffsetForIndex,
@@ -33,9 +27,10 @@ import {
 import { CornerFrame } from "./CornerFrame.tsx";
 import { DockCard, dockCardHeight } from "./DockCard.tsx";
 import { DOCK_STYLESHEET } from "./dock-stylesheet.ts";
-import { type CardGrowth, type HitRegions, HudFrame } from "./HudFrame.tsx";
+import { HudFrame } from "./HudFrame.tsx";
 import { stowShift } from "./latch-path.ts";
 import { UsageMeter } from "./UsageMeter.tsx";
+import type { UsageDockProps } from "./usage-dock-props.ts";
 import { useActivityNotices } from "./use-activity-notices.ts";
 import { useDockDrag } from "./use-dock-drag.ts";
 
@@ -68,58 +63,9 @@ export function UsageDock({
   onMoveStart,
   onMoveEnd,
   onHitRegions,
-}: {
-  snapshots: UsageSnapshot[];
-  orientation: "vertical" | "horizontal";
-  cardGrowth: CardGrowth;
-  notch?: boolean;
-  metrics?: HudMetrics;
-  theme?: HudTheme;
-  dockStyle?: DockStyle;
-  now?: Date;
-  /** Where the rail sits inside its frame; the main process owns this. */
-  railBias?: number | null;
-  /** Set when the dock has curled into a screen corner as an arc. */
-  corner?: Corner | null;
-  /** Rest as a latch in the screen edge until the pointer comes for it. */
-  autoHide?: boolean;
-  /**
-   * Held out, so it stays unrolled after the pointer leaves. A gesture rather
-   * than a setting: clicking the rail toggles it, and so can a menu.
-   */
-  keepOpen?: boolean;
-  onKeepOpenChange?: (keepOpen: boolean) => void;
-  /** Live agent sessions, by provider, for the rings and the card. */
-  activity?: ActivityByProvider;
-  notices?: ActivityNotice[];
-  onDismissNotice?: (id: string) => void;
-  /** The display's own notch, when the top edge is drawn as it. */
-  hardwareNotch?: HardwareNotch | null;
-  /**
-   * The host's own verdict on whether the cursor is over the dock. A
-   * click-through window raises no pointerout, so DOM events alone would leave
-   * a card open for good once the cursor left.
-   */
-  pointerInside?: boolean | null;
-  /**
-   * Bumped when the user asks "where is it?" from a menu. A hidden dock is a
-   * few pixels of tab that can vanish into a dark wallpaper, so this unrolls
-   * it and holds it out long enough to be spotted.
-   */
-  revealNonce?: number;
-  forceOpenProviderId?: ProviderId | null;
-  onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
-  /** Fires when the user asks for a provider to be read again. */
-  onRefresh?: (providerId: ProviderId) => void;
-  onAgents?: (providerId: ProviderId) => void;
-  onContextMenu?: (event: MouseEvent) => void;
-  /** Fires while the pointer is held down, so the host can pin mouse capture. */
-  onPressedChange?: (pressed: boolean) => void;
-  onMoveStart?: (screenX: number, screenY: number) => void;
-  onMoveEnd?: () => void;
-  /** Reports the areas that should swallow the mouse, local to the dock. */
-  onHitRegions?: (regions: HitRegions) => void;
-}): ReactElement {
+  tokens = {},
+  usageDisplay = "used",
+}: UsageDockProps): ReactElement {
   const notice = useActivityNotices(notices, pointerInside);
   const metrics = metricsProp ?? hudMetrics();
   const clock = now ?? new Date(DEMO_NOW_ISO);
@@ -333,12 +279,25 @@ export function UsageDock({
       ? notice.visible
       : []
     : lastNotices.current;
+  const cardTokens = cardSnapshot
+    ? (tokens[cardSnapshot.providerId] ?? null)
+    : null;
   const cardHeight = dockCardHeight(
     metrics,
     cardSnapshot,
     cardSessions.length,
     cardNotices.length,
+    cardTokens !== null,
   );
+  // What a folded dock says at a glance: amber if any agent is waiting on you,
+  // white if any is working, nothing otherwise.
+  const overall = summarizeActivity(Object.values(activity).flat())?.state;
+  const beacon =
+    notice.waiting.length > 0 || overall === "waiting"
+      ? "waiting"
+      : overall === "working"
+        ? "working"
+        : null;
 
   /**
    * A click on the rail itself — not a meter, not the card — holds the dock
@@ -362,6 +321,7 @@ export function UsageDock({
       key={snapshot.providerId}
       providerId={snapshot.providerId}
       percent={snapshot.primaryPercent}
+      display={usageDisplay}
       active={openId === snapshot.providerId}
       compact={compact}
       refreshing={snapshot.refreshing === true}
@@ -408,6 +368,8 @@ export function UsageDock({
       snapshot={cardSnapshot}
       sessions={cardSessions}
       notices={cardNotices}
+      tokens={cardTokens}
+      display={usageDisplay}
       metrics={metrics}
       theme={theme}
       now={clock}
@@ -484,6 +446,7 @@ export function UsageDock({
           railBias={railBias}
           peek={peek}
           hardwareNotch={joined}
+          beacon={beacon}
           onHitRegions={onHitRegions}
           rail={meterNodes}
           card={cardNode}

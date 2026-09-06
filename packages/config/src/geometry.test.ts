@@ -223,3 +223,13 @@ describe("virtualNotch", () => {
     });
   });
 });
+
+describe("card height with token usage", () => {
+  it("adds a heading and two rows", () => {
+    const bare = cardHeightFor(m, { buckets: 2 });
+    const withTokens = cardHeightFor(m, { buckets: 2, tokens: true });
+    expect(withTokens - bare).toBe(
+      m.cardSectionGap + m.cardTextLine * 3 + m.cardBucketGap * 2,
+    );
+  });
+});

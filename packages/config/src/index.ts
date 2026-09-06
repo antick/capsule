@@ -21,26 +21,11 @@ export * from "./agents.ts";
 export * from "./claude-channel.ts";
 export type { PlacementPreset, ProviderId, Severity } from "./constants.ts";
 export {
-  ANTHROPIC_OAUTH_BETA_HEADER,
-  ANTHROPIC_OAUTH_USAGE_URL,
   APP_NAME,
   CHROME_POLL_MS,
-  CLAUDE_CREDENTIALS_PATH_SEGMENTS,
-  CLAUDE_KEYCHAIN_SERVICE,
-  CLAUDE_USAGE_CACHE_FILE,
-  CODEX_AUTH_PATH_SEGMENTS,
-  CODEX_HOME_ENV,
-  CODEX_OAUTH_CLIENT_ID,
-  CODEX_TOKEN_URL,
-  CODEX_USAGE_FALLBACK_URL,
-  CODEX_USAGE_URL,
   COPY,
+  DEFAULT_ENABLED_PROVIDER_IDS,
   FAKE_NOTCH_ENV,
-  GROK_AUTH_PATH_SEGMENTS,
-  GROK_BILLING_URL,
-  GROK_HOME_ENV,
-  GROK_TOKEN_AUTH_VALUE,
-  GROK_USER_ID_HEADER,
   HUD,
   HUD_BASE,
   IPC,
@@ -55,7 +40,6 @@ export {
   PROVIDER_LABELS,
   SEVERITY_BANDS,
   SEVERITY_COLORS,
-  USAGE_USER_AGENT,
 } from "./constants.ts";
 export type { Corner, CornerGeometry, CornerGrowth } from "./corner.ts";
 export {
@@ -85,6 +69,7 @@ export {
   dockStyleFor,
   styleSupportsNotch,
 } from "./dock-style.ts";
+export * from "./endpoints.ts";
 export type { HardwareNotch, HudMetrics } from "./metrics.ts";
 export {
   cardHeightFor,
@@ -144,11 +129,12 @@ export {
   presetForEdge,
   zoomHoldBounds,
 } from "./placement.ts";
-export type { CapsuleSettings } from "./settings.ts";
+export type { CapsuleSettings, UsageDisplay } from "./settings.ts";
 export {
   defaultSettings,
   migrateSettings,
   settingsSchema,
+  USAGE_DISPLAYS,
 } from "./settings.ts";
 export { severityForPercent } from "./severity.ts";
 export { edgeAffinity, nearestEdgeForPoint, slideAlongEdge } from "./snap.ts";
@@ -164,6 +150,8 @@ export {
   HUD_THEMES,
   resolveHudTheme,
 } from "./theme.ts";
+export type { TokenUsage, TokenUsageByProvider } from "./tokens.ts";
+export { dayKey, formatCompactCount, startOfDay, TOKENS } from "./tokens.ts";
 export type {
   UsageBucket,
   UsageSnapshot,

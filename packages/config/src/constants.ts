@@ -1,12 +1,31 @@
 export const APP_NAME = "Capsule";
 
-export const PROVIDER_IDS = ["claude", "codex", "grok"] as const;
+export const PROVIDER_IDS = [
+  "claude",
+  "codex",
+  "grok",
+  "cursor",
+  "copilot",
+] as const;
 export type ProviderId = (typeof PROVIDER_IDS)[number];
+
+/**
+ * What a fresh install shows. Cursor and Copilot are read from the editor's
+ * and GitHub's own logins, so they stay off until switched on in Settings
+ * rather than adding two empty rings to everyone's dock.
+ */
+export const DEFAULT_ENABLED_PROVIDER_IDS = [
+  "claude",
+  "codex",
+  "grok",
+] as const satisfies readonly ProviderId[];
 
 export const PROVIDER_LABELS = {
   claude: "Claude",
   codex: "Codex",
   grok: "Grok",
+  cursor: "Cursor",
+  copilot: "Copilot",
 } as const satisfies Record<ProviderId, string>;
 
 /**
@@ -131,6 +150,11 @@ export const HUD_BASE = {
    */
   notchWidth: 200,
   notchDepth: 32,
+  /**
+   * The dot a folded dock carries when an agent is working or waiting, so the
+   * glance works while the dock is hidden — which is when it matters most.
+   */
+  beaconSize: 4,
   /**
    * The latch: all that is left of the dock once it retracts into the screen
    * edge. A thin tab, long enough to read as a deliberate handle rather than a
@@ -270,31 +294,6 @@ export const POLL_INTERVAL_OPTIONS = [
 ] as const;
 export const CHROME_POLL_MS = 2_000;
 
-export const ANTHROPIC_OAUTH_USAGE_URL =
-  "https://api.anthropic.com/api/oauth/usage";
-export const ANTHROPIC_OAUTH_BETA_HEADER = "oauth-2025-04-20";
-export const CLAUDE_KEYCHAIN_SERVICE = "Claude Code-credentials";
-export const CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
-export const CODEX_USAGE_FALLBACK_URL =
-  "https://chatgpt.com/backend-api/codex/usage";
-export const CODEX_TOKEN_URL = "https://auth.openai.com/oauth/token";
-export const CODEX_OAUTH_CLIENT_ID = "app_EMohtA1zFfdvkohgPldNB5nP";
-export const GROK_BILLING_URL =
-  "https://cli-chat-proxy.grok.com/v1/billing?format=credits";
-export const GROK_TOKEN_AUTH_VALUE = "xai-grok-cli";
-export const GROK_USER_ID_HEADER = "x-userid";
-export const USAGE_USER_AGENT =
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1";
-export const CLAUDE_USAGE_CACHE_FILE = ".claude.json";
-
-export const CLAUDE_CREDENTIALS_PATH_SEGMENTS = [
-  ".claude",
-  ".credentials.json",
-] as const;
-export const CODEX_AUTH_PATH_SEGMENTS = [".codex", "auth.json"] as const;
-export const GROK_AUTH_PATH_SEGMENTS = [".grok", "auth.json"] as const;
-export const CODEX_HOME_ENV = "CODEX_HOME";
-export const GROK_HOME_ENV = "GROK_HOME";
 /**
  * Pretend the display has a notch of this size, as "200x37", for trying the
  * joined top edge on a Mac that has none. Development only.
@@ -350,6 +349,9 @@ export const IPC = {
   keepOpen: "capsule:keep-open",
   setKeepOpen: "capsule:set-keep-open",
   getKeepOpen: "capsule:get-keep-open",
+  /** Tokens spent today and this month, by provider, from local session logs. */
+  tokens: "capsule:tokens",
+  getTokens: "capsule:get-tokens",
 } as const;
 
 export const COPY = {
@@ -376,7 +378,19 @@ export const COPY = {
   grokOnDemand: "On-demand",
   grokBuild: "Grok Build",
   percentUsedSuffix: "% Used",
+  percentRemainingSuffix: "% Remaining",
   percentSuffix: "%",
+  cursorPlan: "Plan usage",
+  copilotPremium: "Premium requests",
+  copilotChat: "Chat",
+  tokenUsage: "Token usage",
+  tokensToday: "Today",
+  tokensMonth: "Last 30 days",
+  usageDisplay: "Show usage as",
+  usageDisplayHint:
+    "Whether the rings, bars and percentages count what you have used or what you have left.",
+  usageDisplayUsed: "Used",
+  usageDisplayRemaining: "Remaining",
   usageTitleSuffix: " Usage",
   usageDisabled: "Live usage disabled. Check usage in the provider’s app.",
   notConnected: "Not connected",
@@ -426,7 +440,7 @@ export const COPY = {
   showDockHint:
     "Unrolls the dock and holds it there for a few seconds, for when you have lost track of the latch.",
   providersHint:
-    "Capsule reads the logins these CLIs already keep on this Mac. Turn one off to hide its ring.",
+    "Capsule reads the logins these tools already keep on this Mac. Turn one off to hide its ring; Cursor and Copilot start off.",
   statusLabels: {
     ok: "Connected",
     stale: "Last known numbers",
