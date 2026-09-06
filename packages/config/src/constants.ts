@@ -444,7 +444,7 @@ export const COPY = {
     "Forget where the dock was last dragged and centre it on its edge.",
   cornerArc: "Curl into corners",
   cornerArcHint:
-    "Drag the dock all the way to a corner and it bends into a quarter arc that traces it. The arc cannot fold into a latch, so this is ignored while the dock hides until needed.",
+    "Drag the dock to a corner and it bends into a quarter arc. With Hide until needed on, it folds down to a thin curve and expands when approached.",
   hideDelay: "Hide after",
   hideDelayHint:
     "How long the dock waits after the pointer leaves before it folds away. Longer is more forgiving when you cross a corner of the card on the way to something else.",

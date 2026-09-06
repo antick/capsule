@@ -29,6 +29,14 @@ const { _electron } = require(
       launchAtLogin: false,
       autoHide: false,
       notificationPopups: true,
+      ...(process.env.CAPSULE_VERIFY_CORNERS
+        ? {
+            cornerArc: true,
+            autoHide: true,
+            customPosition: { x: 0, y: 0 },
+            customCorner: null,
+          }
+        : {}),
     },
   });
   const entry = path.join(home, "launch.cjs");
@@ -58,7 +66,9 @@ const { _electron } = require(
     page.setDefaultTimeout(15000);
     page.on("pageerror", (error) => console.error(error));
 
-    await page.waitForSelector('[data-provider="claude"]');
+    await page.waitForSelector('[data-provider="claude"]', {
+      state: "attached",
+    });
     await page.evaluate(async () => {
       const settings = await window.capsule.getSettings();
       await window.capsule.setSettings({ ...settings, autoHide: false });
@@ -85,6 +95,10 @@ const { _electron } = require(
       });
     };
     console.log("Overlay ready");
+    if (process.env.CAPSULE_VERIFY_CORNERS) {
+      await require("./verify-corners.cjs")(app, page, screenshot);
+      return;
+    }
     const append = async (file, event) => {
       await fs.mkdir(path.dirname(file), { recursive: true });
       await fs.appendFile(
@@ -305,9 +319,19 @@ const { _electron } = require(
       });
     });
     await meter.hover();
-    await page.mouse.down();
     const meterBox = await meter.boundingBox();
     assert.ok(meterBox);
+    // During a drag the fake screen cursor must stay in screen coordinates;
+    // tying it to moving window bounds makes the test chase its own cursor.
+    await app.evaluate(({ screen, BrowserWindow }, box) => {
+      const bounds = BrowserWindow.getAllWindows()[0].getBounds();
+      const cursor = {
+        x: bounds.x + box.x + box.width / 2,
+        y: bounds.y + box.y + box.height / 2,
+      };
+      screen.getCursorScreenPoint = () => cursor;
+    }, meterBox);
+    await page.mouse.down();
     await page.mouse.move(
       meterBox.x + meterBox.width / 2 - 30,
       meterBox.y + meterBox.height / 2,

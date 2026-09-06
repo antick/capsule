@@ -5,7 +5,38 @@ import {
   virtualNotch,
 } from "@capsule/config";
 import { describe, expect, it } from "vitest";
-import { computeDockPlacement } from "./overlay-placement.ts";
+import {
+  computeDockPlacement,
+  settingsForCornerToggle,
+} from "./overlay-placement.ts";
+
+it("does not infer a new corner from provider or size changes", () => {
+  const settings = {
+    ...defaultSettings(),
+    cornerArc: true,
+    customPosition: { x: 0, y: 0 },
+  };
+  expect(
+    settingsForCornerToggle(
+      settings,
+      { ...settings, hudScale: 1.2 },
+      7,
+      monitor,
+    ).customCorner,
+  ).toBeNull();
+});
+
+it("recovers a saved corner at startup even if the old auto-hide restriction left it unset", () => {
+  const settings = {
+    ...defaultSettings(),
+    cornerArc: true,
+    customPosition: { x: 0, y: 0 },
+  };
+  expect(settingsForCornerToggle(null, settings, 3, monitor)).toMatchObject({
+    autoHide: true,
+    customCorner: "top-right",
+  });
+});
 
 // A 4K external monitor with no notch of its own: the menu bar is 25px.
 const monitor = {

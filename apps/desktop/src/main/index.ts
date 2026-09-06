@@ -11,6 +11,7 @@ import {
   type PlacementPreset,
   type ProviderId,
   type Rect,
+  settingsSchema,
   type TokenUsageByProvider,
   type UsageSnapshot,
 } from "@capsule/config";
@@ -18,6 +19,10 @@ import { app, BrowserWindow, ipcMain, powerMonitor, screen } from "electron";
 import { createActivityHost } from "./activity-host.ts";
 import { createAppChrome } from "./app-chrome.ts";
 import { hideFromMacDock } from "./macos-dock.ts";
+import {
+  settingsForCornerToggle,
+  syntheticChromeFor,
+} from "./overlay-placement.ts";
 import { OverlayController } from "./overlay-window.ts";
 import { openSettingsWindow } from "./settings-window.ts";
 import {
@@ -122,8 +127,7 @@ function setKeepOpen(next: boolean): void {
 function applySettings(next: CapsuleSettings): CapsuleSettings {
   const demoChanged = next.demoMode !== settings.demoMode;
   const pollChanged = next.pollIntervalMs !== settings.pollIntervalMs;
-  settings = saveSettings(next);
-  overlay.setSettings(settings);
+  settings = saveSettings(overlay.setSettings(settingsSchema.parse(next)));
   app.setLoginItemSettings({ openAtLogin: settings.launchAtLogin });
   // Always shown, the dock is already held out by a setting; a hand-made
   // hold would only outlive a later switch back.
@@ -155,6 +159,15 @@ app.whenReady().then(async () => {
   if (login.openAtLogin !== settings.launchAtLogin) {
     settings = saveSettings({ ...settings, launchAtLogin: login.openAtLogin });
   }
+  settings = saveSettings(
+    settingsForCornerToggle(
+      null,
+      settings,
+      settings.enabledProviderIds.length,
+      syntheticChromeFor(screen.getPrimaryDisplay()),
+    ),
+  );
+  overlay.setSettings(settings);
 
   appChrome = createAppChrome({
     getSettings: () => settings,

@@ -1,4 +1,5 @@
 import {
+  activityColor,
   type Corner,
   cardHeightForBuckets,
   cardReserveHeight,
@@ -8,6 +9,7 @@ import {
   HUD_THEMES,
   type HudMetrics,
   type HudTheme,
+  SPRINGS,
 } from "@capsule/config";
 import {
   isValidElement,
@@ -19,6 +21,7 @@ import type { HitRegions } from "./blob-path.ts";
 import { cornerLayout } from "./corner-path.ts";
 import { cardReveal } from "./reveal.ts";
 import { dockShadow } from "./shadow.ts";
+import { useSpring } from "./use-spring.ts";
 
 /**
  * The dock curled into a screen corner: a quarter-ring bridging the two edges
@@ -38,6 +41,8 @@ export function CornerFrame({
   meters,
   card,
   onHitRegions,
+  peek = false,
+  beacon = null,
 }: {
   metrics: HudMetrics;
   theme?: HudTheme;
@@ -51,7 +56,13 @@ export function CornerFrame({
   meters: ReactNode[];
   card: ReactNode;
   onHitRegions?: (regions: HitRegions) => void;
+  peek?: boolean;
+  beacon?: "working" | "waiting" | null;
 }): ReactElement {
+  const openness = Math.max(
+    0,
+    Math.min(1, useSpring(peek ? 0 : 1, SPRINGS.unfold)),
+  );
   const height = cardHeight ?? cardHeightForBuckets(metrics, 2);
   const layout = cornerLayout(metrics, {
     corner,
@@ -60,8 +71,11 @@ export function CornerFrame({
     cardReserve: cardReserveHeight(metrics),
     activeIndex,
     style,
+    railThickness:
+      metrics.latchThickness +
+      (metrics.railWidth - metrics.latchThickness) * openness,
   });
-  const visible = open && !dragging;
+  const visible = open && !dragging && !peek;
   const shadow = dockShadow(metrics, theme);
   const pad = layout.padding;
   const reveal = cardReveal(visible);
@@ -75,6 +89,7 @@ export function CornerFrame({
     <div
       data-hud-frame="true"
       data-hud-corner={corner}
+      data-corner-stowed={peek}
       style={{
         position: "relative",
         boxSizing: "border-box",
@@ -127,13 +142,25 @@ export function CornerFrame({
                 cursor: dragging ? "grabbing" : "grab",
               }}
             />
-            {style.outline ? (
+            {beacon && peek && layout.meters[0] ? (
+              <circle
+                data-hud-beacon={beacon}
+                cx={layout.meters[0].x}
+                cy={layout.meters[0].y}
+                r={metrics.beaconSize / 2}
+                fill={activityColor(beacon, theme)}
+              />
+            ) : null}
+            {style.outline || openness < 1 ? (
               <path
                 d={layout.arc}
                 fill="none"
                 stroke={theme.surfaceEdge}
                 strokeWidth={1}
-                style={{ pointerEvents: "none" }}
+                style={{
+                  pointerEvents: "none",
+                  opacity: style.outline ? 1 : 1 - openness,
+                }}
               />
             ) : null}
           </svg>
@@ -209,12 +236,31 @@ export function CornerFrame({
                 justifyContent: "center",
                 pointerEvents: "none",
                 cursor: dragging ? "grabbing" : "grab",
+                visibility: peek ? "hidden" : "visible",
               }}
             >
               {meter}
             </div>
           );
         })}
+        {peek
+          ? layout.hits.map((rect, index) => (
+              <div
+                key={keyOf(meters[index], index)}
+                data-hud-latch="true"
+                data-hud-hit="true"
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  left: rect.x,
+                  top: rect.y,
+                  width: rect.width,
+                  height: rect.height,
+                  pointerEvents: "auto",
+                }}
+              />
+            ))
+          : null}
       </div>
     </div>
   );

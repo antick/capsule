@@ -165,6 +165,7 @@ export function cornerLayout(
     cardReserve: number;
     activeIndex: number;
     style?: DockStyle;
+    railThickness?: number;
   },
 ): CornerLayout {
   const style = input.style ?? DOCK_STYLES.rail;
@@ -201,7 +202,16 @@ export function cornerLayout(
     meters,
     card: mapRect(mapper, card),
     tip: mapPoint(mapper, tip),
-    arc: cornerArcPath(g, mapper),
+    arc: cornerArcPath(
+      input.railThickness === undefined
+        ? g
+        : {
+            ...g,
+            inner: g.radius - input.railThickness / 2,
+            outer: g.radius + input.railThickness / 2,
+          },
+      mapper,
+    ),
     bubble: cornerBubblePath(m, mapper, card, tip, growth),
     hits: meters.map((centre) => ({
       x: centre.x - band / 2,

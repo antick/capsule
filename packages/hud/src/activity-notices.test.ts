@@ -56,6 +56,20 @@ function render(notices: ActivityNotice[], corner?: "bottom-left") {
 }
 
 describe("activity notices", () => {
+  it("keeps a folded corner reachable and unfolds it for notifications", () => {
+    const folded = render([], "bottom-left");
+    expect(folded).toContain('data-corner-stowed="true"');
+    expect(folded).toContain('data-hud-latch="true" data-hud-hit="true"');
+    expect(folded).toContain("visibility:hidden");
+    const notified = render([notice], "bottom-left");
+    expect(notified).toContain('data-corner-stowed="false"');
+    expect(notified).toContain('data-activity-notices="codex"');
+    expect(notified).not.toContain("visibility:hidden");
+    const arc = (html: string) =>
+      html.match(/data-hud-rail-shape="true"[^>]*>.*?<path d="([^"]+)"/s)?.[1];
+    expect(arc(folded)).toBeDefined();
+    expect(arc(folded)).not.toBe(arc(notified));
+  });
   it("links from usage to unread notifications without replacing usage", () => {
     const html = renderToStaticMarkup(
       createElement(UsageDock, {

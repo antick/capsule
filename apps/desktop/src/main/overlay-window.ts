@@ -38,6 +38,7 @@ import {
   describeDisplay,
   displayFor,
   railStartOf,
+  settingsForCornerToggle,
   syntheticChromeFor,
   windowBoxOf,
 } from "./overlay-placement.ts";
@@ -85,8 +86,14 @@ export class OverlayController {
     this.settings = settings;
   }
 
-  setSettings(settings: CapsuleSettings): void {
-    this.settings = settings;
+  setSettings(settings: CapsuleSettings): CapsuleSettings {
+    this.settings = settingsForCornerToggle(
+      this.settings,
+      settings,
+      this.meterCount,
+      syntheticChromeFor(this.currentDisplay()),
+    );
+    return this.settings;
   }
 
   setMeterCount(count: number): void {
@@ -352,7 +359,11 @@ export class OverlayController {
   private async joinedNotchFor(
     preset: PlacementPreset,
   ): Promise<HardwareNotch | null> {
-    if (preset !== "top-edge" || !this.settings.topEdgeNotch) {
+    if (
+      preset !== "top-edge" ||
+      !this.settings.topEdgeNotch ||
+      (this.settings.cornerArc && this.settings.customCorner)
+    ) {
       return null;
     }
     if (!styleSupportsNotch(dockStyleFor(this.settings.dockStyle))) {
@@ -393,11 +404,6 @@ export class OverlayController {
     win.webContents.send(IPC.dockFrame, frame);
   }
 
-  /**
-   * The corner the rail has reached, if the arc is switched on. Derived from
-   * where the rail sits rather than stored, so a corner dock uncurls by itself
-   * when the screen it is on changes size.
-   */
   private currentDisplay(): Display {
     return displayFor(this.settingsDisplayId);
   }

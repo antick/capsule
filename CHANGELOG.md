@@ -2,6 +2,15 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Corner curves with auto-hide
+
+### Fixed
+
+- Curl into corners now works with Hide until needed. The arc folds into a thin curve, remains reachable, and expands on approach using the existing animation and reduced-motion behavior.
+- Enabling the curve while already parked in a corner applies it immediately and saves that corner. Startup recovers previously enabled corners left unset by the auto-hide restriction. Unrelated provider and size changes still do not curl a straight dock unexpectedly.
+- A saved top corner takes priority over the centered notch. Corner cards, usage navigation, and notification indicators remain available.
+- Added native checks for all four corners, hover and hide behavior, card bounds, and saved drag positions.
+
 ## Notification access and clearing
 
 ### Fixed

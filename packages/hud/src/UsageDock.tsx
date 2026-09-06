@@ -445,6 +445,8 @@ export function UsageDock({
           theme={theme}
           style={dockStyle}
           corner={corner}
+          peek={peek}
+          beacon={beacon}
           open={openSnapshot !== null}
           dragging={dragging}
           activeIndex={activeJoinIndex}

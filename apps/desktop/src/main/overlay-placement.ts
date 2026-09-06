@@ -76,12 +76,41 @@ export function computeDockPlacement(input: {
   );
 }
 
-/**
- * Whether the dock may bend into a corner at all. The arc has no latch to fold
- * into, so an auto-hiding dock stays a straight rail whatever the switch says.
- */
+/** Auto-hide folds the corner band down without changing its placement. */
 export function curlsIntoCorners(settings: CapsuleSettings): boolean {
-  return settings.cornerArc && !settings.autoHide;
+  return settings.cornerArc;
+}
+
+/** Recover a parked corner on startup or an explicit off-to-on change. */
+export function settingsForCornerToggle(
+  previous: CapsuleSettings | null,
+  next: CapsuleSettings,
+  meterCount: number,
+  chrome: ChromeSnapshot,
+): CapsuleSettings {
+  if (
+    previous?.cornerArc ||
+    !next.cornerArc ||
+    !next.customPosition ||
+    next.customCorner
+  )
+    return next;
+  const placement = computeDockPlacement({
+    settings: next,
+    meterCount,
+    chrome,
+    preset: next.placementPreset,
+    hardwareNotch: null,
+    corner: null,
+  });
+  const railStart =
+    placement.slide.axis === "x"
+      ? next.customPosition.x
+      : next.customPosition.y;
+  return {
+    ...next,
+    customCorner: cornerForPlacement(next, placement, railStart),
+  };
 }
 
 /** The corner a rail dragged to `railStart` has reached, if it may curl. */
