@@ -2,6 +2,17 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Account access disabled
+
+### Removed
+
+- Removed Claude, Codex, and Grok saved-credential usage readers, keychain access, token refreshes, direct account endpoint calls, and the live polling timer. Live readings now say disabled; demo mode and local passive activity remain available.
+
+### Changed
+
+- Suspended agent chat without deleting its implementation. Removed startup wiring, menu and meter actions, chat IPC forwarding and handlers, and the chat renderer build. The connection manager and panel are guarded off; old channel launch commands exit without starting MCP or sockets. Re-enabling requires an explicitly reviewed source change.
+- Replaced sign-in guidance with the disabled state and removed the inactive refresh-interval control.
+
 ## Agent panel
 
 ### Added

@@ -2,6 +2,10 @@
 
 Project instructions for every agent working in this repository.
 
+## Account safety: usage access and chat suspended
+
+The user explicitly disabled account access and agent chat. Do not restore saved-credential reads, keychain access, token refreshes, provider account requests, or agent connections without new explicit user authorization. Keep chat source preserved but inactive; do not run its setup commands or live-provider tests. Local passive activity and sample demo data are allowed. Historical agent-panel plans do not authorize re-enabling the feature.
+
 ## Git: always auto-commit
 
 After every completed task that produces file changes, **create a git commit yourself before ending the turn.** This is a standing instruction for this repo.

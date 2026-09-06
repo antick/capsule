@@ -1,5 +1,7 @@
 # Agent panel
 
+> Historical record. Agent chat is now disabled by user request. Do not invoke it. See [suspension.md](suspension.md).
+
 Approved in conversation: keep hover for usage and activity; click a provider to open a focusable panel attached to the latch. List individual sessions with waiting first, then working, then idle. Selecting one shows recent messages and a draft that survives closing or switching sessions.
 
 Reuse the activity package, theme, date helpers and Electron IPC. Connections run in the main process. Only verified connected sessions accept messages. Detected sessions remain view-only. No automatic session resume, permission bypass, global configuration changes, or extra agent runs.

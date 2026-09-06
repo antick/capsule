@@ -32,6 +32,7 @@ export class AgentPanel {
   ) {}
 
   register(): void {
+    if (!AGENTS.enabled) return;
     const requirePanel = (sender: WebContents) => {
       if (sender !== this.window?.webContents)
         throw new Error("Agent commands must come from the agent panel");
@@ -114,6 +115,7 @@ export class AgentPanel {
   }
 
   open(provider: ProviderId | null = null, anchor?: Rect): void {
+    if (!AGENTS.enabled) return;
     this.anchor = anchor ??
       this.overlay()?.getBounds() ?? {
         ...screen.getCursorScreenPoint(),

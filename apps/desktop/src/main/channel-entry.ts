@@ -1,6 +1,5 @@
-import { startClaudeChannel } from "@capsule/activity";
+import { AGENT_COPY } from "@capsule/config";
 
-void startClaudeChannel().catch((error) => {
-  console.error("Capsule channel failed:", error);
-  process.exitCode = 1;
-});
+// Keep old setup commands inert too. Re-enabling requires a reviewed code change.
+console.error(AGENT_COPY.disabled);
+process.exitCode = 1;

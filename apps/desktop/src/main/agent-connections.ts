@@ -105,6 +105,7 @@ export class AgentConnections {
   ) {}
 
   start(): void {
+    if (!AGENTS.enabled) return;
     this.stopped = false;
     this.timer = setInterval(() => void this.refresh(), AGENTS.pollMs);
     void this.refresh();
@@ -120,7 +121,7 @@ export class AgentConnections {
   }
 
   refresh(): Promise<void> {
-    if (this.stopped) return Promise.resolve();
+    if (!AGENTS.enabled || this.stopped) return Promise.resolve();
     if (this.scanning) return this.scanning;
     this.scanning = this.scan().finally(() => {
       this.scanning = null;
@@ -137,6 +138,7 @@ export class AgentConnections {
   }
 
   async send(id: unknown, text: unknown): Promise<void> {
+    if (!AGENTS.enabled) throw new Error(AGENT_COPY.disabled);
     if (typeof id !== "string" || !validAgentMessage(text))
       throw new Error("Enter a message within the allowed length");
     if (this.sending.has(id))
@@ -169,6 +171,7 @@ export class AgentConnections {
     requestId: unknown,
     approve: unknown,
   ): Promise<void> {
+    if (!AGENTS.enabled) throw new Error(AGENT_COPY.disabled);
     if (
       typeof id !== "string" ||
       typeof requestId !== "string" ||

@@ -4,6 +4,7 @@ import { createServer, type Socket } from "node:net";
 import { homedir } from "node:os";
 import { basename, dirname, join, parse, resolve } from "node:path";
 import {
+  AGENT_COPY,
   AGENTS,
   type AgentMessage,
   CLAUDE_CHANNEL,
@@ -56,6 +57,7 @@ export interface ClaudeChannelOptions {
 export async function startClaudeChannel(
   options: ClaudeChannelOptions = {},
 ): Promise<{ close(): Promise<void> }> {
+  if (!AGENTS.enabled) throw new Error(AGENT_COPY.disabled);
   const directory = resolve(
     options.directory ?? join(homedir(), AGENTS.channelDirectory),
   );

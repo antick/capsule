@@ -1,5 +1,7 @@
 # Agent panel implementation plan
 
+> Historical record. Agent chat is now disabled by user request. Do not invoke it. See [suspension.md](suspension.md).
+
 **Goal:** View and message connected Claude Code and Codex sessions from the latch.
 **Architecture:** Existing activity readers plus main-process connections, exposed through a narrow preload bridge to a focusable panel.
 **Stack:** Electron, React, TypeScript, Node built-ins, existing Vitest.

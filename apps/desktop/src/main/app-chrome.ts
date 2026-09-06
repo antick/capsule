@@ -1,5 +1,4 @@
 import {
-  AGENT_COPY,
   APP_NAME,
   type CapsuleSettings,
   COPY,
@@ -12,7 +11,6 @@ import { hideFromMacDock } from "./macos-dock.ts";
 import { trayTemplateImage } from "./tray-icon.ts";
 
 export interface AppChromeHandlers {
-  openAgents?: () => void;
   getSettings: () => CapsuleSettings;
   applyPlacement: (preset: PlacementPreset) => void;
   openSettings: () => void;
@@ -89,7 +87,6 @@ export function capsuleCommandTemplate(
       click: () => handlers.revealDock(),
     },
     keepOpenItem(settings, handlers),
-    { label: AGENT_COPY.title, click: () => handlers.openAgents?.() },
     {
       label: COPY.openSettings,
       click: () => handlers.openSettings(),
@@ -123,11 +120,6 @@ function applicationMenuTemplate(
           click: () => handlers.revealDock(),
         },
         keepOpenItem(settings, handlers, "CommandOrControl+Shift+K"),
-        {
-          label: AGENT_COPY.title,
-          accelerator: "CommandOrControl+Shift+A",
-          click: () => handlers.openAgents?.(),
-        },
         {
           label: COPY.settings,
           accelerator: "CommandOrControl+,",

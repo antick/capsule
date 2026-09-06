@@ -1,6 +1,11 @@
 import type { ProviderId } from "./constants.ts";
 
-export type UsageStatus = "ok" | "unauthenticated" | "error" | "stale";
+export type UsageStatus =
+  | "ok"
+  | "unauthenticated"
+  | "error"
+  | "stale"
+  | "disabled";
 
 export interface UsageBucket {
   id: string;

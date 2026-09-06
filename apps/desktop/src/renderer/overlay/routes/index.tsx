@@ -225,23 +225,6 @@ export function OverlayHud() {
         pointerInside={pointerInside}
         revealNonce={revealNonce}
         onRefresh={refreshProvider}
-        onAgents={(provider) => {
-          const meter = host.current?.querySelector(
-            `[data-provider="${provider}"]`,
-          );
-          const bounds = meter?.getBoundingClientRect();
-          void window.capsule?.openAgents(
-            provider,
-            bounds
-              ? {
-                  x: bounds.x,
-                  y: bounds.y,
-                  width: bounds.width,
-                  height: bounds.height,
-                }
-              : undefined,
-          );
-        }}
         now={settings.demoMode ? new Date(DEMO_NOW_ISO) : new Date()}
         forceOpenProviderId={previewOpen ? "claude" : null}
         onOpenChange={onOpenChange}

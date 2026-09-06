@@ -1,6 +1,6 @@
 import {
   type ActivityByProvider,
-  AGENT_IPC,
+  AGENT_COPY,
   type AgentPanelSnapshot,
   type CapsuleSettings,
   type Corner,
@@ -71,26 +71,20 @@ export interface CapsuleBridge {
   ) => () => void;
 }
 
+// No IPC, process, or socket access while the chat feature is suspended.
+async function agentsDisabled(): Promise<never> {
+  throw new Error(AGENT_COPY.disabled);
+}
+
 const capsule: CapsuleBridge = {
-  openAgents: (provider, anchor) =>
-    ipcRenderer.invoke(AGENT_IPC.open, provider, anchor),
-  closeAgents: () => {
-    ipcRenderer.send(AGENT_IPC.close);
-  },
-  getAgents: () => ipcRenderer.invoke(AGENT_IPC.get),
-  selectAgent: (id) => ipcRenderer.invoke(AGENT_IPC.select, id),
-  sendAgentMessage: (id, text) => ipcRenderer.invoke(AGENT_IPC.send, id, text),
-  respondAgentRequest: (id, requestId, approve) =>
-    ipcRenderer.invoke(AGENT_IPC.respond, id, requestId, approve),
-  getAgentSetup: () => ipcRenderer.invoke(AGENT_IPC.setup),
-  onAgents: (listener) => {
-    const handler = (_event: unknown, snapshot: AgentPanelSnapshot) =>
-      listener(snapshot);
-    ipcRenderer.on(AGENT_IPC.snapshot, handler);
-    return () => {
-      ipcRenderer.off(AGENT_IPC.snapshot, handler);
-    };
-  },
+  openAgents: agentsDisabled,
+  closeAgents: () => {},
+  getAgents: agentsDisabled,
+  selectAgent: agentsDisabled,
+  sendAgentMessage: agentsDisabled,
+  respondAgentRequest: agentsDisabled,
+  getAgentSetup: agentsDisabled,
+  onAgents: () => () => {},
   getSettings: () => ipcRenderer.invoke(IPC.getSettings),
   getSnapshots: () => ipcRenderer.invoke(IPC.getSnapshots),
   setSettings: (settings) => ipcRenderer.invoke(IPC.setSettings, settings),

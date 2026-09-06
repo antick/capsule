@@ -20,26 +20,11 @@ export * from "./agents.ts";
 export * from "./claude-channel.ts";
 export type { PlacementPreset, ProviderId, Severity } from "./constants.ts";
 export {
-  ANTHROPIC_OAUTH_BETA_HEADER,
-  ANTHROPIC_OAUTH_USAGE_URL,
   APP_NAME,
   CHROME_POLL_MS,
-  CLAUDE_CREDENTIALS_PATH_SEGMENTS,
-  CLAUDE_KEYCHAIN_SERVICE,
-  CLAUDE_USAGE_CACHE_FILE,
-  CODEX_AUTH_PATH_SEGMENTS,
   CODEX_HOME_ENV,
-  CODEX_OAUTH_CLIENT_ID,
-  CODEX_TOKEN_URL,
-  CODEX_USAGE_FALLBACK_URL,
-  CODEX_USAGE_URL,
   COPY,
   FAKE_NOTCH_ENV,
-  GROK_AUTH_PATH_SEGMENTS,
-  GROK_BILLING_URL,
-  GROK_HOME_ENV,
-  GROK_TOKEN_AUTH_VALUE,
-  GROK_USER_ID_HEADER,
   HUD,
   HUD_BASE,
   IPC,
@@ -53,7 +38,6 @@ export {
   PROVIDER_LABELS,
   SEVERITY_BANDS,
   SEVERITY_COLORS,
-  USAGE_USER_AGENT,
 } from "./constants.ts";
 export type { Corner, CornerGeometry, CornerGrowth } from "./corner.ts";
 export {

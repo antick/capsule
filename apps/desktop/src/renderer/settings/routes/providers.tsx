@@ -18,6 +18,7 @@ const STATUS_TONE: Record<UsageStatus | "idle", string> = {
   error: "bg-red-500",
   unauthenticated: "bg-shell-muted",
   idle: "bg-shell-muted",
+  disabled: "bg-shell-muted",
 };
 
 export function ProvidersPage() {

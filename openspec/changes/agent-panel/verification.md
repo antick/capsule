@@ -1,5 +1,7 @@
 # Agent panel verification
 
+> Historical record. Agent chat is now disabled by user request. Do not invoke it. See [suspension.md](suspension.md).
+
 Verified September 6, 2026, on the implementation branch.
 
 ## Workspace checks

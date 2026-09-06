@@ -77,7 +77,8 @@ async function rpc(path: string, method: string, params?: unknown) {
   }
 }
 
-describe("Claude channel", () => {
+// Preserved while chat is suspended; these tests would start local channel transports.
+describe.skip("Claude channel", () => {
   it("registers only after MCP initialization and routes independent two-way conversations", async () => {
     const first = await channel();
     const second = await channel(5678);

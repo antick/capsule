@@ -38,7 +38,6 @@ export default defineConfig({
         input: {
           overlay: resolve(root, "src/renderer/overlay/index.html"),
           settings: resolve(root, "src/renderer/settings/index.html"),
-          agents: resolve(root, "src/renderer/agents/index.html"),
         },
       },
     },

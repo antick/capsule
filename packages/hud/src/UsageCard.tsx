@@ -310,7 +310,11 @@ export function UsageCard({
       : null;
 
   let body: ReactElement;
-  if (snapshot.status === "unauthenticated") {
+  if (snapshot.status === "disabled") {
+    body = (
+      <Message metrics={metrics} theme={theme} text={COPY.usageDisabled} />
+    );
+  } else if (snapshot.status === "unauthenticated") {
     body = <Message metrics={metrics} theme={theme} text={COPY.notConnected} />;
   } else if (snapshot.buckets.length === 0) {
     body = (

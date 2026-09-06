@@ -1,7 +1,6 @@
-import { createActivityMonitor } from "@capsule/activity";
+import { createActivityMonitor } from "@capsule/activity/monitor";
 import {
   type ActivityByProvider,
-  AGENT_IPC,
   APP_NAME,
   type CapsuleSettings,
   CHROME_POLL_MS,
@@ -13,8 +12,6 @@ import {
 } from "@capsule/config";
 import { app, BrowserWindow, ipcMain, powerMonitor, screen } from "electron";
 import { createActivityHost } from "./activity-host.ts";
-import { AgentConnections } from "./agent-connections.ts";
-import { AgentPanel } from "./agent-panel.ts";
 import { createAppChrome } from "./app-chrome.ts";
 import { hideFromMacDock } from "./macos-dock.ts";
 import { OverlayController } from "./overlay-window.ts";
@@ -40,21 +37,6 @@ let appChrome: ReturnType<typeof createAppChrome> | null = null;
  */
 let keepOpen = false;
 
-const agents = new AgentConnections(
-  () => activity,
-  () => settings.enabledProviderIds,
-  (snapshot) => {
-    agentPanel.window?.webContents.send(AGENT_IPC.snapshot, snapshot);
-    const connectedActivity: ActivityByProvider = {};
-    for (const session of snapshot.sessions) {
-      connectedActivity[session.providerId] ??= [];
-      connectedActivity[session.providerId]?.push(session);
-    }
-    overlay.window?.webContents.send(IPC.activity, connectedActivity);
-  },
-);
-const agentPanel = new AgentPanel(agents, () => overlay.window);
-
 const broadcast = () => {
   overlay.setMeterCount(snapshots.length || 1);
   for (const win of BrowserWindow.getAllWindows()) {
@@ -74,7 +56,6 @@ const monitor = createActivityMonitor({
   onChange: (next) => {
     activity = next;
     broadcastActivity();
-    void agents.refresh();
   },
 });
 
@@ -86,7 +67,6 @@ const usageHost = () =>
       broadcast();
       void overlay.relayout();
     },
-    { isBusy: () => monitor.isBusy() },
   );
 
 let poller = usageHost();
@@ -143,7 +123,6 @@ app.whenReady().then(async () => {
   }
 
   appChrome = createAppChrome({
-    openAgents: () => agentPanel.open(),
     getSettings: () => settings,
     applyPlacement: (preset: PlacementPreset) => {
       applySettings({
@@ -174,7 +153,6 @@ app.whenReady().then(async () => {
   });
 
   ipcMain.handle(IPC.getSettings, () => settings);
-  agentPanel.register();
   ipcMain.handle(IPC.getSnapshots, () => ({ snapshots, settings }));
   ipcMain.handle(IPC.getDockFrame, () => overlay.dockFrame());
   ipcMain.handle(IPC.setSettings, (_event, next: CapsuleSettings) =>
@@ -235,7 +213,6 @@ app.whenReady().then(async () => {
   });
   hideFromMacDock();
   monitor.start();
-  agents.start();
   poller.start();
   await poller.refresh();
   broadcast();
@@ -249,7 +226,7 @@ app.whenReady().then(async () => {
       )
       .join(" "),
   );
-  if (!settings.demoMode && snapshots.every((item) => item.status !== "ok")) {
+  if (snapshots.some((item) => item.status === "unauthenticated")) {
     openSettingsWindow("/onboarding");
   }
 
@@ -258,7 +235,6 @@ app.whenReady().then(async () => {
   }, CHROME_POLL_MS);
 
   screen.on("display-metrics-changed", () => {
-    agentPanel.reposition();
     overlay.invalidateHardwareNotch();
     void overlay.relayout();
   });
@@ -267,7 +243,6 @@ app.whenReady().then(async () => {
     void overlay.relayout();
   });
   screen.on("display-removed", () => {
-    agentPanel.reposition();
     overlay.invalidateHardwareNotch();
     void overlay.relayout();
   });
@@ -279,8 +254,6 @@ app.whenReady().then(async () => {
     clearInterval(chromeTimer);
     poller.stop();
     monitor.stop();
-    agents.stop();
-    agentPanel.window?.destroy();
     overlay.destroy();
   });
 });

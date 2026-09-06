@@ -107,6 +107,29 @@ describe("UsageDock", () => {
     expect(html).not.toContain("0% Used");
   });
 
+  it("clearly labels disabled usage without suggesting login or showing a number", () => {
+    const previous = DEMO_SNAPSHOTS[0];
+    if (!previous) throw new Error("Missing demo snapshot");
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: [
+          {
+            ...previous,
+            status: "disabled",
+            primaryPercent: null,
+            buckets: [],
+          },
+        ],
+        orientation: "vertical",
+        cardGrowth: "left",
+        forceOpenProviderId: "claude",
+      }),
+    );
+    expect(html).toContain("Live usage disabled");
+    expect(html).not.toContain("Not connected");
+    expect(html).not.toContain("0% Used");
+  });
+
   it("still paints Claude, Codex, and Grok meters when snapshots are empty", () => {
     const html = renderToStaticMarkup(
       createElement(UsageDock, {

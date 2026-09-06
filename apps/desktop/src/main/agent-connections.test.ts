@@ -1,5 +1,5 @@
 import { EventEmitter } from "node:events";
-import type { ConnectedAgent } from "@capsule/config";
+import { AGENT_COPY, type ConnectedAgent } from "@capsule/config";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const io = vi.hoisted(() => ({
@@ -70,7 +70,8 @@ beforeEach(() => {
 });
 afterEach(() => manager?.stop());
 
-describe("agent connection manager", () => {
+// Preserved for a future explicit re-enable; no transport is invoked while suspended.
+describe.skip("agent connection manager", () => {
   it("keeps unmatched detected Codex sessions view-only when the connected list is empty", async () => {
     const observed = {
       ...channel,
@@ -149,4 +150,32 @@ describe("agent connection manager", () => {
       await refreshing;
     }
   });
+});
+
+it("does not discover, launch, connect, poll, send, or approve while disabled", async () => {
+  const observed = vi.fn();
+  const enabled = vi.fn();
+  const interval = vi.spyOn(globalThis, "setInterval");
+  manager = new AgentConnections(observed, enabled, vi.fn());
+  manager.start();
+  await manager.refresh();
+  await manager.select("claude.42");
+  await expect(manager.send("claude.42", "must not send")).rejects.toThrow(
+    AGENT_COPY.disabled,
+  );
+  await expect(manager.respond("codex.test", "request", true)).rejects.toThrow(
+    AGENT_COPY.disabled,
+  );
+  expect(manager.get()).toEqual({ sessions: [], connections: [] });
+  for (const call of [
+    observed,
+    enabled,
+    interval,
+    io.readdir,
+    io.spawn,
+    io.connect,
+    io.request,
+  ])
+    expect(call).not.toHaveBeenCalled();
+  interval.mockRestore();
 });

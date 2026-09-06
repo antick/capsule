@@ -23,6 +23,8 @@ export interface AgentPanelSnapshot {
 }
 
 export const AGENTS = {
+  // Suspended by user request. No settings or environment override.
+  enabled: false,
   panelWidth: 410,
   panelHeight: 530,
   panelGap: 8,
@@ -53,6 +55,7 @@ export const AGENT_IPC = {
 } as const;
 
 export const AGENT_COPY = {
+  disabled: "Agent chat is disabled in this build.",
   loading: "Looking for agents…",
   loadFailed:
     "Could not load agents. Close and reopen this panel to try again.",
