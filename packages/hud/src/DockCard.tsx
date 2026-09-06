@@ -2,6 +2,7 @@ import {
   ACTIVITY_NOTICES,
   type ActivityNotice,
   type AgentSession,
+  COPY,
   cardHeightFor,
   type HudMetrics,
   type HudTheme,
@@ -12,6 +13,7 @@ import {
 } from "@capsule/config";
 import type { ReactElement } from "react";
 import { ActivityNoticeCard } from "./ActivityNoticeCard.tsx";
+import { CardAction } from "./CardAction.tsx";
 import { UsageCard } from "./UsageCard.tsx";
 
 export function dockCardHeight(
@@ -52,6 +54,9 @@ export function DockCard({
   onPointerEnter,
   onPointerLeave,
   onDismissNotice,
+  onClearAllNotices,
+  onOpenNotices,
+  unreadCount = 0,
 }: {
   snapshot: UsageSnapshot;
   sessions: AgentSession[];
@@ -64,6 +69,9 @@ export function DockCard({
   onPointerEnter: () => void;
   onPointerLeave: () => void;
   onDismissNotice?: (id: string) => void;
+  onClearAllNotices?: () => void;
+  onOpenNotices?: () => void;
+  unreadCount?: number;
 }): ReactElement {
   return (
     <div
@@ -84,6 +92,7 @@ export function DockCard({
           theme={theme}
           now={now}
           onDismiss={onDismissNotice}
+          onClearAll={onClearAllNotices}
         />
       ) : (
         <UsageCard
@@ -94,6 +103,19 @@ export function DockCard({
           metrics={metrics}
           theme={theme}
           now={now}
+          action={
+            onOpenNotices ? (
+              <CardAction
+                metrics={metrics}
+                theme={theme}
+                label={`${COPY.noticeOpen} (${unreadCount})`}
+                onClick={onOpenNotices}
+              >
+                {COPY.noticeTitle}
+                {unreadCount > 0 ? ` (${unreadCount})` : ""}
+              </CardAction>
+            ) : undefined
+          }
         />
       )}
     </div>

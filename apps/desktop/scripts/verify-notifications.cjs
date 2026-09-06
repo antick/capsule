@@ -63,6 +63,27 @@ const { _electron } = require(
       const settings = await window.capsule.getSettings();
       await window.capsule.setSettings({ ...settings, autoHide: false });
     });
+    // CDP moves the page pointer, not macOS's cursor. Keep the host hit test
+    // inside the rail so it does not close a card during a synthetic click.
+    const rail = await page.locator('[data-provider="claude"]').boundingBox();
+    assert.ok(rail);
+    await app.evaluate(
+      ({ screen, BrowserWindow }, point) => {
+        screen.getCursorScreenPoint = () => {
+          const bounds = BrowserWindow.getAllWindows()[0].getBounds();
+          return { x: bounds.x + point.x, y: bounds.y + point.y };
+        };
+      },
+      { x: rail.x + rail.width / 2, y: rail.y + rail.height / 2 },
+    );
+    const screenshot = async (name) => {
+      if (!process.env.CAPSULE_SCREENSHOT_DIR) return;
+      await fs.mkdir(process.env.CAPSULE_SCREENSHOT_DIR, { recursive: true });
+      await page.waitForTimeout(700);
+      await page.screenshot({
+        path: path.join(process.env.CAPSULE_SCREENSHOT_DIR, `${name}.png`),
+      });
+    };
     console.log("Overlay ready");
     const append = async (file, event) => {
       await fs.mkdir(path.dirname(file), { recursive: true });
@@ -116,30 +137,26 @@ const { _electron } = require(
       ),
       false,
     );
+    await page.locator('[data-provider="claude"]').click();
+    await page.getByText("Claude Usage", { exact: true }).waitFor();
+    await screenshot("usage-notifications");
     await page
-      .getByRole("button", { name: "claude 1 Activity", exact: true })
-      .evaluate((b) => b.click());
+      .getByRole("button", { name: "View notifications (1)", exact: true })
+      .click();
     await page
       .getByRole("button", { name: "claude Activity history", exact: true })
       .waitFor();
     assert.ok(
       await page.getByText("Fixed the upload error.", { exact: true }).count(),
     );
+    await screenshot("notification-list");
+    await page.mouse.move(0, 0);
     await page.waitForTimeout(7300);
     await page
       .getByRole("button", { name: "claude Activity history", exact: true })
-      .evaluate((b) => b.click());
+      .click();
     await page.waitForSelector('[data-activity-notices="claude"]');
     console.log("Claude notice visible");
-    await page
-      .getByRole("button", { name: /^Dismiss notification:/ })
-      .evaluate((b) => b.click());
-    assert.equal(
-      await page
-        .getByRole("button", { name: "claude Activity history", exact: true })
-        .count(),
-      0,
-    );
 
     await page.evaluate(async () => {
       const s = await window.capsule.getSettings();
@@ -173,11 +190,25 @@ const { _electron } = require(
     );
     await page
       .getByRole("button", { name: "grok 1 Activity", exact: true })
-      .evaluate((b) => b.click());
+      .click();
     await page.waitForSelector('[data-activity-notices="grok"]');
     await page
       .getByRole("button", { name: "grok Activity history", exact: true })
       .waitFor();
+
+    await page
+      .getByRole("button", { name: "claude Activity history", exact: true })
+      .click();
+    await page.getByRole("button", { name: /^Dismiss notification:/ }).click();
+    await page
+      .getByRole("button", { name: "claude Activity history", exact: true })
+      .waitFor({ state: "detached" });
+    assert.equal(
+      await page
+        .getByRole("button", { name: "grok Activity history", exact: true })
+        .count(),
+      1,
+    );
 
     const now = new Date();
     const codex = path.join(
@@ -208,7 +239,7 @@ const { _electron } = require(
       .waitFor();
     await page
       .getByRole("button", { name: "codex 1 Activity", exact: true })
-      .evaluate((b) => b.click());
+      .click();
     await page
       .getByRole("button", { name: "codex Activity history", exact: true })
       .waitFor();
@@ -217,8 +248,37 @@ const { _electron } = require(
         .getByText("Verified all notification fixes.", { exact: true })
         .count(),
     );
-    await page.locator('[data-provider="codex"]').evaluate((b) => b.click());
+    await page.locator('[data-provider="codex"]').click();
     await page.getByText("Codex Usage", { exact: true }).waitFor();
+
+    // Clear-all includes unread alerts from another provider as well as history.
+    await append(claude, {
+      type: "assistant",
+      uuid: "done-again",
+      message: {
+        id: "reply-again",
+        stop_reason: "end_turn",
+        content: [{ type: "text", text: "A second completed task." }],
+      },
+    });
+    await page
+      .getByRole("button", { name: "claude 1 Activity", exact: true })
+      .waitFor();
+    await page
+      .getByRole("button", { name: "View notifications (0)", exact: true })
+      .click();
+    await page
+      .getByRole("button", {
+        name: "Clear all notifications for every provider",
+        exact: true,
+      })
+      .click();
+    await page.waitForFunction(
+      () => !document.querySelector("[data-notice-count]"),
+    );
+    // A later scan must not recreate dismissed notifications from unchanged logs.
+    await page.waitForTimeout(4500);
+    assert.equal(await page.locator("[data-notice-count]").count(), 0);
 
     assert.equal(
       await page.evaluate(
@@ -226,6 +286,41 @@ const { _electron } = require(
       ),
       false,
     );
+    // A real drag still captures the pointer, starts a move, and never clicks
+    // the provider. Inspect only this isolated app's IPC and DOM events.
+    await app.evaluate(({ ipcMain }) => {
+      globalThis.notificationDrag = { moves: 0, pressed: false };
+      ipcMain.on("capsule:start-move", () => {
+        globalThis.notificationDrag.moves++;
+      });
+      ipcMain.on("capsule:set-pointer-capture", (_event, pressed) => {
+        globalThis.notificationDrag.pressed = pressed;
+      });
+    });
+    const meter = page.locator('[data-provider="codex"]');
+    await meter.evaluate((button) => {
+      window.notificationDragClicks = 0;
+      button.addEventListener("click", () => {
+        window.notificationDragClicks++;
+      });
+    });
+    await meter.hover();
+    await page.mouse.down();
+    const meterBox = await meter.boundingBox();
+    assert.ok(meterBox);
+    await page.mouse.move(
+      meterBox.x + meterBox.width / 2 - 30,
+      meterBox.y + meterBox.height / 2,
+      { steps: 3 },
+    );
+    await page.mouse.up();
+    await page.waitForTimeout(200);
+    assert.deepEqual(await app.evaluate(() => globalThis.notificationDrag), {
+      moves: 1,
+      pressed: false,
+    });
+    assert.equal(await page.evaluate(() => window.notificationDragClicks), 0);
+
     console.log(
       "PASS: real local-file readers → notification tracker → IPC → HUD; Claude/Grok/Codex activity, read/clear/history, popup preference, previews, usage navigation; no provider calls",
     );

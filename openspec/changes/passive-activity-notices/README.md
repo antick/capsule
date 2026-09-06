@@ -16,6 +16,8 @@ New events unfold the latch and its connected card without focusing the window. 
 
 The card closes after 6.5 seconds and pauses while hovered. Waiting notices keep the latch available. Unread count badges reopen notices and mark them read; a history dot reopens read notices; meter hover and click retain the usage card; dismissal affects only Capsule. Input is handled in the original app. The queue is bounded and in memory; events from before launch or discovered over a minute late are not replayed. General settings can disable automatic popups while keeping badges and icon animation. Completion previews contain a bounded first line of the final response when available.
 
+The usage card's Activity button also opens that provider's notifications and marks them read. Opening a list cancels pending usage hover timers. Each row's × dismisses just that notification; Clear all removes retained notifications, including read history, across every provider. The clear-all tooltip states this scope. Ordinary provider clicks still open and refresh usage; pointer capture stays on the pressed button and transfers to the dock root only when a press becomes a drag.
+
 ## Verification
 
 - Automated parser tests cover completion versus interruption, tool use versus end of response, input resolution, invalid records, process checks, old-event suppression, and deduplication.

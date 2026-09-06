@@ -56,6 +56,22 @@ function render(notices: ActivityNotice[], corner?: "bottom-left") {
 }
 
 describe("activity notices", () => {
+  it("links from usage to unread notifications without replacing usage", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: [disabled],
+        notices: [notice],
+        notificationPopups: false,
+        forceOpenProviderId: "codex",
+        orientation: "vertical",
+        cardGrowth: "left",
+      }),
+    );
+    expect(html).toContain("Codex Usage");
+    expect(html).toContain('aria-label="View notifications (1)"');
+    expect(html).not.toContain('data-activity-notices="codex"');
+  });
+
   it("temporarily unfolds a notification card for a completed turn", () => {
     const html = render([notice]);
     expect(html).toContain('data-card-open="true"');

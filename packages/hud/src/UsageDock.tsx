@@ -322,6 +322,14 @@ export function UsageDock({
     onKeepOpenChange?.(!keepOpen);
   };
 
+  const openNotices = (id: ProviderId) => {
+    clearTimers();
+    wake();
+    setPinned(null);
+    setHovered(null);
+    notice.reopen(id);
+  };
+
   const meterNodes = meters.map((snapshot, index) => (
     <UsageMeter
       metrics={metrics}
@@ -348,11 +356,7 @@ export function UsageDock({
       )}
       onPointerEnter={() => scheduleOpen(snapshot.providerId)}
       onPointerLeave={() => undefined}
-      onNoticeClick={() => {
-        setPinned(null);
-        setHovered(null);
-        notice.reopen(snapshot.providerId);
-      }}
+      onNoticeClick={() => openNotices(snapshot.providerId)}
       onClick={() => {
         if (didDrag.current) {
           didDrag.current = false;
@@ -383,6 +387,19 @@ export function UsageDock({
       theme={theme}
       now={clock}
       onDismissNotice={onDismissNotice}
+      onClearAllNotices={
+        onDismissNotice
+          ? () => {
+              for (const item of notices ?? []) onDismissNotice(item.id);
+            }
+          : undefined
+      }
+      unreadCount={notice.countFor(cardSnapshot.providerId)}
+      onOpenNotices={
+        notice.hasFor(cardSnapshot.providerId)
+          ? () => openNotices(cardSnapshot.providerId)
+          : undefined
+      }
       onPointerEnter={() => {
         if (!dragging) {
           clearTimers();

@@ -37,10 +37,11 @@ export function useDockDrag(options: {
       startY: event.screenY,
       active: false,
     };
-    // Capture on the dock root, never the pressed child: the rail path, card
-    // and meters all re-render mid-drag, and capture dies with the old node.
+    // Keep release events even at the rail's edge, while letting an ordinary
+    // click reach the pressed button instead of redirecting it to the dock.
+    const button = (event.target as Element).closest("button");
     try {
-      event.currentTarget.setPointerCapture(event.pointerId);
+      (button ?? event.currentTarget).setPointerCapture(event.pointerId);
     } catch {
       // Pointer already released; the pointerup handler will tidy up.
     }
@@ -57,6 +58,12 @@ export function useDockDrag(options: {
     if (Math.hypot(dx, dy) < MOTION.dragThresholdPx) {
       return;
     }
+    // Transfer capture to the stable root once this becomes a drag.
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Pointer already released; the pointerup handler will tidy up.
+    }
     state.active = true;
     didDrag.current = true;
     setDragging(true);
@@ -65,6 +72,11 @@ export function useDockDrag(options: {
   };
 
   const finish = (event: PointerEvent<HTMLDivElement>) => {
+    if (
+      event.type === "lostpointercapture" &&
+      event.currentTarget.hasPointerCapture(event.pointerId)
+    )
+      return; // The pressed button handed capture to the root for a drag.
     const state = drag.current;
     if (!state || state.pointerId !== event.pointerId) {
       return;

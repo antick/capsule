@@ -8,6 +8,7 @@ import {
 } from "@capsule/config";
 import { formatAgo } from "@capsule/dates";
 import type { ReactElement } from "react";
+import { CardAction } from "./CardAction.tsx";
 import { ProviderIcon } from "./icons.tsx";
 
 export function ActivityNoticeCard({
@@ -17,6 +18,7 @@ export function ActivityNoticeCard({
   theme,
   now,
   onDismiss,
+  onClearAll,
 }: {
   notices: ActivityNotice[];
   snapshot: UsageSnapshot;
@@ -24,6 +26,7 @@ export function ActivityNoticeCard({
   theme: HudTheme;
   now: Date;
   onDismiss?: (id: string) => void;
+  onClearAll?: () => void;
 }): ReactElement {
   const waiting = notices.filter((notice) => notice.kind === "waiting").length;
   const completed = notices.length - waiting;
@@ -61,15 +64,16 @@ export function ActivityNoticeCard({
           {snapshot.displayName}
           {COPY.activityTitleSuffix}
         </span>
-        <span
-          style={{
-            marginLeft: "auto",
-            color: theme.textMuted,
-            fontSize: m.cardResetSize,
-          }}
-        >
-          {notices.length}
-        </span>
+        {onClearAll ? (
+          <CardAction
+            metrics={m}
+            theme={theme}
+            label={COPY.noticeClearAllLabel}
+            onClick={onClearAll}
+          >
+            {COPY.noticeClearAll}
+          </CardAction>
+        ) : null}
       </div>
       <div
         style={{

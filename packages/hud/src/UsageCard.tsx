@@ -16,7 +16,7 @@ import {
   type UsageSnapshot,
 } from "@capsule/config";
 import { formatAgo, formatElapsed, formatResetCopy } from "@capsule/dates";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { ProviderIcon } from "./icons.tsx";
 
 function BucketRow({
@@ -358,6 +358,7 @@ export function UsageCard({
   tokens = null,
   display = "used",
   now,
+  action,
 }: {
   metrics: HudMetrics;
   theme?: HudTheme;
@@ -369,6 +370,7 @@ export function UsageCard({
   /** Whether the bars count what is used or what is left. */
   display?: UsageDisplay;
   now: Date;
+  action?: ReactNode;
 }): ReactElement {
   const title = `${snapshot.displayName}${COPY.usageTitleSuffix}`;
   // Only worth saying when the numbers are not current. A remembered reading
@@ -448,7 +450,17 @@ export function UsageCard({
           color={theme.text}
           size={metrics.cardIconSize}
         />
-        <span style={{ whiteSpace: "nowrap" }}>{title}</span>
+        <span
+          title={title}
+          style={{
+            minWidth: 0,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {title}
+        </span>
         {readingAge ? (
           <span
             data-reading-age="true"
@@ -462,6 +474,7 @@ export function UsageCard({
             {readingAge}
           </span>
         ) : null}
+        {action}
       </div>
       {body}
       {tokens ? (

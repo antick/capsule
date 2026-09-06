@@ -2,6 +2,18 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Notification access and clearing
+
+### Fixed
+
+- Provider clicks now open and refresh usage reliably. Pointer capture stays on the pressed button until a drag begins, so an ordinary click reaches its button and release events are still handled at the dock edge.
+- Opening notifications from a badge or the usage card clears that provider's unread count automatically. Both entry points cancel pending hover timers so they cannot replace the requested list.
+
+### Added
+
+- An Activity button in provider usage cards opens retained notifications. Each notification has its own dismiss button, and Clear all removes notifications and history across every provider.
+- Native regression checks use real pointer clicks and cover unread counts, individual dismissal, clear-all across providers, history, deduplication, and dragging.
+
 ## Notification and activity fixes
 
 ### Fixed
