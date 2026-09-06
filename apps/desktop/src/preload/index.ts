@@ -1,5 +1,7 @@
 import {
   type ActivityByProvider,
+  AGENT_IPC,
+  type AgentPanelSnapshot,
   type CapsuleSettings,
   type Corner,
   type HardwareNotch,
@@ -19,6 +21,18 @@ export interface DockFrame {
 }
 
 export interface CapsuleBridge {
+  openAgents: (provider: ProviderId | null, anchor?: Rect) => Promise<void>;
+  closeAgents: () => void;
+  getAgents: () => Promise<AgentPanelSnapshot>;
+  onAgents: (listener: (snapshot: AgentPanelSnapshot) => void) => () => void;
+  selectAgent: (id: string | null) => Promise<void>;
+  sendAgentMessage: (id: string, text: string) => Promise<void>;
+  respondAgentRequest: (
+    id: string,
+    requestId: string,
+    approve: boolean,
+  ) => Promise<void>;
+  getAgentSetup: () => Promise<{ claude: string; codex: string }>;
   getSettings: () => Promise<CapsuleSettings>;
   setSettings: (settings: CapsuleSettings) => Promise<CapsuleSettings>;
   openSettings: (hash?: string) => Promise<void>;
@@ -58,6 +72,25 @@ export interface CapsuleBridge {
 }
 
 const capsule: CapsuleBridge = {
+  openAgents: (provider, anchor) =>
+    ipcRenderer.invoke(AGENT_IPC.open, provider, anchor),
+  closeAgents: () => {
+    ipcRenderer.send(AGENT_IPC.close);
+  },
+  getAgents: () => ipcRenderer.invoke(AGENT_IPC.get),
+  selectAgent: (id) => ipcRenderer.invoke(AGENT_IPC.select, id),
+  sendAgentMessage: (id, text) => ipcRenderer.invoke(AGENT_IPC.send, id, text),
+  respondAgentRequest: (id, requestId, approve) =>
+    ipcRenderer.invoke(AGENT_IPC.respond, id, requestId, approve),
+  getAgentSetup: () => ipcRenderer.invoke(AGENT_IPC.setup),
+  onAgents: (listener) => {
+    const handler = (_event: unknown, snapshot: AgentPanelSnapshot) =>
+      listener(snapshot);
+    ipcRenderer.on(AGENT_IPC.snapshot, handler);
+    return () => {
+      ipcRenderer.off(AGENT_IPC.snapshot, handler);
+    };
+  },
   getSettings: () => ipcRenderer.invoke(IPC.getSettings),
   getSnapshots: () => ipcRenderer.invoke(IPC.getSnapshots),
   setSettings: (settings) => ipcRenderer.invoke(IPC.setSettings, settings),

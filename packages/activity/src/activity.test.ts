@@ -4,7 +4,7 @@ import {
   parseProcStart,
   readClaudeSessions,
 } from "./claude.ts";
-import { codexSessionFrom, readCodexSessions } from "./codex.ts";
+import { codexSessionFrom, newestRollout, readCodexSessions } from "./codex.ts";
 import type { ActivityHost } from "./host.ts";
 import { createActivityMonitor } from "./monitor.ts";
 
@@ -108,12 +108,16 @@ describe("readClaudeSessions", () => {
 });
 
 describe("codexSessionFrom", () => {
-  it("reports a busy session only for a rollout written moments ago", () => {
+  it("marks recent writes as an unconfirmed activity hint", () => {
     const fresh = codexSessionFrom(
       [{ id: "codex.a", name: "Codex", at: new Date(now.getTime() - 3000) }],
       now,
     );
-    expect(fresh).toMatchObject({ providerId: "codex", state: "busy" });
+    expect(fresh).toMatchObject({
+      providerId: "codex",
+      state: "busy",
+      detail: "Recent activity · status unconfirmed",
+    });
     expect(
       codexSessionFrom(
         [
@@ -127,21 +131,84 @@ describe("codexSessionFrom", () => {
       ),
     ).toBeNull();
     expect(codexSessionFrom([], now)).toBeNull();
+    expect(
+      codexSessionFrom(
+        [{ id: "codex.invalid", name: "Codex", at: new Date("invalid") }],
+        now,
+      ),
+    ).toBeNull();
   });
 
-  it("prefers the newest of the CLI rollout and the desktop catalogue", async () => {
+  it("retains fresh distinct indexed sessions without borrowing the desktop title", async () => {
+    const readFile = vi.fn(() => Promise.resolve(null));
+    const times: Record<string, number> = {
+      "/home/.codex/sessions/first.jsonl": 5000,
+      "/home/.codex/sessions/second.jsonl": 1000,
+      "/home/.codex/sessions/second-old.jsonl": 4000,
+      "/home/.codex/sessions/stale.jsonl": 20_000,
+    };
     const host = fakeHost({
       query: (path, _sql) =>
         Promise.resolve(
           path.endsWith("state_5.sqlite")
-            ? [["~/.codex/sessions/2026/09/05/rollout-a.jsonl"]]
+            ? [
+                ["first", "First task", "~/.codex/sessions/first.jsonl"],
+                ["second", "Second task", "~/.codex/sessions/second.jsonl"],
+                ["second", "Older title", "~/.codex/sessions/second-old.jsonl"],
+                ["stale", "Old task", "~/.codex/sessions/stale.jsonl"],
+                [
+                  "missing",
+                  "Missing rollout",
+                  "~/.codex/sessions/missing.jsonl",
+                ],
+              ]
             : [[String((now.getTime() - 1000) / 1000), "Fix the tests"]],
         ),
-      modifiedAt: () => Promise.resolve(new Date(now.getTime() - 5000)),
+      modifiedAt: (path) =>
+        Promise.resolve(
+          times[path] !== undefined
+            ? new Date(now.getTime() - times[path])
+            : null,
+        ),
+      readFile,
     });
     const sessions = await readCodexSessions(host);
-    expect(sessions).toHaveLength(1);
-    expect(sessions[0]?.name).toBe("Fix the tests");
+    expect(sessions.map(({ id, name }) => ({ id, name }))).toEqual([
+      { id: "codex.first", name: "First task" },
+      { id: "codex.second", name: "Second task" },
+    ]);
+    expect(readFile).not.toHaveBeenCalled();
+    expect(await newestRollout(host)).toEqual({
+      path: "~/.codex/sessions/second.jsonl",
+      at: new Date(now.getTime() - 1000),
+    });
+  });
+
+  it("uses the desktop fallback only when no rollout candidate exists", async () => {
+    const host = fakeHost({
+      query: (path) =>
+        Promise.resolve(
+          path.endsWith("state_5.sqlite")
+            ? []
+            : [[String((now.getTime() - 1000) / 1000), "Desktop task"]],
+        ),
+    });
+    expect(await readCodexSessions(host)).toMatchObject([
+      {
+        id: "codex.desktop",
+        name: "Desktop task",
+        detail: "Recent activity · status unconfirmed",
+      },
+    ]);
+    const staleRollout = fakeHost({
+      ...host,
+      query: (path, sql) =>
+        path.endsWith("state_5.sqlite")
+          ? Promise.resolve([["stale", "Old task", "/old.jsonl"]])
+          : host.query(path, sql),
+      modifiedAt: () => Promise.resolve(new Date(now.getTime() - 20_000)),
+    });
+    expect(await readCodexSessions(staleRollout)).toEqual([]);
   });
 
   it("falls back to the newest day folder when the index cannot be read", async () => {

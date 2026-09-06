@@ -101,9 +101,9 @@ export function sessionStateColor(
  * Busy and waiting sessions first, so whatever the card has to hide when the
  * list is long is what matters least.
  */
-export function orderSessions(
-  sessions: readonly AgentSession[],
-): AgentSession[] {
+export function orderSessions<T extends AgentSession>(
+  sessions: readonly T[],
+): T[] {
   const rank = (s: AgentSession) =>
     s.state === "waiting" ? 0 : s.state === "busy" ? 1 : 2;
   return [...sessions].sort((a, b) => {

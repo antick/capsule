@@ -2,6 +2,18 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Agent panel
+
+### Added
+
+- Click a provider meter or use the Agents menu to open a keyboard-friendly panel beside the latch. Browse sessions, read recent messages, keep separate drafts, and send follow-ups through connected Claude Code channels or a compatible existing Codex control socket.
+- Explicit Codex command approval controls, connection setup instructions, and clear view-only states for sessions that cannot accept messages. Claude tool approvals stay in Claude Code.
+
+### Fixed
+
+- Passive Codex monitoring retains multiple recent threads instead of collapsing them into one, and labels inferred activity as unconfirmed.
+- Main-process builds keep Electron external when bundling the standalone Claude channel entry.
+
 ## Unreleased
 
 ### Added

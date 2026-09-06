@@ -15,6 +15,9 @@ export {
   sessionStateColor,
   summarizeActivity,
 } from "./activity.ts";
+export * from "./agent-observation.ts";
+export * from "./agents.ts";
+export * from "./claude-channel.ts";
 export type { PlacementPreset, ProviderId, Severity } from "./constants.ts";
 export {
   ANTHROPIC_OAUTH_BETA_HEADER,

@@ -45,6 +45,10 @@
     "vitest": "4.1.11"
   },
   "build": {
+    "asarUnpack": [
+      "out/main/channel-entry.js",
+      "out/main/chunks/**"
+    ],
     "mac": {
       "extendInfo": {
         "LSUIElement": true

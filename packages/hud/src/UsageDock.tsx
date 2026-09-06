@@ -59,6 +59,7 @@ export function UsageDock({
   forceOpenProviderId = null,
   onOpenChange,
   onRefresh,
+  onAgents,
   onContextMenu,
   onPressedChange,
   onMoveStart,
@@ -105,6 +106,7 @@ export function UsageDock({
   onOpenChange?: (open: boolean, providerId: ProviderId | null) => void;
   /** Fires when the user asks for a provider to be read again. */
   onRefresh?: (providerId: ProviderId) => void;
+  onAgents?: (providerId: ProviderId) => void;
   onContextMenu?: (event: MouseEvent) => void;
   /** Fires while the pointer is held down, so the host can pin mouse capture. */
   onPressedChange?: (pressed: boolean) => void;
@@ -360,6 +362,7 @@ export function UsageDock({
         // Asking for a provider re-reads it, which is what puts the sweep on
         // its ring and lands a fresh number underneath.
         onRefresh?.(snapshot.providerId);
+        onAgents?.(snapshot.providerId);
       }}
     />
   ));

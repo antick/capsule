@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-export function rendererHtml(name: "overlay" | "settings"): string {
+export function rendererHtml(name: "overlay" | "settings" | "agents"): string {
   return join(__dirname, `../renderer/${name}/index.html`);
 }
 
@@ -8,7 +8,9 @@ export function resourceFile(name: string): string {
   return join(__dirname, "../../resources", name);
 }
 
-export function rendererDevUrl(name: "overlay" | "settings"): string | null {
+export function rendererDevUrl(
+  name: "overlay" | "settings" | "agents",
+): string | null {
   const base = process.env.ELECTRON_RENDERER_URL;
   if (!base) {
     return null;

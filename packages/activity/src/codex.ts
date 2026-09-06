@@ -1,5 +1,11 @@
 import { join } from "node:path";
-import { ACTIVITY, type AgentSession, COPY } from "@capsule/config";
+import {
+  ACTIVITY,
+  AGENTS,
+  type AgentSession,
+  CODEX_ACTIVITY_COPY,
+  PROVIDER_LABELS,
+} from "@capsule/config";
 import type { ActivityHost } from "./host.ts";
 
 /** Somewhere Codex recorded work, and when it last did. */
@@ -10,11 +16,8 @@ export interface CodexCandidate {
 }
 
 /**
- * Codex publishes no status field. What it does do is append to a thread's
- * rollout while a turn runs, so a rollout written moments ago means work is
- * happening now. That is a heuristic, and it errs short: the ring stops
- * `staleAfterMs` after the last write rather than claim activity it cannot
- * see.
+ * A recent rollout write is an activity hint, not proof a turn is running.
+ * Keep the ring's existing signal, and explicitly label its uncertainty.
  */
 export function codexSessionFrom(
   candidates: readonly CodexCandidate[],
@@ -22,7 +25,10 @@ export function codexSessionFrom(
   staleAfterMs: number = ACTIVITY.codexStaleAfterMs,
 ): AgentSession | null {
   const newest = candidates.reduce<CodexCandidate | null>(
-    (best, item) => (!best || item.at > best.at ? item : best),
+    (best, item) =>
+      Number.isFinite(item.at.getTime()) && (!best || item.at > best.at)
+        ? item
+        : best,
     null,
   );
   if (!newest || now.getTime() - newest.at.getTime() > staleAfterMs) {
@@ -32,15 +38,14 @@ export function codexSessionFrom(
     id: newest.id,
     providerId: "codex",
     name: newest.name,
-    detail: COPY.sessionWorkingDetail,
+    detail: CODEX_ACTIVITY_COPY.recent,
     state: "busy",
     waitingFor: null,
     since: newest.at.toISOString(),
   };
 }
 
-const ROLLOUTS_SQL =
-  "SELECT rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 8";
+const ROLLOUTS_SQL = `SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT ${AGENTS.maxSessions}`;
 const DESKTOP_SQL =
   "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1";
 
@@ -48,31 +53,49 @@ function expandHome(path: string, home: string): string {
   return path.startsWith("~/") ? join(home, path.slice(2)) : path;
 }
 
-/**
- * The rollout of the most recently touched thread, from Codex's own index.
- * Falls back to the newest file in the newest day folders when the index
- * cannot be read: the sessions tree holds thousands of files, but only the
- * last couple of days can hold a rollout that is still being written to.
- */
-export async function newestRollout(
+async function indexedRollouts(
   host: ActivityHost,
-): Promise<{ path: string; at: Date } | null> {
+): Promise<(CodexCandidate & { path: string })[]> {
   const home = host.homeDir();
   const rows = await host.query(
     join(home, ...ACTIVITY.codexStateDbSegments),
     ROLLOUTS_SQL,
   );
-  for (const row of rows) {
-    const path = row[0];
+  const candidates = new Map<string, CodexCandidate & { path: string }>();
+  for (const row of rows.slice(0, AGENTS.maxSessions)) {
+    const [threadId, title, path] = row;
     if (!path) {
       continue;
     }
     const at = await host.modifiedAt(expandHome(path, home));
-    if (at) {
-      return { path, at };
+    if (at && Number.isFinite(at.getTime())) {
+      const id = `codex.${threadId || path.split("/").at(-1) || path}`;
+      const previous = candidates.get(id);
+      if (!previous || at > previous.at) {
+        candidates.set(id, {
+          id,
+          name: title?.trim() ? title : PROVIDER_LABELS.codex,
+          path,
+          at,
+        });
+      }
     }
   }
-  return newestRolloutOnDisk(host);
+  return [...candidates.values()];
+}
+
+/** Newest indexed rollout, with a bounded directory scan if the index is unavailable. */
+export async function newestRollout(
+  host: ActivityHost,
+): Promise<{ path: string; at: Date } | null> {
+  const candidates = await indexedRollouts(host);
+  const newest = candidates.reduce<(typeof candidates)[number] | null>(
+    (best, candidate) => (!best || candidate.at > best.at ? candidate : best),
+    null,
+  );
+  return newest
+    ? { path: newest.path, at: newest.at }
+    : newestRolloutOnDisk(host);
 }
 
 async function newestOf(
@@ -122,22 +145,26 @@ async function newestRolloutOnDisk(
   return best;
 }
 
-/**
- * Both surfaces, because "Codex" is two programs that record their work in
- * different places: the CLI and the VS Code extension append to a rollout, and
- * the desktop app writes to its own catalogue. Whichever moved last is the one
- * that is working.
- */
+/** Keep individual rollout identities; a desktop catalogue update cannot identify their activity. */
 export async function readCodexSessions(
   host: ActivityHost,
 ): Promise<AgentSession[]> {
-  const candidates: CodexCandidate[] = [];
-  const rollout = await newestRollout(host);
-  if (rollout) {
-    candidates.push({
-      id: `codex.${rollout.path.split("/").at(-1) ?? rollout.path}`,
-      name: "Codex",
-      at: rollout.at,
+  const candidates: CodexCandidate[] = await indexedRollouts(host);
+  if (candidates.length === 0) {
+    const rollout = await newestRolloutOnDisk(host);
+    if (rollout) {
+      candidates.push({
+        id: `codex.${rollout.path.split("/").at(-1) ?? rollout.path}`,
+        name: PROVIDER_LABELS.codex,
+        at: rollout.at,
+      });
+    }
+  }
+  if (candidates.length > 0) {
+    const now = host.now();
+    return candidates.flatMap((candidate) => {
+      const session = codexSessionFrom([candidate], now);
+      return session ? [session] : [];
     });
   }
   const desktop = await host.query(
@@ -151,7 +178,7 @@ export async function readCodexSessions(
     // the thread index next door uses.
     candidates.push({
       id: "codex.desktop",
-      name: row[1] && row[1].length > 0 ? row[1] : "Codex",
+      name: row[1] && row[1].length > 0 ? row[1] : PROVIDER_LABELS.codex,
       at: new Date(seconds * 1000),
     });
   }

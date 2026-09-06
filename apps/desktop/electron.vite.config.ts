@@ -8,6 +8,15 @@ const root = __dirname;
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
+    build: {
+      rollupOptions: {
+        external: ["electron"],
+        input: {
+          index: resolve(root, "src/main/index.ts"),
+          "channel-entry": resolve(root, "src/main/channel-entry.ts"),
+        },
+      },
+    },
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
@@ -29,6 +38,7 @@ export default defineConfig({
         input: {
           overlay: resolve(root, "src/renderer/overlay/index.html"),
           settings: resolve(root, "src/renderer/settings/index.html"),
+          agents: resolve(root, "src/renderer/agents/index.html"),
         },
       },
     },
