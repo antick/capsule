@@ -2,6 +2,17 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Passive activity notifications
+
+### Added
+
+- Local Claude Code, Codex, and Grok activity detection with explicit finished-response and input-request notices. Bounded session-log reads, process checks where available, startup history suppression, and deduplication keep alerts local and quiet.
+- Connected notification cards use the latch's existing springs and reduced-motion behavior on every edge, with theme-aware amber/green accents, grouped task names, count badges, hover pause, dismissal, and click-to-reopen.
+
+### Changed
+
+- Provider cards show local activity while account access stays disabled. Unconfirmed signals do not claim an agent is working. Agent chat remains preserved and inactive; no credentials, provider requests, hooks, or connections are enabled.
+
 ## Account access disabled
 
 ### Removed

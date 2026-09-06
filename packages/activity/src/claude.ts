@@ -1,6 +1,12 @@
 import { join } from "node:path";
-import { ACTIVITY, type AgentSession, COPY } from "@capsule/config";
+import {
+  ACTIVITY,
+  ACTIVITY_NOTICES,
+  type AgentSession,
+  COPY,
+} from "@capsule/config";
 import type { ActivityHost } from "./host.ts";
+import { applyLocalEvents } from "./local-events.ts";
 
 /**
  * One entry in `~/.claude/sessions/<pid>.json`, as Claude Code writes it, with
@@ -57,7 +63,7 @@ export function parseProcStart(text: string): Date | null {
  */
 export function parseClaudeSession(
   raw: unknown,
-  now: Date,
+  _now: Date,
 ): ClaudeSessionRecord | null {
   if (!raw || typeof raw !== "object") {
     return null;
@@ -65,7 +71,7 @@ export function parseClaudeSession(
   const json = raw as Record<string, unknown>;
   const pid = asNumber(json.pid);
   const cwd = asString(json.cwd);
-  if (pid === null || cwd === null) {
+  if (pid === null || !Number.isSafeInteger(pid) || pid <= 0 || cwd === null) {
     return null;
   }
   const tempo = asString(json.tempo);
@@ -79,6 +85,8 @@ export function parseClaudeSession(
   const sinceMs = asNumber(json.statusUpdatedAt) ?? asNumber(json.updatedAt);
   const startedMs = asNumber(json.startedAt);
   const procStart = asString(json.procStart);
+  const since = new Date(sinceMs ?? startedMs ?? 0);
+  if (!Number.isFinite(since.getTime())) return null;
   const folder = cwd.split("/").filter(Boolean).at(-1) ?? cwd;
   return {
     pid,
@@ -94,8 +102,11 @@ export function parseClaudeSession(
       name: asString(json.name) ?? folder,
       detail: `${surfaceLabel(asString(json.entrypoint))} · ${folder}`,
       state,
+      confirmed:
+        ["blocked", "active"].includes(tempo ?? "") ||
+        ["waiting", "busy", "idle"].includes(status ?? ""),
       waitingFor: asString(json.waitingFor) ?? asString(json.needs),
-      since: (sinceMs !== null ? new Date(sinceMs) : now).toISOString(),
+      since: since.toISOString(),
     },
   };
 }
@@ -152,7 +163,28 @@ export async function readClaudeSessions(
     }
     const record = parseClaudeSession(json, now);
     if (record && (await isRecordAlive(host, record))) {
-      found.push(record.session);
+      const entry = json as Record<string, unknown>;
+      const id = entry.sessionId;
+      const cwd = entry.cwd;
+      let tail: string | null = null;
+      if (
+        typeof id === "string" &&
+        /^[a-zA-Z0-9_-]+$/.test(id) &&
+        typeof cwd === "string"
+      ) {
+        const folder = cwd.replace(/[^a-zA-Z0-9_-]/g, "-");
+        tail =
+          (await host.readTail?.(
+            join(
+              host.homeDir(),
+              ...ACTIVITY_NOTICES.claudeProjects,
+              folder,
+              `${id}.jsonl`,
+            ),
+            ACTIVITY_NOTICES.tailBytes,
+          )) ?? null;
+      }
+      found.push(applyLocalEvents(record.session, tail));
     }
   }
   return found.sort((a, b) => b.since.localeCompare(a.since));

@@ -107,7 +107,7 @@ describe("UsageDock", () => {
     expect(html).not.toContain("0% Used");
   });
 
-  it("clearly labels disabled usage without suggesting login or showing a number", () => {
+  it("shows passive activity when usage is disabled without suggesting login", () => {
     const previous = DEMO_SNAPSHOTS[0];
     if (!previous) throw new Error("Missing demo snapshot");
     const html = renderToStaticMarkup(
@@ -125,7 +125,8 @@ describe("UsageDock", () => {
         forceOpenProviderId: "claude",
       }),
     );
-    expect(html).toContain("Live usage disabled");
+    expect(html).toContain("Claude activity");
+    expect(html).toContain("No active sessions");
     expect(html).not.toContain("Not connected");
     expect(html).not.toContain("0% Used");
   });

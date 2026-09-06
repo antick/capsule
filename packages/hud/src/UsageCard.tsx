@@ -174,13 +174,16 @@ function SessionRow({
   session: AgentSession;
   now: Date;
 }): ReactElement {
-  const color = sessionStateColor(session.state, theme);
+  const state = session.confirmed === false ? "idle" : session.state;
+  const color = sessionStateColor(state, theme);
   const word =
-    session.state === "busy"
-      ? COPY.sessionBusy
-      : session.state === "waiting"
-        ? COPY.sessionWaiting
-        : COPY.sessionIdle;
+    session.confirmed === false
+      ? COPY.sessionUnknown
+      : session.state === "busy"
+        ? COPY.sessionBusy
+        : session.state === "waiting"
+          ? COPY.sessionWaiting
+          : COPY.sessionIdle;
   // While blocked, what it is blocked on matters more than where it lives.
   const detail =
     session.state === "waiting" && session.waitingFor
@@ -217,7 +220,7 @@ function SessionRow({
             flex: "none",
           }}
         >
-          <StatusRing metrics={metrics} state={session.state} color={color} />
+          <StatusRing metrics={metrics} state={state} color={color} />
           {word}
         </span>
       </div>
@@ -301,7 +304,7 @@ export function UsageCard({
   sessions?: AgentSession[];
   now: Date;
 }): ReactElement {
-  const title = `${snapshot.displayName}${COPY.usageTitleSuffix}`;
+  const title = `${snapshot.displayName}${snapshot.status === "disabled" ? COPY.activityTitleSuffix : COPY.usageTitleSuffix}`;
   // Only worth saying when the numbers are not current. A remembered reading
   // has to be dated, or it quietly passes itself off as live.
   const readingAge =
@@ -311,8 +314,22 @@ export function UsageCard({
 
   let body: ReactElement;
   if (snapshot.status === "disabled") {
+    const working = sessions.filter(
+      (session) => session.state === "busy" && session.confirmed !== false,
+    ).length;
+    const waiting = sessions.filter(
+      (session) => session.state === "waiting" && session.confirmed !== false,
+    ).length;
     body = (
-      <Message metrics={metrics} theme={theme} text={COPY.usageDisabled} />
+      <Message
+        metrics={metrics}
+        theme={theme}
+        text={
+          sessions.length === 0
+            ? COPY.activityEmpty
+            : `${working}${COPY.activityWorkingSuffix} · ${waiting} ${COPY.noticeWaitingSuffix}`
+        }
+      />
     );
   } else if (snapshot.status === "unauthenticated") {
     body = <Message metrics={metrics} theme={theme} text={COPY.notConnected} />;

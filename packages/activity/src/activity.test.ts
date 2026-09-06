@@ -38,6 +38,15 @@ function fakeHost(overrides: Partial<ActivityHost> = {}): ActivityHost {
 }
 
 describe("parseClaudeSession", () => {
+  it("keeps untimestamped waiting records stable and rejects impossible dates", () => {
+    const source = { pid: 5, cwd: "/project", status: "waiting" };
+    expect(parseClaudeSession(source, now)?.session.since).toBe(
+      parseClaudeSession(source, new Date(now.getTime() + 2000))?.session.since,
+    );
+    expect(parseClaudeSession({ ...source, updatedAt: 1e30 }, now)).toBeNull();
+    expect(parseClaudeSession({ ...source, pid: -1 }, now)).toBeNull();
+  });
+
   it("reads what Claude Code writes, and names the surface", () => {
     const parsed = parseClaudeSession(record, now);
     expect(parsed?.pid).toBe(71555);

@@ -1,3 +1,4 @@
+import { ACTIVITY_NOTICES } from "./activity-notices.ts";
 import type { ProviderId } from "./constants.ts";
 import { SEVERITY_COLORS } from "./constants.ts";
 import type { HudTheme } from "./theme.ts";
@@ -25,6 +26,10 @@ export interface AgentSession {
   waitingFor: string | null;
   /** When it entered its current state, as an ISO timestamp. */
   since: string;
+  /** Explicit completion evidence, never inferred from inactivity. */
+  completion?: { id: string; at: string };
+  /** False when a local record cannot prove the current status. */
+  confirmed?: boolean;
 }
 
 /** Live sessions, keyed by the provider they belong to. */
@@ -52,9 +57,11 @@ export function summarizeActivity(
   if (!sessions || sessions.length === 0) {
     return null;
   }
-  const state: ActivityState = sessions.some((s) => s.state === "waiting")
+  const state: ActivityState = sessions.some(
+    (s) => s.confirmed !== false && s.state === "waiting",
+  )
     ? "waiting"
-    : sessions.some((s) => s.state === "busy")
+    : sessions.some((s) => s.confirmed !== false && s.state === "busy")
       ? "working"
       : "idle";
   return { state, sessions: [...sessions] };
@@ -78,7 +85,7 @@ export function activityColor(state: ActivityState, theme: HudTheme): string {
     return theme.text;
   }
   if (state === "waiting") {
-    return SEVERITY_COLORS.mid;
+    return ACTIVITY_NOTICES.waitingColor[theme.appearance];
   }
   return theme.ringTrack;
 }
@@ -92,7 +99,7 @@ export function sessionStateColor(
     return SEVERITY_COLORS.low;
   }
   if (state === "waiting") {
-    return SEVERITY_COLORS.mid;
+    return ACTIVITY_NOTICES.waitingColor[theme.appearance];
   }
   return theme.textMuted;
 }

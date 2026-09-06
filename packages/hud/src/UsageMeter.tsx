@@ -1,4 +1,5 @@
 import {
+  ACTIVITY_NOTICES,
   type ActivitySummary,
   activityColor,
   COPY,
@@ -24,6 +25,8 @@ export function UsageMeter({
   compact = false,
   refreshing = false,
   activity = null,
+  waitingCount = 0,
+  noticeCount = 0,
   stowed = false,
   stowShift = { x: 0, y: 0 },
   revealDelayMs = 0,
@@ -42,6 +45,8 @@ export function UsageMeter({
   refreshing?: boolean;
   /** What this provider's agents are doing right now, if anything. */
   activity?: ActivitySummary | null;
+  waitingCount?: number;
+  noticeCount?: number;
   /** Riding out of view with a retracted dock. */
   stowed?: boolean;
   /** Which way, and how far, it slides toward the edge while stowed. */
@@ -63,7 +68,33 @@ export function UsageMeter({
     rounded === null
       ? circumference
       : circumference - (rounded / 100) * circumference;
-  const label = rounded === null ? "—" : `${rounded}${COPY.percentSuffix}`;
+  const workingCount =
+    activity?.sessions.filter(
+      (session) => session.state === "busy" && session.confirmed !== false,
+    ).length ?? 0;
+  const needsInput = Math.max(
+    waitingCount,
+    activity?.sessions.filter(
+      (session) => session.state === "waiting" && session.confirmed !== false,
+    ).length ?? 0,
+  );
+  const label =
+    rounded === null
+      ? needsInput > 0
+        ? `${needsInput} ${COPY.noticeWaitingSuffix}`
+        : workingCount > 0
+          ? `${workingCount}${COPY.activityWorkingSuffix}`
+          : "—"
+      : `${rounded}${COPY.percentSuffix}`;
+  const caption =
+    rounded === null
+      ? needsInput > 0
+        ? COPY.sessionWaiting
+        : workingCount > 0
+          ? COPY.sessionBusy
+          : label
+      : label;
+  const accessibleLabel = `${providerId} ${label}${noticeCount > 0 ? ` · ${noticeCount} ${COPY.noticeTitle}` : ""}`;
   const activityRadius = (metrics.activitySize - metrics.activityStroke) / 2;
   const activityLap = 2 * Math.PI * activityRadius;
   const arrive = springTransition(SPRINGS.contents);
@@ -80,7 +111,8 @@ export function UsageMeter({
       onPointerLeave={onPointerLeave}
       onClick={onClick}
       data-hud-hit="true"
-      title={`${providerId} ${label}`}
+      title={accessibleLabel}
+      aria-label={accessibleLabel}
       style={{
         appearance: "none",
         background: "transparent",
@@ -109,7 +141,7 @@ export function UsageMeter({
         height={size}
         viewBox={`0 0 ${size} ${size}`}
         role="img"
-        aria-label={`${providerId} ${rounded === null ? "unknown" : `${rounded}%`}`}
+        aria-label={accessibleLabel}
         style={{
           display: "block",
           // Pressed in while it works, released when the answer lands. The
@@ -209,6 +241,33 @@ export function UsageMeter({
             size={metrics.iconSize}
           />
         </g>
+        {needsInput > 0 || noticeCount > 0 || workingCount > 0 ? (
+          <g data-waiting-count={needsInput} data-notice-count={noticeCount}>
+            <circle
+              cx={size - metrics.cardStatusDot}
+              cy={metrics.cardStatusDot}
+              r={metrics.cardStatusDot}
+              fill={
+                needsInput > 0
+                  ? ACTIVITY_NOTICES.waitingColor[theme.appearance]
+                  : noticeCount > 0
+                    ? ACTIVITY_NOTICES.completedColor[theme.appearance]
+                    : theme.text
+              }
+            />
+            <text
+              x={size - metrics.cardStatusDot}
+              y={metrics.cardStatusDot}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill={theme.surface}
+              fontSize={metrics.percentFontSize}
+              fontWeight={600}
+            >
+              {needsInput || noticeCount || workingCount}
+            </text>
+          </g>
+        ) : null}
       </svg>
       {compact ? null : (
         <span
@@ -220,9 +279,10 @@ export function UsageMeter({
             fontWeight: 400,
             letterSpacing: 0.1,
             fontVariantNumeric: "tabular-nums",
+            whiteSpace: "nowrap",
           }}
         >
-          {label}
+          {caption}
         </span>
       )}
     </button>

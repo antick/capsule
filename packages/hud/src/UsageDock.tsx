@@ -1,8 +1,8 @@
 import {
   type ActivityByProvider,
+  type ActivityNotice,
   type AgentSession,
   type Corner,
-  cardHeightFor,
   DEMO_NOW_ISO,
   DOCK_STYLES,
   type DockStyle,
@@ -31,11 +31,12 @@ import {
   useState,
 } from "react";
 import { CornerFrame } from "./CornerFrame.tsx";
+import { DockCard, dockCardHeight } from "./DockCard.tsx";
 import { DOCK_STYLESHEET } from "./dock-stylesheet.ts";
 import { type CardGrowth, type HitRegions, HudFrame } from "./HudFrame.tsx";
 import { stowShift } from "./latch-path.ts";
-import { UsageCard } from "./UsageCard.tsx";
 import { UsageMeter } from "./UsageMeter.tsx";
+import { useActivityNotices } from "./use-activity-notices.ts";
 import { useDockDrag } from "./use-dock-drag.ts";
 
 export function UsageDock({
@@ -53,6 +54,8 @@ export function UsageDock({
   keepOpen = false,
   onKeepOpenChange,
   activity = {},
+  notices,
+  onDismissNotice,
   hardwareNotch = null,
   pointerInside = null,
   revealNonce = 0,
@@ -88,6 +91,8 @@ export function UsageDock({
   onKeepOpenChange?: (keepOpen: boolean) => void;
   /** Live agent sessions, by provider, for the rings and the card. */
   activity?: ActivityByProvider;
+  notices?: ActivityNotice[];
+  onDismissNotice?: (id: string) => void;
   /** The display's own notch, when the top edge is drawn as it. */
   hardwareNotch?: HardwareNotch | null;
   /**
@@ -115,6 +120,7 @@ export function UsageDock({
   /** Reports the areas that should swallow the mouse, local to the dock. */
   onHitRegions?: (regions: HitRegions) => void;
 }): ReactElement {
+  const notice = useActivityNotices(notices, pointerInside);
   const metrics = metricsProp ?? hudMetrics();
   const clock = now ?? new Date(DEMO_NOW_ISO);
   const meters = snapshots.length > 0 ? snapshots : placeholderSnapshots();
@@ -131,6 +137,7 @@ export function UsageDock({
     onMoveStart,
     onMoveEnd,
     onDragBegin: () => {
+      notice.close();
       setPinned(null);
       setHovered(null);
       clearTimers();
@@ -145,11 +152,15 @@ export function UsageDock({
     !held &&
     !dragging &&
     !keepOpen &&
+    notice.providerId === null &&
+    notice.waiting.length === 0 &&
     forceOpenProviderId === null;
 
   const lastCard = useRef<UsageSnapshot | null>(null);
   const openId =
-    dragging || peek ? null : (forceOpenProviderId ?? pinned ?? hovered);
+    dragging || peek
+      ? null
+      : (notice.providerId ?? forceOpenProviderId ?? pinned ?? hovered);
   const openSnapshot =
     meters.find((item) => item.providerId === openId) ?? null;
   if (openSnapshot) {
@@ -314,7 +325,19 @@ export function UsageDock({
   const cardSessions: AgentSession[] = cardSnapshot
     ? (activity[cardSnapshot.providerId] ?? [])
     : [];
-  const cardHeight = cardHeightOf(metrics, cardSnapshot, cardSessions.length);
+  const lastNotices = useRef<ActivityNotice[]>([]);
+  if (openId) lastNotices.current = notice.providerId ? notice.visible : [];
+  const cardNotices = openId
+    ? notice.providerId
+      ? notice.visible
+      : []
+    : lastNotices.current;
+  const cardHeight = dockCardHeight(
+    metrics,
+    cardSnapshot,
+    cardSessions.length,
+    cardNotices.length,
+  );
 
   /**
    * A click on the rail itself — not a meter, not the card — holds the dock
@@ -342,6 +365,11 @@ export function UsageDock({
       compact={compact}
       refreshing={snapshot.refreshing === true}
       activity={summarizeActivity(activity[snapshot.providerId])}
+      noticeCount={notice.countFor(snapshot.providerId)}
+      waitingCount={
+        notice.waiting.filter((item) => item.providerId === snapshot.providerId)
+          .length
+      }
       stowed={peek}
       stowShift={shift}
       revealDelayMs={Math.min(
@@ -355,6 +383,12 @@ export function UsageDock({
           didDrag.current = false;
           return;
         }
+        if (notice.reopen(snapshot.providerId)) {
+          setPinned(null);
+          setHovered(null);
+          return;
+        }
+        notice.close();
         setPinned((current) =>
           current === snapshot.providerId ? null : snapshot.providerId,
         );
@@ -368,31 +402,23 @@ export function UsageDock({
   ));
 
   const cardNode = cardSnapshot ? (
-    // Keyed by provider so one card's rows are never interpolated into
-    // another's; the new contents fade in instead, as part of the movement
-    // rather than a cut in the middle of it.
-    <div
-      key={cardSnapshot.providerId}
-      style={{
-        width: "100%",
-        height: "100%",
-        animation: `capsule-crossfade ${MOTION.crossfadeMs}ms ease-in-out`,
-      }}
+    <DockCard
+      snapshot={cardSnapshot}
+      sessions={cardSessions}
+      notices={cardNotices}
+      metrics={metrics}
+      theme={theme}
+      now={clock}
+      onDismissNotice={onDismissNotice}
       onPointerEnter={() => {
         if (!dragging) {
           clearTimers();
-          setHovered(cardSnapshot.providerId);
+          if (notice.providerId) notice.pause();
+          else setHovered(cardSnapshot.providerId);
         }
       }}
-    >
-      <UsageCard
-        metrics={metrics}
-        theme={theme}
-        snapshot={cardSnapshot}
-        sessions={cardSessions}
-        now={clock}
-      />
-    </div>
+      onPointerLeave={notice.resume}
+    />
   ) : null;
 
   return (
@@ -463,15 +489,4 @@ export function UsageDock({
       )}
     </div>
   );
-}
-
-function cardHeightOf(
-  metrics: HudMetrics,
-  snapshot: UsageSnapshot | null,
-  sessions: number,
-): number {
-  const count = snapshot?.buckets.length ?? 0;
-  const buckets =
-    count === 0 || snapshot?.status === "unauthenticated" ? 0 : count;
-  return cardHeightFor(metrics, { buckets, sessions });
 }

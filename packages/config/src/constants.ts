@@ -323,6 +323,19 @@ export const IPC = {
 } as const;
 
 export const COPY = {
+  noticeCompletedShort: "Replied",
+  sessionUnknown: "Status unavailable",
+  noticeTitle: "Activity",
+  noticeCompleted: "Finished responding",
+  noticeWaiting: "Needs input",
+  noticeDismiss: "Dismiss notification",
+  noticeMore: "more",
+  noticeWaitingSuffix: "need input",
+  activityTitleSuffix: " activity",
+  activityEmpty: "No active sessions",
+  activitySessionsSuffix: " sessions",
+  activityWorkingSuffix: " working",
+
   currentSession: "Current session",
   allModels: "All models",
   fiveHourWindow: "5-hour window",

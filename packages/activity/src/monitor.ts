@@ -6,6 +6,7 @@ import {
 } from "@capsule/config";
 import { claudeSessionsDir, readClaudeSessions } from "./claude.ts";
 import { readCodexSessions } from "./codex.ts";
+import { readGrokSessions } from "./grok.ts";
 import type { ActivityHost } from "./host.ts";
 
 export interface ActivityMonitor {
@@ -36,11 +37,12 @@ export function createActivityMonitor(options: {
   let inFlight: Promise<void> | null = null;
 
   const readers: Record<
-    "claude" | "codex",
+    ProviderId,
     (host: ActivityHost) => Promise<ActivityByProvider[ProviderId]>
   > = {
     claude: readClaudeSessions,
     codex: readCodexSessions,
+    grok: readGrokSessions,
   };
 
   const rescan = (): Promise<void> => {

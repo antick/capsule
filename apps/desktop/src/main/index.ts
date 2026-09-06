@@ -1,10 +1,12 @@
 import { createActivityMonitor } from "@capsule/activity/monitor";
+import { createNoticeTracker } from "@capsule/activity/notices";
 import {
   type ActivityByProvider,
   APP_NAME,
   type CapsuleSettings,
   CHROME_POLL_MS,
   IPC,
+  NOTICE_IPC,
   type PlacementPreset,
   type ProviderId,
   type Rect,
@@ -29,6 +31,7 @@ let settings = loadSettings();
 const overlay = new OverlayController(settings);
 let snapshots: UsageSnapshot[] = [];
 let activity: ActivityByProvider = {};
+const notices = createNoticeTracker();
 let appChrome: ReturnType<typeof createAppChrome> | null = null;
 /**
  * Whether an auto-hiding dock is being held out. A gesture, not a setting:
@@ -56,6 +59,8 @@ const monitor = createActivityMonitor({
   onChange: (next) => {
     activity = next;
     broadcastActivity();
+    const pending = notices.update(next);
+    overlay.window?.webContents.send(NOTICE_IPC.changed, pending);
   },
 });
 
@@ -193,6 +198,14 @@ app.whenReady().then(async () => {
     overlay.reveal();
   });
   ipcMain.handle(IPC.getActivity, () => activity);
+  ipcMain.handle(NOTICE_IPC.get, (event) =>
+    event.sender === overlay.window?.webContents ? notices.get() : [],
+  );
+  ipcMain.on(NOTICE_IPC.dismiss, (event, id: unknown) => {
+    if (event.sender !== overlay.window?.webContents || typeof id !== "string")
+      return;
+    overlay.window.webContents.send(NOTICE_IPC.changed, notices.dismiss(id));
+  });
   ipcMain.handle(IPC.getKeepOpen, () => keepOpen);
   ipcMain.on(IPC.setKeepOpen, (_event, next: boolean) => {
     setKeepOpen(next === true);

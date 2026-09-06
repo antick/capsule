@@ -15,6 +15,7 @@ export {
   sessionStateColor,
   summarizeActivity,
 } from "./activity.ts";
+export * from "./activity-notices.ts";
 export * from "./agent-observation.ts";
 export * from "./agents.ts";
 export * from "./claude-channel.ts";

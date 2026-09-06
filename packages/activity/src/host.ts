@@ -9,6 +9,8 @@ export interface ActivityHost {
   listDir: (dir: string) => Promise<string[]>;
   readFile: (path: string) => Promise<string | null>;
   /** When a file was last written, or null if it is not there. */
+  /** Read at most the final bytes of a local event log. */
+  readTail?: (path: string, bytes: number) => Promise<string | null>;
   modifiedAt: (path: string) => Promise<Date | null>;
   /** Whether a process with this pid exists, whoever owns it. */
   isProcessAlive: (pid: number) => Promise<boolean>;

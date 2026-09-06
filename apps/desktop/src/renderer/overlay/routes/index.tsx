@@ -1,5 +1,6 @@
 import {
   type ActivityByProvider,
+  type ActivityNotice,
   type CapsuleSettings,
   cornerIsBottom,
   cornerIsRight,
@@ -35,6 +36,8 @@ export function OverlayHud() {
     hardwareNotch: null,
   });
   const [activity, setActivity] = useState<ActivityByProvider>({});
+  const [notices, setNotices] = useState<ActivityNotice[]>([]);
+  useEffect(() => window.capsule?.onActivityNotices(setNotices), []);
   // Main owns this so the menu and the dock agree on it.
   const [keepOpen, setKeepOpen] = useState(false);
   // Null until main's hit test has spoken, so the dock keeps trusting the DOM
@@ -221,6 +224,8 @@ export function OverlayHud() {
         keepOpen={keepOpen}
         onKeepOpenChange={onKeepOpenChange}
         activity={activity}
+        notices={notices}
+        onDismissNotice={(id) => window.capsule?.dismissActivityNotice(id)}
         hardwareNotch={frame.hardwareNotch}
         pointerInside={pointerInside}
         revealNonce={revealNonce}

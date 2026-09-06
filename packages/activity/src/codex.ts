@@ -1,12 +1,14 @@
 import { join } from "node:path";
 import {
   ACTIVITY,
+  ACTIVITY_NOTICES,
   AGENTS,
   type AgentSession,
   CODEX_ACTIVITY_COPY,
   PROVIDER_LABELS,
 } from "@capsule/config";
 import type { ActivityHost } from "./host.ts";
+import { applyLocalEvents } from "./local-events.ts";
 
 /** Somewhere Codex recorded work, and when it last did. */
 export interface CodexCandidate {
@@ -40,6 +42,7 @@ export function codexSessionFrom(
     name: newest.name,
     detail: CODEX_ACTIVITY_COPY.recent,
     state: "busy",
+    confirmed: false,
     waitingFor: null,
     since: newest.at.toISOString(),
   };
@@ -149,7 +152,8 @@ async function newestRolloutOnDisk(
 export async function readCodexSessions(
   host: ActivityHost,
 ): Promise<AgentSession[]> {
-  const candidates: CodexCandidate[] = await indexedRollouts(host);
+  const candidates: (CodexCandidate & { path?: string })[] =
+    await indexedRollouts(host);
   if (candidates.length === 0) {
     const rollout = await newestRolloutOnDisk(host);
     if (rollout) {
@@ -157,15 +161,36 @@ export async function readCodexSessions(
         id: `codex.${rollout.path.split("/").at(-1) ?? rollout.path}`,
         name: PROVIDER_LABELS.codex,
         at: rollout.at,
+        path: rollout.path,
       });
     }
   }
   if (candidates.length > 0) {
     const now = host.now();
-    return candidates.flatMap((candidate) => {
-      const session = codexSessionFrom([candidate], now);
-      return session ? [session] : [];
-    });
+    const sessions: AgentSession[] = [];
+    for (const candidate of candidates) {
+      const fresh = codexSessionFrom([candidate], now);
+      if (!fresh && !host.readTail) continue;
+      const fallback = codexSessionFrom([candidate], candidate.at);
+      if (!fallback) continue;
+      const parsed = applyLocalEvents(
+        fresh ?? fallback,
+        candidate.path
+          ? ((await host.readTail?.(
+              expandHome(candidate.path, host.homeDir()),
+              ACTIVITY_NOTICES.tailBytes,
+            )) ?? null)
+          : null,
+      );
+      if (fresh) sessions.push(parsed);
+      else if (parsed.state === "waiting")
+        sessions.push({
+          ...parsed,
+          confirmed: false,
+          detail: ACTIVITY_NOTICES.statusUnknown,
+        });
+    }
+    return sessions;
   }
   const desktop = await host.query(
     join(host.homeDir(), ...ACTIVITY.codexDesktopDbSegments),

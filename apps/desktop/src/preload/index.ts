@@ -1,11 +1,13 @@
 import {
   type ActivityByProvider,
+  type ActivityNotice,
   AGENT_COPY,
   type AgentPanelSnapshot,
   type CapsuleSettings,
   type Corner,
   type HardwareNotch,
   IPC,
+  NOTICE_IPC,
   type ProviderId,
   type Rect,
   type UsageSnapshot,
@@ -21,6 +23,10 @@ export interface DockFrame {
 }
 
 export interface CapsuleBridge {
+  onActivityNotices: (
+    listener: (notices: ActivityNotice[]) => void,
+  ) => () => void;
+  dismissActivityNotice: (id: string) => void;
   openAgents: (provider: ProviderId | null, anchor?: Rect) => Promise<void>;
   closeAgents: () => void;
   getAgents: () => Promise<AgentPanelSnapshot>;
@@ -77,6 +83,22 @@ async function agentsDisabled(): Promise<never> {
 }
 
 const capsule: CapsuleBridge = {
+  onActivityNotices: (listener) => {
+    const handler = (_event: unknown, notices: ActivityNotice[]) =>
+      listener(notices);
+    ipcRenderer.on(NOTICE_IPC.changed, handler);
+    let active = true;
+    void ipcRenderer
+      .invoke(NOTICE_IPC.get)
+      .then((notices: ActivityNotice[]) => {
+        if (active) listener(notices);
+      });
+    return () => {
+      active = false;
+      ipcRenderer.off(NOTICE_IPC.changed, handler);
+    };
+  },
+  dismissActivityNotice: (id) => ipcRenderer.send(NOTICE_IPC.dismiss, id),
   openAgents: agentsDisabled,
   closeAgents: () => {},
   getAgents: agentsDisabled,
