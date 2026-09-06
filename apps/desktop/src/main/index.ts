@@ -163,6 +163,7 @@ app.whenReady().then(async () => {
         ...settings,
         placementPreset: preset,
         customPosition: null,
+        customCorner: null,
       });
     },
     openSettings: () => {

@@ -19,13 +19,21 @@ export * from "./activity-notices.ts";
 export * from "./agent-observation.ts";
 export * from "./agents.ts";
 export * from "./claude-channel.ts";
-export type { PlacementPreset, ProviderId, Severity } from "./constants.ts";
+export type {
+  HideDelayId,
+  PlacementPreset,
+  ProviderId,
+  Severity,
+} from "./constants.ts";
 export {
   APP_NAME,
   CHROME_POLL_MS,
   COPY,
   DEFAULT_ENABLED_PROVIDER_IDS,
   FAKE_NOTCH_ENV,
+  HIDE_DELAY_IDS,
+  HIDE_DELAY_LABELS,
+  HIDE_DELAYS,
   HUD,
   HUD_BASE,
   IPC,

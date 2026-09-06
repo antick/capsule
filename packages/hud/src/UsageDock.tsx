@@ -65,6 +65,7 @@ export function UsageDock({
   onHitRegions,
   tokens = {},
   usageDisplay = "used",
+  hideDelayMs = MOTION.peekHoldMs,
 }: UsageDockProps): ReactElement {
   const notice = useActivityNotices(notices, pointerInside);
   const metrics = metricsProp ?? hudMetrics();
@@ -160,7 +161,7 @@ export function UsageDock({
     }
     peekTimer.current = setTimeout(() => {
       setWoken(false);
-    }, MOTION.peekHoldMs);
+    }, hideDelayMs);
   };
 
   const scheduleOpen = (id: ProviderId) => {
@@ -206,7 +207,7 @@ export function UsageDock({
     if (autoHide && !held && !keepOpen) {
       peekTimer.current = setTimeout(() => {
         setWoken(false);
-      }, MOTION.peekHoldMs);
+      }, hideDelayMs);
     }
   };
 

@@ -8,6 +8,7 @@ import {
   DEMO_SNAPSHOTS,
   defaultSettings,
   dockStyleFor,
+  HIDE_DELAYS,
   type HudAppearance,
   hudMetrics,
   layoutForPreset,
@@ -213,7 +214,7 @@ export function OverlayHud() {
             ? snapshots
             : settings.demoMode
               ? DEMO_SNAPSHOTS
-              : placeholderSnapshots()
+              : placeholderSnapshots(settings.enabledProviderIds)
         }
         metrics={metrics}
         theme={theme}
@@ -224,6 +225,7 @@ export function OverlayHud() {
         railBias={frame.railBias}
         corner={frame.corner}
         autoHide={settings.autoHide}
+        hideDelayMs={HIDE_DELAYS[settings.hideDelay]}
         keepOpen={keepOpen}
         onKeepOpenChange={onKeepOpenChange}
         activity={activity}

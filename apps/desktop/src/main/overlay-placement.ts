@@ -4,6 +4,7 @@ import {
   type Corner,
   cardReserveHeight,
   computePlacement,
+  cornerForRail,
   cornerWindowSize,
   dockEdgeGap,
   dockStyleFor,
@@ -15,6 +16,7 @@ import {
   type PlacementResult,
   railLengthForCount,
   styleSupportsNotch,
+  type WindowBox,
 } from "@capsule/config";
 import { type Display, screen } from "electron";
 
@@ -72,6 +74,47 @@ export function computeDockPlacement(input: {
     PLACEMENT,
     { notchAllowed, corner },
   );
+}
+
+/**
+ * Whether the dock may bend into a corner at all. The arc has no latch to fold
+ * into, so an auto-hiding dock stays a straight rail whatever the switch says.
+ */
+export function curlsIntoCorners(settings: CapsuleSettings): boolean {
+  return settings.cornerArc && !settings.autoHide;
+}
+
+/** The corner a rail dragged to `railStart` has reached, if it may curl. */
+export function cornerForPlacement(
+  settings: CapsuleSettings,
+  placement: PlacementResult,
+  railStart: number,
+): Corner | null {
+  if (!curlsIntoCorners(settings)) {
+    return null;
+  }
+  return cornerForRail(
+    placement.edge,
+    placement.slide,
+    railStart,
+    PLACEMENT.cornerSnapPx,
+  );
+}
+
+/** Where the rail's leading edge sits, given a placement's own window. */
+export function railStartOf(placement: PlacementResult): number {
+  const axis = placement.slide.axis === "x" ? placement.x : placement.y;
+  return axis + placement.slide.gutter + placement.railBias;
+}
+
+/** A placement's window, in the whole pixels a window can actually have. */
+export function windowBoxOf(placement: PlacementResult): WindowBox {
+  return {
+    x: Math.round(placement.x),
+    y: Math.round(placement.y),
+    width: Math.round(placement.width),
+    height: Math.round(placement.height),
+  };
 }
 
 /** The display the dock was last placed on, or the primary one if it has gone. */

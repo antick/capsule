@@ -195,6 +195,31 @@ export const HUD_BASE = {
   notchBezelFillet: 8,
 } as const;
 
+/**
+ * How long an auto-hiding dock waits after the pointer leaves before it folds
+ * away. A gesture that crosses a corner of the card should not dismiss it,
+ * but how much grace that needs is a matter of taste, so it is a setting.
+ */
+export const HIDE_DELAY_IDS = [
+  "instant",
+  "quick",
+  "normal",
+  "relaxed",
+] as const;
+export type HideDelayId = (typeof HIDE_DELAY_IDS)[number];
+export const HIDE_DELAYS = {
+  instant: 0,
+  quick: 150,
+  normal: 460,
+  relaxed: 1100,
+} as const satisfies Record<HideDelayId, number>;
+export const HIDE_DELAY_LABELS = {
+  instant: "Instant",
+  quick: "Quick",
+  normal: "Normal",
+  relaxed: "Relaxed",
+} as const satisfies Record<HideDelayId, string>;
+
 export const MOTION = {
   openMs: 260,
   closeMs: 170,
@@ -429,7 +454,10 @@ export const COPY = {
     "Forget where the dock was last dragged and centre it on its edge.",
   cornerArc: "Curl into corners",
   cornerArcHint:
-    "Drag the dock all the way to a corner and it bends into a quarter arc that traces it.",
+    "Drag the dock all the way to a corner and it bends into a quarter arc that traces it. The arc cannot fold into a latch, so this is ignored while the dock hides until needed.",
+  hideDelay: "Hide after",
+  hideDelayHint:
+    "How long the dock waits after the pointer leaves before it folds away. Longer is more forgiving when you cross a corner of the card on the way to something else.",
   topEdgeNotch: "Draw as a notch",
   topEdgeNotchHint:
     "Centred at the top like the MacBook notch: straight sides, a rounded underside, and at rest a notch-sized tab in the menu bar. On a MacBook display it merges with the real notch. Turn off for a plain bar you can drag along the edge.",

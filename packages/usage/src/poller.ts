@@ -229,9 +229,35 @@ export function createPoller(options: {
         pending.delete(provider.id);
         markRefreshing(pending);
       }
-      snapshots = next.map((item) => ({ ...item, refreshing: false }));
+      // The enabled set may have changed while the network was slow. Land
+      // the fetched numbers against what is enabled *now*: a provider turned
+      // off mid-fetch is dropped, one turned on keeps its placeholder until
+      // the follow-up refresh reads it. Landing the set from the start of the
+      // fetch instead undid whichever toggle happened in between.
+      const enabledNow = options.getSettings().enabledProviderIds;
+      let missing = false;
+      snapshots = placeholderSnapshots(enabledNow).map((placeholder) => {
+        const fetched = next.find(
+          (item) => item.providerId === placeholder.providerId,
+        );
+        if (fetched) {
+          return { ...fetched, refreshing: false };
+        }
+        missing = true;
+        return (
+          snapshots.find(
+            (item) => item.providerId === placeholder.providerId,
+          ) ?? placeholder
+        );
+      });
       options.onChange(snapshots);
       remember();
+      if (missing) {
+        queueMicrotask(() => {
+          inFlight = null;
+          void refresh();
+        });
+      }
     })().finally(() => {
       inFlight = null;
     });

@@ -75,8 +75,14 @@ All notable changes to Capsule are documented in this file.
 - "Show usage as" in Settings → General flips the rings, bars and percentages between what has been used and what is left. The colours keep answering how close to the limit you are either way.
 - Resets due today or tomorrow say so ("Resets today 3:00 PM") instead of naming a weekday.
 
+- "Hide after" in Settings → Appearance → Placement sets how long an auto-hiding dock waits before it folds: instant, quick, normal or relaxed.
+
 ### Fixed
 
+- Turning a provider on or off no longer flips back by itself. A refresh already on the wire landed the provider list it had started with, undoing whichever toggle happened while it was out; it now lands against what is enabled at that moment and reads any newly enabled provider straight after.
+- The dock no longer curls into a corner on its own when a provider is added. The corner was worked out from where the rail happened to sit, so a rail that grew a ring reached the end of its track and bent. The corner is now the one the dock was actually dropped into, and it is remembered as such.
+- The corner arc is ignored while the dock hides until needed. The arc has no latch to fold into, so an auto-hiding dock curled into a corner drew a band with no rings on it. Now it stays a straight rail; turn "Hide until needed" off to use the arc.
+- An empty provider list no longer paints a ring for every provider Capsule knows; it falls back to the default three.
 - The dock no longer flashes a gap along the screen edge as it unrolls. Its arrival was springing past the edge and settling back, which pulled the rail clear of the border for a frame or two on the way in.
 - A card no longer stays open after the pointer has gone. The window turns click-through the moment the cursor leaves it, and a click-through window raises no `pointerout`, so the dock was never told; the hit test the main process already runs now says so directly. The same signal retracts an auto-hiding dock, and leaving now drops a pinned card rather than stranding it open with nothing on screen to dismiss it.
 - An auto-hiding dock no longer retracts while the cursor is still resting on it. The rail sliding out from under a stationary pointer raises `pointerleave` by itself, and the dock was taking that at face value.

@@ -2,7 +2,6 @@ import {
   type CapsuleSettings,
   type ChromeSnapshot,
   type Corner,
-  cornerForRail,
   dockAlongEdge,
   dockStyleFor,
   type HardwareNotch,
@@ -11,7 +10,6 @@ import {
   IPC,
   MOTION,
   nearestEdgeForPoint,
-  PLACEMENT,
   type PlacementPreset,
   type PlacementResult,
   type ProviderId,
@@ -34,9 +32,13 @@ import {
 import { HoverTracker } from "./overlay-hover.ts";
 import {
   computeDockPlacement,
+  cornerForPlacement,
+  curlsIntoCorners,
   describeDisplay,
   displayFor,
+  railStartOf,
   syntheticChromeFor,
+  windowBoxOf,
 } from "./overlay-placement.ts";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
 
@@ -218,6 +220,7 @@ export class OverlayController {
   endMove(): {
     placementPreset: PlacementPreset;
     customPosition: { x: number; y: number } | null;
+    customCorner: Corner | null;
   } | null {
     this.stopDragPoll();
     const drag = this.drag;
@@ -241,6 +244,7 @@ export class OverlayController {
         drag.placement.slide.axis === "x"
           ? { x: along, y: bounds.y }
           : { x: bounds.x, y: along },
+      customCorner: this.corner,
     };
   }
 
@@ -277,8 +281,14 @@ export class OverlayController {
       ? edge.slide.axis === "x"
         ? custom.x
         : custom.y
-      : this.railStartOf(edge);
-    const corner = this.hardwareNotch ? null : this.cornerFor(edge, railStart);
+      : railStartOf(edge);
+    // The corner is the one the dock was dropped into, not one worked out
+    // from where the rail happens to sit: a rail that grew a ring used to
+    // reach the end of its track and curl up uninvited.
+    const corner =
+      this.hardwareNotch || !curlsIntoCorners(this.settings)
+        ? null
+        : this.settings.customCorner;
     const placement = corner
       ? this.computeFor(preset, chrome, corner)
       : this.slid(edge, railStart);
@@ -383,24 +393,6 @@ export class OverlayController {
    * where the rail sits rather than stored, so a corner dock uncurls by itself
    * when the screen it is on changes size.
    */
-  private cornerFor(edge: PlacementResult, railStart: number): Corner | null {
-    if (!this.settings.cornerArc) {
-      return null;
-    }
-    return cornerForRail(
-      edge.edge,
-      edge.slide,
-      railStart,
-      PLACEMENT.cornerSnapPx,
-    );
-  }
-
-  /** Where the rail's leading edge sits, given a placement's own window. */
-  private railStartOf(placement: PlacementResult): number {
-    const axis = placement.slide.axis === "x" ? placement.x : placement.y;
-    return axis + placement.slide.gutter + placement.railBias;
-  }
-
   private currentDisplay(): Display {
     return displayFor(this.settingsDisplayId);
   }
@@ -464,7 +456,7 @@ export class OverlayController {
       grabOffset: drag.grabOffset,
     });
     drag.railStart = next.railStart;
-    const corner = this.cornerFor(placement, next.railStart);
+    const corner = cornerForPlacement(this.settings, placement, next.railStart);
     const curled = corner
       ? this.computeFor(
           preset,
@@ -474,12 +466,7 @@ export class OverlayController {
       : null;
     win.setBounds(
       curled
-        ? {
-            x: Math.round(curled.x),
-            y: Math.round(curled.y),
-            width: Math.round(curled.width),
-            height: Math.round(curled.height),
-          }
+        ? windowBoxOf(curled)
         : {
             x: next.x,
             y: next.y,

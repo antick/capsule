@@ -69,4 +69,6 @@ export interface UsageDockProps {
   tokens?: TokenUsageByProvider;
   /** Whether rings, bars and percentages count what is used or what is left. */
   usageDisplay?: UsageDisplay;
+  /** Grace after the pointer leaves before an auto-hiding dock folds away. */
+  hideDelayMs?: number;
 }

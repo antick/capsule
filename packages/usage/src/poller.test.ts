@@ -268,3 +268,68 @@ describe("poller back-off", () => {
     expect(saved.at(-1)).toEqual({});
   });
 });
+
+describe("poller toggles mid-fetch", () => {
+  it("lands a slow fetch against the providers enabled now, not then", async () => {
+    let settings: CapsuleSettings = {
+      ...defaultSettings(),
+      enabledProviderIds: ["claude", "codex"],
+    };
+    const gates = new Map<ProviderId, () => void>();
+    const gated = new Set<ProviderId>(["claude", "codex"]);
+    const reading = (id: ProviderId): UsageSnapshot => ({
+      providerId: id,
+      displayName: id,
+      iconId: id,
+      primaryPercent: 5,
+      buckets: [],
+      status: "ok",
+      fetchedAt: host.now().toISOString(),
+    });
+    // The first Claude and Codex fetches wait to be let through; everything
+    // after that answers at once.
+    const provider = (id: ProviderId): UsageProvider => ({
+      id,
+      fetchSnapshot: () => {
+        if (!gated.has(id)) {
+          return Promise.resolve(reading(id));
+        }
+        gated.delete(id);
+        return new Promise<UsageSnapshot>((resolve) => {
+          gates.set(id, () => resolve(reading(id)));
+        });
+      },
+    });
+    const poller = createPoller({
+      providers: [provider("claude"), provider("codex"), provider("grok")],
+      host,
+      getSettings: () => settings,
+      onChange: () => undefined,
+    });
+    poller.start();
+    const first = poller.refresh();
+    gates.get("claude")?.();
+    // Let Codex's fetch get on the wire, then flip the toggles under it.
+    for (let i = 0; i < 5; i += 1) {
+      await Promise.resolve();
+    }
+    settings = { ...settings, enabledProviderIds: ["claude", "grok"] };
+    poller.sync();
+    expect(poller.getSnapshots().map((s) => s.providerId)).toEqual([
+      "claude",
+      "grok",
+    ]);
+    gates.get("codex")?.();
+    await first;
+    // The toggle survives the landing...
+    expect(poller.getSnapshots().map((s) => s.providerId)).toEqual([
+      "claude",
+      "grok",
+    ]);
+    // ...and Grok is read on the follow-up refresh rather than left blank.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(
+      poller.getSnapshots().find((s) => s.providerId === "grok")?.status,
+    ).toBe("ok");
+  });
+});

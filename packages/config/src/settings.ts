@@ -1,12 +1,14 @@
 import { z } from "zod";
 import {
   DEFAULT_ENABLED_PROVIDER_IDS,
+  HIDE_DELAY_IDS,
   PLACEMENT_PRESETS,
   type PlacementPreset,
   POLL_INTERVAL_MS,
   PROVIDER_IDS,
   type ProviderId,
 } from "./constants.ts";
+import { CORNERS } from "./corner.ts";
 import { DOCK_STYLE_IDS } from "./dock-style.ts";
 import { clampHudScale, HUD_SCALE } from "./metrics.ts";
 import { HUD_THEME_IDS } from "./theme.ts";
@@ -114,6 +116,14 @@ export const settingsSchema = z.preprocess(
     cornerArc: z.boolean().default(false).catch(false),
     /** Rest as a latch in the screen edge until the pointer comes for it. */
     autoHide: z.boolean().default(true).catch(true),
+    /** How long that latch waits after the pointer leaves before folding. */
+    hideDelay: z.enum(HIDE_DELAY_IDS).default("normal").catch("normal"),
+    /**
+     * The corner the dock was dropped into, when the corner arc is on. Stored
+     * rather than worked out from the position, so a rail that grows a ring
+     * never curls into a corner by itself.
+     */
+    customCorner: z.enum(CORNERS).nullable().default(null).catch(null),
     /**
      * Draw the top edge as a notch: centred, straight-sided, rounded underneath,
      * resting as a notch-sized tab in the menu bar. On a MacBook display it
@@ -151,6 +161,8 @@ export function defaultSettings(): CapsuleSettings {
     dockStyle: "rail",
     cornerArc: false,
     autoHide: true,
+    hideDelay: "normal",
+    customCorner: null,
     topEdgeNotch: true,
     usageDisplay: "used",
     customPosition: null,

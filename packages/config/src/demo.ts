@@ -1,6 +1,6 @@
 import {
   COPY,
-  PROVIDER_IDS,
+  DEFAULT_ENABLED_PROVIDER_IDS,
   PROVIDER_LABELS,
   type ProviderId,
 } from "./constants.ts";
@@ -23,10 +23,12 @@ const GROK_RESET_ISO = new Date(
 ).toISOString();
 
 export function placeholderSnapshots(
-  ids: readonly ProviderId[] = PROVIDER_IDS,
+  ids: readonly ProviderId[] = DEFAULT_ENABLED_PROVIDER_IDS,
   now: Date = new Date(),
 ): UsageSnapshot[] {
-  const list = ids.length > 0 ? ids : PROVIDER_IDS;
+  // Nothing enabled still draws something, or the dock would vanish with no
+  // way back to it — but the something is the default set, not every provider.
+  const list = ids.length > 0 ? ids : DEFAULT_ENABLED_PROVIDER_IDS;
   return list.map((providerId) => ({
     providerId,
     displayName: PROVIDER_LABELS[providerId],

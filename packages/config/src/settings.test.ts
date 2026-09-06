@@ -154,3 +154,18 @@ describe("usage display", () => {
     ]);
   });
 });
+
+describe("latch settings", () => {
+  it("defaults to a normal hide delay and no remembered corner", () => {
+    expect(defaultSettings().hideDelay).toBe("normal");
+    expect(defaultSettings().customCorner).toBeNull();
+    expect(
+      settingsSchema.parse({ ...defaultSettings(), hideDelay: "yesterday" })
+        .hideDelay,
+    ).toBe("normal");
+    expect(
+      settingsSchema.parse({ ...defaultSettings(), customCorner: "top-right" })
+        .customCorner,
+    ).toBe("top-right");
+  });
+});

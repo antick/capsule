@@ -1,8 +1,20 @@
-import { COPY, clampHudScale } from "@capsule/config";
+import {
+  COPY,
+  clampHudScale,
+  HIDE_DELAY_IDS,
+  HIDE_DELAY_LABELS,
+} from "@capsule/config";
 import { Button, Switch } from "@capsule/ui";
 import { DockPreview } from "../components/dock-preview.tsx";
 import { PlacementPicker } from "../components/placement-picker.tsx";
 import { Row, Section } from "../components/section.tsx";
+import { Segmented } from "../components/segmented.tsx";
+
+const HIDE_DELAY_OPTIONS = HIDE_DELAY_IDS.map((id) => ({
+  value: id,
+  label: HIDE_DELAY_LABELS[id],
+}));
+
 import { SizeStepper } from "../components/size-stepper.tsx";
 import { StylePicker } from "../components/style-picker.tsx";
 import { ThemePicker } from "../components/theme-picker.tsx";
@@ -49,7 +61,9 @@ export function AppearancePage() {
               size="sm"
               className="whitespace-nowrap"
               title={COPY.recentreHint}
-              onClick={() => void update({ customPosition: null })}
+              onClick={() =>
+                void update({ customPosition: null, customCorner: null })
+              }
             >
               {COPY.recentre}
             </Button>
@@ -59,7 +73,11 @@ export function AppearancePage() {
         <PlacementPicker
           value={settings.placementPreset}
           onChange={(preset) =>
-            void update({ placementPreset: preset, customPosition: null })
+            void update({
+              placementPreset: preset,
+              customPosition: null,
+              customCorner: null,
+            })
           }
         />
         <Row
@@ -73,6 +91,20 @@ export function AppearancePage() {
             />
           }
         />
+        {settings.autoHide ? (
+          <Row
+            label={COPY.hideDelay}
+            hint={COPY.hideDelayHint}
+            control={
+              <Segmented
+                label={COPY.hideDelay}
+                value={settings.hideDelay}
+                options={HIDE_DELAY_OPTIONS}
+                onChange={(value) => void update({ hideDelay: value })}
+              />
+            }
+          />
+        ) : null}
         {settings.autoHide ? (
           <Row
             label={COPY.showDock}
