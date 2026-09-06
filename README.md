@@ -8,7 +8,9 @@ Capsule displays Claude, Codex, and Grok usage from the existing CLI logins on t
 
 ## Local activity notifications
 
-Claude Code, Codex, and Grok local session records can light up their meter while working or waiting. An explicit finished response or input request opens a connected popup with the latch's existing spring animations. Alerts group by provider, pause while hovered, and fold away after a few seconds; click the separate number badge to reopen them. Meter hover and click always open usage, even with pending notifications. Dismissal only clears the local notice. Answer requests in the original provider app.
+Claude Code, Codex, and Grok local session records can light up their meter while working or waiting. An explicit finished response or input request opens a connected popup with the latch's existing spring animations. Alerts group by provider, pause while hovered, and fold away after a few seconds; click the separate badge to reopen them. Meter hover and click always open usage, even with pending notifications. Numbers count unread alerts. Opening the list or hovering over its popup clears the unread count; a small dot keeps history accessible until you dismiss it. Longer lists scroll. Dismissal only clears the local notice. Answer requests in the original provider app.
+
+General → Show notification popups is on by default. Turn it off for unread badges and pulsing provider icons without automatic popups.
 
 This reads bounded local session logs and process metadata only. It installs no hooks and opens no agent connections. Old events do not replay on launch. Missing or stale records show an unconfirmed status; silence never counts as completion. Coverage depends on what each installed app records: Codex synchronous input requests are recognized, but approval prompts without a local event cannot be detected. See [implementation and coverage](openspec/changes/passive-activity-notices/README.md).
 
@@ -36,3 +38,11 @@ Right-click the rail for Settings and Quit. Settings cover placement, providers,
 ## Stack
 
 pnpm workspaces + Turborepo, Electron, React, TanStack Router (file-based), Tailwind, Biome. Specs live in `openspec/`.
+
+Native notification regression check (after `pnpm build`):
+
+```bash
+CAPSULE_PLAYWRIGHT_PATH=/path/to/playwright node apps/desktop/scripts/verify-notifications.cjs
+```
+
+The check uses a temporary home directory, sample usage, and synthetic local events; account requests are blocked.

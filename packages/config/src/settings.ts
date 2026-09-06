@@ -114,6 +114,7 @@ export const settingsSchema = z.preprocess(
     dockStyle: z.enum(DOCK_STYLE_IDS).default("rail").catch("rail"),
     /** Let the dock curl into a quarter arc when it reaches a screen corner. */
     cornerArc: z.boolean().default(false).catch(false),
+    notificationPopups: z.boolean().default(true).catch(true),
     /** Rest as a latch in the screen edge until the pointer comes for it. */
     autoHide: z.boolean().default(true).catch(true),
     /** How long that latch waits after the pointer leaves before folding. */
@@ -161,6 +162,7 @@ export function defaultSettings(): CapsuleSettings {
     dockStyle: "rail",
     cornerArc: false,
     autoHide: true,
+    notificationPopups: true,
     hideDelay: "normal",
     customCorner: null,
     topEdgeNotch: true,

@@ -97,7 +97,7 @@ export function parseClaudeSession(
           ? parseProcStart(procStart)
           : null,
     session: {
-      id: `claude.${pid}`,
+      id: `claude.${asString(json.sessionId) ?? pid}`,
       providerId: "claude",
       name: asString(json.name) ?? folder,
       detail: `${surfaceLabel(asString(json.entrypoint))} · ${folder}`,

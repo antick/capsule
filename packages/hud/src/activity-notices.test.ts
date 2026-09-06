@@ -66,7 +66,7 @@ describe("activity notices", () => {
     expect(html).not.toContain('data-hud-latch="true" data-hud-hit="true"');
   });
 
-  it("groups bursts into bounded rows, with a waiting count and dismiss controls", () => {
+  it("keeps every notification in a scrollable list with dismiss controls", () => {
     const notices = Array.from(
       { length: ACTIVITY_NOTICES.maxVisible + 2 },
       (_, index) => ({
@@ -76,11 +76,9 @@ describe("activity notices", () => {
       }),
     );
     const html = render(notices);
-    expect(html.match(/data-notice="waiting"/g)).toHaveLength(
-      ACTIVITY_NOTICES.maxVisible,
-    );
+    expect(html.match(/data-notice="waiting"/g)).toHaveLength(notices.length);
     expect(html).toContain(`data-waiting-count="${notices.length}"`);
-    expect(html).toContain(`+2 ${COPY.noticeMore}`);
+    expect(html).toContain("overflow-y:auto");
     expect(html).toContain(COPY.noticeDismiss);
     expect(html).toContain(">—</span>");
     expect(html).toContain(
@@ -147,4 +145,36 @@ describe("activity notices", () => {
     expect(html).toContain("Codex Usage");
     expect(html).not.toContain('data-hud-status="busy"');
   });
+});
+
+it("keeps popup-off alerts as unread badges and animations without opening a card", () => {
+  const html = renderToStaticMarkup(
+    createElement(UsageDock, {
+      snapshots: DEMO_SNAPSHOTS,
+      notices: [notice],
+      notificationPopups: false,
+      orientation: "vertical",
+      cardGrowth: "left",
+      autoHide: true,
+    }),
+  );
+  expect(html).toContain('data-notice-count="1"');
+  expect(html).toContain('data-unread-notification="true"');
+  expect(html).not.toContain('data-card-open="true"');
+});
+
+it("read history has no numeric unread badge and working sessions cannot impersonate notifications", () => {
+  const html = renderToStaticMarkup(
+    createElement(UsageDock, {
+      snapshots: [disabled],
+      notices: [{ ...notice, read: true }],
+      activity: { codex: [{ ...session, confirmed: true }] },
+      orientation: "vertical",
+      cardGrowth: "left",
+    }),
+  );
+  expect(html).toContain('data-notice-count="0"');
+  expect(html).toContain(COPY.noticeHistory);
+  expect(html).not.toContain('data-unread-notification="true"');
+  expect(html).toContain('data-hud-activity="working"');
 });

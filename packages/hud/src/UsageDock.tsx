@@ -50,6 +50,8 @@ export function UsageDock({
   onKeepOpenChange,
   activity = {},
   notices,
+  notificationPopups = true,
+  onReadNotices,
   onDismissNotice,
   hardwareNotch = null,
   pointerInside = null,
@@ -67,7 +69,12 @@ export function UsageDock({
   usageDisplay = "used",
   hideDelayMs = MOTION.peekHoldMs,
 }: UsageDockProps): ReactElement {
-  const notice = useActivityNotices(notices, pointerInside);
+  const notice = useActivityNotices(
+    notices,
+    pointerInside,
+    notificationPopups,
+    onReadNotices,
+  );
   const metrics = metricsProp ?? hudMetrics();
   const clock = now ?? new Date(DEMO_NOW_ISO);
   const meters = snapshots.length > 0 ? snapshots : placeholderSnapshots();
@@ -100,7 +107,7 @@ export function UsageDock({
     !dragging &&
     !keepOpen &&
     notice.providerId === null &&
-    notice.waiting.length === 0 &&
+    (!notificationPopups || notice.waiting.length === 0) &&
     forceOpenProviderId === null;
 
   const lastCard = useRef<UsageSnapshot | null>(null);
@@ -294,7 +301,7 @@ export function UsageDock({
   // white if any is working, nothing otherwise.
   const overall = summarizeActivity(Object.values(activity).flat())?.state;
   const beacon =
-    notice.waiting.length > 0 || overall === "waiting"
+    notice.unread.length > 0 || overall === "waiting"
       ? "waiting"
       : overall === "working"
         ? "working"
@@ -328,6 +335,7 @@ export function UsageDock({
       refreshing={snapshot.refreshing === true}
       activity={summarizeActivity(activity[snapshot.providerId])}
       noticeCount={notice.countFor(snapshot.providerId)}
+      hasNotices={notice.hasFor(snapshot.providerId)}
       waitingCount={
         notice.waiting.filter((item) => item.providerId === snapshot.providerId)
           .length

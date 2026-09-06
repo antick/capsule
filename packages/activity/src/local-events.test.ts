@@ -36,9 +36,13 @@ describe("local event evidence", () => {
         }),
       ),
     );
-    expect(done.completion).toEqual({ id: "turn-1", at });
+    expect(done.completion).toEqual({
+      id: "turn-1",
+      at,
+      summary: "private text",
+    });
     expect(done).toMatchObject({ state: "idle", confirmed: true });
-    expect(JSON.stringify(done)).not.toContain("private text");
+    expect(done.completion?.summary?.length).toBeLessThanOrEqual(160);
     expect(applyLocalEvents(base, null).completion).toBeUndefined();
     expect(applyLocalEvents(base, '{"incomplete":').completion).toBeUndefined();
     expect(
@@ -149,7 +153,7 @@ it("discovers Grok locally and rejects dead processes and unsafe session ids", a
   const host: ActivityHost = {
     now: () => new Date(at),
     homeDir: () => "/home",
-    listDir: async () => ["project"],
+    listDir: async (path) => (path.endsWith("sessions") ? ["project"] : []),
     readFile: async () =>
       JSON.stringify([
         { session_id: "live", pid: 1, cwd: "/project", opened_at: at },

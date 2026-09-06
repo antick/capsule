@@ -2,6 +2,21 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Notification and activity fixes
+
+### Fixed
+
+- Notification numbers now count unread alerts only. Opening a notification list or reading its popup clears the count; a small history dot keeps read alerts available until dismissed. Continuing a task also marks its earlier completion read. Every retained alert is accessible in the scrollable list.
+- Claude Code activity now follows current transcript state when the session registry omits status fields, using stable task identities. Grok discovers current event logs even when its legacy registry is not updated. Codex retains explicit recent activity beyond an eight-second write gap.
+- A new turn clears the previous completion signal. Events discovered more than a minute late do not generate new popups, and notification subscription updates cannot be overwritten by an older initial snapshot.
+- Completion notices include a brief result preview when available and use “Task completed” as the fallback.
+- The top latch remains above the menu bar while its context menu is open, with the menu itself above the latch.
+
+### Added
+
+- General → Show notification popups, enabled by default. Turning it off keeps unread counts and animated provider icons without automatically opening cards. Existing usage display, providers, tokens, hide-delay, placement, and chat suspension are preserved.
+- An isolated native regression script covering local event files through the tracker, IPC, unread/history controls, popup preference, and usage navigation.
+
 ## Usage monitoring restored alongside notifications
 
 ### Fixed

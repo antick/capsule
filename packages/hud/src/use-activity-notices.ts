@@ -11,10 +11,16 @@ const NO_NOTICES: ActivityNotice[] = [];
 export function useActivityNotices(
   notices: ActivityNotice[] = NO_NOTICES,
   pointerInside: boolean | null,
+  autoPopups = true,
+  onRead?: (ids: string[]) => void,
 ) {
   const [providerId, setProviderId] = useState<ProviderId | null>(
-    notices.at(-1)?.providerId ?? null,
+    autoPopups
+      ? (notices.filter((n) => !n.read).at(-1)?.providerId ?? null)
+      : null,
   );
+  const readRef = useRef(onRead);
+  readRef.current = onRead;
   const [hovered, setHovered] = useState(false);
   const seen = useRef(new Set<string>());
   const remaining = useRef<number>(ACTIVITY_NOTICES.visibleMs);
@@ -24,14 +30,33 @@ export function useActivityNotices(
   const key = visible.map((notice) => notice.id).join("\n");
 
   useEffect(() => {
-    const fresh = notices.filter((notice) => !seen.current.has(notice.id));
+    const fresh = notices.filter(
+      (notice) => !seen.current.has(notice.id) && !notice.read,
+    );
     seen.current = new Set(notices.map((notice) => notice.id));
     const newest = fresh.at(-1);
-    if (newest) {
+    if (newest && autoPopups) {
       setProviderId(newest.providerId);
       setRevision((value) => value + 1);
     }
-  }, [notices]);
+  }, [notices, autoPopups]);
+
+  useEffect(() => {
+    if (!autoPopups) setProviderId(null);
+  }, [autoPopups]);
+
+  const unreadKey = visible
+    .filter((n) => !n.read)
+    .map((n) => n.id)
+    .join("\n");
+  useEffect(() => {
+    if (!hovered || !unreadKey) return;
+    const timer = setTimeout(
+      () => readRef.current?.(unreadKey.split("\n")),
+      ACTIVITY_NOTICES.readDelayMs,
+    );
+    return () => clearTimeout(timer);
+  }, [hovered, unreadKey]);
 
   useEffect(() => {
     if (pointerInside === false) setHovered(false);
@@ -59,14 +84,23 @@ export function useActivityNotices(
   return {
     providerId: visible.length > 0 ? providerId : null,
     visible,
+    unread: notices.filter((notice) => !notice.read),
+    hasFor: (id: ProviderId) =>
+      notices.some((notice) => notice.providerId === id),
     waiting: notices.filter((notice) => notice.kind === "waiting"),
     countFor: (id: ProviderId) =>
-      notices.filter((notice) => notice.providerId === id).length,
+      notices.filter((notice) => notice.providerId === id && !notice.read)
+        .length,
     pause: () => setHovered(true),
     resume: () => setHovered(false),
     close: () => setProviderId(null),
     reopen: (id: ProviderId) => {
       if (!notices.some((notice) => notice.providerId === id)) return false;
+      readRef.current?.(
+        notices
+          .filter((notice) => notice.providerId === id && !notice.read)
+          .map((notice) => notice.id),
+      );
       setProviderId(id);
       setRevision((value) => value + 1);
       return true;

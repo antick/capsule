@@ -169,3 +169,14 @@ describe("latch settings", () => {
     ).toBe("top-right");
   });
 });
+
+it("defaults notification popups on and preserves an explicit off preference", () => {
+  const settings = defaultSettings();
+  expect(settings.notificationPopups).toBe(true);
+  const { notificationPopups: _omitted, ...old } = settings;
+  expect(settingsSchema.parse(old).notificationPopups).toBe(true);
+  expect(
+    settingsSchema.parse({ ...settings, notificationPopups: false })
+      .notificationPopups,
+  ).toBe(false);
+});

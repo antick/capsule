@@ -75,7 +75,7 @@ const monitor = createActivityMonitor({
   onChange: (next) => {
     activity = next;
     broadcastActivity();
-    const pending = notices.update(next);
+    const pending = notices.update(next, new Date());
     overlay.window?.webContents.send(NOTICE_IPC.changed, pending);
   },
 });
@@ -232,6 +232,15 @@ app.whenReady().then(async () => {
   ipcMain.handle(NOTICE_IPC.get, (event) =>
     event.sender === overlay.window?.webContents ? notices.get() : [],
   );
+  ipcMain.on(NOTICE_IPC.read, (event, ids: unknown) => {
+    if (
+      event.sender !== overlay.window?.webContents ||
+      !Array.isArray(ids) ||
+      !ids.every((id) => typeof id === "string")
+    )
+      return;
+    overlay.window.webContents.send(NOTICE_IPC.changed, notices.markRead(ids));
+  });
   ipcMain.on(NOTICE_IPC.dismiss, (event, id: unknown) => {
     if (event.sender !== overlay.window?.webContents || typeof id !== "string")
       return;

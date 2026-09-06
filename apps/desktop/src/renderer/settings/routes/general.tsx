@@ -24,6 +24,19 @@ export function GeneralPage() {
   return (
     <Section title={COPY.general}>
       <Row
+        label={COPY.notificationPopups}
+        hint={COPY.notificationPopupsHint}
+        control={
+          <Switch
+            aria-label={COPY.notificationPopups}
+            checked={settings.notificationPopups}
+            onCheckedChange={(checked) =>
+              void update({ notificationPopups: checked })
+            }
+          />
+        }
+      />
+      <Row
         label={COPY.launchAtLogin}
         hint={COPY.launchAtLoginHint}
         control={

@@ -38,6 +38,8 @@ export interface UsageDockProps {
   /** Live agent sessions, by provider, for the rings and the card. */
   activity?: ActivityByProvider;
   notices?: ActivityNotice[];
+  notificationPopups?: boolean;
+  onReadNotices?: (ids: string[]) => void;
   onDismissNotice?: (id: string) => void;
   /** The display's own notch, when the top edge is drawn as it. */
   hardwareNotch?: HardwareNotch | null;

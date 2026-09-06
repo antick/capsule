@@ -28,6 +28,7 @@ export interface CapsuleBridge {
     listener: (notices: ActivityNotice[]) => void,
   ) => () => void;
   dismissActivityNotice: (id: string) => void;
+  readActivityNotices: (ids: string[]) => void;
   openAgents: (provider: ProviderId | null, anchor?: Rect) => Promise<void>;
   closeAgents: () => void;
   getAgents: () => Promise<AgentPanelSnapshot>;
@@ -87,20 +88,24 @@ async function agentsDisabled(): Promise<never> {
 
 const capsule: CapsuleBridge = {
   onActivityNotices: (listener) => {
-    const handler = (_event: unknown, notices: ActivityNotice[]) =>
+    let receivedUpdate = false;
+    const handler = (_event: unknown, notices: ActivityNotice[]) => {
+      receivedUpdate = true;
       listener(notices);
+    };
     ipcRenderer.on(NOTICE_IPC.changed, handler);
     let active = true;
     void ipcRenderer
       .invoke(NOTICE_IPC.get)
       .then((notices: ActivityNotice[]) => {
-        if (active) listener(notices);
+        if (active && !receivedUpdate) listener(notices);
       });
     return () => {
       active = false;
       ipcRenderer.off(NOTICE_IPC.changed, handler);
     };
   },
+  readActivityNotices: (ids) => ipcRenderer.send(NOTICE_IPC.read, ids),
   dismissActivityNotice: (id) => ipcRenderer.send(NOTICE_IPC.dismiss, id),
   openAgents: agentsDisabled,
   closeAgents: () => {},

@@ -182,7 +182,13 @@ export async function readCodexSessions(
             )) ?? null)
           : null,
       );
-      if (fresh) sessions.push(parsed);
+      if (
+        fresh ||
+        (parsed.confirmed &&
+          now.getTime() - candidate.at.getTime() <=
+            ACTIVITY_NOTICES.activeEvidenceMs)
+      )
+        sessions.push(parsed);
       else if (parsed.state === "waiting")
         sessions.push({
           ...parsed,

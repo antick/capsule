@@ -27,6 +27,7 @@ import { BoundsApplier } from "./overlay-bounds.ts";
 import {
   createOverlayBrowserWindow,
   MENU_SAFE_LEVEL,
+  MENU_SAFE_RELATIVE_LEVEL,
   TOP_LEVEL,
 } from "./overlay-browser-window.ts";
 import { HoverTracker } from "./overlay-hover.ts";
@@ -174,7 +175,11 @@ export class OverlayController {
 
   /** Drops below pop-up menu level so a context menu draws over the dock. */
   suspendAlwaysOnTop(): void {
-    this.window?.setAlwaysOnTop(true, MENU_SAFE_LEVEL);
+    this.window?.setAlwaysOnTop(
+      true,
+      MENU_SAFE_LEVEL,
+      MENU_SAFE_RELATIVE_LEVEL,
+    );
   }
 
   restoreAlwaysOnTop(): void {

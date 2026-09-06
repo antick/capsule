@@ -27,7 +27,7 @@ export interface AgentSession {
   /** When it entered its current state, as an ISO timestamp. */
   since: string;
   /** Explicit completion evidence, never inferred from inactivity. */
-  completion?: { id: string; at: string };
+  completion?: { id: string; at: string; summary?: string };
   /** False when a local record cannot prove the current status. */
   confirmed?: boolean;
 }

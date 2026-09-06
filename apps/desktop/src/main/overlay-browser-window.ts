@@ -4,8 +4,9 @@ import { BrowserWindow, shell } from "electron";
 
 /** Above the menu bar, so the notch can cover it. */
 export const TOP_LEVEL = "screen-saver";
-/** Below pop-up menus, so a context menu is not hidden by the dock. */
-export const MENU_SAFE_LEVEL = "floating";
+/** Above the menu bar but below pop-up menus: floating hides the notch behind the menu bar. */
+export const MENU_SAFE_LEVEL = "pop-up-menu";
+export const MENU_SAFE_RELATIVE_LEVEL = -1;
 
 /**
  * The transparent, click-through, always-on-top panel the dock is drawn in.

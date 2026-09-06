@@ -232,6 +232,8 @@ export function OverlayHud() {
         tokens={tokens}
         usageDisplay={settings.usageDisplay}
         notices={notices}
+        notificationPopups={settings.notificationPopups}
+        onReadNotices={(ids) => window.capsule?.readActivityNotices(ids)}
         onDismissNotice={(id) => window.capsule?.dismissActivityNotice(id)}
         hardwareNotch={frame.hardwareNotch}
         pointerInside={pointerInside}

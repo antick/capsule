@@ -23,7 +23,7 @@ function time(value: unknown): string | null {
   return Number.isFinite(at.getTime()) ? at.toISOString() : null;
 }
 
-/** Read only event metadata. Never copy conversation or tool content to a popup. */
+/** Read local state markers and a bounded final-response preview. */
 export function applyLocalEvents(
   session: AgentSession,
   raw: string | null,
@@ -33,14 +33,46 @@ export function applyLocalEvents(
   for (const row of records(raw)) {
     const payload = object(row.payload);
     const at = time(row.timestamp ?? row.ts);
+    if (
+      session.providerId === "claude" &&
+      row.type === "custom-title" &&
+      typeof row.customTitle === "string"
+    )
+      next.name = row.customTitle.slice(0, ACTIVITY_NOTICES.maxTitleLength);
     if (!at) continue;
     if (session.providerId === "claude") {
-      if (
-        row.type === "assistant" &&
-        object(row.message).stop_reason === "end_turn" &&
-        typeof row.uuid === "string"
-      ) {
-        next.completion = { id: row.uuid, at };
+      const message = object(row.message);
+      const blocks = Array.isArray(message.content)
+        ? message.content.map(object)
+        : [];
+      if (row.type === "user" || row.type === "assistant") {
+        next.state = "busy";
+        next.confirmed = true;
+        next.since = at;
+        next.waitingFor = null;
+        delete next.completion;
+      }
+      if (row.type === "assistant") {
+        const question = blocks.some(
+          (block) =>
+            block.type === "tool_use" && block.name === "AskUserQuestion",
+        );
+        if (question) {
+          next.state = "waiting";
+          next.waitingFor = ACTIVITY_NOTICES.localWaiting;
+        } else if (
+          message.stop_reason === "end_turn" &&
+          (!blocks.length || blocks.some((block) => block.type === "text"))
+        ) {
+          next.state = "idle";
+          next.completion = {
+            id: String(message.id ?? row.uuid ?? at),
+            at,
+            summary: preview(
+              blocks.find((block) => block.type === "text")?.text,
+            ),
+          };
+        }
       }
       continue;
     }
@@ -49,7 +81,20 @@ export function applyLocalEvents(
       session.providerId === "codex" && row.type !== "event_msg"
         ? null
         : event.type;
-    if (kind === "task_started" || kind === "turn_started") {
+    if (
+      kind === "task_started" ||
+      kind === "turn_started" ||
+      kind === "tool_started" ||
+      kind === "loop_started" ||
+      (kind === "phase_changed" &&
+        [
+          "streaming_text",
+          "streaming_reasoning",
+          "tool_execution",
+          "waiting_for_model",
+        ].includes(String(event.phase)))
+    ) {
+      delete next.completion;
       next.state = "busy";
       next.confirmed = true;
       next.since = at;
@@ -62,22 +107,32 @@ export function applyLocalEvents(
       next.confirmed = true;
       next.since = at;
       next.waitingFor = null;
-      next.completion = { id: String(event.turn_id ?? at), at };
+      next.completion = {
+        id: String(event.turn_id ?? at),
+        at,
+        summary: preview(event.last_agent_message),
+      };
     } else if (
       kind === "turn_aborted" ||
       kind === "task_interrupted" ||
       kind === "turn_ended"
     ) {
+      delete next.completion;
       next.state = "idle";
       next.confirmed = true;
       next.since = at;
       next.waitingFor = null;
-    } else if (kind === "permission_requested") {
+    } else if (
+      kind === "permission_requested" ||
+      (kind === "phase_changed" && event.phase === "permission_prompt")
+    ) {
+      delete next.completion;
       next.state = "waiting";
       next.confirmed = true;
       next.since = at;
       next.waitingFor = ACTIVITY_NOTICES.localWaiting;
     } else if (kind === "permission_resolved") {
+      delete next.completion;
       next.state = "busy";
       next.confirmed = true;
       next.since = at;
@@ -90,6 +145,7 @@ export function applyLocalEvents(
         /^(?:functions\.)?request_user_input$/.test(String(payload.name)) &&
         typeof payload.call_id === "string"
       ) {
+        delete next.completion;
         pendingInput = payload.call_id;
         next.state = "waiting";
         next.confirmed = true;
@@ -109,5 +165,16 @@ export function applyLocalEvents(
       }
     }
   }
+  if (next.confirmed && next.state === "busy")
+    next.detail = ACTIVITY_NOTICES.localWorking;
   return next;
+}
+
+function preview(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  return value
+    .split("\n")
+    .map((line) => line.replace(/^[#*\s>-]+/, "").trim())
+    .find(Boolean)
+    ?.slice(0, ACTIVITY_NOTICES.maxSummaryLength);
 }

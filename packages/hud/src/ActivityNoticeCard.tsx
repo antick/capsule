@@ -27,8 +27,8 @@ export function ActivityNoticeCard({
 }): ReactElement {
   const waiting = notices.filter((notice) => notice.kind === "waiting").length;
   const completed = notices.length - waiting;
-  const shown = [...notices].reverse().slice(0, ACTIVITY_NOTICES.maxVisible);
-  const hidden = notices.length - shown.length;
+  const shown = [...notices].reverse();
+  const hidden = Math.max(0, notices.length - ACTIVITY_NOTICES.maxVisible);
   return (
     <div
       data-activity-notices={snapshot.providerId}
@@ -108,6 +108,11 @@ export function ActivityNoticeCard({
           display: "flex",
           flexDirection: "column",
           gap: m.cardSectionGap,
+          maxHeight:
+            ACTIVITY_NOTICES.maxVisible *
+              (m.cardTextLine * 2 + m.cardBucketGap) +
+            (ACTIVITY_NOTICES.maxVisible - 1) * m.cardSectionGap,
+          overflowY: "auto",
         }}
       >
         {shown.map((notice) => {
@@ -125,6 +130,7 @@ export function ActivityNoticeCard({
               data-notice={notice.kind}
               style={{
                 display: "flex",
+                flexShrink: 0,
                 alignItems: "center",
                 gap: m.cardResetGap,
               }}
@@ -162,6 +168,7 @@ export function ActivityNoticeCard({
                   }}
                 >
                   <span
+                    title={notice.summary || label}
                     style={{
                       color,
                       whiteSpace: "nowrap",
@@ -169,7 +176,7 @@ export function ActivityNoticeCard({
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {label}
+                    {notice.summary || label}
                   </span>
                   <span
                     style={{

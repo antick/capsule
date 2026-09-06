@@ -1,3 +1,5 @@
+import { ACTIVITY_NOTICE_COPY } from "./activity-notices.ts";
+
 export const APP_NAME = "Capsule";
 
 export const PROVIDER_IDS = [
@@ -380,19 +382,7 @@ export const IPC = {
 } as const;
 
 export const COPY = {
-  noticeCompletedShort: "Replied",
-  sessionUnknown: "Status unavailable",
-  noticeTitle: "Activity",
-  noticeCompleted: "Finished responding",
-  noticeWaiting: "Needs input",
-  noticeDismiss: "Dismiss notification",
-  noticeMore: "more",
-  noticeWaitingSuffix: "need input",
-  activityTitleSuffix: " activity",
-  activityEmpty: "No active sessions",
-  activitySessionsSuffix: " sessions",
-  activityWorkingSuffix: " working",
-
+  ...ACTIVITY_NOTICE_COPY,
   currentSession: "Current session",
   allModels: "All models",
   fiveHourWindow: "5-hour window",

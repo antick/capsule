@@ -51,7 +51,7 @@ describe("parseClaudeSession", () => {
     const parsed = parseClaudeSession(record, now);
     expect(parsed?.pid).toBe(71555);
     expect(parsed?.session).toMatchObject({
-      id: "claude.71555",
+      id: "claude.c5ba92e2",
       providerId: "claude",
       name: "egglify-4e",
       detail: "Desktop · egglify",

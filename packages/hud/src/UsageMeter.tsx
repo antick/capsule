@@ -29,6 +29,7 @@ export function UsageMeter({
   activity = null,
   waitingCount = 0,
   noticeCount = 0,
+  hasNotices = noticeCount > 0,
   stowed = false,
   stowShift = { x: 0, y: 0 },
   revealDelayMs = 0,
@@ -52,6 +53,7 @@ export function UsageMeter({
   activity?: ActivitySummary | null;
   waitingCount?: number;
   noticeCount?: number;
+  hasNotices?: boolean;
   /** Riding out of view with a retracted dock. */
   stowed?: boolean;
   /** Which way, and how far, it slides toward the edge while stowed. */
@@ -78,10 +80,6 @@ export function UsageMeter({
     shown === null
       ? circumference
       : circumference - (shown / 100) * circumference;
-  const workingCount =
-    activity?.sessions.filter(
-      (session) => session.state === "busy" && session.confirmed !== false,
-    ).length ?? 0;
   const needsInput = Math.max(
     waitingCount,
     activity?.sessions.filter(
@@ -234,6 +232,14 @@ export function UsageMeter({
             />
           ) : null}
           <g
+            data-unread-notification={noticeCount > 0 ? "true" : undefined}
+            style={
+              noticeCount > 0
+                ? {
+                    animation: `capsule-pulse ${MOTION.activityPulseMs}ms ease-in-out infinite alternate`,
+                  }
+                : undefined
+            }
             transform={`translate(${(size - metrics.iconSize) / 2} ${(size - metrics.iconSize) / 2})`}
           >
             <ProviderIcon
@@ -260,18 +266,17 @@ export function UsageMeter({
           </span>
         )}
       </button>
-      {needsInput > 0 || noticeCount > 0 || workingCount > 0 ? (
+      {hasNotices ? (
         <button
           type="button"
           data-hud-hit="true"
           data-waiting-count={needsInput}
           data-notice-count={noticeCount}
-          aria-label={`${providerId} ${noticeCount || needsInput || workingCount} ${COPY.noticeTitle}`}
+          aria-label={`${providerId} ${noticeCount > 0 ? `${noticeCount} ${COPY.noticeTitle}` : COPY.noticeHistory}`}
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => {
             event.stopPropagation();
-            if (noticeCount > 0) onNoticeClick?.();
-            else onClick();
+            onNoticeClick?.();
           }}
           style={{
             position: "absolute",
@@ -297,7 +302,7 @@ export function UsageMeter({
                   : theme.text,
           }}
         >
-          {needsInput || noticeCount || workingCount}
+          {noticeCount || COPY.noticeReadMark}
         </button>
       ) : null}
     </span>
