@@ -1,6 +1,6 @@
 # Passive activity notices
 
-The latch observes existing local records and presents short notifications. It cannot send messages, approve actions, or control agents. Account access and agent chat remain suspended.
+The latch observes existing local records and presents short notifications. It cannot send messages, approve actions, or control agents. Existing usage monitoring remains enabled; agent chat remains suspended. Activity readers themselves remain local and passive.
 
 ## Sources and limits
 
@@ -14,7 +14,7 @@ Log formats belong to the installed provider versions and may change. Unsupporte
 
 New events unfold the latch and its connected card without focusing the window. Notifications group by provider, with at most three rows and an overflow count. Amber marks input needed; green marks a finished response. Existing geometry and spring/reduced-motion rules apply across edges and themes.
 
-The card closes after 6.5 seconds and pauses while hovered. Waiting notices keep the latch available. Count badges reopen pending notices; dismissal affects only Capsule. Input is handled in the original app. The queue is bounded and in memory; events from before launch are not replayed.
+The card closes after 6.5 seconds and pauses while hovered. Waiting notices keep the latch available. Separate count badge buttons reopen pending notices; meter hover and click retain the usage card; dismissal affects only Capsule. Input is handled in the original app. The queue is bounded and in memory; events from before launch are not replayed.
 
 ## Verification
 

@@ -2,6 +2,13 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Usage monitoring restored alongside notifications
+
+### Fixed
+
+- Restored usage titles and meter percentage captions. Hovering or clicking a provider opens its usage card even when notifications are pending; separate badge buttons reopen notifications. Activity indicators and automatic popups remain additive.
+- Restored the pre-existing Claude, Codex, and Grok usage readers, refresh timing and settings after the user clarified that the suspension applied to chat only. Chat startup, commands, connections, and panel remain disabled.
+
 ## Passive activity notifications
 
 ### Added

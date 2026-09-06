@@ -4,11 +4,7 @@ export function mergeSnapshot(
   previous: UsageSnapshot | undefined,
   next: UsageSnapshot,
 ): UsageSnapshot {
-  if (
-    next.status === "ok" ||
-    next.status === "unauthenticated" ||
-    next.status === "disabled"
-  ) {
+  if (next.status === "ok" || next.status === "unauthenticated") {
     return next;
   }
   if (!previous || previous.status === "unauthenticated") {

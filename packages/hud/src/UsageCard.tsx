@@ -304,7 +304,7 @@ export function UsageCard({
   sessions?: AgentSession[];
   now: Date;
 }): ReactElement {
-  const title = `${snapshot.displayName}${snapshot.status === "disabled" ? COPY.activityTitleSuffix : COPY.usageTitleSuffix}`;
+  const title = `${snapshot.displayName}${COPY.usageTitleSuffix}`;
   // Only worth saying when the numbers are not current. A remembered reading
   // has to be dated, or it quietly passes itself off as live.
   const readingAge =
@@ -314,22 +314,8 @@ export function UsageCard({
 
   let body: ReactElement;
   if (snapshot.status === "disabled") {
-    const working = sessions.filter(
-      (session) => session.state === "busy" && session.confirmed !== false,
-    ).length;
-    const waiting = sessions.filter(
-      (session) => session.state === "waiting" && session.confirmed !== false,
-    ).length;
     body = (
-      <Message
-        metrics={metrics}
-        theme={theme}
-        text={
-          sessions.length === 0
-            ? COPY.activityEmpty
-            : `${working}${COPY.activityWorkingSuffix} · ${waiting} ${COPY.noticeWaitingSuffix}`
-        }
-      />
+      <Message metrics={metrics} theme={theme} text={COPY.usageDisabled} />
     );
   } else if (snapshot.status === "unauthenticated") {
     body = <Message metrics={metrics} theme={theme} text={COPY.notConnected} />;

@@ -222,6 +222,7 @@ export function UsageDock({
       return;
     }
     clearTimers();
+    notice.close();
     if (HUD.hoverOpenDelayMs <= 0) {
       setHovered(id);
       return;
@@ -378,17 +379,18 @@ export function UsageDock({
       )}
       onPointerEnter={() => scheduleOpen(snapshot.providerId)}
       onPointerLeave={() => undefined}
+      onNoticeClick={() => {
+        setPinned(null);
+        setHovered(null);
+        notice.reopen(snapshot.providerId);
+      }}
       onClick={() => {
         if (didDrag.current) {
           didDrag.current = false;
           return;
         }
-        if (notice.reopen(snapshot.providerId)) {
-          setPinned(null);
-          setHovered(null);
-          return;
-        }
         notice.close();
+        wake();
         setPinned((current) =>
           current === snapshot.providerId ? null : snapshot.providerId,
         );

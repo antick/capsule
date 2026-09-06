@@ -1,3 +1,5 @@
+> Correction: the user clarified that usage monitoring must remain enabled. The account-access shutdown described below was an overbroad change and has been reversed. Agent chat remains suspended; none of its connections or commands are restored.
+
 # Account access and chat suspended
 
 The user requested this change on September 6, 2026, because account safety takes priority over live usage and chat.

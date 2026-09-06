@@ -56,7 +56,7 @@ function render(notices: ActivityNotice[], corner?: "bottom-left") {
 }
 
 describe("activity notices", () => {
-  it("unfolds the dock and replaces the usage card with the completed turn", () => {
+  it("temporarily unfolds a notification card for a completed turn", () => {
     const html = render([notice]);
     expect(html).toContain('data-card-open="true"');
     expect(html).toContain('data-activity-notices="codex"');
@@ -82,13 +82,11 @@ describe("activity notices", () => {
     expect(html).toContain(`data-waiting-count="${notices.length}"`);
     expect(html).toContain(`+2 ${COPY.noticeMore}`);
     expect(html).toContain(COPY.noticeDismiss);
-    expect(html).toContain(`>${COPY.sessionWaiting}</span>`);
-    expect(html).not.toContain(
-      `>${notices.length} ${COPY.noticeWaitingSuffix}</span>`,
-    );
+    expect(html).toContain(">—</span>");
     expect(html).toContain(
-      `aria-label="codex ${notices.length} ${COPY.noticeWaitingSuffix}`,
+      `aria-label="codex ${notices.length} ${COPY.noticeTitle}"`,
     );
+    expect(html).toContain('aria-label="codex —"');
     expect(
       dockCardHeight(hudMetrics(), disabled, 0, notices.length),
     ).toBeLessThanOrEqual(cardReserveHeight(hudMetrics()));
@@ -109,6 +107,25 @@ describe("activity notices", () => {
     expect(html.match(/data-notice-count="1"/g)).toHaveLength(2);
   });
 
+  it("keeps usage percentages and a separate notification button while an alert is open", () => {
+    const html = renderToStaticMarkup(
+      createElement(UsageDock, {
+        snapshots: DEMO_SNAPSHOTS,
+        notices: [notice],
+        orientation: "vertical",
+        cardGrowth: "left",
+      }),
+    );
+    expect(html).toContain(">73%<");
+    expect(html).toContain(">21%<");
+    expect(html).toContain(">52%<");
+    expect(html).toContain('aria-label="codex 21%"');
+    expect(html).toMatch(
+      /<button[^>]*data-notice-count="1"[^>]*aria-label="codex 1/,
+    );
+    expect(html).toContain('data-activity-notices="codex"');
+  });
+
   it("uses the same notification content in a corner frame", () => {
     expect(render([notice], "bottom-left")).toContain(
       'data-activity-notices="codex"',
@@ -126,7 +143,8 @@ describe("activity notices", () => {
       }),
     );
     expect(html).toContain(COPY.sessionUnknown);
-    expect(html).toContain(`0${COPY.activityWorkingSuffix}`);
+    expect(html).toContain(COPY.usageDisabled);
+    expect(html).toContain("Codex Usage");
     expect(html).not.toContain('data-hud-status="busy"');
   });
 });

@@ -262,9 +262,39 @@ export const PLACEMENT = {
 } as const;
 
 export const POLL_INTERVAL_MS = 60_000;
+export const POLL_INTERVAL_OPTIONS = [
+  { value: 30_000, label: "30 seconds" },
+  { value: 60_000, label: "1 minute" },
+  { value: 300_000, label: "5 minutes" },
+  { value: 900_000, label: "15 minutes" },
+] as const;
 export const CHROME_POLL_MS = 2_000;
 
+export const ANTHROPIC_OAUTH_USAGE_URL =
+  "https://api.anthropic.com/api/oauth/usage";
+export const ANTHROPIC_OAUTH_BETA_HEADER = "oauth-2025-04-20";
+export const CLAUDE_KEYCHAIN_SERVICE = "Claude Code-credentials";
+export const CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage";
+export const CODEX_USAGE_FALLBACK_URL =
+  "https://chatgpt.com/backend-api/codex/usage";
+export const CODEX_TOKEN_URL = "https://auth.openai.com/oauth/token";
+export const CODEX_OAUTH_CLIENT_ID = "app_EMohtA1zFfdvkohgPldNB5nP";
+export const GROK_BILLING_URL =
+  "https://cli-chat-proxy.grok.com/v1/billing?format=credits";
+export const GROK_TOKEN_AUTH_VALUE = "xai-grok-cli";
+export const GROK_USER_ID_HEADER = "x-userid";
+export const USAGE_USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1";
+export const CLAUDE_USAGE_CACHE_FILE = ".claude.json";
+
+export const CLAUDE_CREDENTIALS_PATH_SEGMENTS = [
+  ".claude",
+  ".credentials.json",
+] as const;
+export const CODEX_AUTH_PATH_SEGMENTS = [".codex", "auth.json"] as const;
+export const GROK_AUTH_PATH_SEGMENTS = [".grok", "auth.json"] as const;
 export const CODEX_HOME_ENV = "CODEX_HOME";
+export const GROK_HOME_ENV = "GROK_HOME";
 /**
  * Pretend the display has a notch of this size, as "200x37", for trying the
  * joined top edge on a Mac that has none. Development only.
@@ -396,7 +426,7 @@ export const COPY = {
   showDockHint:
     "Unrolls the dock and holds it there for a few seconds, for when you have lost track of the latch.",
   providersHint:
-    "Live usage is disabled. Capsule does not access account credentials or contact providers. Turn a provider off to hide its ring.",
+    "Capsule reads the logins these CLIs already keep on this Mac. Turn one off to hide its ring.",
   statusLabels: {
     ok: "Connected",
     stale: "Last known numbers",
@@ -407,7 +437,7 @@ export const COPY = {
   },
   onboardingTitle: "Welcome to Capsule",
   onboardingBody:
-    "Live usage and agent chat are disabled. Local activity indicators still work. Demo mode previews the dock with sample numbers.",
+    "Capsule reads Claude, Codex, and Grok usage from logins already on this Mac. Agent chat remains disabled.",
   enableDemo: "Enable demo mode",
   keepOpen: "Keep open",
   keepOpenDisabledHint:

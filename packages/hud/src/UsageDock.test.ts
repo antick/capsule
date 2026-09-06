@@ -1,5 +1,6 @@
 import {
   type AgentSession,
+  COPY,
   DEMO_NOW_ISO,
   DEMO_SNAPSHOTS,
   DOCK_STYLES,
@@ -107,7 +108,7 @@ describe("UsageDock", () => {
     expect(html).not.toContain("0% Used");
   });
 
-  it("shows passive activity when usage is disabled without suggesting login", () => {
+  it("preserves the usage card when account access is disabled", () => {
     const previous = DEMO_SNAPSHOTS[0];
     if (!previous) throw new Error("Missing demo snapshot");
     const html = renderToStaticMarkup(
@@ -125,8 +126,8 @@ describe("UsageDock", () => {
         forceOpenProviderId: "claude",
       }),
     );
-    expect(html).toContain("Claude activity");
-    expect(html).toContain("No active sessions");
+    expect(html).toContain("Claude Usage");
+    expect(html).toContain(COPY.usageDisabled);
     expect(html).not.toContain("Not connected");
     expect(html).not.toContain("0% Used");
   });

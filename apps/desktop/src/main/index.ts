@@ -72,6 +72,7 @@ const usageHost = () =>
       broadcast();
       void overlay.relayout();
     },
+    { isBusy: () => monitor.isBusy() },
   );
 
 let poller = usageHost();

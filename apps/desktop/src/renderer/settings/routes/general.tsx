@@ -1,4 +1,4 @@
-import { COPY } from "@capsule/config";
+import { COPY, POLL_INTERVAL_MS, POLL_INTERVAL_OPTIONS } from "@capsule/config";
 import { Switch } from "@capsule/ui";
 import { Row, Section } from "../components/section.tsx";
 import { useCapsuleSettings } from "../use-settings.ts";
@@ -21,6 +21,32 @@ export function GeneralPage() {
               void update({ launchAtLogin: checked })
             }
           />
+        }
+      />
+      <Row
+        label={COPY.pollInterval}
+        hint={COPY.pollIntervalHint}
+        control={
+          <select
+            aria-label={COPY.pollInterval}
+            className="h-8 rounded-lg border border-shell-line bg-shell-raised px-2 text-sm"
+            value={
+              POLL_INTERVAL_OPTIONS.some(
+                (option) => option.value === settings.pollIntervalMs,
+              )
+                ? settings.pollIntervalMs
+                : POLL_INTERVAL_MS
+            }
+            onChange={(event) =>
+              void update({ pollIntervalMs: Number(event.target.value) })
+            }
+          >
+            {POLL_INTERVAL_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         }
       />
       <Row

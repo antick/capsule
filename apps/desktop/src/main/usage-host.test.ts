@@ -1,50 +1,45 @@
 import { defaultSettings } from "@capsule/config";
-import { afterEach, expect, it, vi } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 import { createUsageHost } from "./usage-host.ts";
 
-afterEach(() => vi.unstubAllGlobals());
+const mocks = vi.hoisted(() => ({
+  poller: vi.fn(),
+  claude: vi.fn(() => ({ id: "claude" })),
+  codex: vi.fn(() => ({ id: "codex" })),
+  grok: vi.fn(() => ({ id: "grok" })),
+  demo: vi.fn((id: string) => ({ id, demo: true })),
+}));
+vi.mock("@capsule/usage", () => ({
+  createPoller: mocks.poller,
+  createClaudeProvider: mocks.claude,
+  createCodexProvider: mocks.codex,
+  createGrokProvider: mocks.grok,
+  createDemoProvider: mocks.demo,
+}));
+vi.mock("./store.ts", () => ({ loadBackoff: vi.fn(), saveBackoff: vi.fn() }));
+vi.mock("electron", () => ({ app: {}, powerMonitor: {} }));
+beforeEach(() => vi.clearAllMocks());
 
-it("keeps every refresh and settings path offline with no stale account numbers", async () => {
-  const fetch = vi.fn(() => {
-    throw new Error("Network access is forbidden");
-  });
-  const interval = vi.fn(() => {
-    throw new Error("Polling is forbidden");
-  });
-  vi.stubGlobal("fetch", fetch);
-  vi.stubGlobal("setInterval", interval);
-  let settings = { ...defaultSettings(), demoMode: false };
-  const host = createUsageHost(() => settings, vi.fn());
-  host.start();
-  await host.refresh();
-  for (const id of settings.enabledProviderIds) await host.refreshProvider(id);
-  expect(host.getSnapshots()).toHaveLength(3);
-  expect(
-    host
-      .getSnapshots()
-      .every(
-        (item) =>
-          item.status === "disabled" &&
-          item.primaryPercent === null &&
-          item.buckets.length === 0,
-      ),
-  ).toBe(true);
-  settings = { ...settings, demoMode: true };
-  host.sync();
-  expect(host.getSnapshots()[0]?.primaryPercent).toBe(73);
-  settings = { ...settings, demoMode: false };
-  host.sync();
-  expect(
-    host
-      .getSnapshots()
-      .every(
-        (item) => item.status === "disabled" && item.primaryPercent === null,
-      ),
-  ).toBe(true);
-  settings = { ...settings, enabledProviderIds: [] };
-  host.sync();
-  expect(host.getSnapshots()).toEqual([]);
-  host.stop();
-  expect(fetch).not.toHaveBeenCalled();
-  expect(interval).not.toHaveBeenCalled();
+it("connects the existing usage providers to the poller with activity-aware timing", () => {
+  const settings = { ...defaultSettings(), demoMode: false };
+  const isBusy = vi.fn(() => true);
+  createUsageHost(() => settings, vi.fn(), { isBusy });
+  expect(mocks.claude).toHaveBeenCalledOnce();
+  expect(mocks.codex).toHaveBeenCalledOnce();
+  expect(mocks.grok).toHaveBeenCalledOnce();
+  expect(mocks.demo).not.toHaveBeenCalled();
+  expect(mocks.poller).toHaveBeenCalledWith(
+    expect.objectContaining({
+      providers: [{ id: "claude" }, { id: "codex" }, { id: "grok" }],
+      isBusy,
+    }),
+  );
+});
+
+it("keeps demo mode entirely on sample providers", () => {
+  createUsageHost(() => ({ ...defaultSettings(), demoMode: true }), vi.fn());
+  expect(mocks.demo).toHaveBeenCalledTimes(3);
+  expect(mocks.claude).not.toHaveBeenCalled();
+  expect(mocks.codex).not.toHaveBeenCalled();
+  expect(mocks.grok).not.toHaveBeenCalled();
 });

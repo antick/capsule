@@ -2,9 +2,9 @@
 
 Project instructions for every agent working in this repository.
 
-## Account safety: usage access and chat suspended
+## Usage monitoring stays enabled; agent chat is suspended
 
-The user explicitly disabled account access and agent chat. Do not restore saved-credential reads, keychain access, token refreshes, provider account requests, or agent connections without new explicit user authorization. Keep chat source preserved but inactive; do not run its setup commands or live-provider tests. Local passive activity and sample demo data are allowed. Historical agent-panel plans do not authorize re-enabling the feature.
+The user clarified that only the added agent chat feature was to be disabled. Preserve the existing Claude, Codex, and Grok usage monitoring, percentage display, and refresh behavior. Do not interpret the chat suspension as authorization to disable usage monitoring. Keep chat source preserved but inactive; do not run its setup commands or live-provider chat tests. Passive activity notifications are additive and must not take over usage navigation. Do not claim the existing usage integrations carry a guarantee against account enforcement.
 
 ## Git: always auto-commit
 
