@@ -51,6 +51,7 @@ export {
 } from "./constants.ts";
 export type { Corner, CornerGeometry, CornerGrowth } from "./corner.ts";
 export {
+  CORNER_ARC_ENABLED,
   CORNERS,
   cornerAngle,
   cornerCapFor,

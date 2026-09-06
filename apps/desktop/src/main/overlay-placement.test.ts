@@ -26,7 +26,7 @@ it("does not infer a new corner from provider or size changes", () => {
   ).toBeNull();
 });
 
-it("recovers a saved corner at startup even if the old auto-hide restriction left it unset", () => {
+it("disables saved corners at startup without changing auto-hide", () => {
   const settings = {
     ...defaultSettings(),
     cornerArc: true,
@@ -34,7 +34,8 @@ it("recovers a saved corner at startup even if the old auto-hide restriction lef
   };
   expect(settingsForCornerToggle(null, settings, 3, monitor)).toMatchObject({
     autoHide: true,
-    customCorner: "top-right",
+    cornerArc: false,
+    customCorner: null,
   });
 });
 

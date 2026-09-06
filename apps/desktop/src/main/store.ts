@@ -91,6 +91,8 @@ function needsPersist(raw: unknown, settings: CapsuleSettings): boolean {
   return (
     input.schemaVersion !== settings.schemaVersion ||
     input.demoMode !== settings.demoMode ||
+    input.cornerArc !== settings.cornerArc ||
+    input.customCorner !== settings.customCorner ||
     JSON.stringify(input.enabledProviderIds) !==
       JSON.stringify(settings.enabledProviderIds)
   );

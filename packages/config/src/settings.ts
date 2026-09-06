@@ -8,7 +8,7 @@ import {
   PROVIDER_IDS,
   type ProviderId,
 } from "./constants.ts";
-import { CORNERS } from "./corner.ts";
+import { CORNER_ARC_ENABLED, CORNERS, type Corner } from "./corner.ts";
 import { DOCK_STYLE_IDS } from "./dock-style.ts";
 import { clampHudScale, HUD_SCALE } from "./metrics.ts";
 import { HUD_THEME_IDS } from "./theme.ts";
@@ -113,7 +113,11 @@ export const settingsSchema = z.preprocess(
       .catch("auto"),
     dockStyle: z.enum(DOCK_STYLE_IDS).default("rail").catch("rail"),
     /** Let the dock curl into a quarter arc when it reaches a screen corner. */
-    cornerArc: z.boolean().default(false).catch(false),
+    cornerArc: z
+      .boolean()
+      .default(false)
+      .catch(false)
+      .transform<boolean>((enabled) => CORNER_ARC_ENABLED && enabled),
     notificationPopups: z.boolean().default(true).catch(true),
     /** Rest as a latch in the screen edge until the pointer comes for it. */
     autoHide: z.boolean().default(true).catch(true),
@@ -124,7 +128,14 @@ export const settingsSchema = z.preprocess(
      * rather than worked out from the position, so a rail that grows a ring
      * never curls into a corner by itself.
      */
-    customCorner: z.enum(CORNERS).nullable().default(null).catch(null),
+    customCorner: z
+      .enum(CORNERS)
+      .nullable()
+      .default(null)
+      .catch(null)
+      .transform<Corner | null>((corner) =>
+        CORNER_ARC_ENABLED ? corner : null,
+      ),
     /**
      * Draw the top edge as a notch: centred, straight-sided, rounded underneath,
      * resting as a notch-sized tab in the menu bar. On a MacBook display it

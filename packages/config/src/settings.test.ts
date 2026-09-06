@@ -156,6 +156,21 @@ describe("usage display", () => {
 });
 
 describe("latch settings", () => {
+  it("clears saved corner settings while preserving normal dock preferences", () => {
+    const settings = {
+      ...defaultSettings(),
+      cornerArc: true,
+      customCorner: "bottom-right",
+      customPosition: { x: 1800, y: 900 },
+      autoHide: true,
+      notificationPopups: false,
+    };
+    expect(settingsSchema.parse(settings)).toMatchObject({
+      ...settings,
+      cornerArc: false,
+      customCorner: null,
+    });
+  });
   it("defaults to a normal hide delay and no remembered corner", () => {
     expect(defaultSettings().hideDelay).toBe("normal");
     expect(defaultSettings().customCorner).toBeNull();
@@ -166,7 +181,7 @@ describe("latch settings", () => {
     expect(
       settingsSchema.parse({ ...defaultSettings(), customCorner: "top-right" })
         .customCorner,
-    ).toBe("top-right");
+    ).toBeNull();
   });
 });
 

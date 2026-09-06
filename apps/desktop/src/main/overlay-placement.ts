@@ -1,6 +1,7 @@
 import {
   type CapsuleSettings,
   type ChromeSnapshot,
+  CORNER_ARC_ENABLED,
   type Corner,
   cardReserveHeight,
   computePlacement,
@@ -78,7 +79,7 @@ export function computeDockPlacement(input: {
 
 /** Auto-hide folds the corner band down without changing its placement. */
 export function curlsIntoCorners(settings: CapsuleSettings): boolean {
-  return settings.cornerArc;
+  return CORNER_ARC_ENABLED && settings.cornerArc;
 }
 
 /** Recover a parked corner on startup or an explicit off-to-on change. */
@@ -88,6 +89,8 @@ export function settingsForCornerToggle(
   meterCount: number,
   chrome: ChromeSnapshot,
 ): CapsuleSettings {
+  if (!CORNER_ARC_ENABLED)
+    return { ...next, cornerArc: false, customCorner: null };
   if (
     previous?.cornerArc ||
     !next.cornerArc ||

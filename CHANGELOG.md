@@ -2,6 +2,13 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Corner curves suspended
+
+### Changed
+
+- Removed Curl into corners from settings and disabled corner placement. Saved and incoming corner settings are cleared so startup, settings changes, and dragging cannot reactivate it.
+- Preserved the corner implementation for later. Regular edge placement, auto-hide, usage monitoring, and notifications remain available.
+
 ## Corner curves with auto-hide
 
 ### Fixed

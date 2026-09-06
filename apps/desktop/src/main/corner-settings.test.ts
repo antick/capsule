@@ -33,11 +33,12 @@ it.each([
   ["top-edge", 0, "top-left"],
   ["top-edge", 10000, "top-right"],
 ] as const)(
-  "curls an already parked %s dock at %i into %s",
+  "keeps a parked %s dock at %i straight despite a saved %s corner",
   async (preset, along, corner) => {
     const settings = {
       ...defaultSettings(),
       autoHide: true,
+      topEdgeNotch: false,
       placementPreset: preset as PlacementPreset,
       customPosition: { x: along, y: along },
     };
@@ -48,16 +49,21 @@ it.each([
       webContents: { send: vi.fn() },
     } as unknown as BrowserWindow;
     expect(controller.dockFrame().corner).toBeNull();
-    const saved = controller.setSettings({ ...settings, cornerArc: true });
-    expect(saved.customCorner).toBe(corner);
+    const saved = controller.setSettings({
+      ...settings,
+      cornerArc: true,
+      customCorner: corner,
+    });
+    expect(saved.customCorner).toBeNull();
+    expect(saved.cornerArc).toBe(false);
     expect(saved.autoHide).toBe(true);
     await controller.relayout();
-    expect(controller.dockFrame().corner).toBe(corner);
-    // Unrelated updates keep the chosen corner, and the notch cannot recenter it.
+    expect(controller.dockFrame().corner).toBeNull();
+    // Unrelated updates cannot reactivate the suspended feature.
     controller.setMeterCount(4);
     controller.setSettings({ ...saved, hudTheme: "midnight" });
     await controller.relayout();
-    expect(controller.dockFrame().corner).toBe(corner);
+    expect(controller.dockFrame().corner).toBeNull();
     expect(controller.dockFrame().hardwareNotch).toBeNull();
   },
 );

@@ -1,5 +1,6 @@
 import {
   COPY,
+  CORNER_ARC_ENABLED,
   clampHudScale,
   HIDE_DELAY_IDS,
   HIDE_DELAY_LABELS,
@@ -136,17 +137,21 @@ export function AppearancePage() {
             }
           />
         ) : null}
-        <Row
-          label={COPY.cornerArc}
-          hint={COPY.cornerArcHint}
-          control={
-            <Switch
-              aria-label={COPY.cornerArc}
-              checked={settings.cornerArc}
-              onCheckedChange={(checked) => void update({ cornerArc: checked })}
-            />
-          }
-        />
+        {CORNER_ARC_ENABLED ? (
+          <Row
+            label={COPY.cornerArc}
+            hint={COPY.cornerArcHint}
+            control={
+              <Switch
+                aria-label={COPY.cornerArc}
+                checked={settings.cornerArc}
+                onCheckedChange={(checked) =>
+                  void update({ cornerArc: checked })
+                }
+              />
+            }
+          />
+        ) : null}
       </Section>
 
       <Section title={COPY.dockSize} hint={COPY.dockSizeHint}>

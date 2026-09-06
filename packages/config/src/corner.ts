@@ -5,6 +5,9 @@ import type { Rect, ScreenEdge, SlideTrack } from "./placement.ts";
 
 export type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
+/** Corner curves are suspended; retain the implementation for later. */
+export const CORNER_ARC_ENABLED = false;
+
 export const CORNERS = [
   "top-left",
   "top-right",
