@@ -15,6 +15,11 @@ asarUnpack:
   - out/main/chunks/**
 mac:
   category: public.app-category.developer-tools
+  # Written from CHANGELOG.md by scripts/release-notes.mjs. electron-builder
+  # puts it in the GitHub release body and in latest-mac.yml, which is where
+  # Settings -> Updates reads "What's new" from.
+  releaseInfo:
+    releaseNotesFile: build/release-notes.md
   icon: build/icon.icns
   # Capsule is a menu-bar extra: no Dock tile, no window on launch.
   extendInfo:

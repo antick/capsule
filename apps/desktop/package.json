@@ -14,8 +14,8 @@
     "check": "biome check .",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
     "test": "vitest run",
-    "dist": "electron-vite build && electron-builder --mac --publish never",
-    "release": "electron-vite build && electron-builder --mac --publish always"
+    "dist": "node ../../scripts/release-notes.mjs && electron-vite build && electron-builder --mac --publish never",
+    "release": "node ../../scripts/release-notes.mjs && electron-vite build && electron-builder --mac --publish always"
   },
   "dependencies": {
     "@capsule/activity": "workspace:*",

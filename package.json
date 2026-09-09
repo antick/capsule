@@ -9,7 +9,7 @@
     "format": "turbo run format",
     "check": "turbo run check",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
+    "test": "turbo run test && node --test scripts/*.test.mjs",
     "dist": "pnpm --filter @capsule/desktop dist",
     "release:tag": "node scripts/tag-release.mjs"
   },

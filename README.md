@@ -76,15 +76,16 @@ Capsule lives in the menu bar, not the Dock. On first launch it parks itself on
 the right edge of your screen; right-click it or use the menu bar icon for
 **Settings**.
 
-Releases are not yet signed with an Apple Developer ID. macOS will refuse to
-open an unsigned download the first time:
+Releases are not yet signed with an Apple Developer ID, so macOS refuses to
+open the download the first time:
 
 1. Open **System Settings → Privacy & Security**
 2. Scroll to the message about Capsule being blocked, and click **Open Anyway**
 3. Confirm in the dialog that follows
 
 Until a release is signed, Capsule cannot replace itself in place — **Settings →
-Updates** says so and links to the release page instead of downloading.
+Updates** says so and links to the release page instead of downloading. See
+[docs/releasing.md](docs/releasing.md) for what signing involves.
 
 ## Updates
 
@@ -125,15 +126,16 @@ pnpm dist
 ## Cut a release
 
 1. Bump `version` in `apps/desktop/package.json`
-2. Add the release to `CHANGELOG.md`
+2. Add a `## <version>` section to `CHANGELOG.md`
 3. Commit both
 4. Run `pnpm release:tag`, then push the tag it prints
 
 Pushing the tag runs the Release workflow: it re-runs the checks, builds the
-arm64 and x64 apps, and publishes them to GitHub Releases. To sign and notarise
-those builds, add `MAC_CERTIFICATE`, `MAC_CERTIFICATE_PASSWORD`,
-`APPLE_API_KEY`, `APPLE_API_KEY_ID`, and `APPLE_API_ISSUER` as repository
-secrets; without them the build still publishes, unsigned.
+arm64 and x64 apps, and publishes them to GitHub Releases. The changelog section
+becomes both the release body and the "What's new" text in Settings → Updates.
+
+Signing the build — which is what lets Capsule install its own updates — is set
+up once, in [docs/releasing.md](docs/releasing.md).
 
 The native notification check runs after a build and uses temporary files and
 sample data. It does not contact provider accounts.

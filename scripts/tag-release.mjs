@@ -44,10 +44,17 @@ if (git("status", "--porcelain")) {
 
 const branch = git("rev-parse", "--abbrev-ref", "HEAD");
 if (branch !== "main") {
-  fail(
-    `Releases are cut from main; you are on ${branch}.`,
-    "git switch main",
-  );
+  fail(`Releases are cut from main; you are on ${branch}.`, "git switch main");
+}
+
+// Caught here rather than in CI: a missing changelog section costs nothing to
+// fix before the tag exists, and a re-tag once it does.
+try {
+  execFileSync("node", ["scripts/release-notes.mjs", "--check"], {
+    stdio: "inherit",
+  });
+} catch {
+  process.exit(1);
 }
 
 const existing = git("tag", "--list", tag);

@@ -17,3 +17,4 @@ test-results
 !.env.example
 routeTree.gen.ts
 release
+apps/desktop/build/release-notes.md
