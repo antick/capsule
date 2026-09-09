@@ -2,6 +2,16 @@
 
 All notable changes to Capsule are documented in this file.
 
+## README refresh
+
+### Added
+
+- Added real macOS captures of Capsule's dock and settings, taken from a temporary demo profile with provider requests blocked.
+
+### Changed
+
+- Replaced the short developer README with an original product overview, provider support table, honest data boundaries, local setup, checks, and project layout.
+
 ## Corner curves suspended
 
 ### Changed
