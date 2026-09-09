@@ -7,6 +7,7 @@ All notable changes to Capsule are documented in this file.
 ### Added
 
 - Added real macOS captures of Capsule's dock and settings, taken from a temporary demo profile with provider requests blocked.
+- Added a second settings capture covering themes, edge placement, auto-hide, and dock size.
 
 ### Changed
 

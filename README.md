@@ -27,6 +27,15 @@ of your Mac—visible when you need them and folded away when you do not.
   <img src="docs/images/capsule-hud.png" alt="Capsule dock showing Claude, Codex, and Grok demo usage" width="330">
 </p>
 
+## Make it yours
+
+Choose a theme, move Capsule to any screen edge, control when it folds away,
+and scale the whole dock from one place.
+
+<p align="center">
+  <img src="docs/images/capsule-settings-placement.png" alt="Capsule settings for themes, edge placement, auto-hide, and dock size" width="820">
+</p>
+
 ## Provider support
 
 | Provider | Usage | Activity notices | Local token totals |
