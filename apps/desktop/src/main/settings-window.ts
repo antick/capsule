@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import { APP_NAME, IPC } from "@capsule/config";
-import { app, BrowserWindow, shell } from "electron";
+import { app, BrowserWindow, nativeTheme, shell } from "electron";
 import { hideFromMacDock } from "./macos-dock.ts";
 import { rendererDevUrl, rendererHtml } from "./paths.ts";
 
@@ -45,15 +45,20 @@ export function openSettingsWindow(hash = "/"): BrowserWindow {
 
   const win = new BrowserWindow({
     title: `${APP_NAME} Settings`,
-    width: 820,
-    height: 700,
-    minWidth: 720,
-    minHeight: 560,
+    width: 940,
+    height: 740,
+    minWidth: 820,
+    minHeight: 600,
     show: false,
     skipTaskbar: true,
-    backgroundColor: "#0d0d0f",
+    // The sidebar is left unpainted so macOS's own material shows through it;
+    // the window therefore cannot carry an opaque colour of its own, and the
+    // content column paints the background instead.
+    backgroundColor: "#00000000",
+    vibrancy: "sidebar",
+    visualEffectState: "active",
     titleBarStyle: "hiddenInset",
-    trafficLightPosition: { x: 16, y: 18 },
+    trafficLightPosition: { x: 18, y: 20 },
     webPreferences: {
       // electron-vite rewrites this static join(__dirname) path in dev.
       preload: join(__dirname, "../preload/index.js"),
@@ -68,10 +73,20 @@ export function openSettingsWindow(hash = "/"): BrowserWindow {
     return { action: "deny" };
   });
 
+  // The page follows `prefers-color-scheme`, which Chromium only re-evaluates
+  // when the window is told the system appearance moved.
+  const onThemeChange = () => {
+    if (!win.isDestroyed()) {
+      win.setVibrancy("sidebar");
+    }
+  };
+  nativeTheme.on("updated", onThemeChange);
+
   // Registered before the load: ready-to-show fires during it, and a listener
   // attached afterwards misses the event and leaves the window hidden.
   win.once("ready-to-show", () => bringForward(win));
   win.on("closed", () => {
+    nativeTheme.off("updated", onThemeChange);
     if (settingsWindow === win) {
       settingsWindow = null;
     }

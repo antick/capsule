@@ -16,8 +16,44 @@ const settings = {
   hudScale: 1,
   hudTheme: "auto",
   dockStyle: "rail",
+  cornerArc: false,
+  autoHide: true,
+  notificationPopups: true,
+  autoUpdateCheck: true,
+  autoUpdateDownload: false,
+  hideDelay: "normal",
+  customCorner: null,
+  topEdgeNotch: true,
+  usageDisplay: "used",
   customPosition: { x: 100, y: 100 },
-  schemaVersion: 4,
+  schemaVersion: 7,
+};
+
+/**
+ * Which update phase the preview shows. Set `CAPSULE_PREVIEW_UPDATE` to any
+ * phase name to check that page's other states without a real release.
+ */
+const updatePhase = process.env.CAPSULE_PREVIEW_UPDATE ?? "available";
+const update = {
+  phase: updatePhase,
+  currentVersion: "0.1.0",
+  availableVersion: updatePhase === "current" ? null : "0.2.0",
+  releaseNotes:
+    updatePhase === "current"
+      ? null
+      : "• Settings has been rebuilt for light and dark.\n• Capsule can now update itself.",
+  checkedAt: new Date().toISOString(),
+  progress:
+    updatePhase === "downloading"
+      ? {
+          fraction: 0.42,
+          transferredBytes: 41 * 1024 * 1024,
+          totalBytes: 98 * 1024 * 1024,
+          bytesPerSecond: 3 * 1024 * 1024,
+        }
+      : null,
+  error: updatePhase === "error" ? "net::ERR_INTERNET_DISCONNECTED" : null,
+  canInstall: updatePhase !== "unsupported",
 };
 
 const bucket = (id, label, percentUsed) => ({
@@ -61,11 +97,20 @@ const snapshots = [
 const stub = `<script>
 const settings = ${JSON.stringify(settings)};
 const snapshots = ${JSON.stringify(snapshots)};
+const update = ${JSON.stringify(update)};
 window.capsule = {
   getSettings: async () => settings,
   setSettings: async (next) => Object.assign(settings, next),
   getSnapshots: async () => ({ snapshots, settings }),
   onSnapshots: (fn) => { fn(snapshots, settings); return () => {}; },
+  onNavigate: () => () => {},
+  onUpdate: (fn) => { fn(update); return () => {}; },
+  getUpdate: async () => update,
+  checkForUpdate: async () => {},
+  downloadUpdate: async () => {},
+  installUpdate: () => {},
+  openReleasePage: () => {},
+  revealDock: () => {},
   openSettings: async () => {},
   quit: async () => {},
   setPointerCapture: () => {},

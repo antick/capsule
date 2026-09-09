@@ -11,6 +11,8 @@ import {
   type ProviderId,
   type Rect,
   type TokenUsageByProvider,
+  UPDATE_IPC,
+  type UpdateState,
   type UsageSnapshot,
 } from "@capsule/config";
 import { contextBridge, ipcRenderer } from "electron";
@@ -69,6 +71,15 @@ export interface CapsuleBridge {
   setKeepOpen: (keepOpen: boolean) => void;
   /** Whether the dock is being held out, now and whenever that changes. */
   onKeepOpen: (listener: (keepOpen: boolean) => void) => () => void;
+  /** How an update stands, now and whenever main moves it on. */
+  onUpdate: (listener: (state: UpdateState) => void) => () => void;
+  getUpdate: () => Promise<UpdateState>;
+  checkForUpdate: () => Promise<void>;
+  downloadUpdate: () => Promise<void>;
+  /** Restart into the version that has already been staged. */
+  installUpdate: () => void;
+  /** Open this version's release page in the browser. */
+  openReleasePage: () => void;
   startMove: (screenX: number, screenY: number) => void;
   endMove: () => Promise<void>;
   showContextMenu: () => void;
@@ -203,6 +214,25 @@ const capsule: CapsuleBridge = {
     return () => {
       ipcRenderer.off(IPC.keepOpen, handler);
     };
+  },
+  onUpdate: (listener) => {
+    const handler = (_event: unknown, state: UpdateState) => listener(state);
+    ipcRenderer.on(UPDATE_IPC.changed, handler);
+    void ipcRenderer
+      .invoke(UPDATE_IPC.get)
+      .then((state: UpdateState) => listener(state));
+    return () => {
+      ipcRenderer.off(UPDATE_IPC.changed, handler);
+    };
+  },
+  getUpdate: () => ipcRenderer.invoke(UPDATE_IPC.get),
+  checkForUpdate: () => ipcRenderer.invoke(UPDATE_IPC.check),
+  downloadUpdate: () => ipcRenderer.invoke(UPDATE_IPC.download),
+  installUpdate: () => {
+    ipcRenderer.send(UPDATE_IPC.install);
+  },
+  openReleasePage: () => {
+    ipcRenderer.send(UPDATE_IPC.openRelease);
   },
   startMove: (screenX, screenY) => {
     ipcRenderer.send(IPC.startMove, screenX, screenY);

@@ -14,7 +14,7 @@ export function Segmented<T extends string>({
   label: string;
 }): ReactElement {
   return (
-    <fieldset className="m-0 inline-flex rounded-lg border border-shell-line bg-shell-raised p-0.5">
+    <fieldset className="m-0 inline-flex gap-0.5 rounded-[10px] border border-shell-line bg-shell-raised p-[3px]">
       <legend className="sr-only">{label}</legend>
       {options.map((option) => {
         const selected = option.value === value;
@@ -25,10 +25,10 @@ export function Segmented<T extends string>({
             aria-pressed={selected}
             onClick={() => onChange(option.value)}
             className={cn(
-              "rounded-md border px-3 py-1 text-sm transition-colors",
+              "rounded-[7px] px-2.5 py-1 text-[12.5px] transition-[background-color,color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shell-accent-line",
               selected
-                ? "border-shell-accent/60 bg-shell-accent/10 text-shell-text"
-                : "border-transparent text-shell-muted hover:text-shell-text",
+                ? "bg-shell-panel font-medium text-shell-text shadow-sm"
+                : "text-shell-muted hover:text-shell-text",
             )}
           >
             {option.label}

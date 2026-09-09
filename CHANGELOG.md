@@ -2,6 +2,26 @@
 
 All notable changes to Capsule are documented in this file.
 
+## 0.1.0 — first release
+
+### Added
+
+- Capsule is now released as a signed-capable macOS build. `pnpm release:tag` cuts the tag from the version in `apps/desktop/package.json`, and pushing that tag builds arm64 and x64 DMGs and zips and publishes them to GitHub Releases.
+- Added an Updates page in Settings: current version, a manual check, release notes, download progress, and a restart-and-install button. Automatic checking runs on launch and once a day; background downloading is available and off by default.
+- Added "Check for Updates…" to the menu bar and tray menus. It becomes "Restart to Update" once a release has been downloaded.
+- Added an app icon drawn from the dock itself — three usage rings in a capsule rail.
+
+### Changed
+
+- Rebuilt the settings window. It now follows the macOS appearance in both light and dark, with a vibrant sidebar carrying icons, the running version, and a live update status; pages open with a title and a one-line description; and settings sit in cards rather than one long list.
+- Split Appearance into Dock style, Theme, Dock size, Placement, and Behaviour, and split General into Usage readings and System.
+- Usage percentages in Settings now use tones that stay readable on a white panel. The dock's own severity colours are unchanged.
+
+### Fixed
+
+- An update check that cannot reach GitHub now reports the failure instead of showing "Checking…" until the app is restarted.
+
+
 ## README refresh
 
 ### Added

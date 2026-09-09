@@ -16,3 +16,4 @@ test-results
 .env.*
 !.env.example
 routeTree.gen.ts
+release

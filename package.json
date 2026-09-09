@@ -9,11 +9,14 @@
     "format": "turbo run format",
     "check": "turbo run check",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "dist": "pnpm --filter @capsule/desktop dist",
+    "release:tag": "node scripts/tag-release.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.9",
     "turbo": "2.10.11",
     "typescript": "5.9.3"
-  }
+  },
+  "version": "0.1.0"
 }

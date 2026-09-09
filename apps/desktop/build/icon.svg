@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Capsule</title>
+  <defs>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#26262e"/>
+      <stop offset="1" stop-color="#08080a"/>
+    </linearGradient>
+    <linearGradient id="rail" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#131318"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="228" fill="url(#plate)"/>
+  <rect x="1" y="1" width="1022" height="1022" rx="227" fill="none" stroke="#3a3a46" stroke-width="2"/>
+  <rect x="356" y="146" width="312" height="732" rx="156" fill="url(#rail)"/>
+  <g fill="none" stroke-linecap="round">
+    <circle cx="512" cy="322" r="88" stroke="#2e2e34" stroke-width="26"/>
+    <circle cx="512" cy="512" r="88" stroke="#2e2e34" stroke-width="26"/>
+    <circle cx="512" cy="702" r="88" stroke="#2e2e34" stroke-width="26"/>
+    <path d="M512 234 A88 88 0 1 1 424.69 333.03" stroke="#FA4405" stroke-width="26"/>
+    <path d="M512 424 A88 88 0 0 1 597.24 490.12" stroke="#00F58A" stroke-width="26"/>
+    <path d="M512 614 A88 88 0 1 1 500.97 789.31" stroke="#E8F50A" stroke-width="26"/>
+  </g>
+</svg>

@@ -10,8 +10,8 @@ import {
   railLengthForCount,
 } from "@capsule/config";
 import { blobLayout, railPath } from "@capsule/hud";
-import { cn } from "@capsule/ui";
 import type { ReactElement } from "react";
+import { OptionCard } from "./section.tsx";
 
 const METRICS = hudMetrics(HUD_SCALE.min);
 // Drawn lying along an edge, which is the shape of the tile it sits in.
@@ -59,30 +59,21 @@ export function StylePicker({
     <div className="grid grid-cols-3 gap-2">
       {DOCK_STYLE_IDS.map((id) => {
         const style = DOCK_STYLES[id];
-        const selected = value === id;
         return (
-          <button
+          <OptionCard
             key={id}
-            type="button"
-            aria-pressed={selected}
+            selected={value === id}
+            label={style.label}
+            hint={style.hint}
             onClick={() => onChange(id)}
-            className={cn(
-              "rounded-lg border p-3 text-left transition-colors",
-              selected
-                ? "border-shell-accent/60 bg-shell-accent/10"
-                : "border-shell-line bg-shell-panel hover:bg-shell-raised",
-            )}
           >
-            <span className="relative block h-16 overflow-hidden rounded-md bg-gradient-to-br from-[#5c6b74] to-[#333a44]">
+            <span
+              className="relative block h-[70px] overflow-hidden rounded-lg"
+              style={{ background: "var(--shell-screen)" }}
+            >
               <Silhouette style={style} />
             </span>
-            <span className="mt-2.5 block text-sm font-medium">
-              {style.label}
-            </span>
-            <span className="mt-0.5 block text-xs leading-snug text-shell-muted">
-              {style.hint}
-            </span>
-          </button>
+          </OptionCard>
         );
       })}
     </div>

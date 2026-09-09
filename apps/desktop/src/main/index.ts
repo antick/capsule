@@ -13,6 +13,8 @@ import {
   type Rect,
   settingsSchema,
   type TokenUsageByProvider,
+  UPDATE_IPC,
+  type UpdateState,
   type UsageSnapshot,
 } from "@capsule/config";
 import { app, BrowserWindow, ipcMain, powerMonitor, screen } from "electron";
@@ -31,6 +33,7 @@ import {
   saveSettings,
   saveTokenCache,
 } from "./store.ts";
+import { createUpdater } from "./updater.ts";
 import { createUsageHost } from "./usage-host.ts";
 
 app.setName(APP_NAME);
@@ -65,6 +68,16 @@ const broadcastActivity = () => {
     win.webContents.send(IPC.activity, activity);
   }
 };
+
+const updater = createUpdater({
+  getSettings: () => settings,
+  onChange: (state: UpdateState) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      win.webContents.send(UPDATE_IPC.changed, state);
+    }
+    appChrome?.sync(settings);
+  },
+});
 
 // The token scanner's cache lives in the readings store; the host itself is
 // kept free of the store so it can be exercised without Electron around.
@@ -127,6 +140,7 @@ function setKeepOpen(next: boolean): void {
 function applySettings(next: CapsuleSettings): CapsuleSettings {
   const demoChanged = next.demoMode !== settings.demoMode;
   const pollChanged = next.pollIntervalMs !== settings.pollIntervalMs;
+  const autoCheckChanged = next.autoUpdateCheck !== settings.autoUpdateCheck;
   settings = saveSettings(overlay.setSettings(settingsSchema.parse(next)));
   app.setLoginItemSettings({ openAtLogin: settings.launchAtLogin });
   // Always shown, the dock is already held out by a setting; a hand-made
@@ -141,6 +155,9 @@ function applySettings(next: CapsuleSettings): CapsuleSettings {
     // rather than after the next round of network calls returns.
     poller.sync();
     void poller.refresh();
+  }
+  if (autoCheckChanged) {
+    updater.syncSchedule();
   }
   void monitor.rescan();
   void tokenScanner.rescan();
@@ -185,6 +202,12 @@ app.whenReady().then(async () => {
     revealDock: () => overlay.reveal(),
     getKeepOpen: () => keepOpen,
     toggleKeepOpen: () => setKeepOpen(!keepOpen),
+    getUpdate: () => updater.state(),
+    checkForUpdates: () => {
+      void updater.check(true);
+      openSettingsWindow("/updates");
+    },
+    installUpdate: () => updater.install(),
     quit: () => app.quit(),
   });
 
@@ -259,6 +282,15 @@ app.whenReady().then(async () => {
       return;
     overlay.window.webContents.send(NOTICE_IPC.changed, notices.dismiss(id));
   });
+  ipcMain.handle(UPDATE_IPC.get, () => updater.state());
+  ipcMain.handle(UPDATE_IPC.check, () => updater.check(true));
+  ipcMain.handle(UPDATE_IPC.download, () => updater.download());
+  ipcMain.on(UPDATE_IPC.install, () => {
+    updater.install();
+  });
+  ipcMain.on(UPDATE_IPC.openRelease, () => {
+    updater.openReleasePage();
+  });
   ipcMain.handle(IPC.getKeepOpen, () => keepOpen);
   ipcMain.on(IPC.setKeepOpen, (_event, next: boolean) => {
     setKeepOpen(next === true);
@@ -280,6 +312,7 @@ app.whenReady().then(async () => {
   hideFromMacDock();
   monitor.start();
   tokenScanner.start();
+  updater.start();
   poller.start();
   await poller.refresh();
   broadcast();
@@ -322,6 +355,7 @@ app.whenReady().then(async () => {
     poller.stop();
     monitor.stop();
     tokenScanner.stop();
+    updater.stop();
     overlay.destroy();
   });
 });

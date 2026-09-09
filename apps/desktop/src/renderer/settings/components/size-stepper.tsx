@@ -103,12 +103,12 @@ export function SizeStepper({
         </div>
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-shell-line bg-shell-raised shadow-sm transition-transform group-hover:scale-110 group-focus-visible:ring-2 group-focus-visible:ring-shell-accent"
+          className="pointer-events-none absolute top-1/2 h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-shell-line-strong bg-shell-panel shadow-[0_1px_3px_rgb(0_0_0/0.25)] transition-transform group-hover:scale-110 group-focus-visible:ring-2 group-focus-visible:ring-shell-accent-line"
           style={{ left: `${filled}%` }}
         />
       </div>
 
-      <span className="w-12 text-right text-sm tabular-nums text-shell-muted">
+      <span className="w-12 text-right text-[13px] font-medium tabular-nums text-shell-muted">
         {Math.round(value * 100)}%
       </span>
 
@@ -142,10 +142,10 @@ function StepButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-lg leading-none transition-colors",
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-lg leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shell-accent-line",
         disabled
-          ? "cursor-not-allowed border-shell-line/60 text-shell-muted/40"
-          : "border-shell-line bg-shell-raised text-shell-text hover:border-shell-accent/60 hover:text-shell-accent active:scale-95",
+          ? "cursor-not-allowed border-shell-line text-shell-faint/50"
+          : "border-shell-line-strong bg-shell-panel text-shell-text shadow-sm hover:border-shell-accent hover:text-shell-accent active:scale-95",
       )}
     >
       {children}

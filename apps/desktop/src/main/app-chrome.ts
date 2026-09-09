@@ -5,6 +5,8 @@ import {
   PLACEMENT_LABELS,
   PLACEMENT_PRESETS,
   type PlacementPreset,
+  UPDATE_COPY,
+  type UpdateState,
 } from "@capsule/config";
 import { Menu, type MenuItemConstructorOptions, Tray } from "electron";
 import { hideFromMacDock } from "./macos-dock.ts";
@@ -18,7 +20,30 @@ export interface AppChromeHandlers {
   /** Whether an auto-hiding dock is being held out right now. */
   getKeepOpen: () => boolean;
   toggleKeepOpen: () => void;
+  getUpdate: () => UpdateState;
+  checkForUpdates: () => void;
+  installUpdate: () => void;
   quit: () => void;
+}
+
+/**
+ * One item that changes its job: it offers the restart while a download is
+ * waiting, and otherwise offers to look. Two items would leave a dead
+ * "Check for Updates" sitting beside an update that is already in hand.
+ */
+function updateItem(handlers: AppChromeHandlers): MenuItemConstructorOptions {
+  const state = handlers.getUpdate();
+  if (state.phase === "ready") {
+    return {
+      label: UPDATE_COPY.menuReady,
+      click: () => handlers.installUpdate(),
+    };
+  }
+  return {
+    label: UPDATE_COPY.menuCheck,
+    enabled: state.phase !== "checking" && state.phase !== "downloading",
+    click: () => handlers.checkForUpdates(),
+  };
 }
 
 /**
@@ -96,6 +121,7 @@ export function capsuleCommandTemplate(
       label: COPY.position,
       submenu: placementTemplate(settings.placementPreset, handlers),
     },
+    updateItem(handlers),
     { type: "separator" },
     {
       label: COPY.quit,
@@ -113,6 +139,7 @@ function applicationMenuTemplate(
       label: APP_NAME,
       submenu: [
         { role: "about" },
+        updateItem(handlers),
         { type: "separator" },
         {
           label: COPY.showDock,

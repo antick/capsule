@@ -20,7 +20,7 @@ describe("migrateSettings", () => {
     );
     expect(migrated.enabledProviderIds).toEqual(["claude", "codex", "grok"]);
     expect(migrated.demoMode).toBe(false);
-    expect(migrated.schemaVersion).toBe(6);
+    expect(migrated.schemaVersion).toBe(7);
   });
 
   it("sorts the enabled providers so the dock cannot re-shuffle itself", () => {

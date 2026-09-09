@@ -145,7 +145,11 @@ export {
   settingsSchema,
   USAGE_DISPLAYS,
 } from "./settings.ts";
-export { severityForPercent } from "./severity.ts";
+export {
+  SEVERITY_TONES,
+  severityForPercent,
+  severityTone,
+} from "./severity.ts";
 export { edgeAffinity, nearestEdgeForPoint, slideAlongEdge } from "./snap.ts";
 export type {
   HudAppearance,
@@ -161,6 +165,32 @@ export {
 } from "./theme.ts";
 export type { TokenUsage, TokenUsageByProvider } from "./tokens.ts";
 export { dayKey, formatCompactCount, startOfDay, TOKENS } from "./tokens.ts";
+export type {
+  UpdatePhase,
+  UpdateProgress,
+  UpdateState,
+  UpdateTone,
+} from "./updates.ts";
+export {
+  APP_REPO,
+  canCheckForUpdates,
+  formatBytes,
+  formatProgress,
+  initialUpdateState,
+  plainReleaseNotes,
+  RELEASES_URL,
+  releaseUrlFor,
+  UPDATE_COPY,
+  UPDATE_IPC,
+  UPDATE_PHASES,
+  UPDATE_SHORT_LABELS,
+  UPDATE_TIMING,
+  UPDATE_TONES,
+  updateDetail,
+  updateShortLabel,
+  updateTitle,
+  updateTone,
+} from "./updates.ts";
 export type {
   UsageBucket,
   UsageSnapshot,

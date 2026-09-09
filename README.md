@@ -65,10 +65,37 @@ Activity notices are passive. Capsule does not install hooks, send prompts,
 approve actions, or control an agent. The experimental agent chat source is
 kept in the repository but is not started, built, or exposed in the app.
 
+## Install
+
+Download the latest `.dmg` from
+[Releases](https://github.com/antick/capsule/releases), open it, and drag
+Capsule to Applications. Pick the `arm64` build for Apple silicon and the
+`x64` build for Intel Macs.
+
+Capsule lives in the menu bar, not the Dock. On first launch it parks itself on
+the right edge of your screen; right-click it or use the menu bar icon for
+**Settings**.
+
+Releases are not yet signed with an Apple Developer ID. macOS will refuse to
+open an unsigned download the first time:
+
+1. Open **System Settings → Privacy & Security**
+2. Scroll to the message about Capsule being blocked, and click **Open Anyway**
+3. Confirm in the dialog that follows
+
+Until a release is signed, Capsule cannot replace itself in place — **Settings →
+Updates** says so and links to the release page instead of downloading.
+
+## Updates
+
+**Settings → Updates** shows the running version, checks GitHub Releases for a
+newer one, and installs it with a restart. Capsule checks on launch and once a
+day; turn that off, or turn on background downloading, on the same page. The
+check sends nothing but the request for the release feed.
+
 ## Run it locally
 
-Capsule currently runs from source and requires macOS, Node.js 22 or newer,
-and pnpm 11.25.0.
+Capsule requires macOS, Node.js 22 or newer, and pnpm 11.25.0.
 
 ```bash
 pnpm install --frozen-lockfile
@@ -87,6 +114,26 @@ pnpm typecheck
 pnpm test
 pnpm build
 ```
+
+Build an installable app without publishing it — the DMGs and zips land in
+`apps/desktop/release`:
+
+```bash
+pnpm dist
+```
+
+## Cut a release
+
+1. Bump `version` in `apps/desktop/package.json`
+2. Add the release to `CHANGELOG.md`
+3. Commit both
+4. Run `pnpm release:tag`, then push the tag it prints
+
+Pushing the tag runs the Release workflow: it re-runs the checks, builds the
+arm64 and x64 apps, and publishes them to GitHub Releases. To sign and notarise
+those builds, add `MAC_CERTIFICATE`, `MAC_CERTIFICATE_PASSWORD`,
+`APPLE_API_KEY`, `APPLE_API_KEY_ID`, and `APPLE_API_ISSUER` as repository
+secrets; without them the build still publishes, unsigned.
 
 The native notification check runs after a build and uses temporary files and
 sample data. It does not contact provider accounts.

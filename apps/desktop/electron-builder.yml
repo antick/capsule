@@ -1,0 +1,53 @@
+appId: com.antick.capsule
+productName: Capsule
+copyright: Capsule contributors
+directories:
+  buildResources: build
+  output: release
+files:
+  - out/**
+  - resources/**
+  - package.json
+# Loaded from disk at run time by the main process, so they cannot be packed
+# inside the asar archive.
+asarUnpack:
+  - out/main/channel-entry.js
+  - out/main/chunks/**
+mac:
+  category: public.app-category.developer-tools
+  icon: build/icon.icns
+  # Capsule is a menu-bar extra: no Dock tile, no window on launch.
+  extendInfo:
+    LSUIElement: true
+  target:
+    # electron-updater installs from the zip; the dmg is what people download
+    # the first time.
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+    - target: zip
+      arch:
+        - arm64
+        - x64
+  # Capsule reads local session files the tools on the Mac already keep, so it
+  # cannot run inside the sandbox the hardened runtime alone would not impose.
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+dmg:
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  contents:
+    - x: 140
+      y: 190
+      type: file
+    - x: 400
+      y: 190
+      type: link
+      path: /Applications
+publish:
+  provider: github
+  owner: antick
+  repo: capsule
+  releaseType: release

@@ -5,14 +5,14 @@ import {
   type HudTheme,
   type HudThemeSetting,
 } from "@capsule/config";
-import { cn } from "@capsule/ui";
 import type { ReactElement } from "react";
+import { OptionCard } from "./section.tsx";
 
 /** A miniature of the dock's own surface, rings and type in each palette. */
 function Swatch({ theme }: { theme: HudTheme }): ReactElement {
   return (
     <span
-      className="flex h-9 w-14 shrink-0 items-center justify-center gap-1 rounded-lg"
+      className="flex h-10 w-16 shrink-0 items-center justify-center gap-1 rounded-lg"
       style={{
         background: theme.surface,
         boxShadow: `inset 0 0 0 1px ${theme.surfaceEdge}`,
@@ -37,7 +37,7 @@ function Swatch({ theme }: { theme: HudTheme }): ReactElement {
 /** The auto option needs to show both halves of the pair it switches between. */
 function AutoSwatch(): ReactElement {
   return (
-    <span className="flex h-9 w-14 shrink-0 overflow-hidden rounded-lg">
+    <span className="flex h-10 w-16 shrink-0 overflow-hidden rounded-lg ring-1 ring-inset ring-shell-line-strong">
       <span
         className="h-full w-1/2"
         style={{ background: HUD_THEMES.porcelain.surface }}
@@ -79,31 +79,18 @@ export function ThemePicker({
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      {options.map((option) => {
-        const selected = value === option.id;
-        return (
-          <button
-            key={option.id}
-            type="button"
-            aria-pressed={selected}
-            onClick={() => onChange(option.id)}
-            className={cn(
-              "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors",
-              selected
-                ? "border-shell-accent/60 bg-shell-accent/10"
-                : "border-shell-line bg-shell-panel hover:bg-shell-raised",
-            )}
-          >
-            {option.swatch}
-            <span className="min-w-0">
-              <span className="block text-sm font-medium">{option.label}</span>
-              <span className="mt-0.5 block text-xs leading-snug text-shell-muted">
-                {option.hint}
-              </span>
-            </span>
-          </button>
-        );
-      })}
+      {options.map((option) => (
+        <OptionCard
+          key={option.id}
+          layout="inline"
+          selected={value === option.id}
+          label={option.label}
+          hint={option.hint}
+          onClick={() => onChange(option.id)}
+        >
+          {option.swatch}
+        </OptionCard>
+      ))}
     </div>
   );
 }

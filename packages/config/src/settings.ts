@@ -13,7 +13,7 @@ import { DOCK_STYLE_IDS } from "./dock-style.ts";
 import { clampHudScale, HUD_SCALE } from "./metrics.ts";
 import { HUD_THEME_IDS } from "./theme.ts";
 
-const SCHEMA_VERSION = 6;
+const SCHEMA_VERSION = 7;
 
 export const USAGE_DISPLAYS = ["used", "remaining"] as const;
 export type UsageDisplay = (typeof USAGE_DISPLAYS)[number];
@@ -119,6 +119,14 @@ export const settingsSchema = z.preprocess(
       .catch(false)
       .transform<boolean>((enabled) => CORNER_ARC_ENABLED && enabled),
     notificationPopups: z.boolean().default(true).catch(true),
+    /** Look for a newer release on launch, and once a day after that. */
+    autoUpdateCheck: z.boolean().default(true).catch(true),
+    /**
+     * Fetch a found release straight away, so installing it is only a restart.
+     * Off by default: downloading a hundred megabytes unasked is not a thing
+     * a menu-bar app should decide for you.
+     */
+    autoUpdateDownload: z.boolean().default(false).catch(false),
     /** Rest as a latch in the screen edge until the pointer comes for it. */
     autoHide: z.boolean().default(true).catch(true),
     /** How long that latch waits after the pointer leaves before folding. */
@@ -174,6 +182,8 @@ export function defaultSettings(): CapsuleSettings {
     cornerArc: false,
     autoHide: true,
     notificationPopups: true,
+    autoUpdateCheck: true,
+    autoUpdateDownload: false,
     hideDelay: "normal",
     customCorner: null,
     topEdgeNotch: true,

@@ -6,29 +6,31 @@ import {
   HIDE_DELAY_LABELS,
 } from "@capsule/config";
 import { Button, Switch } from "@capsule/ui";
+import type { ReactElement } from "react";
 import { DockPreview } from "../components/dock-preview.tsx";
 import { PlacementPicker } from "../components/placement-picker.tsx";
-import { Row, Section } from "../components/section.tsx";
+import { PageHeader, Row, Section } from "../components/section.tsx";
 import { Segmented } from "../components/segmented.tsx";
+import { SizeStepper } from "../components/size-stepper.tsx";
+import { StylePicker } from "../components/style-picker.tsx";
+import { ThemePicker } from "../components/theme-picker.tsx";
+import { useCapsuleSettings } from "../use-settings.ts";
 
 const HIDE_DELAY_OPTIONS = HIDE_DELAY_IDS.map((id) => ({
   value: id,
   label: HIDE_DELAY_LABELS[id],
 }));
 
-import { SizeStepper } from "../components/size-stepper.tsx";
-import { StylePicker } from "../components/style-picker.tsx";
-import { ThemePicker } from "../components/theme-picker.tsx";
-import { useCapsuleSettings } from "../use-settings.ts";
-
-export function AppearancePage() {
+export function AppearancePage(): ReactElement | null {
   const { settings, snapshots, update } = useCapsuleSettings();
   if (!settings) {
     return null;
   }
   return (
     <>
-      <Section title={COPY.preview}>
+      <PageHeader title={COPY.appearance} description={COPY.appearanceHint} />
+
+      <Section padded={false}>
         <DockPreview
           preset={settings.placementPreset}
           scale={settings.hudScale}
@@ -49,6 +51,13 @@ export function AppearancePage() {
         <ThemePicker
           value={settings.hudTheme}
           onChange={(hudTheme) => void update({ hudTheme })}
+        />
+      </Section>
+
+      <Section title={COPY.dockSize} hint={COPY.dockSizeHint}>
+        <SizeStepper
+          value={settings.hudScale}
+          onChange={(scale) => void update({ hudScale: clampHudScale(scale) })}
         />
       </Section>
 
@@ -81,6 +90,9 @@ export function AppearancePage() {
             })
           }
         />
+      </Section>
+
+      <Section title={COPY.behaviour} hint={COPY.behaviourHint}>
         <Row
           label={COPY.autoHide}
           hint={COPY.autoHideHint}
@@ -152,13 +164,6 @@ export function AppearancePage() {
             }
           />
         ) : null}
-      </Section>
-
-      <Section title={COPY.dockSize} hint={COPY.dockSizeHint}>
-        <SizeStepper
-          value={settings.hudScale}
-          onChange={(scale) => void update({ hudScale: clampHudScale(scale) })}
-        />
       </Section>
     </>
   );

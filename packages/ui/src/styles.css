@@ -7,14 +7,87 @@
  */
 @source "./";
 
-@theme {
-  --color-shell-base: #0d0d0f;
-  --color-shell-panel: #16161a;
-  --color-shell-raised: #1e1e24;
-  --color-shell-line: #2a2a32;
-  --color-shell-text: #f4f4f5;
-  --color-shell-muted: #8b8b96;
-  --color-shell-accent: #00f58a;
+/*
+ * Two palettes, one set of names. Utilities resolve the raw custom property at
+ * use time (`@theme inline`), so swapping the values below swaps every
+ * `bg-shell-*` and `text-shell-*` in the app without a second class name.
+ * The window follows macOS, the way a native settings window does.
+ */
+@theme inline {
+  --color-shell-base: var(--shell-base);
+  --color-shell-panel: var(--shell-panel);
+  --color-shell-raised: var(--shell-raised);
+  --color-shell-hover: var(--shell-hover);
+  --color-shell-line: var(--shell-line);
+  --color-shell-line-strong: var(--shell-line-strong);
+  --color-shell-text: var(--shell-text);
+  --color-shell-muted: var(--shell-muted);
+  --color-shell-faint: var(--shell-faint);
+  --color-shell-accent: var(--shell-accent);
+  --color-shell-accent-soft: var(--shell-accent-soft);
+  --color-shell-accent-line: var(--shell-accent-line);
+  --color-shell-on-accent: var(--shell-on-accent);
+  --color-shell-warn: var(--shell-warn);
+  --color-shell-danger: var(--shell-danger);
+}
+
+/* Light is the base declaration, so no colour is defined only inside a query. */
+:root {
+  color-scheme: light dark;
+
+  --shell-base: #f4f4f6;
+  --shell-panel: #ffffff;
+  --shell-raised: #f1f1f4;
+  --shell-hover: #e7e7ed;
+  --shell-line: #e3e3e9;
+  --shell-line-strong: #cdcdd6;
+  --shell-text: #17171c;
+  --shell-muted: #62626d;
+  --shell-faint: #8d8d98;
+  --shell-accent: #00a25c;
+  --shell-accent-soft: rgb(0 162 92 / 0.1);
+  --shell-accent-line: rgb(0 162 92 / 0.4);
+  --shell-on-accent: #ffffff;
+  --shell-warn: #a96a00;
+  --shell-danger: #c02a1c;
+
+  /* Sits behind the sidebar wherever macOS vibrancy is not painting it. */
+  --shell-sidebar: rgb(255 255 255 / 0.45);
+  --shell-shadow-card:
+    0 1px 2px rgb(16 16 24 / 0.05), 0 8px 24px rgb(16 16 24 / 0.06);
+  --shell-shadow-pop:
+    0 2px 6px rgb(16 16 24 / 0.1), 0 16px 40px rgb(16 16 24 / 0.14);
+  /* The stand-in desktop inside the placement and dock-style previews. */
+  --shell-screen: linear-gradient(160deg, #97a2ae, #59626f);
+  --shell-screen-glow: linear-gradient(150deg, #d3d8e4, #98a1b4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shell-base: #0b0b0e;
+    --shell-panel: #141418;
+    --shell-raised: #1c1c22;
+    --shell-hover: #24242c;
+    --shell-line: #292932;
+    --shell-line-strong: #3a3a46;
+    --shell-text: #f2f2f5;
+    --shell-muted: #90909c;
+    --shell-faint: #6a6a76;
+    --shell-accent: #00f58a;
+    --shell-accent-soft: rgb(0 245 138 / 0.12);
+    --shell-accent-line: rgb(0 245 138 / 0.45);
+    --shell-on-accent: #06120c;
+    --shell-warn: #e8b13c;
+    --shell-danger: #ff5f52;
+
+    --shell-sidebar: rgb(16 16 20 / 0.5);
+    --shell-shadow-card:
+      0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px rgb(0 0 0 / 0.35);
+    --shell-shadow-pop:
+      0 2px 8px rgb(0 0 0 / 0.5), 0 20px 50px rgb(0 0 0 / 0.5);
+    --shell-screen: linear-gradient(160deg, #5c6b74, #333a44);
+    --shell-screen-glow: radial-gradient(circle at 50% 0%, #26262f, #0f0f13);
+  }
 }
 
 html,
@@ -28,9 +101,19 @@ body {
   margin: 0;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-  background: var(--color-shell-base);
-  color: var(--color-shell-text);
+  background: var(--shell-base);
+  color: var(--shell-text);
   -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * With macOS vibrancy behind the window the page itself must not paint over
+ * the material: the content column paints its own background and everything
+ * behind the sidebar stays clear.
+ */
+body.shell-vibrant,
+body.shell-vibrant #root {
+  background: transparent;
 }
 
 /* The settings window is frameless, so the header doubles as the title bar. */
@@ -40,6 +123,25 @@ body {
 
 .drag-region button,
 .drag-region a,
-.drag-region input {
+.drag-region input,
+.drag-region select {
   -webkit-app-region: no-drag;
+}
+
+/*
+ * Tailwind's transition utilities are class-level, so nothing but `!important`
+ * on a universal selector can stand them down. The dock's own stylesheet does
+ * the same for the same reason.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: honouring the OS setting has to win */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: honouring the OS setting has to win */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: honouring the OS setting has to win */
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -17,8 +17,9 @@ import {
 import { blobLayout, UsageDock } from "@capsule/hud";
 import { cn } from "@capsule/ui";
 import { type ReactElement, useLayoutEffect, useRef, useState } from "react";
+import { useSystemAppearance } from "../use-appearance.ts";
 
-const BOX_HEIGHT = 280;
+const BOX_HEIGHT = 268;
 const INSET = 16;
 
 /** Which side of the preview the dock hugs, so it reads as a screen edge. */
@@ -52,6 +53,7 @@ export function DockPreview({
 }): ReactElement {
   const box = useRef<HTMLDivElement>(null);
   const [boxWidth, setBoxWidth] = useState(0);
+  const appearance = useSystemAppearance();
 
   useLayoutEffect(() => {
     const el = box.current;
@@ -68,8 +70,9 @@ export function DockPreview({
   const metrics = hudMetrics(scale);
   const layout = layoutForPreset(preset);
   const dockStyle = dockStyleFor(styleId);
-  // The preview panel is dark, so `auto` shows the palette it would pick there.
-  const theme = resolveHudTheme(themeSetting, "dark");
+  // `auto` follows macOS, so the preview has to ask the same question the dock
+  // does rather than assume the panel it is drawn on.
+  const theme = resolveHudTheme(themeSetting, appearance);
   const fit = EDGE_FIT[preset];
   const meters = snapshots.length > 0 ? snapshots : DEMO_SNAPSHOTS;
   const compact = layout.orientation === "horizontal";
@@ -90,10 +93,10 @@ export function DockPreview({
     <div
       ref={box}
       className={cn(
-        "flex overflow-hidden rounded-xl border border-shell-line bg-[radial-gradient(circle_at_50%_0%,#26262f,#0f0f13)]",
+        "flex overflow-hidden rounded-2xl ring-1 ring-inset ring-black/10",
         fit.align,
       )}
-      style={{ height: BOX_HEIGHT }}
+      style={{ height: BOX_HEIGHT, background: "var(--shell-screen-glow)" }}
     >
       <div
         style={{
