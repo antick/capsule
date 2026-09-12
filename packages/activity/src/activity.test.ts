@@ -13,11 +13,11 @@ const now = new Date("2026-09-05T22:00:00.000Z");
 const record = {
   pid: 71555,
   sessionId: "c5ba92e2",
-  cwd: "/Users/pankaj/Projects/personal/egglify",
+  cwd: "/Users/dev/Projects/demo-app",
   startedAt: 1788622255869,
   procStart: "Sat Sep  5 15:30:55 2026",
   entrypoint: "claude-desktop",
-  name: "egglify-4e",
+  name: "demo-app-4e",
   status: "busy",
   updatedAt: 1788622256493,
 };
@@ -53,8 +53,8 @@ describe("parseClaudeSession", () => {
     expect(parsed?.session).toMatchObject({
       id: "claude.c5ba92e2",
       providerId: "claude",
-      name: "egglify-4e",
-      detail: "Desktop · egglify",
+      name: "demo-app-4e",
+      detail: "Desktop · demo-app",
       state: "busy",
       waitingFor: null,
     });
@@ -112,7 +112,7 @@ describe("readClaudeSessions", () => {
 
   it("drops records whose process has gone or been reused", async () => {
     const sessions = await readClaudeSessions(host);
-    expect(sessions.map((s) => s.name)).toEqual(["egglify-4e"]);
+    expect(sessions.map((s) => s.name)).toEqual(["demo-app-4e"]);
   });
 });
 
@@ -259,7 +259,7 @@ describe("createActivityMonitor", () => {
     await monitor.rescan();
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(monitor.isBusy()).toBe(true);
-    expect(monitor.getActivity().claude?.[0]?.name).toBe("egglify-4e");
+    expect(monitor.getActivity().claude?.[0]?.name).toBe("demo-app-4e");
   });
 
   it("ignores providers that are switched off", async () => {

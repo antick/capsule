@@ -210,8 +210,8 @@ describe("UsageDock activity", () => {
   const busy: AgentSession = {
     id: "claude.1",
     providerId: "claude",
-    name: "egglify-4e",
-    detail: "Desktop - egglify",
+    name: "demo-app-4e",
+    detail: "Desktop - demo-app",
     state: "busy",
     waitingFor: null,
     since: new Date(now.getTime() - 3 * 60_000).toISOString(),
@@ -230,7 +230,7 @@ describe("UsageDock activity", () => {
     );
     expect(html.match(/data-hud-activity="working"/g)).toHaveLength(1);
     expect(html).toContain('data-session-list="true"');
-    expect(html).toContain("egglify-4e");
+    expect(html).toContain("demo-app-4e");
     expect(html).toContain('data-hud-status="busy"');
     expect(html).toContain("working");
     expect(html).toContain("3 min");
@@ -253,7 +253,7 @@ describe("UsageDock activity", () => {
     );
     expect(html).toContain('data-hud-activity="waiting"');
     expect(html).toContain("Allow the edit?");
-    expect(html).not.toContain("Desktop - egglify");
+    expect(html).not.toContain("Desktop - demo-app");
   });
 
   it("dates a stale reading in the card header", () => {
@@ -299,8 +299,8 @@ describe("UsageDock from the second round of ports", () => {
   const busy: AgentSession = {
     id: "claude.2",
     providerId: "claude",
-    name: "egglify-4e",
-    detail: "Desktop - egglify",
+    name: "demo-app-4e",
+    detail: "Desktop - demo-app",
     state: "busy",
     waitingFor: null,
     since: now.toISOString(),

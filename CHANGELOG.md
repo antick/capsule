@@ -2,6 +2,12 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Public-repo privacy sweep
+
+### Changed
+
+- Replaced a real home-directory path and personal project name in activity and HUD test fixtures with generic sample values.
+
 ## 0.1.0 — first release
 
 ### Added
