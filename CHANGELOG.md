@@ -13,6 +13,18 @@ All notable changes to Capsule are documented in this file.
 
 - Re-recorded the Claude, Codex and Grok mapping fixtures against the fixed mappers, and added cases for the paths the fix opens up: a Claude payload with only a weekly window, a Codex window reporting a reset but no percentage, and a Grok product row with no headline credit percent. The corpus is now 102 cases across 21 files. The real mappings — Claude 73/7, Codex 21/8, Grok 52/18 — are unchanged.
 
+## Native migration, phase 1 — Swift core geometry and settings
+
+### Added
+
+- `CapsuleCore` now carries the HUD's metrics and scale stepper, rail and card sizing, notch geometry, placement and edge snapping, dock styles, settings parsing, and session summary and ordering. Twenty more fixtures pass in Swift; `swift test` runs 53 tests.
+- `jsRound` and `jsFixed2` stand in for JavaScript's `Math.round` and `toFixed(2)`, which round halves differently from Swift. Every ported call goes through them.
+- `CapsuleSettings.read` adopts only schema v7 files and returns nil for anything older or unversioned, so the native app starts from defaults rather than guessing at a migration.
+
+### Changed
+
+- `JSONValue` moved from `CapsuleUsage` into `CapsuleCore` and became `Codable`; settings parsing reads through it field by field.
+
 ## Native migration, phase 0 — config, activity and HUD fixtures
 
 ### Added

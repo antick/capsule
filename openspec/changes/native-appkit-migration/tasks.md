@@ -30,20 +30,25 @@ usage 88, activity 120, hud 339, desktop 63.
 No app target and no UI in this phase. Acceptance is the Phase 0 corpus
 passing under `swift test`.
 
-Status: `swift test` runs 26 tests across `CapsuleCoreTests` (11) and
-`CapsuleUsageTests` (15), and every one of the 21 extracted fixtures is now
-ported — `notYetPorted` in `CorpusCoverageTests` is empty. What is left in
-`CapsuleUsage` is host work, not mapping: the HTTP reads, credential
-discovery, and the poller. `CapsuleActivity` and `CapsuleHUD` still wait on
-Phase 0 extracting their fixtures.
+Status: `swift test` runs 53 tests across `CapsuleCoreTests` (38) and
+`CapsuleUsageTests` (15). `CapsuleCore` now carries HUD metrics, placement and
+snapping, settings parsing, dock styles, and session summary and ordering, as
+well as the formatters and usage types. 23 fixtures are left in
+`notYetPorted`: nine for `CapsuleActivity`, eight for `CapsuleHUD`, and six
+update-wording cases that belong with Sparkle in Phase 3. What is left in
+`CapsuleUsage` is host work: the HTTP reads, credential discovery and the
+poller.
 
 - [x] 2.1 Add `Package.swift` at the repo root with a `macOS 14.0` platform floor, and commit `.swift-version` recording the toolchain. No third-party dependencies in this phase. Declares `CapsuleCore` and the `CapsuleFixtures` test-support target; `CapsuleUsage`, `CapsuleActivity` and `CapsuleHUD` are declared as their content lands, because an empty module would claim progress that does not exist.
 - [x] 2.1a Add a Swift corpus loader that finds `fixtures/` by walking up to `pnpm-workspace.yaml`, the same way the TypeScript loader does, so neither side keeps a copy inside its own target. Ignore `.build/` and `.swiftpm/`.
 - [x] 2.1b Add a coverage gate that fails when a fixture exists that no Swift test reads and no one has listed as not-yet-ported.
 - [x] 2.2a Implement the `CapsuleCore` severity bands as the single source of those numbers.
-- [ ] 2.2b Implement the rest of `CapsuleCore`'s constants and the settings model, mirroring `@capsule/config` — no literals in any other module, per the repo's no-hard-coded-values rule.
+- [x] 2.2b Implement `CapsuleCore`'s HUD metrics, dock styles, placement constants and the settings model, mirroring `@capsule/config`; pass `hud-metrics/`, `settings/defaults` and `settings/parse-current`. The fifty authored HUD sizes live in one key-path table.
+- [x] 2.2c Read only schema v7 settings files, returning nil for older or unversioned ones so the app falls back to defaults and onboarding (decision 9). Pinned by native tests, since the corpus records the Electron behaviour instead.
+- [x] 2.2d Port session summary and ordering into `CapsuleCore`, since both `CapsuleActivity` and `CapsuleHUD` depend on them; pass `activity/summarize`, `activity/order-sessions` and `activity/any-active`.
+- [ ] 2.2e Port the update wording and sizes with the Sparkle work in Phase 3; their fixtures (`updates/`) stay in `notYetPorted` until then.
 - [x] 2.3 Implement the reset-time formatters in `CapsuleCore`; every other module formats dates only through them. Includes `formatElapsed`, `formatAgo`, `dayKey`, `startOfDay` and `formatCompactCount`, and normalises the meridiem space so copy cannot drift with the toolchain.
-- [ ] 2.4 Implement placement geometry and snapping in `CapsuleCore`; pass the `placement/` fixtures. Blocked on task 1.5b extracting them.
+- [x] 2.4 Implement placement geometry and snapping in `CapsuleCore`; pass the `placement/` fixtures. Every `Math.round` goes through `jsRound`, and edge snapping keeps the original's left, right, top, bottom tie-break.
 - [x] 2.5a Implement the snapshot types, clamping, snapshot merge, and backoff in `CapsuleUsage`; pass those fixtures.
 - [ ] 2.5b Implement the poller — startup, interval, wake, network-online — which needs an injected host and has no fixture to match.
 - [x] 2.6a Implement all five providers' payload mapping and token reading in `CapsuleUsage` over `Codable`; pass every `usage/` fixture with whole-snapshot equality.
