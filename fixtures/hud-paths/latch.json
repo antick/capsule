@@ -1,0 +1,399 @@
+{
+  "about": "restingRail, latchRect, latchHotZone and stowShift — the dock folded away to a latch at its edge",
+  "cases": [
+    {
+      "name": "right edge, 1 meters",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 307,
+          "y": 46,
+          "width": 5,
+          "height": 64
+        },
+        "latch": {
+          "x": 307,
+          "y": 46,
+          "width": 5,
+          "height": 64
+        },
+        "hotZone": {
+          "x": 289,
+          "y": 46,
+          "width": 23,
+          "height": 64
+        },
+        "stowShift": {
+          "x": 10,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "right edge, 3 meters",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 307,
+          "y": 99,
+          "width": 5,
+          "height": 64
+        },
+        "latch": {
+          "x": 307,
+          "y": 99,
+          "width": 5,
+          "height": 64
+        },
+        "hotZone": {
+          "x": 289,
+          "y": 99,
+          "width": 23,
+          "height": 64
+        },
+        "stowShift": {
+          "x": 10,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "left edge, 1 meters",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 307,
+          "y": 46,
+          "width": 5,
+          "height": 64
+        },
+        "latch": {
+          "x": 0,
+          "y": 46,
+          "width": 5,
+          "height": 64
+        },
+        "hotZone": {
+          "x": 0,
+          "y": 46,
+          "width": 23,
+          "height": 64
+        },
+        "stowShift": {
+          "x": -10,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "left edge, 3 meters",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 307,
+          "y": 99,
+          "width": 5,
+          "height": 64
+        },
+        "latch": {
+          "x": 0,
+          "y": 99,
+          "width": 5,
+          "height": 64
+        },
+        "hotZone": {
+          "x": 0,
+          "y": 99,
+          "width": 23,
+          "height": 64
+        },
+        "stowShift": {
+          "x": -10,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "bottom edge, 1 meters",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 231,
+          "y": 84,
+          "width": 5,
+          "height": 64
+        },
+        "latch": {
+          "x": 84,
+          "y": 231,
+          "width": 64,
+          "height": 5
+        },
+        "hotZone": {
+          "x": 84,
+          "y": 213,
+          "width": 64,
+          "height": 23
+        },
+        "stowShift": {
+          "x": 0,
+          "y": 10
+        }
+      }
+    },
+    {
+      "name": "bottom edge, 3 meters",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 231,
+          "y": 99,
+          "width": 5,
+          "height": 64
+        },
+        "latch": {
+          "x": 99,
+          "y": 231,
+          "width": 64,
+          "height": 5
+        },
+        "hotZone": {
+          "x": 99,
+          "y": 213,
+          "width": 64,
+          "height": 23
+        },
+        "stowShift": {
+          "x": 0,
+          "y": 10
+        }
+      }
+    },
+    {
+      "name": "top edge, 1 meters",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 231,
+          "y": 84,
+          "width": 5,
+          "height": 64
+        },
+        "latch": {
+          "x": 84,
+          "y": 0,
+          "width": 64,
+          "height": 5
+        },
+        "hotZone": {
+          "x": 84,
+          "y": 0,
+          "width": 64,
+          "height": 23
+        },
+        "stowShift": {
+          "x": 0,
+          "y": -10
+        }
+      }
+    },
+    {
+      "name": "top edge, 3 meters",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 231,
+          "y": 99,
+          "width": 5,
+          "height": 64
+        },
+        "latch": {
+          "x": 99,
+          "y": 0,
+          "width": 64,
+          "height": 5
+        },
+        "hotZone": {
+          "x": 99,
+          "y": 0,
+          "width": 64,
+          "height": 23
+        },
+        "stowShift": {
+          "x": 0,
+          "y": -10
+        }
+      }
+    },
+    {
+      "name": "top edge joined to a MacBook notch",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "joined": {
+          "width": 185,
+          "height": 32
+        }
+      },
+      "expected": {
+        "resting": {
+          "x": 204,
+          "y": 38.5,
+          "width": 32,
+          "height": 185
+        },
+        "latch": {
+          "x": 38.5,
+          "y": 0,
+          "width": 185,
+          "height": 32
+        },
+        "hotZone": {
+          "x": 38.5,
+          "y": 0,
+          "width": 185,
+          "height": 50
+        },
+        "stowShift": {
+          "x": 0,
+          "y": -10
+        }
+      },
+      "note": "Folds away to exactly the hardware notch, centred on the rail."
+    },
+    {
+      "name": "top edge joined to a notch, one meter",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "joined": {
+          "width": 185,
+          "height": 32
+        }
+      },
+      "expected": {
+        "resting": {
+          "x": 204,
+          "y": 77,
+          "width": 32,
+          "height": 78
+        },
+        "latch": {
+          "x": 77,
+          "y": 0,
+          "width": 78,
+          "height": 32
+        },
+        "hotZone": {
+          "x": 77,
+          "y": 0,
+          "width": 78,
+          "height": 50
+        },
+        "stowShift": {
+          "x": 0,
+          "y": -10
+        }
+      }
+    },
+    {
+      "name": "right edge at scale 0.7",
+      "input": {
+        "scale": 0.7,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "resting": {
+          "x": 214,
+          "y": 68.5,
+          "width": 4,
+          "height": 45
+        },
+        "latch": {
+          "x": 214,
+          "y": 68.5,
+          "width": 4,
+          "height": 45
+        },
+        "hotZone": {
+          "x": 201,
+          "y": 68.5,
+          "width": 17,
+          "height": 45
+        },
+        "stowShift": {
+          "x": 7,
+          "y": 0
+        }
+      }
+    }
+  ]
+}

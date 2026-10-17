@@ -1,0 +1,1935 @@
+{
+  "about": "hitRegions(layout, padding, open, latchZone) — the parts of the frame that answer the mouse",
+  "cases": [
+    {
+      "name": "right edge, rail, 1 meter, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 57,
+            "width": 58,
+            "height": 78
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 1 meter, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 57,
+            "width": 58,
+            "height": 78
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 312,
+          "height": 156
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 1 meter, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 307,
+            "y": 64,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 312,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 307,
+            "y": 117,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 2 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 2 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 44,
+          "width": 312,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 2 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 307,
+            "y": 117,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, capsule, 1 meter, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 57,
+            "width": 58,
+            "height": 78
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, capsule, 1 meter, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 57,
+            "width": 58,
+            "height": 78
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 312,
+          "height": 156
+        }
+      }
+    },
+    {
+      "name": "right edge, capsule, 1 meter, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 307,
+            "y": 64,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, capsule, 3 meters, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 18,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, capsule, 3 meters, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 18,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 312,
+          "height": 210
+        }
+      }
+    },
+    {
+      "name": "right edge, capsule, 3 meters, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 307,
+            "y": 91,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, capsule, 3 meters, meter 2 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 18,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, capsule, 3 meters, meter 2 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 18,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 312,
+          "height": 210
+        }
+      }
+    },
+    {
+      "name": "right edge, capsule, 3 meters, meter 2 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 307,
+            "y": 91,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, rail, 1 meter, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 57,
+            "width": 58,
+            "height": 78
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, rail, 1 meter, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 57,
+            "width": 58,
+            "height": 78
+          }
+        ],
+        "open": {
+          "x": 0,
+          "y": 18,
+          "width": 312,
+          "height": 156
+        }
+      }
+    },
+    {
+      "name": "left edge, rail, 1 meter, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 64,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, rail, 3 meters, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, rail, 3 meters, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 0,
+          "y": 18,
+          "width": 312,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "left edge, rail, 3 meters, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 117,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, rail, 3 meters, meter 2 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, rail, 3 meters, meter 2 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 0,
+          "y": 44,
+          "width": 312,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "left edge, rail, 3 meters, meter 2 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 0,
+            "y": 117,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, capsule, 1 meter, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 57,
+            "width": 58,
+            "height": 78
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, capsule, 1 meter, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 57,
+            "width": 58,
+            "height": 78
+          }
+        ],
+        "open": {
+          "x": 4,
+          "y": 18,
+          "width": 312,
+          "height": 156
+        }
+      }
+    },
+    {
+      "name": "left edge, capsule, 1 meter, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 64,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, capsule, 3 meters, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 18,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, capsule, 3 meters, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 18,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 4,
+          "y": 18,
+          "width": 312,
+          "height": 210
+        }
+      }
+    },
+    {
+      "name": "left edge, capsule, 3 meters, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 91,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, capsule, 3 meters, meter 2 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 18,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "left edge, capsule, 3 meters, meter 2 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 18,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 4,
+          "y": 18,
+          "width": 312,
+          "height": 210
+        }
+      }
+    },
+    {
+      "name": "left edge, capsule, 3 meters, meter 2 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 4,
+            "y": 91,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, rail, 1 meter, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 95,
+            "y": 196,
+            "width": 78,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, rail, 1 meter, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 95,
+            "y": 196,
+            "width": 78,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 232,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "bottom edge, rail, 1 meter, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 102,
+            "y": 231,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, rail, 3 meters, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 44,
+            "y": 196,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, rail, 3 meters, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 44,
+            "y": 196,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 236,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "bottom edge, rail, 3 meters, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 117,
+            "y": 231,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, rail, 3 meters, meter 2 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 44,
+            "y": 196,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, rail, 3 meters, meter 2 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 44,
+            "y": 196,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 44,
+          "y": 18,
+          "width": 236,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "bottom edge, rail, 3 meters, meter 2 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 117,
+            "y": 231,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 1 meter, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 95,
+            "y": 196,
+            "width": 78,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 1 meter, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 95,
+            "y": 196,
+            "width": 78,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 232,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 1 meter, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 102,
+            "y": 231,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 3 meters, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 29,
+            "y": 196,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 3 meters, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 29,
+            "y": 196,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 232,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 3 meters, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 102,
+            "y": 231,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 3 meters, meter 2 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 29,
+            "y": 196,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 3 meters, meter 2 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 29,
+            "y": 196,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 232,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 3 meters, meter 2 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 102,
+            "y": 231,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, rail, 1 meter, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 95,
+            "y": 0,
+            "width": 78,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, rail, 1 meter, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 95,
+            "y": 0,
+            "width": 78,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 0,
+          "width": 232,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "top edge, rail, 1 meter, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 102,
+            "y": 0,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 44,
+            "y": 0,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 44,
+            "y": 0,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 0,
+          "width": 236,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 117,
+            "y": 0,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 2 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 44,
+            "y": 0,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 2 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 44,
+            "y": 0,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 44,
+          "y": 0,
+          "width": 236,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 2 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 117,
+            "y": 0,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, capsule, 1 meter, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 95,
+            "y": 4,
+            "width": 78,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, capsule, 1 meter, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 95,
+            "y": 4,
+            "width": 78,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 4,
+          "width": 232,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "top edge, capsule, 1 meter, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 102,
+            "y": 4,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, capsule, 3 meters, meter 0 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 29,
+            "y": 4,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, capsule, 3 meters, meter 0 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 29,
+            "y": 4,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 4,
+          "width": 232,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "top edge, capsule, 3 meters, meter 0 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 102,
+            "y": 4,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, capsule, 3 meters, meter 2 open, closed",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 29,
+            "y": 4,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "top edge, capsule, 3 meters, meter 2 open, open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 29,
+            "y": 4,
+            "width": 210,
+            "height": 58
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 4,
+          "width": 232,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "top edge, capsule, 3 meters, meter 2 open, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 102,
+            "y": 4,
+            "width": 64,
+            "height": 23
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, slid to the end of its frame, closed",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 3,
+        "railBias": 0,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, slid to the end of its frame, open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 3,
+        "railBias": 0,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 18,
+          "width": 312,
+          "height": 236
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, slid to the end of its frame, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 3,
+        "railBias": 0,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 307,
+            "y": 117,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, card shorter than its reserve, closed",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 1,
+        "buckets": 1,
+        "reserveBuckets": 3,
+        "state": "closed"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": null
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, card shorter than its reserve, open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 1,
+        "buckets": 1,
+        "reserveBuckets": 3,
+        "state": "open"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 272,
+            "y": 44,
+            "width": 58,
+            "height": 210
+          }
+        ],
+        "open": {
+          "x": 18,
+          "y": 44,
+          "width": 312,
+          "height": 210
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, card shorter than its reserve, folded to its latch",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 1,
+        "buckets": 1,
+        "reserveBuckets": 3,
+        "state": "latched"
+      },
+      "expected": {
+        "rail": [
+          {
+            "x": 307,
+            "y": 117,
+            "width": 23,
+            "height": 64
+          }
+        ],
+        "open": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "about": "framePadding(m, growth, style) — the shadow gutter around the frame, dropped on the side flush with the edge",
+  "cases": [
+    {
+      "name": "right edge, rail",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail"
+      },
+      "expected": {
+        "top": 18,
+        "right": 0,
+        "bottom": 18,
+        "left": 18
+      }
+    },
+    {
+      "name": "right edge, capsule",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule"
+      },
+      "expected": {
+        "top": 18,
+        "right": 4,
+        "bottom": 18,
+        "left": 18
+      }
+    },
+    {
+      "name": "right edge, tray",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "tray"
+      },
+      "expected": {
+        "top": 18,
+        "right": 5,
+        "bottom": 18,
+        "left": 18
+      }
+    },
+    {
+      "name": "left edge, rail",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail"
+      },
+      "expected": {
+        "top": 18,
+        "right": 18,
+        "bottom": 18,
+        "left": 0
+      }
+    },
+    {
+      "name": "left edge, capsule",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule"
+      },
+      "expected": {
+        "top": 18,
+        "right": 18,
+        "bottom": 18,
+        "left": 4
+      }
+    },
+    {
+      "name": "left edge, tray",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "tray"
+      },
+      "expected": {
+        "top": 18,
+        "right": 18,
+        "bottom": 18,
+        "left": 5
+      }
+    },
+    {
+      "name": "bottom edge, rail",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail"
+      },
+      "expected": {
+        "top": 18,
+        "right": 18,
+        "bottom": 0,
+        "left": 18
+      }
+    },
+    {
+      "name": "bottom edge, capsule",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule"
+      },
+      "expected": {
+        "top": 18,
+        "right": 18,
+        "bottom": 4,
+        "left": 18
+      }
+    },
+    {
+      "name": "bottom edge, tray",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "tray"
+      },
+      "expected": {
+        "top": 18,
+        "right": 18,
+        "bottom": 5,
+        "left": 18
+      }
+    },
+    {
+      "name": "top edge, rail",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail"
+      },
+      "expected": {
+        "top": 0,
+        "right": 18,
+        "bottom": 18,
+        "left": 18
+      }
+    },
+    {
+      "name": "top edge, capsule",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule"
+      },
+      "expected": {
+        "top": 4,
+        "right": 18,
+        "bottom": 18,
+        "left": 18
+      }
+    },
+    {
+      "name": "top edge, tray",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "tray"
+      },
+      "expected": {
+        "top": 5,
+        "right": 18,
+        "bottom": 18,
+        "left": 18
+      }
+    }
+  ]
+}

@@ -1,0 +1,2234 @@
+{
+  "about": "blobLayout(m, input) — where the rail, the card, the join and the tail tip sit inside the dock's frame",
+  "cases": [
+    {
+      "name": "right edge, rail, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 156,
+        "rail": {
+          "x": 254,
+          "y": 39,
+          "width": 58,
+          "height": 78
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 70
+        },
+        "tip": {
+          "x": 254,
+          "y": 70
+        },
+        "canonical": {
+          "width": 312,
+          "height": 156,
+          "rail": {
+            "x": 254,
+            "y": 39,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 70,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 262,
+        "rail": {
+          "x": 254,
+          "y": 26,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 57
+        },
+        "tip": {
+          "x": 254,
+          "y": 57
+        },
+        "canonical": {
+          "width": 312,
+          "height": 262,
+          "rail": {
+            "x": 254,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 57,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 262,
+        "rail": {
+          "x": 254,
+          "y": 26,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 0,
+          "y": 106,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 189
+        },
+        "tip": {
+          "x": 254,
+          "y": 189
+        },
+        "canonical": {
+          "width": 312,
+          "height": 262,
+          "rail": {
+            "x": 254,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 106,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 189,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "right edge, capsule, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 156,
+        "rail": {
+          "x": 254,
+          "y": 39,
+          "width": 58,
+          "height": 78
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 70
+        },
+        "tip": {
+          "x": 254,
+          "y": 70
+        },
+        "canonical": {
+          "width": 312,
+          "height": 156,
+          "rail": {
+            "x": 254,
+            "y": 39,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 70,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "right edge, capsule, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 210,
+        "rail": {
+          "x": 254,
+          "y": 0,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 31
+        },
+        "tip": {
+          "x": 254,
+          "y": 31
+        },
+        "canonical": {
+          "width": 312,
+          "height": 210,
+          "rail": {
+            "x": 254,
+            "y": 0,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 31,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "right edge, capsule, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 210,
+        "rail": {
+          "x": 254,
+          "y": 0,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 0,
+          "y": 54,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 163
+        },
+        "tip": {
+          "x": 254,
+          "y": 163
+        },
+        "canonical": {
+          "width": 312,
+          "height": 210,
+          "rail": {
+            "x": 254,
+            "y": 0,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 54,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 163,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "right edge, tray, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "tray",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 156,
+        "rail": {
+          "x": 254,
+          "y": 39,
+          "width": 58,
+          "height": 78
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 70
+        },
+        "tip": {
+          "x": 254,
+          "y": 70
+        },
+        "canonical": {
+          "width": 312,
+          "height": 156,
+          "rail": {
+            "x": 254,
+            "y": 39,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 70,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "right edge, tray, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "tray",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 210,
+        "rail": {
+          "x": 254,
+          "y": 0,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 31
+        },
+        "tip": {
+          "x": 254,
+          "y": 31
+        },
+        "canonical": {
+          "width": 312,
+          "height": 210,
+          "rail": {
+            "x": 254,
+            "y": 0,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 31,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "right edge, tray, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "tray",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 210,
+        "rail": {
+          "x": 254,
+          "y": 0,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 0,
+          "y": 54,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 254,
+          "y": 163
+        },
+        "tip": {
+          "x": 254,
+          "y": 163
+        },
+        "canonical": {
+          "width": 312,
+          "height": 210,
+          "rail": {
+            "x": 254,
+            "y": 0,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 54,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 163,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, rail, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 156,
+        "rail": {
+          "x": 0,
+          "y": 39,
+          "width": 58,
+          "height": 78
+        },
+        "card": {
+          "x": 80,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 70
+        },
+        "tip": {
+          "x": 58,
+          "y": 70
+        },
+        "canonical": {
+          "width": 312,
+          "height": 156,
+          "rail": {
+            "x": 254,
+            "y": 39,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 70,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, rail, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 262,
+        "rail": {
+          "x": 0,
+          "y": 26,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 80,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 57
+        },
+        "tip": {
+          "x": 58,
+          "y": 57
+        },
+        "canonical": {
+          "width": 312,
+          "height": 262,
+          "rail": {
+            "x": 254,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 57,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, rail, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 262,
+        "rail": {
+          "x": 0,
+          "y": 26,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 80,
+          "y": 106,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 189
+        },
+        "tip": {
+          "x": 58,
+          "y": 189
+        },
+        "canonical": {
+          "width": 312,
+          "height": 262,
+          "rail": {
+            "x": 254,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 106,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 189,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, capsule, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 156,
+        "rail": {
+          "x": 0,
+          "y": 39,
+          "width": 58,
+          "height": 78
+        },
+        "card": {
+          "x": 80,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 70
+        },
+        "tip": {
+          "x": 58,
+          "y": 70
+        },
+        "canonical": {
+          "width": 312,
+          "height": 156,
+          "rail": {
+            "x": 254,
+            "y": 39,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 70,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, capsule, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 210,
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 80,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 31
+        },
+        "tip": {
+          "x": 58,
+          "y": 31
+        },
+        "canonical": {
+          "width": 312,
+          "height": 210,
+          "rail": {
+            "x": 254,
+            "y": 0,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 31,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, capsule, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 210,
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 80,
+          "y": 54,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 163
+        },
+        "tip": {
+          "x": 58,
+          "y": 163
+        },
+        "canonical": {
+          "width": 312,
+          "height": 210,
+          "rail": {
+            "x": 254,
+            "y": 0,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 54,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 163,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, tray, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "tray",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 156,
+        "rail": {
+          "x": 0,
+          "y": 39,
+          "width": 58,
+          "height": 78
+        },
+        "card": {
+          "x": 80,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 70
+        },
+        "tip": {
+          "x": 58,
+          "y": 70
+        },
+        "canonical": {
+          "width": 312,
+          "height": 156,
+          "rail": {
+            "x": 254,
+            "y": 39,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 70,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, tray, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "tray",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 210,
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 80,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 31
+        },
+        "tip": {
+          "x": 58,
+          "y": 31
+        },
+        "canonical": {
+          "width": 312,
+          "height": 210,
+          "rail": {
+            "x": 254,
+            "y": 0,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 31,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "left edge, tray, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "right",
+        "style": "tray",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 312,
+        "height": 210,
+        "rail": {
+          "x": 0,
+          "y": 0,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 80,
+          "y": 54,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 58,
+          "y": 163
+        },
+        "tip": {
+          "x": 58,
+          "y": 163
+        },
+        "canonical": {
+          "width": 312,
+          "height": 210,
+          "rail": {
+            "x": 254,
+            "y": 0,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 54,
+            "width": 232,
+            "height": 156
+          },
+          "joinY": 163,
+          "tipX": 254
+        }
+      }
+    },
+    {
+      "name": "bottom edge, rail, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 77,
+          "y": 178,
+          "width": 78,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 108,
+          "y": 178
+        },
+        "tip": {
+          "x": 108,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 77,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 108,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "bottom edge, rail, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 262,
+        "height": 236,
+        "rail": {
+          "x": 26,
+          "y": 178,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 57,
+          "y": 178
+        },
+        "tip": {
+          "x": 57,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 262,
+          "rail": {
+            "x": 178,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 57,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "bottom edge, rail, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 262,
+        "height": 236,
+        "rail": {
+          "x": 26,
+          "y": 178,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 30,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 189,
+          "y": 178
+        },
+        "tip": {
+          "x": 189,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 262,
+          "rail": {
+            "x": 178,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 30,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 189,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 77,
+          "y": 178,
+          "width": 78,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 108,
+          "y": 178
+        },
+        "tip": {
+          "x": 108,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 77,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 108,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 11,
+          "y": 178,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 42,
+          "y": 178
+        },
+        "tip": {
+          "x": 42,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 11,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 42,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "bottom edge, capsule, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 11,
+          "y": 178,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 174,
+          "y": 178
+        },
+        "tip": {
+          "x": 174,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 11,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 174,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "bottom edge, tray, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "tray",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 77,
+          "y": 178,
+          "width": 78,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 108,
+          "y": 178
+        },
+        "tip": {
+          "x": 108,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 77,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 108,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "bottom edge, tray, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "tray",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 11,
+          "y": 178,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 42,
+          "y": 178
+        },
+        "tip": {
+          "x": 42,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 11,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 42,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "bottom edge, tray, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "up",
+        "style": "tray",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 11,
+          "y": 178,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 174,
+          "y": 178
+        },
+        "tip": {
+          "x": 174,
+          "y": 178
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 11,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 174,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, rail, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 77,
+          "y": 0,
+          "width": 78,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 108,
+          "y": 58
+        },
+        "tip": {
+          "x": 108,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 77,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 108,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 262,
+        "height": 236,
+        "rail": {
+          "x": 26,
+          "y": 0,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 57,
+          "y": 58
+        },
+        "tip": {
+          "x": 57,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 262,
+          "rail": {
+            "x": 178,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 57,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 262,
+        "height": 236,
+        "rail": {
+          "x": 26,
+          "y": 0,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 30,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 189,
+          "y": 58
+        },
+        "tip": {
+          "x": 189,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 262,
+          "rail": {
+            "x": 178,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 30,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 189,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, capsule, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 77,
+          "y": 0,
+          "width": 78,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 108,
+          "y": 58
+        },
+        "tip": {
+          "x": 108,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 77,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 108,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, capsule, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 11,
+          "y": 0,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 42,
+          "y": 58
+        },
+        "tip": {
+          "x": 42,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 11,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 42,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, capsule, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "capsule",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 11,
+          "y": 0,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 174,
+          "y": 58
+        },
+        "tip": {
+          "x": 174,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 11,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 174,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, tray, 1 meter, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "tray",
+        "meters": 1,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 77,
+          "y": 0,
+          "width": 78,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 108,
+          "y": 58
+        },
+        "tip": {
+          "x": 108,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 77,
+            "width": 58,
+            "height": 78
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 108,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, tray, 3 meters, meter 0 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "tray",
+        "meters": 3,
+        "open": 0,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 11,
+          "y": 0,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 42,
+          "y": 58
+        },
+        "tip": {
+          "x": 42,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 11,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 42,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "top edge, tray, 3 meters, meter 2 open",
+      "input": {
+        "scale": 1,
+        "growth": "down",
+        "style": "tray",
+        "meters": 3,
+        "open": 2,
+        "buckets": 2
+      },
+      "expected": {
+        "width": 232,
+        "height": 236,
+        "rail": {
+          "x": 11,
+          "y": 0,
+          "width": 210,
+          "height": 58
+        },
+        "card": {
+          "x": 0,
+          "y": 80,
+          "width": 232,
+          "height": 156
+        },
+        "join": {
+          "x": 174,
+          "y": 58
+        },
+        "tip": {
+          "x": 174,
+          "y": 58
+        },
+        "canonical": {
+          "width": 236,
+          "height": 232,
+          "rail": {
+            "x": 178,
+            "y": 11,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 156,
+            "height": 232
+          },
+          "joinY": 174,
+          "tipX": 178
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 1 open, scale 0.7",
+      "input": {
+        "scale": 0.7,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 1,
+        "buckets": 3
+      },
+      "expected": {
+        "width": 218,
+        "height": 182,
+        "rail": {
+          "x": 177,
+          "y": 18,
+          "width": 41,
+          "height": 146
+        },
+        "card": {
+          "x": 0,
+          "y": 8.5,
+          "width": 162,
+          "height": 154
+        },
+        "join": {
+          "x": 177,
+          "y": 85.5
+        },
+        "tip": {
+          "x": 177,
+          "y": 85.5
+        },
+        "canonical": {
+          "width": 218,
+          "height": 182,
+          "rail": {
+            "x": 177,
+            "y": 18,
+            "width": 41,
+            "height": 146
+          },
+          "card": {
+            "x": 0,
+            "y": 8.5,
+            "width": 162,
+            "height": 154
+          },
+          "joinY": 85.5,
+          "tipX": 177
+        }
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 1 open, scale 0.7",
+      "input": {
+        "scale": 0.7,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 1,
+        "buckets": 3
+      },
+      "expected": {
+        "width": 182,
+        "height": 210,
+        "rail": {
+          "x": 18,
+          "y": 0,
+          "width": 146,
+          "height": 41
+        },
+        "card": {
+          "x": 4.5,
+          "y": 56,
+          "width": 162,
+          "height": 154
+        },
+        "join": {
+          "x": 85.5,
+          "y": 41
+        },
+        "tip": {
+          "x": 85.5,
+          "y": 41
+        },
+        "canonical": {
+          "width": 210,
+          "height": 182,
+          "rail": {
+            "x": 169,
+            "y": 18,
+            "width": 41,
+            "height": 146
+          },
+          "card": {
+            "x": 0,
+            "y": 4.5,
+            "width": 154,
+            "height": 162
+          },
+          "joinY": 85.5,
+          "tipX": 169
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, meter 1 open, scale 1.3",
+      "input": {
+        "scale": 1.3,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 1,
+        "buckets": 3
+      },
+      "expected": {
+        "width": 406,
+        "height": 342,
+        "rail": {
+          "x": 331,
+          "y": 34,
+          "width": 75,
+          "height": 274
+        },
+        "card": {
+          "x": 0,
+          "y": 19.5,
+          "width": 302,
+          "height": 282
+        },
+        "join": {
+          "x": 331,
+          "y": 160.5
+        },
+        "tip": {
+          "x": 331,
+          "y": 160.5
+        },
+        "canonical": {
+          "width": 406,
+          "height": 342,
+          "rail": {
+            "x": 331,
+            "y": 34,
+            "width": 75,
+            "height": 274
+          },
+          "card": {
+            "x": 0,
+            "y": 19.5,
+            "width": 302,
+            "height": 282
+          },
+          "joinY": 160.5,
+          "tipX": 331
+        }
+      }
+    },
+    {
+      "name": "top edge, rail, 3 meters, meter 1 open, scale 1.3",
+      "input": {
+        "scale": 1.3,
+        "growth": "down",
+        "style": "rail",
+        "meters": 3,
+        "open": 1,
+        "buckets": 3
+      },
+      "expected": {
+        "width": 342,
+        "height": 386,
+        "rail": {
+          "x": 34,
+          "y": 0,
+          "width": 274,
+          "height": 75
+        },
+        "card": {
+          "x": 9.5,
+          "y": 104,
+          "width": 302,
+          "height": 282
+        },
+        "join": {
+          "x": 160.5,
+          "y": 75
+        },
+        "tip": {
+          "x": 160.5,
+          "y": 75
+        },
+        "canonical": {
+          "width": 386,
+          "height": 342,
+          "rail": {
+            "x": 311,
+            "y": 34,
+            "width": 75,
+            "height": 274
+          },
+          "card": {
+            "x": 0,
+            "y": 9.5,
+            "width": 282,
+            "height": 302
+          },
+          "joinY": 160.5,
+          "tipX": 311
+        }
+      }
+    },
+    {
+      "name": "right edge, rail, 3 meters, slid to the end of its frame",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 0,
+        "buckets": 3,
+        "railBias": 0
+      },
+      "expected": {
+        "width": 312,
+        "height": 262,
+        "rail": {
+          "x": 254,
+          "y": 26,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 0,
+          "y": 0,
+          "width": 232,
+          "height": 212
+        },
+        "join": {
+          "x": 254,
+          "y": 57
+        },
+        "tip": {
+          "x": 254,
+          "y": 57
+        },
+        "canonical": {
+          "width": 312,
+          "height": 262,
+          "rail": {
+            "x": 254,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 0,
+            "width": 232,
+            "height": 212
+          },
+          "joinY": 57,
+          "tipX": 254
+        }
+      },
+      "note": "A rail bias of 0 is the rail pushed to the start of its frame, as at the top of the screen."
+    },
+    {
+      "name": "right edge, rail, 3 meters, card shorter than its reserve",
+      "input": {
+        "scale": 1,
+        "growth": "left",
+        "style": "rail",
+        "meters": 3,
+        "open": 1,
+        "buckets": 1,
+        "reserveBuckets": 3
+      },
+      "expected": {
+        "width": 312,
+        "height": 262,
+        "rail": {
+          "x": 254,
+          "y": 26,
+          "width": 58,
+          "height": 210
+        },
+        "card": {
+          "x": 0,
+          "y": 73,
+          "width": 232,
+          "height": 100
+        },
+        "join": {
+          "x": 254,
+          "y": 123
+        },
+        "tip": {
+          "x": 254,
+          "y": 123
+        },
+        "canonical": {
+          "width": 312,
+          "height": 262,
+          "rail": {
+            "x": 254,
+            "y": 26,
+            "width": 58,
+            "height": 210
+          },
+          "card": {
+            "x": 0,
+            "y": 73,
+            "width": 232,
+            "height": 100
+          },
+          "joinY": 123,
+          "tipX": 254
+        }
+      }
+    }
+  ]
+}

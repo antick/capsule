@@ -1,0 +1,698 @@
+{
+  "about": "n, mapperFor, mapRect and roundedRect — the path builder's own pieces",
+  "cases": [
+    {
+      "name": "n(0)",
+      "input": {
+        "fn": "n",
+        "value": 0
+      },
+      "expected": {
+        "text": "0",
+        "value": 0
+      }
+    },
+    {
+      "name": "n(1.005)",
+      "input": {
+        "fn": "n",
+        "value": 1.005
+      },
+      "expected": {
+        "text": "1",
+        "value": 1
+      }
+    },
+    {
+      "name": "n(2.345)",
+      "input": {
+        "fn": "n",
+        "value": 2.345
+      },
+      "expected": {
+        "text": "2.35",
+        "value": 2.35
+      }
+    },
+    {
+      "name": "n(12.5)",
+      "input": {
+        "fn": "n",
+        "value": 12.5
+      },
+      "expected": {
+        "text": "12.5",
+        "value": 12.5
+      }
+    },
+    {
+      "name": "n(-0.125)",
+      "input": {
+        "fn": "n",
+        "value": -0.125
+      },
+      "expected": {
+        "text": "-0.12",
+        "value": -0.12
+      },
+      "note": "Negative halves round toward +∞, as Math.round does. A port using Swift's default rounding gets the other answer."
+    },
+    {
+      "name": "n(-2.505)",
+      "input": {
+        "fn": "n",
+        "value": -2.505
+      },
+      "expected": {
+        "text": "-2.5",
+        "value": -2.5
+      },
+      "note": "Negative halves round toward +∞, as Math.round does. A port using Swift's default rounding gets the other answer."
+    },
+    {
+      "name": "n(-12.5)",
+      "input": {
+        "fn": "n",
+        "value": -12.5
+      },
+      "expected": {
+        "text": "-12.5",
+        "value": -12.5
+      },
+      "note": "Negative halves round toward +∞, as Math.round does. A port using Swift's default rounding gets the other answer."
+    },
+    {
+      "name": "n(0.30000000000000004)",
+      "input": {
+        "fn": "n",
+        "value": 0.30000000000000004
+      },
+      "expected": {
+        "text": "0.3",
+        "value": 0.3
+      }
+    },
+    {
+      "name": "mapperFor left",
+      "input": {
+        "fn": "mapper",
+        "growth": "left",
+        "canonicalWidth": 300,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            12.5,
+            40
+          ],
+          [
+            300,
+            77
+          ]
+        ]
+      },
+      "expected": {
+        "mirrored": false,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            12.5,
+            40
+          ],
+          [
+            300,
+            77
+          ]
+        ]
+      }
+    },
+    {
+      "name": "mapperFor right",
+      "input": {
+        "fn": "mapper",
+        "growth": "right",
+        "canonicalWidth": 300,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            12.5,
+            40
+          ],
+          [
+            300,
+            77
+          ]
+        ]
+      },
+      "expected": {
+        "mirrored": true,
+        "points": [
+          [
+            300,
+            0
+          ],
+          [
+            287.5,
+            40
+          ],
+          [
+            0,
+            77
+          ]
+        ]
+      }
+    },
+    {
+      "name": "mapperFor up",
+      "input": {
+        "fn": "mapper",
+        "growth": "up",
+        "canonicalWidth": 300,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            12.5,
+            40
+          ],
+          [
+            300,
+            77
+          ]
+        ]
+      },
+      "expected": {
+        "mirrored": true,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            40,
+            12.5
+          ],
+          [
+            77,
+            300
+          ]
+        ]
+      }
+    },
+    {
+      "name": "mapperFor down",
+      "input": {
+        "fn": "mapper",
+        "growth": "down",
+        "canonicalWidth": 300,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            12.5,
+            40
+          ],
+          [
+            300,
+            77
+          ]
+        ]
+      },
+      "expected": {
+        "mirrored": false,
+        "points": [
+          [
+            0,
+            300
+          ],
+          [
+            40,
+            287.5
+          ],
+          [
+            77,
+            0
+          ]
+        ]
+      }
+    },
+    {
+      "name": "mapRect left",
+      "input": {
+        "fn": "mapRect",
+        "growth": "left",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        }
+      },
+      "expected": {
+        "x": 10,
+        "y": 20,
+        "width": 100,
+        "height": 40
+      }
+    },
+    {
+      "name": "mapRect right",
+      "input": {
+        "fn": "mapRect",
+        "growth": "right",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        }
+      },
+      "expected": {
+        "x": 190,
+        "y": 20,
+        "width": 100,
+        "height": 40
+      }
+    },
+    {
+      "name": "mapRect up",
+      "input": {
+        "fn": "mapRect",
+        "growth": "up",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        }
+      },
+      "expected": {
+        "x": 20,
+        "y": 10,
+        "width": 40,
+        "height": 100
+      }
+    },
+    {
+      "name": "mapRect down",
+      "input": {
+        "fn": "mapRect",
+        "growth": "down",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        }
+      },
+      "expected": {
+        "x": 20,
+        "y": 190,
+        "width": 40,
+        "height": 100
+      }
+    },
+    {
+      "name": "roundedRect left",
+      "input": {
+        "fn": "roundedRect",
+        "growth": "left",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        },
+        "radius": 12
+      },
+      "expected": [
+        {
+          "op": "M",
+          "x": 22,
+          "y": 20
+        },
+        {
+          "op": "L",
+          "x": 98,
+          "y": 20
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 1,
+          "x": 110,
+          "y": 32
+        },
+        {
+          "op": "L",
+          "x": 110,
+          "y": 48
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 1,
+          "x": 98,
+          "y": 60
+        },
+        {
+          "op": "L",
+          "x": 22,
+          "y": 60
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 1,
+          "x": 10,
+          "y": 48
+        },
+        {
+          "op": "L",
+          "x": 10,
+          "y": 32
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 1,
+          "x": 22,
+          "y": 20
+        },
+        {
+          "op": "Z"
+        }
+      ]
+    },
+    {
+      "name": "roundedRect right",
+      "input": {
+        "fn": "roundedRect",
+        "growth": "right",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        },
+        "radius": 12
+      },
+      "expected": [
+        {
+          "op": "M",
+          "x": 278,
+          "y": 20
+        },
+        {
+          "op": "L",
+          "x": 202,
+          "y": 20
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 0,
+          "x": 190,
+          "y": 32
+        },
+        {
+          "op": "L",
+          "x": 190,
+          "y": 48
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 0,
+          "x": 202,
+          "y": 60
+        },
+        {
+          "op": "L",
+          "x": 278,
+          "y": 60
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 0,
+          "x": 290,
+          "y": 48
+        },
+        {
+          "op": "L",
+          "x": 290,
+          "y": 32
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 0,
+          "x": 278,
+          "y": 20
+        },
+        {
+          "op": "Z"
+        }
+      ]
+    },
+    {
+      "name": "roundedRect up",
+      "input": {
+        "fn": "roundedRect",
+        "growth": "up",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        },
+        "radius": 12
+      },
+      "expected": [
+        {
+          "op": "M",
+          "x": 20,
+          "y": 22
+        },
+        {
+          "op": "L",
+          "x": 20,
+          "y": 98
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 0,
+          "x": 32,
+          "y": 110
+        },
+        {
+          "op": "L",
+          "x": 48,
+          "y": 110
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 0,
+          "x": 60,
+          "y": 98
+        },
+        {
+          "op": "L",
+          "x": 60,
+          "y": 22
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 0,
+          "x": 48,
+          "y": 10
+        },
+        {
+          "op": "L",
+          "x": 32,
+          "y": 10
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 0,
+          "x": 20,
+          "y": 22
+        },
+        {
+          "op": "Z"
+        }
+      ]
+    },
+    {
+      "name": "roundedRect down",
+      "input": {
+        "fn": "roundedRect",
+        "growth": "down",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        },
+        "radius": 12
+      },
+      "expected": [
+        {
+          "op": "M",
+          "x": 20,
+          "y": 278
+        },
+        {
+          "op": "L",
+          "x": 20,
+          "y": 202
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 1,
+          "x": 32,
+          "y": 190
+        },
+        {
+          "op": "L",
+          "x": 48,
+          "y": 190
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 1,
+          "x": 60,
+          "y": 202
+        },
+        {
+          "op": "L",
+          "x": 60,
+          "y": 278
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 1,
+          "x": 48,
+          "y": 290
+        },
+        {
+          "op": "L",
+          "x": 32,
+          "y": 290
+        },
+        {
+          "op": "A",
+          "r": 12,
+          "sweep": 1,
+          "x": 20,
+          "y": 278
+        },
+        {
+          "op": "Z"
+        }
+      ]
+    },
+    {
+      "name": "roundedRect with a radius larger than the rect allows",
+      "input": {
+        "fn": "roundedRect",
+        "growth": "left",
+        "canonicalWidth": 300,
+        "rect": {
+          "x": 10,
+          "y": 20,
+          "width": 100,
+          "height": 40
+        },
+        "radius": 90
+      },
+      "expected": [
+        {
+          "op": "M",
+          "x": 30,
+          "y": 20
+        },
+        {
+          "op": "L",
+          "x": 90,
+          "y": 20
+        },
+        {
+          "op": "A",
+          "r": 20,
+          "sweep": 1,
+          "x": 110,
+          "y": 40
+        },
+        {
+          "op": "L",
+          "x": 110,
+          "y": 40
+        },
+        {
+          "op": "A",
+          "r": 20,
+          "sweep": 1,
+          "x": 90,
+          "y": 60
+        },
+        {
+          "op": "L",
+          "x": 30,
+          "y": 60
+        },
+        {
+          "op": "A",
+          "r": 20,
+          "sweep": 1,
+          "x": 10,
+          "y": 40
+        },
+        {
+          "op": "L",
+          "x": 10,
+          "y": 40
+        },
+        {
+          "op": "A",
+          "r": 20,
+          "sweep": 1,
+          "x": 30,
+          "y": 20
+        },
+        {
+          "op": "Z"
+        }
+      ],
+      "note": "The radius is held to half the shorter side."
+    }
+  ]
+}

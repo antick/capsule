@@ -55,7 +55,10 @@ Things the TypeScript does that a straightforward Swift port will get wrong:
   zero and gives `-3`. Use `(x + 0.5).rounded(.down)` wherever the original
   calls `Math.round`. Positive halves agree; negative ones do not.
 - **Two-decimal coordinates.** Path builders round every coordinate with
-  `Math.round(v * 100) / 100`. Compare paths as numbers after that rounding.
+  `Math.round(v * 100) / 100`. `hud-paths/` records paths as commands —
+  `M`, `L`, `A` (radius, sweep, end), `C` (two controls, end), `Z` — with
+  coordinates already rounded, so compare numbers rather than SVG text.
+  `hud-paths/primitives` pins the rounding itself, negative halves included.
 - **Scale snapping is floating-point sensitive.** `clampHudScale(1.15)` is
   `1.1` but `clampHudScale(1.25)` is `1.3`, because of how `1.15 / 0.1` and
   `1.25 / 0.1` land in binary. The cases in `hud-metrics/clamp-scale` pin it;
@@ -123,16 +126,27 @@ every re-record into a whitespace diff that hides the change that matters.
 | Area | Files | Cases |
 | --- | --- | --- |
 | `usage/` | 14 | 67 |
+| `activity/` | 13 | 126 |
+| `placement/` | 6 | 129 |
+| `hud-metrics/` | 9 | 173 |
+| `hud-paths/` | 8 | 271 |
+| `settings/` | 3 | 41 |
+| `updates/` | 6 | 43 |
 | `dates/` | 5 | 17 |
 | `severity/` | 1 | 10 |
-| `activity/` | 1 | 8 |
-| **Total** | **21** | **102** |
+| **Total** | **65** | **877** |
 
-Still to extract (Phase 0 is not finished): the rest of `packages/activity`
-(session reading, Codex JSON-RPC, local events, token totals), the geometry,
-snapping, motion, settings-migration and update-state cases in
-`packages/config`, the silhouette path cases in `packages/hud`, and the
-portable cases among `apps/desktop`'s 13 test files.
+Phase 0's extraction is done for everything the native app ports — usage,
+activity, placement and sizing, settings, updates, and the dock's
+silhouettes. Two pieces remain, neither of which blocks a Swift module:
+
+- **The stubbed-host scenarios** (task 1.3a): a provider's full read with a
+  stubbed `fetch`, `readFile` and `readSecret`, and the activity readers'
+  walks over a stubbed filesystem. Their parsers are in the corpus; the wiring
+  around them is not yet data.
+- **`apps/desktop`'s 13 test files**, which cover the Electron main process —
+  overlay placement, Dock and notch probing, the update host. They matter to
+  the Phase 2 shell, not to the logic modules.
 
 ## Deliberately not portable
 
@@ -152,6 +166,16 @@ against:
   database and rollout scan, Grok session discovery, the token log scanner, and
   the activity monitor itself. Each needs a stubbed host. Everything they hand
   their parsers *is* in the corpus.
+- The dock's React rendering: `UsageDock.test.ts` and
+  `activity-notices.test.ts` assert on rendered markup. The native dock is
+  drawn with layers, and its look is checked by the snapshot target (design
+  decision 13), not by values in this corpus.
+- CSS-only helpers in `packages/hud`: `reveal.ts`, `shadow.ts`,
+  `dock-stylesheet.ts`, and the `transform-origin` strings from
+  `bubbleOrigin` and `cardOrigin`. Core Animation replaces all of them; the
+  tail tip and card they were computed from are in `hud-paths/blob-layout`.
+- The corner arc's silhouettes in `corner-path.test.ts`, for the same reason
+  as its geometry above.
 - The agent chat: `claude-channel.test.ts` and `codex-connection.test.ts`. The
   feature is suspended — its source is kept but inactive, per `AGENTS.md` — and
   it is not part of the native app, so nothing about it is extracted.
