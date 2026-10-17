@@ -15,15 +15,21 @@ let package = Package(
     .macOS(.v14)
   ],
   products: [
-    .library(name: "CapsuleCore", targets: ["CapsuleCore"])
+    .library(name: "CapsuleCore", targets: ["CapsuleCore"]),
+    .library(name: "CapsuleUsage", targets: ["CapsuleUsage"]),
   ],
   targets: [
     .target(name: "CapsuleCore"),
+    .target(name: "CapsuleUsage", dependencies: ["CapsuleCore"]),
     // Test support: reads the same JSON corpus the Vitest suites read.
     .target(name: "CapsuleFixtures"),
     .testTarget(
       name: "CapsuleCoreTests",
       dependencies: ["CapsuleCore", "CapsuleFixtures"]
+    ),
+    .testTarget(
+      name: "CapsuleUsageTests",
+      dependencies: ["CapsuleUsage", "CapsuleFixtures"]
     ),
   ]
 )

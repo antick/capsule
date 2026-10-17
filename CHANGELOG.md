@@ -13,6 +13,18 @@ All notable changes to Capsule are documented in this file.
 
 - Re-recorded the Claude, Codex and Grok mapping fixtures against the fixed mappers, and added cases for the paths the fix opens up: a Claude payload with only a weekly window, a Codex window reporting a reset but no percentage, and a Grok product row with no headline credit percent. The corpus is now 102 cases across 21 files. The real mappings — Claude 73/7, Codex 21/8, Grok 52/18 — are unchanged.
 
+## Native migration, phase 1 — Swift usage readers
+
+### Added
+
+- Added `CapsuleUsage`: snapshot types, percent clamping, rate-limit backoff and `Retry-After` parsing, snapshot merging, and payload mapping plus token reading for all five providers — Claude, Codex, Grok, Cursor and Copilot.
+- Every one of the 21 extracted fixtures is now ported. `swift test` runs 26 tests over the same corpus the Vitest suites read, and the not-yet-ported list in the coverage gate is empty.
+- Provider mapping is checked by whole-snapshot equality rather than a few fields, so any difference anywhere in a mapped snapshot fails the port rather than passing unnoticed.
+
+### Changed
+
+- Reading an epoch reset time, a provider token, or a JSON payload is now typed through `Codable` instead of cast, so a shape a provider did not send is a decode failure rather than a silent `undefined`.
+
 ## Native migration, phase 1 — Swift core
 
 ### Added

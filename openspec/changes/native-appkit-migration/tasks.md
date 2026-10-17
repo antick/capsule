@@ -27,11 +27,12 @@ usage 85, activity 39, hud 68, desktop 63.
 No app target and no UI in this phase. Acceptance is the Phase 0 corpus
 passing under `swift test`.
 
-Status: the package exists and `swift test` runs 11 tests in 4 suites against
-the shared corpus — reset and elapsed copy, severity bands, token counts and
-day keys. `CapsuleUsage` is next; `CapsuleActivity` and `CapsuleHUD` wait on
-their fixtures. A coverage gate in `CorpusCoverageTests` fails if a fixture
-exists that nothing reads and nobody has listed as not-yet-ported.
+Status: `swift test` runs 26 tests across `CapsuleCoreTests` (11) and
+`CapsuleUsageTests` (15), and every one of the 21 extracted fixtures is now
+ported — `notYetPorted` in `CorpusCoverageTests` is empty. What is left in
+`CapsuleUsage` is host work, not mapping: the HTTP reads, credential
+discovery, and the poller. `CapsuleActivity` and `CapsuleHUD` still wait on
+Phase 0 extracting their fixtures.
 
 - [x] 2.1 Add `Package.swift` at the repo root with a `macOS 14.0` platform floor, and commit `.swift-version` recording the toolchain. No third-party dependencies in this phase. Declares `CapsuleCore` and the `CapsuleFixtures` test-support target; `CapsuleUsage`, `CapsuleActivity` and `CapsuleHUD` are declared as their content lands, because an empty module would claim progress that does not exist.
 - [x] 2.1a Add a Swift corpus loader that finds `fixtures/` by walking up to `pnpm-workspace.yaml`, the same way the TypeScript loader does, so neither side keeps a copy inside its own target. Ignore `.build/` and `.swiftpm/`.
@@ -40,15 +41,17 @@ exists that nothing reads and nobody has listed as not-yet-ported.
 - [ ] 2.2b Implement the rest of `CapsuleCore`'s constants and the settings model, mirroring `@capsule/config` — no literals in any other module, per the repo's no-hard-coded-values rule.
 - [x] 2.3 Implement the reset-time formatters in `CapsuleCore`; every other module formats dates only through them. Includes `formatElapsed`, `formatAgo`, `dayKey`, `startOfDay` and `formatCompactCount`, and normalises the meridiem space so copy cannot drift with the toolchain.
 - [ ] 2.4 Implement placement geometry and snapping in `CapsuleCore`; pass the `placement/` fixtures. Blocked on task 1.5b extracting them.
-- [ ] 2.5 Implement `CapsuleUsage` snapshot types, clamping, snapshot merge, backoff, and the poller; pass those fixtures.
-- [ ] 2.6 Implement all five provider readers in `CapsuleUsage` over `URLSession` and `Codable`, reusing the same local credential locations and the same usage endpoints and headers; pass the `usage/` fixtures.
-- [ ] 2.6a Read Claude's keychain credential through the Security framework rather than shelling out to `security`.
-- [ ] 2.6b Read Cursor's state database by linking `libsqlite3` directly instead of spawning `sqlite3 -readonly`, so the only remaining subprocess is `gh`.
-- [ ] 2.6c Add the one `Process` host helper that `gh auth token` needs, with PATH resolution that finds a Homebrew install, and treat a missing `gh` as "no token" rather than an error.
+- [x] 2.5a Implement the snapshot types, clamping, snapshot merge, and backoff in `CapsuleUsage`; pass those fixtures.
+- [ ] 2.5b Implement the poller — startup, interval, wake, network-online — which needs an injected host and has no fixture to match.
+- [x] 2.6a Implement all five providers' payload mapping and token reading in `CapsuleUsage` over `Codable`; pass every `usage/` fixture with whole-snapshot equality.
+- [ ] 2.6b Implement the five providers' HTTP reads over `URLSession`, reusing the same usage endpoints and headers, and the same local credential locations. Not fixture-covered: the TypeScript equivalents are tested with a stubbed host, which task 1.3a is about encoding as data.
+- [ ] 2.6c Read Claude's keychain credential through the Security framework rather than shelling out to `security`.
+- [ ] 2.6d Read Cursor's state database by linking `libsqlite3` directly instead of spawning `sqlite3 -readonly`, so the only remaining subprocess is `gh`.
+- [ ] 2.6e Add the one `Process` host helper that `gh auth token` needs, with PATH resolution that finds a Homebrew install, and treat a missing `gh` as "no token" rather than an error.
 - [ ] 2.7 Implement `CapsuleActivity` session reading, the Codex JSON-RPC client, token totals, and a file-watching monitor over `FSEvents` behind the same injectable-host seam the TypeScript monitor used; pass the `activity/` fixtures.
 - [ ] 2.8 Port the silhouette math into `CapsuleHUD` as pure functions returning `CGPath` — blob, latch, and the `path-builder` primitives — and pass the `hud-paths/` fixtures. Do not port the corner arc (design decision 10); leave its fixtures unexecuted and note that in `fixtures/README.md`.
-- [ ] 2.9 Keep every Swift source file at or under 500 lines, splitting as needed.
-- [ ] 2.10 Add a parity check that fails if any fixture in the corpus is not executed by the Swift suite, so a silently skipped case cannot pass as green.
+- [x] 2.9 Keep every Swift source file at or under 500 lines, splitting as needed. Largest is `Providers/Grok.swift` at 216.
+- [x] 2.10 Add a parity check that fails if any fixture in the corpus is not executed by the Swift suite, so a silently skipped case cannot pass as green.
 - [ ] 2.11 Run `swift test` one target at a time, backgrounded, per the repo's heavy-command rule, and record the case counts against Phase 0's numbers.
 - [ ] 2.12 Update `CHANGELOG.md`.
 

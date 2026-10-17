@@ -7,8 +7,11 @@ import Testing
 /// than sitting unnoticed until the port is finished.
 @Suite("Corpus coverage")
 struct CorpusCoverageTests {
-  /// Every fixture this test target drives.
+  /// Every fixture the Swift suites drive, across all test targets —
+  /// `CapsuleCoreTests` and `CapsuleUsageTests`. The gate is about the corpus
+  /// as a whole, so it lists the whole corpus rather than one target's share.
   static let covered: Set<String> = [
+    // CapsuleCoreTests
     "activity/compact-count",
     "dates/ago",
     "dates/day-keys",
@@ -16,11 +19,7 @@ struct CorpusCoverageTests {
     "dates/reset-absolute",
     "dates/reset-relative",
     "severity/for-percent",
-  ]
-
-  /// Fixtures whose Swift port has not landed. Shrinks to empty by the end of
-  /// Phase 1; anything left here at that point is a gap, not a plan.
-  static let notYetPorted: Set<String> = [
+    // CapsuleUsageTests
     "usage/backoff",
     "usage/clamp-percent",
     "usage/claude-cache",
@@ -36,6 +35,12 @@ struct CorpusCoverageTests {
     "usage/tokens-from-file",
     "usage/unauthenticated",
   ]
+
+  /// Fixtures whose Swift port has not landed. Empty: every fixture extracted
+  /// so far is ported. It fills again as Phase 0 extracts the activity, config
+  /// geometry and HUD path cases, and must be empty again by the end of
+  /// Phase 1.
+  static let notYetPorted: Set<String> = []
 
   @Test("every fixture is either covered or explicitly not yet ported")
   func accountedFor() throws {
