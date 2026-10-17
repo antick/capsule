@@ -88,6 +88,7 @@ struct CorpusCoverageTests {
     "updates/plain-release-notes",
     "updates/release-url",
     "updates/wording",
+    "usage/provider-reads",
   ]
 
   /// Fixtures the native app deliberately does not match, each with the

@@ -11,15 +11,15 @@ import { openGolden } from "./index.ts";
  */
 export function goldenSuite<Input, Expected>(
   path: string,
-  run: (input: Input, now: Date) => Expected,
+  run: (input: Input, now: Date) => Expected | Promise<Expected>,
 ): void {
   const golden = openGolden<Input, Expected>(path);
   const now = golden.frozenNow ? new Date(golden.frozenNow) : new Date(0);
 
   describe(`${path}: ${golden.about}`, () => {
     for (const testCase of golden.cases) {
-      it(testCase.name, () => {
-        const actual = asJson(run(testCase.input, now));
+      it(testCase.name, async () => {
+        const actual = asJson(await run(testCase.input, now));
         expect(actual).toEqual(golden.expect(testCase, actual));
       });
     }

@@ -1,0 +1,2696 @@
+{
+  "about": "provider.fetchSnapshot(context) against a stub world — files, secrets, commands, environment and canned responses — recording the outcome and every request made",
+  "timeZone": "UTC",
+  "frozenNow": "2026-08-27T11:22:00Z",
+  "note": "A response matches on url, and on method and authorization when it names them. A request nothing matches fails as a network error. Request headers are recorded lower-cased, as HTTP treats them.",
+  "cases": [
+    {
+      "name": "claude: a file token reads usage",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 200,
+            "body": {
+              "five_hour": {
+                "utilization": 73,
+                "resets_at": "2026-08-27T12:13:00Z"
+              },
+              "seven_day": {
+                "utilization": 7,
+                "resets_at": "2026-09-03T00:00:00Z"
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 73,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "current-session",
+                "label": "Current session",
+                "percentUsed": 73,
+                "resetsAt": "2026-08-27T12:13:00Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "all-models",
+                "label": "All models",
+                "percentUsed": 7,
+                "resetsAt": "2026-09-03T00:00:00Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: no credentials anywhere",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": []
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": []
+      },
+      "note": "No request is made at all."
+    },
+    {
+      "name": "claude: the keychain is tried before the file",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}"
+        },
+        "secrets": {
+          "Claude Code-credentials": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-keychain\"}}"
+        },
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 200,
+            "body": {
+              "five_hour": {
+                "utilization": 73,
+                "resets_at": "2026-08-27T12:13:00Z"
+              },
+              "seven_day": {
+                "utilization": 7,
+                "resets_at": "2026-09-03T00:00:00Z"
+              }
+            },
+            "authorization": "Bearer sk-ant-oat-keychain"
+          },
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 401,
+            "authorization": "Bearer sk-ant-oat-file"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 73,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "current-session",
+                "label": "Current session",
+                "percentUsed": 73,
+                "resetsAt": "2026-08-27T12:13:00Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "all-models",
+                "label": "All models",
+                "percentUsed": 7,
+                "resetsAt": "2026-09-03T00:00:00Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-keychain",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: a rejected keychain token falls through to the file",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}"
+        },
+        "secrets": {
+          "Claude Code-credentials": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-keychain\"}}"
+        },
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 401,
+            "authorization": "Bearer sk-ant-oat-keychain"
+          },
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 200,
+            "body": {
+              "five_hour": {
+                "utilization": 73,
+                "resets_at": "2026-08-27T12:13:00Z"
+              },
+              "seven_day": {
+                "utilization": 7,
+                "resets_at": "2026-09-03T00:00:00Z"
+              }
+            },
+            "authorization": "Bearer sk-ant-oat-file"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 73,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "current-session",
+                "label": "Current session",
+                "percentUsed": 73,
+                "resetsAt": "2026-08-27T12:13:00Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "all-models",
+                "label": "All models",
+                "percentUsed": 7,
+                "resetsAt": "2026-09-03T00:00:00Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-keychain",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          },
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: the same token in both places is sent once",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-same\"}}"
+        },
+        "secrets": {
+          "Claude Code-credentials": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-same\"}}"
+        },
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 401
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-same",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: a raw token file that is not JSON",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "  sk-ant-oat-raw-0000000000000000  \n"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 200,
+            "body": {
+              "five_hour": {
+                "utilization": 73,
+                "resets_at": "2026-08-27T12:13:00Z"
+              },
+              "seven_day": {
+                "utilization": 7,
+                "resets_at": "2026-09-03T00:00:00Z"
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 73,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "current-session",
+                "label": "Current session",
+                "percentUsed": 73,
+                "resetsAt": "2026-08-27T12:13:00Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "all-models",
+                "label": "All models",
+                "percentUsed": 7,
+                "resetsAt": "2026-09-03T00:00:00Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-raw-0000000000000000",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      },
+      "note": "A file that does not parse is taken as the token itself when it is long enough."
+    },
+    {
+      "name": "claude: a short non-JSON file is not a token",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "nope"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 200,
+            "body": {
+              "five_hour": {
+                "utilization": 73,
+                "resets_at": "2026-08-27T12:13:00Z"
+              },
+              "seven_day": {
+                "utilization": 7,
+                "resets_at": "2026-09-03T00:00:00Z"
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": []
+      }
+    },
+    {
+      "name": "claude: every token rejected and no cache",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}"
+        },
+        "secrets": {
+          "Claude Code-credentials": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-keychain\"}}"
+        },
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 401
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-keychain",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          },
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: every token rejected, but a current cache",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}",
+          "/home/.claude.json": "{\"cachedUsageUtilization\":{\"utilization\":{\"five_hour\":{\"utilization\":40,\"resets_at\":\"2026-08-27T13:00:00Z\"},\"seven_day\":{\"utilization\":5,\"resets_at\":\"2026-09-03T00:00:00Z\"}}}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 403
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 40,
+            "status": "stale",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "current-session",
+                "label": "Current session",
+                "percentUsed": 40,
+                "resetsAt": "2026-08-27T13:00:00Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "all-models",
+                "label": "All models",
+                "percentUsed": 5,
+                "resetsAt": "2026-09-03T00:00:00Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: rate limited, with a current cache to show",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}",
+          "/home/.claude.json": "{\"cachedUsageUtilization\":{\"utilization\":{\"five_hour\":{\"utilization\":40,\"resets_at\":\"2026-08-27T13:00:00Z\"},\"seven_day\":{\"utilization\":5,\"resets_at\":\"2026-09-03T00:00:00Z\"}}}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 429,
+            "headers": {
+              "Retry-After": "120"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": 120000,
+            "fallback": {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:22:00.000Z",
+              "buckets": [
+                {
+                  "id": "current-session",
+                  "label": "Current session",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00Z",
+                  "resetStyle": "relative"
+                },
+                {
+                  "id": "all-models",
+                  "label": "All models",
+                  "percentUsed": 5,
+                  "resetsAt": "2026-09-03T00:00:00Z",
+                  "resetStyle": "absolute"
+                }
+              ]
+            }
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      },
+      "note": "Throws rather than returning the cache, so the poller backs off; the cache rides along as the fallback."
+    },
+    {
+      "name": "claude: rate limited, with a cache that has rolled over",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}",
+          "/home/.claude.json": "{\"cachedUsageUtilization\":{\"utilization\":{\"five_hour\":{\"utilization\":40,\"resets_at\":\"2026-08-20T12:13:00Z\"},\"seven_day\":{\"utilization\":5,\"resets_at\":\"2026-08-22T00:00:00Z\"}}}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 429
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": null,
+            "fallback": null
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: rate limited, with no cache",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 429,
+            "headers": {
+              "Retry-After": "Thu, 27 Aug 2026 11:32:00 GMT"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": 600000,
+            "fallback": null
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: a 429 stops the loop before the next token",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}"
+        },
+        "secrets": {
+          "Claude Code-credentials": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-keychain\"}}"
+        },
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 429,
+            "authorization": "Bearer sk-ant-oat-keychain"
+          },
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 200,
+            "body": {
+              "five_hour": {
+                "utilization": 73,
+                "resets_at": "2026-08-27T12:13:00Z"
+              },
+              "seven_day": {
+                "utilization": 7,
+                "resets_at": "2026-09-03T00:00:00Z"
+              }
+            },
+            "authorization": "Bearer sk-ant-oat-file"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": null,
+            "fallback": null
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-keychain",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: a server error with a current cache shows the cache",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}",
+          "/home/.claude.json": "{\"cachedUsageUtilization\":{\"utilization\":{\"five_hour\":{\"utilization\":40,\"resets_at\":\"2026-08-27T13:00:00Z\"},\"seven_day\":{\"utilization\":5,\"resets_at\":\"2026-09-03T00:00:00Z\"}}}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 500
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 40,
+            "status": "stale",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "current-session",
+                "label": "Current session",
+                "percentUsed": 40,
+                "resetsAt": "2026-08-27T13:00:00Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "all-models",
+                "label": "All models",
+                "percentUsed": 5,
+                "resetsAt": "2026-09-03T00:00:00Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: a server error and no cache fails",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 500
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "failed": true
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "claude: the network is down and no cache",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\":{\"accessToken\":\"sk-ant-oat-file\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "fail": true
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "failed": true
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: an access token reads usage with the account header",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\":{\"access_token\":\"at-1\",\"account_id\":\"acct-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 200,
+            "body": {
+              "plan_type": "plus",
+              "rate_limit": {
+                "primary_window": {
+                  "used_percent": 21,
+                  "limit_window_seconds": 18000,
+                  "reset_at": 1788600000
+                },
+                "secondary_window": {
+                  "used_percent": 8,
+                  "limit_window_seconds": 604800,
+                  "reset_at": 1789000000
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": 21,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "primary",
+                "label": "5-hour window",
+                "percentUsed": 21,
+                "resetsAt": "2026-09-05T09:20:00.000Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "secondary",
+                "label": "Weekly",
+                "percentUsed": 8,
+                "resetsAt": "2026-09-10T00:26:40.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-1",
+              "chatgpt-account-id": "acct-1",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: no auth file",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": []
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": []
+      }
+    },
+    {
+      "name": "codex: only a refresh token is exchanged first",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\":{\"refresh_token\":\"rt-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://auth.openai.com/oauth/token",
+            "status": 200,
+            "body": {
+              "access_token": "at-fresh"
+            },
+            "method": "POST"
+          },
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 200,
+            "body": {
+              "plan_type": "plus",
+              "rate_limit": {
+                "primary_window": {
+                  "used_percent": 21,
+                  "limit_window_seconds": 18000,
+                  "reset_at": 1788600000
+                },
+                "secondary_window": {
+                  "used_percent": 8,
+                  "limit_window_seconds": 604800,
+                  "reset_at": 1789000000
+                }
+              }
+            },
+            "authorization": "Bearer at-fresh"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": 21,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "primary",
+                "label": "5-hour window",
+                "percentUsed": 21,
+                "resetsAt": "2026-09-05T09:20:00.000Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "secondary",
+                "label": "Weekly",
+                "percentUsed": 8,
+                "resetsAt": "2026-09-10T00:26:40.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://auth.openai.com/oauth/token",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/x-www-form-urlencoded",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "grant_type=refresh_token&refresh_token=rt-1&client_id=app_EMohtA1zFfdvkohgPldNB5nP"
+          },
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-fresh",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: a refresh that fails is not connected",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\":{\"refresh_token\":\"rt-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://auth.openai.com/oauth/token",
+            "status": 400,
+            "method": "POST"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://auth.openai.com/oauth/token",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/x-www-form-urlencoded",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "grant_type=refresh_token&refresh_token=rt-1&client_id=app_EMohtA1zFfdvkohgPldNB5nP"
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: a 401 refreshes and retries once",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\":{\"access_token\":\"at-old\",\"refresh_token\":\"rt-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 401,
+            "authorization": "Bearer at-old"
+          },
+          {
+            "url": "https://auth.openai.com/oauth/token",
+            "status": 200,
+            "body": {
+              "access_token": "at-new"
+            },
+            "method": "POST"
+          },
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 200,
+            "body": {
+              "plan_type": "plus",
+              "rate_limit": {
+                "primary_window": {
+                  "used_percent": 21,
+                  "limit_window_seconds": 18000,
+                  "reset_at": 1788600000
+                },
+                "secondary_window": {
+                  "used_percent": 8,
+                  "limit_window_seconds": 604800,
+                  "reset_at": 1789000000
+                }
+              }
+            },
+            "authorization": "Bearer at-new"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": 21,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "primary",
+                "label": "5-hour window",
+                "percentUsed": 21,
+                "resetsAt": "2026-09-05T09:20:00.000Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "secondary",
+                "label": "Weekly",
+                "percentUsed": 8,
+                "resetsAt": "2026-09-10T00:26:40.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-old",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://auth.openai.com/oauth/token",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/x-www-form-urlencoded",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "grant_type=refresh_token&refresh_token=rt-1&client_id=app_EMohtA1zFfdvkohgPldNB5nP"
+          },
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-new",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: a 404 falls back to the older endpoint",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\":{\"access_token\":\"at-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 404
+          },
+          {
+            "url": "https://chatgpt.com/backend-api/codex/usage",
+            "status": 200,
+            "body": {
+              "plan_type": "plus",
+              "rate_limit": {
+                "primary_window": {
+                  "used_percent": 21,
+                  "limit_window_seconds": 18000,
+                  "reset_at": 1788600000
+                },
+                "secondary_window": {
+                  "used_percent": 8,
+                  "limit_window_seconds": 604800,
+                  "reset_at": 1789000000
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": 21,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "primary",
+                "label": "5-hour window",
+                "percentUsed": 21,
+                "resetsAt": "2026-09-05T09:20:00.000Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "secondary",
+                "label": "Weekly",
+                "percentUsed": 8,
+                "resetsAt": "2026-09-10T00:26:40.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-1",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          },
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/codex/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-1",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: forbidden is not connected",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\":{\"access_token\":\"at-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 403
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-1",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: rate limited",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\":{\"access_token\":\"at-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 429,
+            "headers": {
+              "Retry-After": "30"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": 30000,
+            "fallback": null
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-1",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: a server error fails",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\":{\"access_token\":\"at-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 502
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "failed": true
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-1",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: CODEX_HOME moves the auth file",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/elsewhere/codex/auth.json": "{\"tokens\":{\"access_token\":\"at-env\"}}",
+          "/home/.codex/auth.json": "{\"tokens\":{\"access_token\":\"at-default\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {
+          "CODEX_HOME": "/elsewhere/codex"
+        },
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 200,
+            "body": {
+              "plan_type": "plus",
+              "rate_limit": {
+                "primary_window": {
+                  "used_percent": 21,
+                  "limit_window_seconds": 18000,
+                  "reset_at": 1788600000
+                },
+                "secondary_window": {
+                  "used_percent": 8,
+                  "limit_window_seconds": 604800,
+                  "reset_at": 1789000000
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": 21,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "primary",
+                "label": "5-hour window",
+                "percentUsed": 21,
+                "resetsAt": "2026-09-05T09:20:00.000Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "secondary",
+                "label": "Weekly",
+                "percentUsed": 8,
+                "resetsAt": "2026-09-10T00:26:40.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-env",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: a top-level access token is read too",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"access_token\":\"at-flat\"}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 200,
+            "body": {
+              "plan_type": "plus",
+              "rate_limit": {
+                "primary_window": {
+                  "used_percent": 21,
+                  "limit_window_seconds": 18000,
+                  "reset_at": 1788600000
+                },
+                "secondary_window": {
+                  "used_percent": 8,
+                  "limit_window_seconds": 604800,
+                  "reset_at": 1789000000
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": 21,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "primary",
+                "label": "5-hour window",
+                "percentUsed": 21,
+                "resetsAt": "2026-09-05T09:20:00.000Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "secondary",
+                "label": "Weekly",
+                "percentUsed": 8,
+                "resetsAt": "2026-09-10T00:26:40.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-flat",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "grok: a token reads credits",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/home/.grok/auth.json": "{\"https://accounts.x.ai/sign-in\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 200,
+            "body": {
+              "config": {
+                "creditUsagePercent": 52,
+                "currentPeriod": {
+                  "end": "2026-09-03T00:00:00Z"
+                },
+                "productUsage": [
+                  {
+                    "product": "PRODUCT_GROK_BUILD",
+                    "usagePercent": 18
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "grok",
+            "displayName": "Grok",
+            "iconId": "grok",
+            "primaryPercent": 52,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "weekly",
+                "label": "Weekly credits",
+                "percentUsed": 52,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              },
+              {
+                "id": "product",
+                "label": "Grok Build",
+                "percentUsed": 18,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "grok: the user id rides along as a header",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/home/.grok/auth.json": "{\"https://accounts.x.ai/sign-in\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\",\"user_id\":\"user-9\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 200,
+            "body": {
+              "config": {
+                "creditUsagePercent": 52,
+                "currentPeriod": {
+                  "end": "2026-09-03T00:00:00Z"
+                },
+                "productUsage": [
+                  {
+                    "product": "PRODUCT_GROK_BUILD",
+                    "usagePercent": 18
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "grok",
+            "displayName": "Grok",
+            "iconId": "grok",
+            "primaryPercent": 52,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "weekly",
+                "label": "Weekly credits",
+                "percentUsed": 52,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              },
+              {
+                "id": "product",
+                "label": "Grok Build",
+                "percentUsed": 18,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-userid": "user-9",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "grok: an unexpired token is preferred over an expired one",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/home/.grok/auth.json": "{\"old\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sigold\",\"expires_at\":\"2020-01-01T00:00:00Z\"},\"fresh\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.signew\",\"expires_at\":\"2027-01-01T00:00:00Z\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 200,
+            "body": {
+              "config": {
+                "creditUsagePercent": 52,
+                "currentPeriod": {
+                  "end": "2026-09-03T00:00:00Z"
+                },
+                "productUsage": [
+                  {
+                    "product": "PRODUCT_GROK_BUILD",
+                    "usagePercent": 18
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "grok",
+            "displayName": "Grok",
+            "iconId": "grok",
+            "primaryPercent": 52,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "weekly",
+                "label": "Weekly credits",
+                "percentUsed": 52,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              },
+              {
+                "id": "product",
+                "label": "Grok Build",
+                "percentUsed": 18,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.signew",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "grok: no auth file",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": []
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "grok",
+            "displayName": "Grok",
+            "iconId": "grok",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": []
+      }
+    },
+    {
+      "name": "grok: rejected is not connected",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/home/.grok/auth.json": "{\"k\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 401
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "grok",
+            "displayName": "Grok",
+            "iconId": "grok",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "grok: rate limited",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/home/.grok/auth.json": "{\"k\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 429
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "failed": true
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      },
+      "note": "RECORDS CURRENT BEHAVIOUR, WHICH LOOKS WRONG: Grok has no 429 branch, so a rate-limited read fails as a generic error instead of a RateLimitedError. The poller therefore never backs off for Grok and knocks again on every refresh. Claude, Codex, Cursor and Copilot all throw RateLimitedError here. Recorded so the port is faithful; fix it in the TypeScript first and re-record rather than carrying it into Swift."
+    },
+    {
+      "name": "grok: a server error fails",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/home/.grok/auth.json": "{\"k\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 500
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "failed": true
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "grok: GROK_HOME moves the auth file",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/elsewhere/grok/auth.json": "{\"k\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {
+          "GROK_HOME": "/elsewhere/grok"
+        },
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 200,
+            "body": {
+              "config": {
+                "creditUsagePercent": 52,
+                "currentPeriod": {
+                  "end": "2026-09-03T00:00:00Z"
+                },
+                "productUsage": [
+                  {
+                    "product": "PRODUCT_GROK_BUILD",
+                    "usagePercent": 18
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "grok",
+            "displayName": "Grok",
+            "iconId": "grok",
+            "primaryPercent": 52,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "weekly",
+                "label": "Weekly credits",
+                "percentUsed": 52,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              },
+              {
+                "id": "product",
+                "label": "Grok Build",
+                "percentUsed": 18,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cursor: the state store's token reads the summary as a cookie",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e65794a7a645749694f694a3163325679587a5179496e302e79\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cursor.com/api/usage-summary",
+            "status": 200,
+            "body": {
+              "billingCycleEnd": "2026-09-01T00:00:00Z",
+              "individualUsage": {
+                "plan": {
+                  "totalPercentUsed": 42.4
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "cursor",
+            "displayName": "Cursor",
+            "iconId": "cursor",
+            "primaryPercent": 42.4,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "plan",
+                "label": "Plan usage",
+                "percentUsed": 42.4,
+                "resetsAt": "2026-09-01T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cursor.com/api/usage-summary",
+            "headers": {
+              "accept": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cursor: no token in the state store",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": ""
+          }
+        ],
+        "env": {},
+        "responses": []
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "cursor",
+            "displayName": "Cursor",
+            "iconId": "cursor",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": []
+      }
+    },
+    {
+      "name": "cursor: a token with no user is not connected",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e6533302e79"
+          }
+        ],
+        "env": {},
+        "responses": []
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "cursor",
+            "displayName": "Cursor",
+            "iconId": "cursor",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": []
+      }
+    },
+    {
+      "name": "cursor: a failing summary falls back to the legacy endpoint",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e65794a7a645749694f694a3163325679587a5179496e302e79\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cursor.com/api/usage-summary",
+            "status": 500
+          },
+          {
+            "url": "https://cursor.com/api/usage?user=user_42",
+            "status": 200,
+            "body": {
+              "billingCycleEnd": "2026-09-01T00:00:00Z",
+              "individualUsage": {
+                "plan": {
+                  "totalPercentUsed": 42.4
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "cursor",
+            "displayName": "Cursor",
+            "iconId": "cursor",
+            "primaryPercent": 42.4,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "plan",
+                "label": "Plan usage",
+                "percentUsed": 42.4,
+                "resetsAt": "2026-09-01T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cursor.com/api/usage-summary",
+            "headers": {
+              "accept": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          },
+          {
+            "method": "GET",
+            "url": "https://cursor.com/api/usage?user=user_42",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cursor: rejected is not connected",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e65794a7a645749694f694a3163325679587a5179496e302e79\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cursor.com/api/usage-summary",
+            "status": 401
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "cursor",
+            "displayName": "Cursor",
+            "iconId": "cursor",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cursor.com/api/usage-summary",
+            "headers": {
+              "accept": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cursor: rate limited does not try the legacy endpoint",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e65794a7a645749694f694a3163325679587a5179496e302e79\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cursor.com/api/usage-summary",
+            "status": 429,
+            "headers": {
+              "Retry-After": "60"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": 60000,
+            "fallback": null
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cursor.com/api/usage-summary",
+            "headers": {
+              "accept": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "copilot: GITHUB_TOKEN wins over everything",
+      "input": {
+        "provider": "copilot",
+        "home": "/home",
+        "files": {
+          "/home/.config/github-copilot/apps.json": "{\"github.com:Iv1.abc\":{\"oauth_token\":\"gho_file\"}}"
+        },
+        "secrets": {},
+        "commands": [
+          {
+            "file": "gh",
+            "args": [
+              "auth",
+              "token"
+            ],
+            "output": "gho_cli\n"
+          }
+        ],
+        "env": {
+          "GITHUB_TOKEN": "gho_env"
+        },
+        "responses": [
+          {
+            "url": "https://api.github.com/copilot_internal/user",
+            "status": 200,
+            "body": {
+              "quota_reset_date": "2026-09-01",
+              "quota_snapshots": {
+                "premium_interactions": {
+                  "percent_remaining": 64.5
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "copilot",
+            "displayName": "Copilot",
+            "iconId": "copilot",
+            "primaryPercent": 35.5,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "premium",
+                "label": "Premium requests",
+                "percentUsed": 35.5,
+                "resetsAt": "2026-09-01T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.github.com/copilot_internal/user",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "token gho_env",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "copilot: the gh CLI's token before Copilot's own file",
+      "input": {
+        "provider": "copilot",
+        "home": "/home",
+        "files": {
+          "/home/.config/github-copilot/apps.json": "{\"github.com:Iv1.abc\":{\"oauth_token\":\"gho_file\"}}"
+        },
+        "secrets": {},
+        "commands": [
+          {
+            "file": "gh",
+            "args": [
+              "auth",
+              "token"
+            ],
+            "output": "gho_cli\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.github.com/copilot_internal/user",
+            "status": 200,
+            "body": {
+              "quota_reset_date": "2026-09-01",
+              "quota_snapshots": {
+                "premium_interactions": {
+                  "percent_remaining": 64.5
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "copilot",
+            "displayName": "Copilot",
+            "iconId": "copilot",
+            "primaryPercent": 35.5,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "premium",
+                "label": "Premium requests",
+                "percentUsed": 35.5,
+                "resetsAt": "2026-09-01T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.github.com/copilot_internal/user",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "token gho_cli",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "copilot: Copilot's own file when gh has nothing",
+      "input": {
+        "provider": "copilot",
+        "home": "/home",
+        "files": {
+          "/home/.config/github-copilot/apps.json": "{\"github.com:Iv1.abc\":{\"oauth_token\":\"gho_file\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.github.com/copilot_internal/user",
+            "status": 200,
+            "body": {
+              "quota_reset_date": "2026-09-01",
+              "quota_snapshots": {
+                "premium_interactions": {
+                  "percent_remaining": 64.5
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "copilot",
+            "displayName": "Copilot",
+            "iconId": "copilot",
+            "primaryPercent": 35.5,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "premium",
+                "label": "Premium requests",
+                "percentUsed": 35.5,
+                "resetsAt": "2026-09-01T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.github.com/copilot_internal/user",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "token gho_file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "copilot: no token anywhere",
+      "input": {
+        "provider": "copilot",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": []
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "copilot",
+            "displayName": "Copilot",
+            "iconId": "copilot",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": []
+      }
+    },
+    {
+      "name": "copilot: no Copilot on the account",
+      "input": {
+        "provider": "copilot",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "gh",
+            "args": [
+              "auth",
+              "token"
+            ],
+            "output": "gho_cli"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.github.com/copilot_internal/user",
+            "status": 404
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "copilot",
+            "displayName": "Copilot",
+            "iconId": "copilot",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.github.com/copilot_internal/user",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "token gho_cli",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      },
+      "note": "GitHub answers 404 for an account without Copilot."
+    },
+    {
+      "name": "copilot: rate limited",
+      "input": {
+        "provider": "copilot",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "gh",
+            "args": [
+              "auth",
+              "token"
+            ],
+            "output": "gho_cli"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.github.com/copilot_internal/user",
+            "status": 429
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": null,
+            "fallback": null
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.github.com/copilot_internal/user",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "token gho_cli",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "copilot: a server error fails",
+      "input": {
+        "provider": "copilot",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "gh",
+            "args": [
+              "auth",
+              "token"
+            ],
+            "output": "gho_cli"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.github.com/copilot_internal/user",
+            "status": 503
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "failed": true
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.github.com/copilot_internal/user",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "token gho_cli",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
