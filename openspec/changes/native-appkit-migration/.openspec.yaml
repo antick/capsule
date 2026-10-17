@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-10-17
+goal: Replace the Electron desktop app with a native Swift/AppKit Capsule,
+  staged behind golden fixtures so the provider readers keep their proven
+  behavior.
