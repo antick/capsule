@@ -109,12 +109,3 @@ public enum BackoffPolicy {
   public static let ceilingMs = 15 * 60_000
   public static let maxDoublings = 4
 }
-
-/// `2026-08-27T12:13:00.000Z` — the shape JavaScript's `toISOString` produces,
-/// which is what the corpus and the persisted snapshots both carry.
-public func isoString(_ date: Date) -> String {
-  let formatter = ISO8601DateFormatter()
-  formatter.timeZone = TimeZone(identifier: "UTC")
-  formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-  return formatter.string(from: date)
-}

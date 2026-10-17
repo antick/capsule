@@ -56,27 +56,6 @@ public func resetIso(_ value: NumberOrString?, fallback: Date) -> String {
   }
 }
 
-/// The date forms providers actually send: a full ISO timestamp with or
-/// without fractional seconds, and a bare `2026-09-01`, which JavaScript reads
-/// as UTC midnight. Deliberately narrower than `new Date(string)`, whose
-/// lenient fallbacks differ between engines.
-public func looseDate(_ raw: String) -> Date? {
-  let attempts: [ISO8601DateFormatter.Options] = [
-    [.withInternetDateTime, .withFractionalSeconds],
-    [.withInternetDateTime],
-  ]
-  for options in attempts {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = options
-    if let parsed = formatter.date(from: raw) { return parsed }
-  }
-  let dateOnly = DateFormatter()
-  dateOnly.locale = Locale(identifier: "en_US_POSIX")
-  dateOnly.timeZone = TimeZone(identifier: "UTC")
-  dateOnly.dateFormat = "yyyy-MM-dd"
-  return dateOnly.date(from: raw)
-}
-
 private let hourSeconds: Double = 3600
 private let daySeconds: Double = 24 * hourSeconds
 
