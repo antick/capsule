@@ -17,6 +17,8 @@ public enum ActivityTuning {
   public static let activeEvidenceMs = 120_000.0
   /// The most of a local event log ever read: its tail.
   public static let tailBytes = 256 * 1024
+  /// A session record bigger than this is not one; it is not read.
+  public static let maxRecordBytes = 256 * 1024
 
   public static let claudeSessionsDir = [".claude", "sessions"]
   public static let claudeProjectsDir = [".claude", "projects"]
@@ -122,4 +124,14 @@ public enum PollerTuning {
   /// While nobody is working, wait this long between reads: numbers that
   /// cannot have moved are not worth spending rate limit on.
   public static let idleIntervalMs = 300_000.0
+}
+
+/// How the shell runs the local tools it asks for a token.
+public enum CommandTuning {
+  /// Long enough for `gh` to wake up, short enough that a hung tool cannot
+  /// stall a poll.
+  public static let timeoutSeconds = 8.0
+  /// A menu-bar app launched from Finder inherits a bare PATH, so the places
+  /// Homebrew and the CLIs' own installers put things are added explicitly.
+  public static let extraPathDirectories = ["/opt/homebrew/bin", "/usr/local/bin", "~/.local/bin"]
 }

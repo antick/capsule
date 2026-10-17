@@ -17,6 +17,12 @@ public struct TokenFileEntry: Sendable, Codable, Equatable {
   public var size: Double
   public var modifiedMs: Double
   public var days: DayHistogram
+
+  public init(size: Double, modifiedMs: Double, days: DayHistogram) {
+    self.size = size
+    self.modifiedMs = modifiedMs
+    self.days = days
+  }
 }
 
 private func count(_ value: JSONValue?) -> Double {

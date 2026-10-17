@@ -16,12 +16,21 @@ let package = Package(
     .library(name: "CapsuleUsage", targets: ["CapsuleUsage"]),
     .library(name: "CapsuleHUD", targets: ["CapsuleHUD"]),
     .library(name: "CapsuleActivity", targets: ["CapsuleActivity"]),
+    .library(name: "CapsuleSystem", targets: ["CapsuleSystem"]),
   ],
   targets: [
     .target(name: "CapsuleCore"),
     .target(name: "CapsuleUsage", dependencies: ["CapsuleCore"]),
     .target(name: "CapsuleHUD", dependencies: ["CapsuleCore"]),
     .target(name: "CapsuleActivity", dependencies: ["CapsuleCore"]),
+    // The real Mac behind the logic modules' host seams: files, processes,
+    // SQLite, the keychain, commands and the network. The only module that
+    // touches the machine.
+    .target(
+      name: "CapsuleSystem",
+      dependencies: ["CapsuleCore", "CapsuleUsage", "CapsuleActivity"],
+      linkerSettings: [.linkedLibrary("sqlite3")]
+    ),
     // Test support: reads the same JSON corpus the Vitest suites read.
     .target(name: "CapsuleFixtures"),
     .testTarget(
@@ -40,5 +49,6 @@ let package = Package(
       name: "CapsuleActivityTests",
       dependencies: ["CapsuleActivity", "CapsuleFixtures"]
     ),
+    .testTarget(name: "CapsuleSystemTests", dependencies: ["CapsuleSystem"]),
   ]
 )
