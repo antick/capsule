@@ -100,9 +100,10 @@ once; sandboxing; Mac App Store distribution.
 - The native app is **Apple Silicon only**. The x64 slice goes away, so Intel
   Macs stay on the last Electron release permanently rather than moving to a
   narrower build.
-- Minimum macOS rises from 12.0 to 14.0 — the latest release and the two before
-  it. Today's floor is Electron 43.4.1's own `LSMinimumSystemVersion`, which is
-  12.0, not the 11 an earlier draft of this proposal claimed.
+- Minimum macOS rises from 12.0 to 14.0, which supports the current release and
+  the three before it (the sequence is 13, 14, 15, 26, 27). Today's floor is
+  Electron 43.4.1's own `LSMinimumSystemVersion`, which is 12.0, not the 11 an
+  earlier draft of this proposal claimed.
 - Release engineering changes shape: an EdDSA key must be generated and kept
   out of the repository, and the update feed becomes an `appcast.xml` that the
   successor to `scripts/release-notes.mjs` writes.

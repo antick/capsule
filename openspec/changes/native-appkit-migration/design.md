@@ -211,8 +211,13 @@ decision stays reversible.
 
 ### 11. Apple Silicon only, macOS 14.0 floor
 
-The native app ships **arm64 only** and targets **macOS 14.0** — the latest
-release and the two before it.
+The native app ships **arm64 only** and targets **macOS 14.0**.
+
+The shipping version sequence is 13 (Ventura), 14 (Sonoma), 15 (Sequoia), 26,
+27 — Apple jumped from 15 to 26 — and macOS 27 is current as of October 2026.
+So a 14.0 floor supports the latest release and the **three** before it. Tighten
+to `macOS 15.0` for latest-plus-two if that is preferred; it is a one-line
+change in `Package.swift` while Phase 1 is the only thing built on it.
 
 Dropping Intel is the decision that sets the floor, because it removes the only
 argument for going lower. Every Apple Silicon Mac, back to the 2020 M1, can run
@@ -225,7 +230,8 @@ the settings model that feeds the dock.
 
 For reference, today's Electron build is **macOS 12.0** — read from Electron
 43.4.1's own `LSMinimumSystemVersion`, not from the release notes — so the
-floor rises by two versions, and Intel support ends rather than narrowing.
+floor rises by two releases (12 to 14), and Intel support ends rather than
+narrowing.
 
 This is a harder break for Intel users than an OS bump is for anyone else: an
 OS floor is one update away, while an Intel Mac is stranded permanently on the
