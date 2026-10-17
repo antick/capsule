@@ -209,20 +209,61 @@ guessing.
 They are not ported. Their fixtures are still extracted in Phase 0 so the
 decision stays reversible.
 
-### 11. Versions and platform floor
+### 11. Apple Silicon only, macOS 14.0 floor
+
+The native app ships **arm64 only** and targets **macOS 14.0** — the latest
+release and the two before it.
+
+Dropping Intel is the decision that sets the floor, because it removes the only
+argument for going lower. Every Apple Silicon Mac, back to the 2020 M1, can run
+the current macOS, so the deployment target no longer excludes any hardware
+Capsule runs on: it only governs how far behind a user who has chosen not to
+update may lag. macOS 13 would have kept 2017 Intel machines alive, which was
+the whole case for it; with Intel gone that case is empty, and `@Observable`
+(macOS 14+) is worth having over hand-rolled `ObservableObject` plumbing for
+the settings model that feeds the dock.
+
+For reference, today's Electron build is **macOS 12.0** — read from Electron
+43.4.1's own `LSMinimumSystemVersion`, not from the release notes — so the
+floor rises by two versions, and Intel support ends rather than narrowing.
+
+This is a harder break for Intel users than an OS bump is for anyone else: an
+OS floor is one update away, while an Intel Mac is stranded permanently on the
+last Electron release. That is accepted deliberately.
 
 The repo's rule is that every runtime dependency is pinned to a version
 published at least seven days earlier. For this change that is:
 
 | Dependency | Constraint |
 | --- | --- |
+| Architecture | `arm64` only; no universal binary, no x64 slice |
+| Deployment target | `macOS 14.0` |
 | Swift toolchain | Whatever ships with the Xcode used for release; recorded in `.swift-version` at Phase 1 |
-| Deployment target | `macOS 14.0` (see open question 1) |
 | Sparkle | Latest 2.x tag published ≥7 days before Phase 3 starts, pinned by exact tag in `Package.swift` |
 
 Exact Sparkle and toolchain versions are deliberately left to be pinned at
-implementation time rather than guessed here; Phase 3 task 3.1 records them.
+implementation time rather than guessed here; Phase 3 task 4.2 records them.
 Sparkle is the only third-party runtime dependency in the entire native app.
+
+### 11a. All five providers port in Phase 1
+
+Claude, Codex, Grok, Cursor, and Copilot all port together, rather than the
+three that are enabled by default.
+
+Behaviour parity is this change's acceptance bar, and a first native release
+that cannot read Cursor or Copilot is a regression for anyone using them, not a
+smaller scope. The fixtures for all five already exist, so the mapping work is
+mechanical and already gated.
+
+The incremental cost is narrow and worth naming: Cursor and Copilot are the
+only two providers that reach outside the process. Cursor shells out to
+`sqlite3 -readonly` against Cursor's own state database; Copilot shells out to
+`gh auth token` before falling back to Copilot's `apps.json`. Claude is the
+only provider that reads the keychain. So porting all five adds one `Process`
+helper to the host layer — and Cursor should not need it at all, because Swift
+can link `libsqlite3` and read that database directly, which is better than
+the subprocess the TypeScript app uses today. `gh` keeps the subprocess, since
+it lives at an unpredictable path.
 
 ### 12. Accessibility is explicit now
 
@@ -269,8 +310,10 @@ native app has no local server — so no `openapi.json` appears.
 - **Sparkle is a new trust path.** A lost private key means no update channel
   for installed copies. Key handling is a Phase 3 task with an explicit
   non-repo storage requirement.
-- **macOS 14 floor drops hardware.** Deliberate, to get modern SwiftUI and safe
-  area APIs without compatibility shims; revisit if it bites.
+- **Intel support ends and the macOS floor rises two versions.** Deliberate.
+  The floor costs a user one update; Intel costs them the app, with the last
+  Electron release as their permanent version. Nothing in the plan brings Intel
+  back, so this is the decision to revisit first if it turns out to be wrong.
 - **Loss of 40 TypeScript test files at Phase 4.** They are deleted only after
   their fixtures are green under Swift, and the fixtures are what is actually
   being preserved.
@@ -311,19 +354,12 @@ exists to make that possible.
 
 ## Open Questions
 
-1. **Deployment target: macOS 14 or 13?** 14 gives the current SwiftUI surface;
-   13 keeps 2017 Macs. `NSScreen.safeAreaInsets`, which the notch logic needs,
-   is available from 12, so this is about SwiftUI convenience rather than
-   capability.
-2. **Is the corner arc dead for good?** Decision 10 drops it. If it is meant to
+1. **Is the corner arc dead for good?** Decision 10 drops it. If it is meant to
    ship one day, say so and it gets ported in Phase 2 instead of archived as
    fixtures.
-3. **Does the provider set stay at five through the port?** Cursor and Copilot
-   are off by default today. Porting all five costs more Phase 1 work than
-   porting the three default providers and adding the rest after cutover.
-4. **Where does the appcast live?** GitHub Pages, the releases branch, or the
+2. **Where does the appcast live?** GitHub Pages, the releases branch, or the
    repository's raw content. This decides whether Phase 3 adds a deploy step.
-5. **Is a Developer ID signature in scope here?** The README documents the
+3. **Is a Developer ID signature in scope here?** The README documents the
    unsigned first-launch workaround. Sparkle does not remove it, and a native
    app is a natural moment to fix it, but it is a cost (paid account, CI
    secrets) outside this change as written.

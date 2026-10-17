@@ -54,6 +54,11 @@ only, and Windows and Linux have been out of scope since the initial change.
   phase — not before.
 - Drop the corner-arc feature rather than port it; it is ~800 lines of dead
   code behind `CORNER_ARC_ENABLED = false`.
+- Ship arm64 only and target macOS 14.0, ending Intel support (`design.md`
+  decision 11).
+- Port all five providers together rather than the three enabled by default, so
+  the first native release is not a regression for Cursor and Copilot users
+  (`design.md` decision 11a).
 
 Non-goals: Windows, Linux, or iOS; any change to what Capsule observes or how
 it authenticates (endpoints, credential locations, and session formats port
@@ -92,8 +97,12 @@ once; sandboxing; Mac App Store distribution.
   artifact; Phase 4 deletes the Electron app and the JavaScript toolchain, at
   which point `openspec/config.yaml`'s locked-stack context and `AGENTS.md`'s
   stack sections are rewritten.
-- Minimum macOS rises from 11 to 14 (`design.md`, open question 1), dropping
-  Macs that cannot run Sonoma.
+- The native app is **Apple Silicon only**. The x64 slice goes away, so Intel
+  Macs stay on the last Electron release permanently rather than moving to a
+  narrower build.
+- Minimum macOS rises from 12.0 to 14.0 — the latest release and the two before
+  it. Today's floor is Electron 43.4.1's own `LSMinimumSystemVersion`, which is
+  12.0, not the 11 an earlier draft of this proposal claimed.
 - Release engineering changes shape: an EdDSA key must be generated and kept
   out of the repository, and the update feed becomes an `appcast.xml` that the
   successor to `scripts/release-notes.mjs` writes.

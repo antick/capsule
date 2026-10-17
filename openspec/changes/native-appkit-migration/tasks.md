@@ -27,12 +27,15 @@ usage 85, activity 39, hud 68, desktop 63.
 No app target and no UI in this phase. Acceptance is the Phase 0 corpus
 passing under `swift test`.
 
-- [ ] 2.1 Add `Package.swift` at the repo root declaring `CapsuleCore`, `CapsuleUsage`, `CapsuleActivity`, and `CapsuleHUD` with a `macOS 14` platform floor, and commit `.swift-version` recording the toolchain. No third-party dependencies in this phase.
+- [ ] 2.1 Add `Package.swift` at the repo root declaring `CapsuleCore`, `CapsuleUsage`, `CapsuleActivity`, and `CapsuleHUD` with a `macOS 14.0` platform floor and arm64 as the only architecture, and commit `.swift-version` recording the toolchain. No third-party dependencies in this phase.
 - [ ] 2.2 Implement `CapsuleCore` constants and the settings model as the single source of values, mirroring `@capsule/config` — no literals in any other module, per the repo's no-hard-coded-values rule.
 - [ ] 2.3 Implement the reset-time formatters in `CapsuleCore`; every other module formats dates only through them.
 - [ ] 2.4 Implement severity bands, placement geometry, and snapping in `CapsuleCore`; pass the `placement/` and `severity/` fixtures.
 - [ ] 2.5 Implement `CapsuleUsage` snapshot types, clamping, snapshot merge, backoff, and the poller; pass those fixtures.
-- [ ] 2.6 Implement the five provider readers in `CapsuleUsage` over `URLSession` and `Codable`, reusing the same local credential locations and the same usage endpoints and headers; pass the `usage/` fixtures. Resolve open question 3 first — if only the three default providers are in scope, Cursor and Copilot move to a post-cutover task here.
+- [ ] 2.6 Implement all five provider readers in `CapsuleUsage` over `URLSession` and `Codable`, reusing the same local credential locations and the same usage endpoints and headers; pass the `usage/` fixtures.
+- [ ] 2.6a Read Claude's keychain credential through the Security framework rather than shelling out to `security`.
+- [ ] 2.6b Read Cursor's state database by linking `libsqlite3` directly instead of spawning `sqlite3 -readonly`, so the only remaining subprocess is `gh`.
+- [ ] 2.6c Add the one `Process` host helper that `gh auth token` needs, with PATH resolution that finds a Homebrew install, and treat a missing `gh` as "no token" rather than an error.
 - [ ] 2.7 Implement `CapsuleActivity` session reading, the Codex JSON-RPC client, token totals, and a file-watching monitor over `FSEvents` behind the same injectable-host seam the TypeScript monitor used; pass the `activity/` fixtures.
 - [ ] 2.8 Port the silhouette math into `CapsuleHUD` as pure functions returning `CGPath` — blob, latch, and the `path-builder` primitives — and pass the `hud-paths/` fixtures. Do not port the corner arc (design decision 10); leave its fixtures unexecuted and note that in `fixtures/README.md`.
 - [ ] 2.9 Keep every Swift source file at or under 500 lines, splitting as needed.
@@ -68,12 +71,12 @@ the released Electron app for side-by-side comparison. Electron still ships.
 - [ ] 4.1 Generate a Sparkle EdDSA key pair. Store the private key in release credentials only; confirm it is absent from the repository and from the built bundle. Put the public key in `Info.plist`.
 - [ ] 4.2 Add Sparkle to `Package.swift`, pinned to an exact 2.x tag published at least seven days earlier, and record the version in `design.md`'s version table.
 - [ ] 4.3 Wire `autoUpdateCheck` to automatic checks and `autoUpdateDownload` to automatic download, keeping both defaults as they are today.
-- [ ] 4.4 Replace `scripts/release-notes.mjs`'s output path with an appcast `<description>`, and resolve open question 4 by choosing where `appcast.xml` is published.
+- [ ] 4.4 Replace `scripts/release-notes.mjs`'s output path with an appcast `<description>`, and resolve open question 2 by choosing where `appcast.xml` is published.
 - [ ] 4.5 Verify the update path end to end: a newer signed entry is offered with its notes, an entry with a bad signature is refused, an unreachable feed reports a failed check while the dock keeps showing usage, and an up-to-date install says so.
 - [ ] 4.6 Implement the one-shot settings carry-over from the schema v7 `config.json` in Application Support, including the fallback to defaults and onboarding for a missing, corrupt, or pre-v7 file, and the recording that migration has happened.
-- [ ] 4.7 Revert the bundle identifier to `com.antick.capsule`, build signed and notarized `dmg` artifacts for `arm64` and `x64`, and confirm an installed Electron copy upgrades in place with its settings intact.
+- [ ] 4.7 Revert the bundle identifier to `com.antick.capsule`, build a signed and notarized `arm64` `dmg` — no x64 slice — and confirm an installed Electron copy upgrades in place with its settings intact.
 - [ ] 4.8 Publish the native build as the release artifact. Leave `apps/desktop` in the tree, unshipped, for one release as the rollback path.
-- [ ] 4.9 Update `CHANGELOG.md` and the README's install and provider sections if anything user-facing moved.
+- [ ] 4.9 Update `CHANGELOG.md`, and rewrite the README's install section: it currently tells people to "pick the `arm64` build for Apple silicon and the `x64` build for Intel Macs". Say plainly that the native app needs an Apple Silicon Mac on macOS 14 or newer, and that Intel Macs stay on the final Electron release.
 
 ## 5. Phase 4 — Removal
 
