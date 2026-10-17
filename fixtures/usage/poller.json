@@ -1,0 +1,5287 @@
+{
+  "about": "createPoller(...) driven through a script of steps — what it published, what it fetched, and what it persisted after each",
+  "timeZone": "UTC",
+  "note": "Providers answer from their scripted outcomes in order. `thenEnable` changes the enabled set while that fetch is in flight. Every step reports the lists emitted during it, the providers fetched, the final list, and the last backoff and snapshots saved. Providers are fetched in the order claude, codex, grok, cursor, copilot.",
+  "cases": [
+    {
+      "name": "a first launch shows placeholders, then fetches each enabled provider in turn",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude",
+            "codex",
+            "grok"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ],
+          "codex": [
+            {
+              "snapshot": {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ],
+          "grok": [
+            {
+              "snapshot": {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "start"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "start",
+          "fetched": [
+            "claude",
+            "codex",
+            "grok"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "The emitted lists show the rail settling one provider at a time: refreshing flags clear in fetch order, and the numbers land together at the end."
+    },
+    {
+      "name": "remembered readings show at once, dated and stale, until the first fetch lands",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude",
+            "codex"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "remembered": [
+          {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 30,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T09:00:00.000Z",
+            "buckets": [
+              {
+                "id": "b",
+                "label": "Window",
+                "percentUsed": 30,
+                "resetsAt": "2026-08-27T13:00:00.000Z",
+                "resetStyle": "relative"
+              }
+            ]
+          },
+          {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": 10,
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:00:00.000Z",
+            "buckets": []
+          }
+        ],
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ],
+          "codex": [
+            {
+              "snapshot": {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 22,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 22,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "start"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "start",
+          "fetched": [
+            "claude",
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 30,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T09:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 30,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T09:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 30,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T09:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 30,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T09:00:00.000Z",
+                "refreshing": true
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 30,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T09:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 30,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T09:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 30,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T09:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 30,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T09:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 22,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 22,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 22,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 22,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 22,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 22,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "A remembered unauthenticated reading is no reading: it starts as a placeholder."
+    },
+    {
+      "name": "only enabled providers are asked",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ],
+          "codex": [
+            {
+              "snapshot": {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a rate limit shows the fallback, then holds back until the penalty ends",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "claude": [
+            {
+              "rateLimited": {
+                "retryAfterMs": 120000,
+                "fallback": {
+                  "providerId": "claude",
+                  "displayName": "Claude",
+                  "iconId": "claude",
+                  "primaryPercent": 40,
+                  "status": "stale",
+                  "fetchedAt": "2026-08-27T11:00:00.000Z",
+                  "buckets": [
+                    {
+                      "id": "b",
+                      "label": "Window",
+                      "percentUsed": 40,
+                      "resetsAt": "2026-08-27T13:00:00.000Z",
+                      "resetStyle": "relative"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 45,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 45,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "advance",
+            "ms": 60000
+          },
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "advance",
+            "ms": 61000
+          },
+          {
+            "op": "refresh"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": {
+            "claude": 1787828520000
+          },
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": {
+            "claude": 1787828520000
+          },
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "refresh",
+          "fetched": [],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:01:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false,
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": {
+            "claude": 1787828520000
+          },
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false,
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": {
+            "claude": 1787828520000
+          },
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:01:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:01:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 45,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 45,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 45,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 45,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": {},
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 45,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 45,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "Inside the penalty the provider is not asked at all; the dated numbers are shown instead."
+    },
+    {
+      "name": "consecutive refusals double the wait",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "codex"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "codex": [
+            {
+              "rateLimited": {
+                "retryAfterMs": null,
+                "fallback": null
+              }
+            },
+            {
+              "rateLimited": {
+                "retryAfterMs": null,
+                "fallback": null
+              }
+            },
+            {
+              "rateLimited": {
+                "retryAfterMs": null,
+                "fallback": null
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 30,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 30,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "advance",
+            "ms": 60001
+          },
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "advance",
+            "ms": 120001
+          },
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "advance",
+            "ms": 240001
+          },
+          {
+            "op": "refresh"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "error",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "error",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "refreshing": false
+            }
+          ],
+          "backoff": {
+            "codex": 1787828460000
+          },
+          "saved": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "error",
+              "fetchedAt": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "error",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "refreshing": false
+            }
+          ],
+          "backoff": {
+            "codex": 1787828460000
+          },
+          "saved": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "error",
+              "fetchedAt": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "refresh",
+          "fetched": [
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "error",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "error",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:01:00.001Z",
+                "refreshing": false,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.001Z",
+              "refreshing": false,
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": {
+            "codex": 1787828580001
+          },
+          "saved": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.001Z",
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.001Z",
+              "refreshing": false,
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": {
+            "codex": 1787828580001
+          },
+          "saved": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.001Z",
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "refresh",
+          "fetched": [
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:01:00.001Z",
+                "refreshing": true,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:01:00.001Z",
+                "refreshing": false,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:03:00.002Z",
+                "refreshing": false,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:03:00.002Z",
+              "refreshing": false,
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": {
+            "codex": 1787828820002
+          },
+          "saved": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:03:00.002Z",
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:03:00.002Z",
+              "refreshing": false,
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": {
+            "codex": 1787828820002
+          },
+          "saved": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:03:00.002Z",
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "refresh",
+          "fetched": [
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:03:00.002Z",
+                "refreshing": true,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:03:00.002Z",
+                "refreshing": false,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 30,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 30,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 30,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 30,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": {},
+          "saved": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 30,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 30,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a penalty remembered from the last launch is waited out",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude",
+            "codex"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "backoff": {
+          "claude": 1787828700000
+        },
+        "remembered": [
+          {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 33,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:00:00.000Z",
+            "buckets": [
+              {
+                "id": "b",
+                "label": "Window",
+                "percentUsed": 33,
+                "resetsAt": "2026-08-27T13:00:00.000Z",
+                "resetStyle": "relative"
+              }
+            ]
+          }
+        ],
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 50,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 50,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ],
+          "codex": [
+            {
+              "snapshot": {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 20,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 20,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 23,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 23,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "start"
+          },
+          {
+            "op": "advance",
+            "ms": 300001
+          },
+          {
+            "op": "refresh"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "start",
+          "fetched": [
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 33,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 33,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 33,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 33,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 33,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 33,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 33,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 33,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 33,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 33,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 20,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 20,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 33,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 33,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "staleSince": "2026-08-27T11:00:00.000Z",
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 20,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 20,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 33,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 33,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 20,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 20,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 33,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 33,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "staleSince": "2026-08-27T11:00:00.000Z",
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 20,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 20,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 33,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 33,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 20,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 20,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude",
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 33,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 33,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 20,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 20,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 33,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 33,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 20,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 20,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 33,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 33,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "staleSince": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 20,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 20,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 50,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 50,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 23,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 23,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 50,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 50,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 23,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 23,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": {},
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 50,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 50,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 23,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 23,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a failed read keeps the last good numbers and dates them",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "grok"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "grok": [
+            {
+              "snapshot": {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            },
+            {
+              "failed": true
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "advance",
+            "ms": 60000
+          },
+          {
+            "op": "refresh"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "grok"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "refresh",
+          "fetched": [
+            "grok"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "stale",
+                "fetchedAt": "2026-08-27T11:01:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false,
+                "staleSince": "2026-08-27T11:00:00.000Z"
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false,
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "stale",
+              "fetchedAt": "2026-08-27T11:01:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "staleSince": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a failure with nothing before it shows an error placeholder",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "grok"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "grok": [
+            {
+              "failed": true
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "grok"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "error",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "error",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "error",
+              "fetchedAt": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "an idle dock refreshes only once the idle interval has passed",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": false,
+        "idleIntervalMs": 300000,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 42,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 42,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "start"
+          },
+          {
+            "op": "advance",
+            "ms": 60000
+          },
+          {
+            "op": "tick"
+          },
+          {
+            "op": "advance",
+            "ms": 240000
+          },
+          {
+            "op": "tick"
+          },
+          {
+            "op": "setBusy",
+            "busy": true
+          },
+          {
+            "op": "advance",
+            "ms": 1000
+          },
+          {
+            "op": "tick"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "start",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "tick",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "tick",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "setBusy",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "tick",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 42,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 42,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 42,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 42,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 42,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 42,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "Refreshing while nobody is working only spends rate limit on numbers that cannot have moved."
+    },
+    {
+      "name": "waking and coming back online refresh straight away",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": false,
+        "idleIntervalMs": 300000,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 42,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 42,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "start"
+          },
+          {
+            "op": "resume"
+          },
+          {
+            "op": "online"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "start",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "resume",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "online",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 42,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 42,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 42,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 42,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 42,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 42,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "one provider refreshed on its own",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude",
+            "codex"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 44,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 44,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ],
+          "codex": [
+            {
+              "snapshot": {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "advance",
+            "ms": 5000
+          },
+          {
+            "op": "refreshProvider",
+            "id": "claude"
+          },
+          {
+            "op": "refreshProvider",
+            "id": "cursor"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude",
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "advance",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "refreshProvider",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 44,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 44,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 44,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 44,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 44,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 44,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "refreshProvider",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 44,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 44,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 44,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 44,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "Refreshing a provider that is not enabled does nothing."
+    },
+    {
+      "name": "toggling providers lands at once, without the network",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "setEnabled",
+            "ids": [
+              "claude",
+              "copilot"
+            ]
+          },
+          {
+            "op": "sync"
+          },
+          {
+            "op": "setEnabled",
+            "ids": [
+              "copilot"
+            ]
+          },
+          {
+            "op": "sync"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "setEnabled",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "sync",
+          "fetched": [],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "copilot",
+                "displayName": "Copilot",
+                "iconId": "copilot",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "copilot",
+              "displayName": "Copilot",
+              "iconId": "copilot",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "unauthenticated",
+              "fetchedAt": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "setEnabled",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "copilot",
+              "displayName": "Copilot",
+              "iconId": "copilot",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "unauthenticated",
+              "fetchedAt": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "sync",
+          "fetched": [],
+          "emitted": [
+            [
+              {
+                "providerId": "copilot",
+                "displayName": "Copilot",
+                "iconId": "copilot",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "copilot",
+              "displayName": "Copilot",
+              "iconId": "copilot",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "unauthenticated",
+              "fetchedAt": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "a provider switched on mid-fetch is read by a follow-up refresh",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              },
+              "thenEnable": [
+                "claude",
+                "grok"
+              ]
+            },
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ],
+          "grok": [
+            {
+              "snapshot": {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude",
+            "claude",
+            "grok"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": true
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 41,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 41,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "grok",
+                "displayName": "Grok",
+                "iconId": "grok",
+                "primaryPercent": 52,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 52,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 41,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 41,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "grok",
+              "displayName": "Grok",
+              "iconId": "grok",
+              "primaryPercent": 52,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 52,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "note": "Landing the set from the start of the fetch instead would undo the toggle that happened in between. The follow-up refresh re-reads every enabled provider, not only the one switched on, so Claude is asked twice."
+    },
+    {
+      "name": "a provider switched off mid-fetch is dropped",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude",
+            "codex"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              },
+              "thenEnable": [
+                "codex"
+              ]
+            }
+          ],
+          "codex": [
+            {
+              "snapshot": {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude",
+            "codex"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "codex",
+                "displayName": "Codex",
+                "iconId": "codex",
+                "primaryPercent": 21,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 21,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "codex",
+              "displayName": "Codex",
+              "iconId": "codex",
+              "primaryPercent": 21,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 21,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
