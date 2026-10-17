@@ -54,12 +54,15 @@ struct CorpusCoverageTests {
     // CapsuleCoreTests — settings
     "settings/defaults",
     "settings/parse-current",
+    // CapsuleCoreTests — session summary and ordering
+    "activity/any-active",
+    "activity/order-sessions",
+    "activity/summarize",
   ]
 
   /// Fixtures whose Swift port has not landed. Must be empty by the end of
   /// Phase 1; anything left here at that point is a gap, not a plan.
   static let notYetPorted: Set<String> = [
-    "activity/any-active",
     "activity/claude-row-tokens",
     "activity/claude-session",
     "activity/codex-row-tokens",
@@ -67,10 +70,8 @@ struct CorpusCoverageTests {
     "activity/histogram-totals",
     "activity/local-events",
     "activity/notice-tracker",
-    "activity/order-sessions",
     "activity/proc-start",
     "activity/prune-token-cache",
-    "activity/summarize",
     "hud-paths/blob-layout",
     "hud-paths/bubble-path",
     "hud-paths/frame-padding",
