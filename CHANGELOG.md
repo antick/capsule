@@ -13,6 +13,15 @@ All notable changes to Capsule are documented in this file.
 
 - Re-recorded the Claude, Codex and Grok mapping fixtures against the fixed mappers, and added cases for the paths the fix opens up: a Claude payload with only a weekly window, a Codex window reporting a reset but no percentage, and a Grok product row with no headline credit percent. The corpus is now 102 cases across 21 files. The real mappings — Claude 73/7, Codex 21/8, Grok 52/18 — are unchanged.
 
+## Native migration, phase 1 — Swift core
+
+### Added
+
+- Added `Package.swift`, a SwiftPM package at a `macOS 14.0` floor, Apple Silicon only. `CapsuleCore` carries the first ported logic: severity bands, reset and elapsed copy, day keys, and compact token counts.
+- Added a Swift corpus loader that finds the repository's `fixtures/` by walking up to `pnpm-workspace.yaml`, the same way the TypeScript loader does, so both suites read one copy of every case and neither owns it. `swift test` runs 11 tests in 4 suites against it.
+- Added a corpus coverage gate that fails when a fixture exists that no Swift test reads and nobody has listed as not-yet-ported, so the corpus cannot quietly outgrow the port.
+- Reset copy normalises the space before AM/PM. Foundation can emit a narrow no-break space there where JavaScript emits an ordinary one; an explicit format template avoids it today, and a test now fails if a toolchain changes its mind rather than every dock gaining an invisible character.
+
 ## Native migration, phase 0 — fixture corpus
 
 ### Added
