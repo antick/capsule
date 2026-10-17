@@ -22,7 +22,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Fixed
 
-- Date parsing and formatting built a new formatter on every call. They now share formatters built once, which took a thousand-update notice-tracker run from 28 seconds to well under one.
+- Date parsing and formatting built a new formatter on every call. They now share formatters built once, which took a thousand-update notice-tracker run from 28 seconds to 8 in a debug build.
 
 ## Native migration, phase 1 — Swift HUD silhouettes
 
