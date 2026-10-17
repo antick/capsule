@@ -51,6 +51,9 @@ struct CorpusCoverageTests {
     "placement/nearest-edge",
     "placement/slide-along-edge",
     "placement/zoom-hold-bounds",
+    // CapsuleCoreTests — settings
+    "settings/defaults",
+    "settings/parse-current",
   ]
 
   /// Fixtures whose Swift port has not landed. Must be empty by the end of
@@ -76,8 +79,6 @@ struct CorpusCoverageTests {
     "hud-paths/primitives",
     "hud-paths/rail-morph",
     "hud-paths/rail-path",
-    "settings/defaults",
-    "settings/parse-current",
     "updates/format-bytes",
     "updates/format-progress",
     "updates/initial-state",
