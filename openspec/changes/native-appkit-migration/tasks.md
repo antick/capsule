@@ -27,10 +27,19 @@ usage 85, activity 39, hud 68, desktop 63.
 No app target and no UI in this phase. Acceptance is the Phase 0 corpus
 passing under `swift test`.
 
-- [ ] 2.1 Add `Package.swift` at the repo root declaring `CapsuleCore`, `CapsuleUsage`, `CapsuleActivity`, and `CapsuleHUD` with a `macOS 14.0` platform floor and arm64 as the only architecture, and commit `.swift-version` recording the toolchain. No third-party dependencies in this phase.
-- [ ] 2.2 Implement `CapsuleCore` constants and the settings model as the single source of values, mirroring `@capsule/config` — no literals in any other module, per the repo's no-hard-coded-values rule.
-- [ ] 2.3 Implement the reset-time formatters in `CapsuleCore`; every other module formats dates only through them.
-- [ ] 2.4 Implement severity bands, placement geometry, and snapping in `CapsuleCore`; pass the `placement/` and `severity/` fixtures.
+Status: the package exists and `swift test` runs 11 tests in 4 suites against
+the shared corpus — reset and elapsed copy, severity bands, token counts and
+day keys. `CapsuleUsage` is next; `CapsuleActivity` and `CapsuleHUD` wait on
+their fixtures. A coverage gate in `CorpusCoverageTests` fails if a fixture
+exists that nothing reads and nobody has listed as not-yet-ported.
+
+- [x] 2.1 Add `Package.swift` at the repo root with a `macOS 14.0` platform floor, and commit `.swift-version` recording the toolchain. No third-party dependencies in this phase. Declares `CapsuleCore` and the `CapsuleFixtures` test-support target; `CapsuleUsage`, `CapsuleActivity` and `CapsuleHUD` are declared as their content lands, because an empty module would claim progress that does not exist.
+- [x] 2.1a Add a Swift corpus loader that finds `fixtures/` by walking up to `pnpm-workspace.yaml`, the same way the TypeScript loader does, so neither side keeps a copy inside its own target. Ignore `.build/` and `.swiftpm/`.
+- [x] 2.1b Add a coverage gate that fails when a fixture exists that no Swift test reads and no one has listed as not-yet-ported.
+- [x] 2.2a Implement the `CapsuleCore` severity bands as the single source of those numbers.
+- [ ] 2.2b Implement the rest of `CapsuleCore`'s constants and the settings model, mirroring `@capsule/config` — no literals in any other module, per the repo's no-hard-coded-values rule.
+- [x] 2.3 Implement the reset-time formatters in `CapsuleCore`; every other module formats dates only through them. Includes `formatElapsed`, `formatAgo`, `dayKey`, `startOfDay` and `formatCompactCount`, and normalises the meridiem space so copy cannot drift with the toolchain.
+- [ ] 2.4 Implement placement geometry and snapping in `CapsuleCore`; pass the `placement/` fixtures. Blocked on task 1.5b extracting them.
 - [ ] 2.5 Implement `CapsuleUsage` snapshot types, clamping, snapshot merge, backoff, and the poller; pass those fixtures.
 - [ ] 2.6 Implement all five provider readers in `CapsuleUsage` over `URLSession` and `Codable`, reusing the same local credential locations and the same usage endpoints and headers; pass the `usage/` fixtures.
 - [ ] 2.6a Read Claude's keychain credential through the Security framework rather than shelling out to `security`.

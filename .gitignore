@@ -18,3 +18,9 @@ test-results
 routeTree.gen.ts
 release
 apps/desktop/build/release-notes.md
+
+# Swift
+.build/
+.swiftpm/
+DerivedData/
+*.xcuserstate
