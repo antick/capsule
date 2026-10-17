@@ -2,26 +2,26 @@ import CapsuleCore
 import Foundation
 
 public struct CodexWindow: Sendable, Codable, Equatable {
-  public var used_percent: Double?
-  public var utilization: Double?
-  public var limit_window_seconds: Double?
-  public var reset_at: NumberOrString?
-  public var reset_after_seconds: Double?
-  public var resets_at: String?
-  public var label: String?
+  @Lenient public var used_percent: Double?
+  @Lenient public var utilization: Double?
+  @Lenient public var limit_window_seconds: Double?
+  @Lenient public var reset_at: NumberOrString?
+  @Lenient public var reset_after_seconds: Double?
+  @Lenient public var resets_at: String?
+  @Lenient public var label: String?
 }
 
 public struct CodexUsagePayload: Sendable, Codable, Equatable {
   public struct RateLimit: Sendable, Codable, Equatable {
-    public var primary_window: CodexWindow?
-    public var secondary_window: CodexWindow?
-    public var primary: CodexWindow?
-    public var secondary: CodexWindow?
+    @Lenient public var primary_window: CodexWindow?
+    @Lenient public var secondary_window: CodexWindow?
+    @Lenient public var primary: CodexWindow?
+    @Lenient public var secondary: CodexWindow?
   }
-  public var plan_type: String?
-  public var rate_limit: RateLimit?
-  public var primary_window: CodexWindow?
-  public var secondary_window: CodexWindow?
+  @Lenient public var plan_type: String?
+  @Lenient public var rate_limit: RateLimit?
+  @Lenient public var primary_window: CodexWindow?
+  @Lenient public var secondary_window: CodexWindow?
 }
 
 /// What the window says it has used, or nothing. A window Codex did not report

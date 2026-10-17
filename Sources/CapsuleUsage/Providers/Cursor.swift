@@ -2,18 +2,18 @@ import CapsuleCore
 import Foundation
 
 public struct CursorPlan: Sendable, Codable, Equatable {
-  public var used: Double?
-  public var limit: Double?
-  public var totalPercentUsed: Double?
+  @Lenient public var used: Double?
+  @Lenient public var limit: Double?
+  @Lenient public var totalPercentUsed: Double?
 }
 
 public struct CursorSummary: Sendable, Codable, Equatable {
   public struct Individual: Sendable, Codable, Equatable {
-    public var plan: CursorPlan?
-    public var overall: CursorPlan?
+    @Lenient public var plan: CursorPlan?
+    @Lenient public var overall: CursorPlan?
   }
-  public var billingCycleEnd: String?
-  public var individualUsage: Individual?
+  @Lenient public var billingCycleEnd: String?
+  @Lenient public var individualUsage: Individual?
 }
 
 /// Cursor stores the token as a blob, so it is read back as hex to survive the

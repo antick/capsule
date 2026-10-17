@@ -2,17 +2,17 @@ import CapsuleCore
 import Foundation
 
 public struct CopilotQuota: Sendable, Codable, Equatable {
-  public var percent_remaining: Double?
-  public var unlimited: Bool?
+  @Lenient public var percent_remaining: Double?
+  @Lenient public var unlimited: Bool?
 }
 
 public struct CopilotUser: Sendable, Codable, Equatable {
   public struct Snapshots: Sendable, Codable, Equatable {
-    public var premium_interactions: CopilotQuota?
-    public var chat: CopilotQuota?
+    @Lenient public var premium_interactions: CopilotQuota?
+    @Lenient public var chat: CopilotQuota?
   }
-  public var quota_snapshots: Snapshots?
-  public var quota_reset_date: String?
+  @Lenient public var quota_snapshots: Snapshots?
+  @Lenient public var quota_reset_date: String?
 }
 
 /// Copilot's own login file: one entry per GitHub host, each with a token.

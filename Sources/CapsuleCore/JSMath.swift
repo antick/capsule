@@ -95,3 +95,29 @@ public func jsTruthy(_ value: JSONValue?) -> Bool {
   case .array, .object: return true
   }
 }
+
+/// `encodeURIComponent`: everything but A–Z a–z 0–9 and `-_.!~*'()` is
+/// percent-encoded as UTF-8.
+public func jsEncodeURIComponent(_ string: String) -> String {
+  let unreserved = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~*'()".utf8)
+  return string.utf8.map { unreserved.contains($0) ? String(UnicodeScalar($0)) : String(format: "%%%02X", $0) }
+    .joined()
+}
+
+/// `new URLSearchParams(pairs).toString()`: the form encoding, in which a space
+/// is `+` and everything but A–Z a–z 0–9 and `*-._` is percent-encoded.
+public func formURLEncoded(_ pairs: [(String, String)]) -> String {
+  let kept = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*-._".utf8)
+  func encode(_ text: String) -> String {
+    text.utf8.map { byte in
+      if byte == UInt8(ascii: " ") { return "+" }
+      return kept.contains(byte) ? String(UnicodeScalar(byte)) : String(format: "%%%02X", byte)
+    }.joined()
+  }
+  return pairs.map { "\(encode($0.0))=\(encode($0.1))" }.joined(separator: "&")
+}
+
+/// `path.join`, for the absolute paths the readers build.
+public func joinPath(_ base: String, _ parts: [String]) -> String {
+  parts.reduce(base as NSString) { $0.appendingPathComponent($1) as NSString } as String
+}

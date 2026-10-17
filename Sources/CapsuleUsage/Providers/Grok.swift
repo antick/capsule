@@ -2,32 +2,32 @@ import CapsuleCore
 import Foundation
 
 public struct GrokPeriod: Sendable, Codable, Equatable {
-  public var type: String?
-  public var start: String?
-  public var end: String?
+  @Lenient public var type: String?
+  @Lenient public var start: String?
+  @Lenient public var end: String?
 }
 
 public struct GrokAmount: Sendable, Codable, Equatable {
-  public var val: NumberOrString?
+  @Lenient public var val: NumberOrString?
 }
 
 public struct GrokProductUsage: Sendable, Codable, Equatable {
-  public var product: String?
-  public var usagePercent: Double?
+  @Lenient public var product: String?
+  @Lenient public var usagePercent: Double?
 }
 
 public struct GrokCreditsConfig: Sendable, Codable, Equatable {
-  public var creditUsagePercent: Double?
-  public var currentPeriod: GrokPeriod?
-  public var billingPeriodEnd: String?
-  public var onDemandCap: GrokAmount?
-  public var onDemandUsed: GrokAmount?
-  public var productUsage: [GrokProductUsage]?
+  @Lenient public var creditUsagePercent: Double?
+  @Lenient public var currentPeriod: GrokPeriod?
+  @Lenient public var billingPeriodEnd: String?
+  @Lenient public var onDemandCap: GrokAmount?
+  @Lenient public var onDemandUsed: GrokAmount?
+  @LossyArray public var productUsage: [GrokProductUsage]?
 }
 
 public struct GrokBillingPayload: Sendable, Codable, Equatable {
-  public var config: GrokCreditsConfig?
-  public var creditUsagePercent: Double?
+  @Lenient public var config: GrokCreditsConfig?
+  @Lenient public var creditUsagePercent: Double?
 }
 
 // MARK: - Credits

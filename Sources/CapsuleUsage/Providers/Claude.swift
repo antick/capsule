@@ -2,13 +2,13 @@ import CapsuleCore
 import Foundation
 
 public struct ClaudeWindow: Sendable, Codable, Equatable {
-  public var utilization: Double?
-  public var resets_at: String?
+  @Lenient public var utilization: Double?
+  @Lenient public var resets_at: String?
 }
 
 public struct ClaudeUsagePayload: Sendable, Codable, Equatable {
-  public var five_hour: ClaudeWindow?
-  public var seven_day: ClaudeWindow?
+  @Lenient public var five_hour: ClaudeWindow?
+  @Lenient public var seven_day: ClaudeWindow?
 }
 
 /// One window, or nothing. No utilization is not zero utilization: a window
@@ -28,8 +28,7 @@ private func windowBucket(
     id: id,
     label: label,
     percentUsed: toPercent(utilization),
-    resetsAt: window?.resets_at.map { resetIso(.string($0), fallback: fetchedAt) }
-      ?? isoString(fetchedAt),
+    resetsAt: window?.resets_at ?? isoString(fetchedAt),
     resetStyle: resetStyle
   )
 }
@@ -69,12 +68,12 @@ public func mapClaudeUsage(
 public func claudeUsageFromCache(_ raw: String) -> ClaudeUsagePayload? {
   guard let data = raw.data(using: .utf8) else { return nil }
   struct Envelope: Decodable {
-    struct Cache: Decodable {
-      var utilization: ClaudeUsagePayload?
-      var five_hour: ClaudeWindow?
-      var seven_day: ClaudeWindow?
+    struct Cache: Codable, Sendable, Equatable {
+      @Lenient var utilization: ClaudeUsagePayload?
+      @Lenient var five_hour: ClaudeWindow?
+      @Lenient var seven_day: ClaudeWindow?
     }
-    var cachedUsageUtilization: Cache?
+    @Lenient var cachedUsageUtilization: Cache?
   }
   guard
     let envelope = try? JSONDecoder().decode(Envelope.self, from: data),
