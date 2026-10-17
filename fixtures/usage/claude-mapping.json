@@ -1,5 +1,5 @@
 {
-  "about": "mapClaudeUsage(payload, now) \u2014 Anthropic's usage response to a Capsule snapshot",
+  "about": "mapClaudeUsage(payload, now) — Anthropic's usage response to a Capsule snapshot",
   "timeZone": "UTC",
   "frozenNow": "2026-08-27T11:22:00Z",
   "cases": [
@@ -62,17 +62,10 @@
             "percentUsed": 73,
             "resetsAt": "2026-08-27T11:22:00.000Z",
             "resetStyle": "relative"
-          },
-          {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 0,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
-            "resetStyle": "absolute"
           }
         ]
       },
-      "note": "Also shows the invented 'All models' bucket: the payload has no seven_day."
+      "note": "The payload has no seven_day window, so there is no \"All models\" row to draw."
     },
     {
       "name": "only a session window",
@@ -96,17 +89,37 @@
             "percentUsed": 44,
             "resetsAt": "2026-08-27T13:00:00.000Z",
             "resetStyle": "relative"
-          },
+          }
+        ]
+      },
+      "note": "An absent seven_day window produces no bucket at all — not one at 0% resetting \"now\"."
+    },
+    {
+      "name": "only a weekly window",
+      "input": {
+        "seven_day": {
+          "utilization": 7,
+          "resets_at": "2026-09-03T00:00:00.000Z"
+        }
+      },
+      "expected": {
+        "providerId": "claude",
+        "displayName": "Claude",
+        "iconId": "claude",
+        "primaryPercent": 7,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": [
           {
             "id": "all-models",
             "label": "All models",
-            "percentUsed": 0,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
+            "percentUsed": 7,
+            "resetsAt": "2026-09-03T00:00:00.000Z",
             "resetStyle": "absolute"
           }
         ]
       },
-      "note": "RECORDS CURRENT BEHAVIOUR, WHICH LOOKS WRONG: an absent seven_day window still produces an 'All models' bucket at 0% whose reset time is 'now'. That bucket is invented."
+      "note": "With no session window, the weekly one is the headline — losing the session window must not lose the reading."
     },
     {
       "name": "empty payload",
@@ -115,27 +128,12 @@
         "providerId": "claude",
         "displayName": "Claude",
         "iconId": "claude",
-        "primaryPercent": 0,
-        "status": "ok",
+        "primaryPercent": null,
+        "status": "error",
         "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 0,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
-            "resetStyle": "relative"
-          },
-          {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 0,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
-            "resetStyle": "absolute"
-          }
-        ]
+        "buckets": []
       },
-      "note": "RECORDS CURRENT BEHAVIOUR, WHICH LOOKS WRONG: a payload that carries no utilization maps to a confident 0%, not to absent. Cursor and Copilot return null here. The dock therefore shows '0% Used' for a provider that reported nothing. Recorded so the Swift port is a faithful port, but do not enshrine it \u2014 see the Phase 0 findings in fixtures/README.md."
+      "note": "A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
     },
     {
       "name": "null utilization",
@@ -150,27 +148,12 @@
         "providerId": "claude",
         "displayName": "Claude",
         "iconId": "claude",
-        "primaryPercent": 0,
-        "status": "ok",
+        "primaryPercent": null,
+        "status": "error",
         "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 0,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
-            "resetStyle": "relative"
-          },
-          {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 0,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
-            "resetStyle": "absolute"
-          }
-        ]
+        "buckets": []
       },
-      "note": "RECORDS CURRENT BEHAVIOUR, WHICH LOOKS WRONG: a payload that carries no utilization maps to a confident 0%, not to absent. Cursor and Copilot return null here. The dock therefore shows '0% Used' for a provider that reported nothing. Recorded so the Swift port is a faithful port, but do not enshrine it \u2014 see the Phase 0 findings in fixtures/README.md."
+      "note": "A window that is present but carries no utilization is still nothing known: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading instead."
     },
     {
       "name": "utilization over one hundred is clamped",
@@ -194,13 +177,6 @@
             "percentUsed": 100,
             "resetsAt": "2026-08-27T12:13:00.000Z",
             "resetStyle": "relative"
-          },
-          {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 0,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
-            "resetStyle": "absolute"
           }
         ]
       }

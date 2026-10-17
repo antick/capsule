@@ -68,8 +68,17 @@ function authFromFile(raw: string): {
   }
 }
 
-function windowUsed(window: CodexWindow | null | undefined): number {
-  return toPercent(window?.used_percent ?? window?.utilization);
+/**
+ * What the window says it has used, or nothing. A window Codex did not report
+ * — or reported without a percentage — has no bar to draw, and drawing it at
+ * 0% invents a reading the response never carried.
+ */
+function windowPercent(window: CodexWindow | null | undefined): number | null {
+  const used = window?.used_percent ?? window?.utilization;
+  if (typeof used !== "number" || !Number.isFinite(used)) {
+    return null;
+  }
+  return toPercent(used);
 }
 
 function mapWindow(
@@ -78,7 +87,8 @@ function mapWindow(
   fallbackLabel: string,
   fetchedAt: Date,
 ): UsageBucket | null {
-  if (!window) {
+  const percentUsed = windowPercent(window);
+  if (!window || percentUsed === null) {
     return null;
   }
   const resetsAt = resetIso(
@@ -92,7 +102,7 @@ function mapWindow(
   return {
     id,
     label: window.label ?? windowLabel(seconds, fallbackLabel),
-    percentUsed: windowUsed(window),
+    percentUsed,
     resetsAt,
     resetStyle: relative ? "relative" : "absolute",
   };
@@ -114,8 +124,10 @@ export function mapCodexUsage(
     providerId: "codex",
     displayName: PROVIDER_LABELS.codex,
     iconId: "codex",
-    primaryPercent: buckets[0]?.percentUsed ?? windowUsed(primary),
-    status: "ok",
+    primaryPercent: buckets[0]?.percentUsed ?? null,
+    // A 200 carrying no window told us nothing. Calling that "ok" would
+    // publish the nothing over the last good numbers; "error" keeps them.
+    status: buckets.length === 0 ? "error" : "ok",
     fetchedAt: fetchedAt.toISOString(),
     buckets,
   };

@@ -1,5 +1,5 @@
 {
-  "about": "mapGrokCredits(payload, now) \u2014 Grok credit usage to a Capsule snapshot",
+  "about": "mapGrokCredits(payload, now) — Grok credit usage to a Capsule snapshot",
   "timeZone": "UTC",
   "frozenNow": "2026-08-27T11:22:00Z",
   "cases": [
@@ -75,26 +75,53 @@
       }
     },
     {
+      "name": "a product row with no headline credit percent",
+      "input": {
+        "config": {
+          "currentPeriod": {
+            "type": "USAGE_PERIOD_TYPE_WEEKLY",
+            "end": "2026-09-03T00:00:00Z"
+          },
+          "productUsage": [
+            {
+              "product": "PRODUCT_GROK_BUILD",
+              "usagePercent": 18
+            }
+          ]
+        }
+      },
+      "expected": {
+        "providerId": "grok",
+        "displayName": "Grok",
+        "iconId": "grok",
+        "primaryPercent": 18,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": [
+          {
+            "id": "product",
+            "label": "Grok Build",
+            "percentUsed": 18,
+            "resetsAt": "2026-09-03T00:00:00.000Z",
+            "resetStyle": "absolute"
+          }
+        ]
+      },
+      "note": "No creditUsagePercent, so no \"Weekly credits\" row — but the product row is a real reading and becomes the headline."
+    },
+    {
       "name": "empty payload",
       "input": {},
       "expected": {
         "providerId": "grok",
         "displayName": "Grok",
         "iconId": "grok",
-        "primaryPercent": 0,
-        "status": "ok",
+        "primaryPercent": null,
+        "status": "error",
         "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "weekly",
-            "label": "Weekly credits",
-            "percentUsed": 0,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
-            "resetStyle": "absolute"
-          }
-        ]
+        "buckets": []
       },
-      "note": "RECORDS CURRENT BEHAVIOUR, WHICH LOOKS WRONG: a payload that carries no utilization maps to a confident 0%, not to absent. Cursor and Copilot return null here. The dock therefore shows '0% Used' for a provider that reported nothing. Recorded so the Swift port is a faithful port, but do not enshrine it \u2014 see the Phase 0 findings in fixtures/README.md. Grok also invents a 'Weekly credits' bucket here."
+      "note": "No credit percent, so no \"Weekly credits\" row. A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
     }
   ]
 }

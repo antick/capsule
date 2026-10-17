@@ -61,11 +61,11 @@ belongs in a commit a human has read — never in CI.
 
 | Area | Files | Cases |
 | --- | --- | --- |
-| `usage/` | 14 | 64 |
+| `usage/` | 14 | 67 |
 | `dates/` | 5 | 17 |
 | `severity/` | 1 | 10 |
 | `activity/` | 1 | 8 |
-| **Total** | **21** | **99** |
+| **Total** | **21** | **102** |
 
 Still to extract (Phase 0 is not finished): the rest of `packages/activity`
 (session reading, Codex JSON-RPC, local events, token totals), the geometry,
@@ -94,18 +94,28 @@ against:
 ## Findings from the extraction
 
 Recording full snapshots surfaced behaviour the previous assertions never
-reached, because no test passed an empty or unexpected payload:
+reached, because no test passed an empty or unexpected payload.
 
-**Three of the five providers invent a zero.** Given a payload with no
-utilization in it, `mapClaudeUsage`, `mapCodexUsage`, and `mapGrokCredits`
-return `primaryPercent: 0` with `status: "ok"`. Claude and Grok go further and
-fabricate buckets — an "All models" row at 0% whose reset time is "now", a
-"Weekly credits" row at 0%. `mapCursorUsage` and `mapCopilotUsage` return
-`primaryPercent: null` for the same thing, which is right.
+**Three of the five providers invented a zero — fixed.** Given a payload with
+no utilization in it, `mapClaudeUsage`, `mapCodexUsage` and `mapGrokCredits`
+returned `primaryPercent: 0` with `status: "ok"`. Claude and Grok went further
+and fabricated buckets: an "All models" row at 0% whose reset time was "now",
+a "Weekly credits" row at 0%. So a successful HTTP 200 carrying a body Capsule
+could not read showed the user a confident `0% Used`, contradicting the
+README's promise that Capsule "marks it as stale instead of inventing a
+number".
 
-So a successful HTTP 200 carrying a body Capsule does not understand shows the
-user a confident `0% Used`, contradicting the README's promise that Capsule
-"marks it as stale instead of inventing a number". The affected cases are
-recorded as-is and flagged in their `note`, so the port stays faithful — but
-they should be fixed in the TypeScript app first, with the fixtures re-recorded,
-rather than carried into Swift.
+All three now build a bucket only for a window the payload actually carried,
+take `primaryPercent` from the first bucket there is, and report
+`status: "error"` when there is none — which is what `mergeSnapshot` needs to
+keep the last good reading and date it, rather than publishing the nothing over
+it. The affected cases were re-recorded, and cases were added for the paths the
+fix opens up: a Claude payload with only a weekly window, a Codex window that
+reports a reset but no percentage, a Grok product row with no headline credit
+percent. The real mappings (Claude 73/7, Codex 21/8, Grok 52/18) are unchanged.
+
+`mapCursorUsage` and `mapCopilotUsage` already returned `primaryPercent: null`
+with no buckets and were left alone. They keep `status: "ok"`, because for
+Copilot an absent percentage is often a legitimate, permanent answer — an
+unlimited quota has no percentage to show — and calling that an error would pin
+a stale reading on it forever.

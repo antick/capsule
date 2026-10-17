@@ -7,6 +7,7 @@ import {
   CLAUDE_USAGE_CACHE_FILE,
   COPY,
   PROVIDER_LABELS,
+  type UsageBucket,
   type UsageSnapshot,
 } from "@capsule/config";
 import { RateLimitedError, retryAfterMs } from "../backoff.ts";
@@ -48,36 +49,63 @@ function keychainToken(raw: string | null): string | null {
   return tokenFromFile(raw);
 }
 
+/**
+ * One window, or nothing. No utilization is not zero utilization: a window
+ * Anthropic did not report has no bar to draw, and drawing it at 0% invents a
+ * reading the response never carried.
+ */
+function windowBucket(
+  window: WindowUsage | null | undefined,
+  id: string,
+  label: string,
+  resetStyle: UsageBucket["resetStyle"],
+  fetchedAt: Date,
+): UsageBucket | null {
+  const utilization = window?.utilization;
+  if (typeof utilization !== "number" || !Number.isFinite(utilization)) {
+    return null;
+  }
+  return {
+    id,
+    label,
+    percentUsed: toPercent(utilization),
+    resetsAt: window?.resets_at ?? fetchedAt.toISOString(),
+    resetStyle,
+  };
+}
+
 export function mapClaudeUsage(
   payload: ClaudeUsageResponse,
   fetchedAt: Date,
 ): UsageSnapshot {
-  const session = payload.five_hour;
-  const weekly = payload.seven_day;
-  const sessionPercent = toPercent(session?.utilization);
+  const buckets = [
+    windowBucket(
+      payload.five_hour,
+      "current-session",
+      COPY.currentSession,
+      "relative",
+      fetchedAt,
+    ),
+    windowBucket(
+      payload.seven_day,
+      "all-models",
+      COPY.allModels,
+      "absolute",
+      fetchedAt,
+    ),
+  ].filter((item): item is UsageBucket => item !== null);
   return {
     providerId: "claude",
     displayName: PROVIDER_LABELS.claude,
     iconId: "claude",
-    primaryPercent: sessionPercent,
-    status: "ok",
+    // The session window is the headline when it is there; the weekly one
+    // stands in when it is not. Neither means we have no reading at all.
+    primaryPercent: buckets[0]?.percentUsed ?? null,
+    // A 200 carrying no window told us nothing. Calling that "ok" would
+    // publish the nothing over the last good numbers; "error" keeps them.
+    status: buckets.length === 0 ? "error" : "ok",
     fetchedAt: fetchedAt.toISOString(),
-    buckets: [
-      {
-        id: "current-session",
-        label: COPY.currentSession,
-        percentUsed: sessionPercent,
-        resetsAt: session?.resets_at ?? fetchedAt.toISOString(),
-        resetStyle: "relative",
-      },
-      {
-        id: "all-models",
-        label: COPY.allModels,
-        percentUsed: toPercent(weekly?.utilization),
-        resetsAt: weekly?.resets_at ?? fetchedAt.toISOString(),
-        resetStyle: "absolute",
-      },
-    ],
+    buckets,
   };
 }
 
@@ -133,7 +161,12 @@ async function cachedClaudeSnapshot(
   ) {
     return null;
   }
-  return { ...mapClaudeUsage(payload, context.now), status: "stale" };
+  const snapshot = mapClaudeUsage(payload, context.now);
+  // A cached window with no utilization in it is no reading to remember.
+  if (snapshot.buckets.length === 0) {
+    return null;
+  }
+  return { ...snapshot, status: "stale" };
 }
 
 export function createClaudeProvider(): UsageProvider {

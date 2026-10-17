@@ -2,6 +2,17 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Providers no longer invent a zero
+
+### Fixed
+
+- A usage response Capsule cannot read no longer shows up as `0% Used`. Given a payload carrying no utilization, `mapClaudeUsage`, `mapCodexUsage` and `mapGrokCredits` reported `primaryPercent: 0` with status `ok`; Claude and Grok also fabricated a bucket — an "All models" row at 0% resetting "now", a "Weekly credits" row at 0%. All three now draw a bucket only for a window the payload actually carried, take the headline percent from the first bucket there is, and report status `error` when there is none, so the dock keeps the last good reading and dates it as stale instead of claiming the provider is untouched. `mapCursorUsage` and `mapCopilotUsage` already behaved this way.
+- A Claude usage cache whose windows carry a reset time but no utilization is no longer remembered as a reading.
+
+### Changed
+
+- Re-recorded the Claude, Codex and Grok mapping fixtures against the fixed mappers, and added cases for the paths the fix opens up: a Claude payload with only a weekly window, a Codex window reporting a reset but no percentage, and a Grok product row with no headline credit percent. The corpus is now 102 cases across 21 files. The real mappings — Claude 73/7, Codex 21/8, Grok 52/18 — are unchanged.
+
 ## Native migration, phase 0 — fixture corpus
 
 ### Added
@@ -18,7 +29,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Fixed
 
-- Nothing yet, but the extraction found a bug worth naming: given a payload carrying no utilization, `mapClaudeUsage`, `mapCodexUsage` and `mapGrokCredits` return `0%` with status `ok`, and Claude and Grok also fabricate a bucket. Cursor and Copilot correctly return nothing. A successful response Capsule does not understand therefore shows a confident `0% Used`. The cases are recorded as-is and flagged in their notes; the fix belongs in the TypeScript app before the port, not after.
+- Nothing in this change, but the extraction found a bug worth naming: given a payload carrying no utilization, `mapClaudeUsage`, `mapCodexUsage` and `mapGrokCredits` returned `0%` with status `ok`, and Claude and Grok also fabricated a bucket. Cursor and Copilot correctly returned nothing. A successful response Capsule did not understand therefore showed a confident `0% Used`. The cases were recorded as-is and flagged in their notes, and fixed next — see "Providers no longer invent a zero".
 
 ## Public-repo privacy sweep
 
