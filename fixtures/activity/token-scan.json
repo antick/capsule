@@ -1,0 +1,350 @@
+{
+  "about": "scanTokenLogs(host, { root, cache, now, parser }) — per-day token totals for a provider's logs, reusing what is cached",
+  "timeZone": "UTC",
+  "cases": [
+    {
+      "name": "today and the window, and a file too old to open",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {},
+        "dirs": {},
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true,
+        "scan": {
+          "root": "/home/.claude/projects",
+          "parser": "claude",
+          "cache": {}
+        },
+        "logs": [
+          {
+            "path": "/home/.claude/projects/p/today.jsonl",
+            "size": 10,
+            "modifiedMs": 1788699600000,
+            "lines": [
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":100,\"output_tokens\":0}}}",
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":50,\"output_tokens\":0}}}",
+              ""
+            ]
+          },
+          {
+            "path": "/home/.claude/projects/p/week.jsonl",
+            "size": 11,
+            "modifiedMs": 1788440400000,
+            "lines": [
+              "{\"timestamp\":\"2026-09-03T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":30,\"output_tokens\":0}}}",
+              "{\"timestamp\":\"2026-07-28T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":999,\"output_tokens\":0}}}"
+            ]
+          },
+          {
+            "path": "/home/.claude/projects/p/ancient.jsonl",
+            "size": 12,
+            "modifiedMs": 1784811600000,
+            "lines": [
+              "{\"timestamp\":\"2026-07-23T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":7,\"output_tokens\":0}}}"
+            ]
+          },
+          {
+            "path": "/home/.claude/projects/p/notes.txt",
+            "size": 13,
+            "modifiedMs": 1788699600000,
+            "lines": [
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":5,\"output_tokens\":0}}}"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "days": {
+          "2026-09-06": 150,
+          "2026-09-03": 30
+        },
+        "touched": [
+          "/home/.claude/projects/p/today.jsonl",
+          "/home/.claude/projects/p/week.jsonl",
+          "/home/.claude/projects/p/ancient.jsonl"
+        ],
+        "read": [
+          "/home/.claude/projects/p/today.jsonl",
+          "/home/.claude/projects/p/week.jsonl"
+        ],
+        "cache": {
+          "/home/.claude/projects/p/today.jsonl": {
+            "size": 10,
+            "modifiedMs": 1788699600000,
+            "days": {
+              "2026-09-06": 150
+            }
+          },
+          "/home/.claude/projects/p/week.jsonl": {
+            "size": 11,
+            "modifiedMs": 1788440400000,
+            "days": {
+              "2026-09-03": 30
+            }
+          },
+          "/home/.claude/projects/p/ancient.jsonl": {
+            "size": 12,
+            "modifiedMs": 1784811600000,
+            "days": {}
+          }
+        }
+      },
+      "note": "The 45-day-old file is cached as empty without being read; rows older than the window in a newer file are skipped."
+    },
+    {
+      "name": "an unchanged cached file is not read again",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {},
+        "dirs": {},
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true,
+        "scan": {
+          "root": "/home/.claude/projects",
+          "parser": "claude",
+          "cache": {
+            "/home/.claude/projects/p/a.jsonl": {
+              "size": 10,
+              "modifiedMs": 1788613200000,
+              "days": {
+                "2026-09-05": 77
+              }
+            }
+          }
+        },
+        "logs": [
+          {
+            "path": "/home/.claude/projects/p/a.jsonl",
+            "size": 10,
+            "modifiedMs": 1788613200000,
+            "lines": [
+              "{\"timestamp\":\"2026-09-05T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":1,\"output_tokens\":0}}}"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "days": {
+          "2026-09-05": 77
+        },
+        "touched": [
+          "/home/.claude/projects/p/a.jsonl"
+        ],
+        "read": [],
+        "cache": {
+          "/home/.claude/projects/p/a.jsonl": {
+            "size": 10,
+            "modifiedMs": 1788613200000,
+            "days": {
+              "2026-09-05": 77
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "a changed file is read again",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {},
+        "dirs": {},
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true,
+        "scan": {
+          "root": "/home/.claude/projects",
+          "parser": "claude",
+          "cache": {
+            "/home/.claude/projects/p/a.jsonl": {
+              "size": 10,
+              "modifiedMs": 1788613200000,
+              "days": {
+                "2026-09-05": 77
+              }
+            }
+          }
+        },
+        "logs": [
+          {
+            "path": "/home/.claude/projects/p/a.jsonl",
+            "size": 20,
+            "modifiedMs": 1788699600000,
+            "lines": [
+              "{\"timestamp\":\"2026-09-05T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":1,\"output_tokens\":0}}}",
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":2,\"output_tokens\":0}}}"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "days": {
+          "2026-09-05": 1,
+          "2026-09-06": 2
+        },
+        "touched": [
+          "/home/.claude/projects/p/a.jsonl"
+        ],
+        "read": [
+          "/home/.claude/projects/p/a.jsonl"
+        ],
+        "cache": {
+          "/home/.claude/projects/p/a.jsonl": {
+            "size": 20,
+            "modifiedMs": 1788699600000,
+            "days": {
+              "2026-09-05": 1,
+              "2026-09-06": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "an unreadable file is skipped and not cached",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {},
+        "dirs": {},
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true,
+        "scan": {
+          "root": "/home/.claude/projects",
+          "parser": "claude",
+          "cache": {}
+        },
+        "logs": [
+          {
+            "path": "/home/.claude/projects/p/locked.jsonl",
+            "size": 5,
+            "modifiedMs": 1788699600000,
+            "lines": null
+          }
+        ]
+      },
+      "expected": {
+        "days": {},
+        "touched": [
+          "/home/.claude/projects/p/locked.jsonl"
+        ],
+        "read": [
+          "/home/.claude/projects/p/locked.jsonl"
+        ],
+        "cache": {}
+      }
+    },
+    {
+      "name": "Codex running totals across one file",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {},
+        "dirs": {},
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true,
+        "scan": {
+          "root": "/home/.codex/sessions",
+          "parser": "codex",
+          "cache": {}
+        },
+        "logs": [
+          {
+            "path": "/home/.codex/sessions/2026/09/06/r.jsonl",
+            "size": 9,
+            "modifiedMs": 1788699600000,
+            "lines": [
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"payload\":{\"type\":\"token_count\",\"info\":{\"total_token_usage\":{\"input_tokens\":100,\"output_tokens\":20}}}}",
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"payload\":{\"type\":\"token_count\",\"info\":{\"total_token_usage\":{\"input_tokens\":300,\"output_tokens\":40}}}}"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "days": {
+          "2026-09-06": 340
+        },
+        "touched": [
+          "/home/.codex/sessions/2026/09/06/r.jsonl"
+        ],
+        "read": [
+          "/home/.codex/sessions/2026/09/06/r.jsonl"
+        ],
+        "cache": {
+          "/home/.codex/sessions/2026/09/06/r.jsonl": {
+            "size": 9,
+            "modifiedMs": 1788699600000,
+            "days": {
+              "2026-09-06": 340
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "an oversized line is not parsed",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {},
+        "dirs": {},
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true,
+        "scan": {
+          "root": "/home/.claude/projects",
+          "parser": "claude",
+          "cache": {}
+        },
+        "logs": [
+          {
+            "path": "/home/.claude/projects/p/big.jsonl",
+            "size": 1,
+            "modifiedMs": 1788699600000,
+            "lines": [
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":3,\"output_tokens\":0}}}",
+              {
+                "repeat": "x",
+                "count": 1048577
+              }
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "days": {
+          "2026-09-06": 3
+        },
+        "touched": [
+          "/home/.claude/projects/p/big.jsonl"
+        ],
+        "read": [
+          "/home/.claude/projects/p/big.jsonl"
+        ],
+        "cache": {
+          "/home/.claude/projects/p/big.jsonl": {
+            "size": 1,
+            "modifiedMs": 1788699600000,
+            "days": {
+              "2026-09-06": 3
+            }
+          }
+        }
+      },
+      "note": "Longer than the line limit: a blob, not a row."
+    }
+  ],
+  "note": "A line given as { repeat, count } stands for that character repeated count times, so the corpus does not carry a megabyte of it."
+}

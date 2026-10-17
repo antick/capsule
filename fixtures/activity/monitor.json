@@ -1,0 +1,276 @@
+{
+  "about": "createActivityMonitor(...) over successive rescans — activity per enabled provider, published only when it changes",
+  "timeZone": "UTC",
+  "cases": [
+    {
+      "name": "publishes the enabled providers' sessions, then only on change",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/101.json": "{\"pid\":101,\"sessionId\":\"s101\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 101\"}",
+          "/home/.grok/sessions/proj/fresh/events.jsonl": "{\"type\":\"turn_started\",\"ts\":\"2026-09-06T12:59:59.000Z\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "101.json"
+          ],
+          "/home/.grok/sessions": [
+            "proj"
+          ],
+          "/home/.grok/sessions/proj": [
+            "fresh"
+          ]
+        },
+        "modified": {
+          "/home/.grok/sessions/proj/fresh/events.jsonl": "2026-09-06T12:59:59.000Z"
+        },
+        "processes": {
+          "101": "2026-09-06T12:00:00.000Z"
+        },
+        "queries": {},
+        "readTail": true,
+        "enabled": [
+          "claude",
+          "grok"
+        ],
+        "steps": [
+          {
+            "op": "rescan"
+          },
+          {
+            "op": "rescan"
+          },
+          {
+            "op": "kill",
+            "pid": 101
+          },
+          {
+            "op": "rescan"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "rescan",
+          "published": {
+            "claude": [
+              {
+                "id": "claude.s101",
+                "providerId": "claude",
+                "name": "task 101",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:00.000Z"
+              }
+            ],
+            "grok": [
+              {
+                "id": "grok.fresh",
+                "providerId": "grok",
+                "name": "proj",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:59.000Z"
+              }
+            ]
+          },
+          "activity": {
+            "claude": [
+              {
+                "id": "claude.s101",
+                "providerId": "claude",
+                "name": "task 101",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:00.000Z"
+              }
+            ],
+            "grok": [
+              {
+                "id": "grok.fresh",
+                "providerId": "grok",
+                "name": "proj",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:59.000Z"
+              }
+            ]
+          },
+          "busy": true
+        },
+        {
+          "op": "rescan",
+          "published": null,
+          "activity": {
+            "claude": [
+              {
+                "id": "claude.s101",
+                "providerId": "claude",
+                "name": "task 101",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:00.000Z"
+              }
+            ],
+            "grok": [
+              {
+                "id": "grok.fresh",
+                "providerId": "grok",
+                "name": "proj",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:59.000Z"
+              }
+            ]
+          },
+          "busy": true
+        },
+        {
+          "op": "kill",
+          "published": null,
+          "activity": {
+            "claude": [
+              {
+                "id": "claude.s101",
+                "providerId": "claude",
+                "name": "task 101",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:00.000Z"
+              }
+            ],
+            "grok": [
+              {
+                "id": "grok.fresh",
+                "providerId": "grok",
+                "name": "proj",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:59.000Z"
+              }
+            ]
+          },
+          "busy": true
+        },
+        {
+          "op": "rescan",
+          "published": {
+            "grok": [
+              {
+                "id": "grok.fresh",
+                "providerId": "grok",
+                "name": "proj",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:59.000Z"
+              }
+            ]
+          },
+          "activity": {
+            "grok": [
+              {
+                "id": "grok.fresh",
+                "providerId": "grok",
+                "name": "proj",
+                "detail": "Working · local task event",
+                "state": "busy",
+                "confirmed": true,
+                "waitingFor": null,
+                "since": "2026-09-06T12:59:59.000Z"
+              }
+            ]
+          },
+          "busy": true
+        }
+      ],
+      "note": "Each step reports what was published (or nothing) and whether the monitor counts as busy."
+    },
+    {
+      "name": "a switched-off provider is not read",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/101.json": "{\"pid\":101,\"sessionId\":\"s101\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 101\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "101.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "101": "2026-09-06T12:00:00.000Z"
+        },
+        "queries": {},
+        "readTail": true,
+        "enabled": [
+          "grok"
+        ],
+        "steps": [
+          {
+            "op": "rescan"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "rescan",
+          "published": null,
+          "activity": {},
+          "busy": false
+        }
+      ]
+    },
+    {
+      "name": "nothing running is an empty map and not busy",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {},
+        "dirs": {},
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true,
+        "enabled": [
+          "claude",
+          "codex",
+          "grok"
+        ],
+        "steps": [
+          {
+            "op": "rescan"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "rescan",
+          "published": null,
+          "activity": {},
+          "busy": false
+        }
+      ]
+    }
+  ]
+}

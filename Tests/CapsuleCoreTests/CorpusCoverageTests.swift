@@ -86,6 +86,12 @@ struct CorpusCoverageTests {
   /// Fixtures whose Swift port has not landed. Must be empty by the end of
   /// Phase 1; anything left here at that point is a gap, not a plan.
   static let notYetPorted: Set<String> = [
+    "activity/claude-reader",
+    "activity/codex-reader",
+    "activity/grok-reader",
+    "activity/monitor",
+    "activity/token-scan",
+    "activity/token-scanner",
     "updates/format-bytes",
     "updates/format-progress",
     "updates/initial-state",

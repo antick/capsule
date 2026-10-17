@@ -1,0 +1,386 @@
+{
+  "about": "readClaudeSessions(host) — the Claude Code sessions actually running, newest first, with each one's local events applied",
+  "timeZone": "UTC",
+  "cases": [
+    {
+      "name": "a live session, with its transcript read for local events",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/101.json": "{\"pid\":101,\"sessionId\":\"s101\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 101\"}",
+          "/home/.claude/projects/-Users-dev-demo-app/s101.jsonl": "{\"timestamp\":\"2026-09-06T12:59:55.000Z\",\"type\":\"assistant\",\"uuid\":\"u1\",\"message\":{\"stop_reason\":\"end_turn\",\"content\":[{\"type\":\"text\",\"text\":\"Done.\"}]}}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "101.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "101": "2026-09-06T12:00:00.000Z"
+        },
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [
+          {
+            "id": "claude.s101",
+            "providerId": "claude",
+            "name": "task 101",
+            "detail": "Terminal · demo-app",
+            "state": "idle",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:59:55.000Z",
+            "completion": {
+              "id": "u1",
+              "at": "2026-09-06T12:59:55.000Z",
+              "summary": "Done."
+            }
+          }
+        ],
+        "queries": [],
+        "tails": [
+          "/home/.claude/projects/-Users-dev-demo-app/s101.jsonl"
+        ]
+      }
+    },
+    {
+      "name": "a session whose process has gone is dropped",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/102.json": "{\"pid\":102,\"sessionId\":\"s102\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 102\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "102.json"
+          ]
+        },
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [],
+        "queries": [],
+        "tails": []
+      }
+    },
+    {
+      "name": "a pid reused by another process is dropped",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/103.json": "{\"pid\":103,\"sessionId\":\"s103\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 103\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "103.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "103": "2026-09-06T12:59:00.000Z"
+        },
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [],
+        "queries": [],
+        "tails": []
+      },
+      "note": "The process started long after the session registered, so it is a different process with the same pid."
+    },
+    {
+      "name": "a process whose start the system will not say is trusted",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/104.json": "{\"pid\":104,\"sessionId\":\"s104\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 104\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "104.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "104": null
+        },
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [
+          {
+            "id": "claude.s104",
+            "providerId": "claude",
+            "name": "task 104",
+            "detail": "Working · local task event",
+            "state": "busy",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:59:00.000Z"
+          }
+        ],
+        "queries": [],
+        "tails": [
+          "/home/.claude/projects/-Users-dev-demo-app/s104.jsonl"
+        ]
+      }
+    },
+    {
+      "name": "a record with no start time is checked only for being alive",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/105.json": "{\"pid\":105,\"sessionId\":\"s105\",\"cwd\":\"/Users/dev/demo-app\",\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 105\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "105.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "105": "2026-09-06T12:59:59.990Z"
+        },
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [
+          {
+            "id": "claude.s105",
+            "providerId": "claude",
+            "name": "task 105",
+            "detail": "Working · local task event",
+            "state": "busy",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:59:00.000Z"
+          }
+        ],
+        "queries": [],
+        "tails": [
+          "/home/.claude/projects/-Users-dev-demo-app/s105.jsonl"
+        ]
+      }
+    },
+    {
+      "name": "only .json files are read, and unreadable ones are skipped",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/106.json": "{\"pid\":106,\"sessionId\":\"s106\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 106\"}",
+          "/home/.claude/sessions/notes.txt": "{\"pid\":999,\"sessionId\":\"s999\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 999\"}",
+          "/home/.claude/sessions/107.json": "{not json",
+          "/home/.claude/sessions/108.json": "{\"cwd\":\"/x\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "106.json",
+            "notes.txt",
+            "107.json",
+            "108.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "106": "2026-09-06T12:00:00.000Z",
+          "999": "2026-09-06T12:00:00.000Z"
+        },
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [
+          {
+            "id": "claude.s106",
+            "providerId": "claude",
+            "name": "task 106",
+            "detail": "Working · local task event",
+            "state": "busy",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:59:00.000Z"
+          }
+        ],
+        "queries": [],
+        "tails": [
+          "/home/.claude/projects/-Users-dev-demo-app/s106.jsonl"
+        ]
+      }
+    },
+    {
+      "name": "an unsafe session id is not used to find a transcript",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/109.json": "{\"pid\":109,\"sessionId\":\"../../etc\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 109\"}",
+          "/home/.claude/projects/-Users-dev-demo-app/../../etc.jsonl": "x"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "109.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "109": "2026-09-06T12:00:00.000Z"
+        },
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [
+          {
+            "id": "claude.../../etc",
+            "providerId": "claude",
+            "name": "task 109",
+            "detail": "Working · local task event",
+            "state": "busy",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:59:00.000Z"
+          }
+        ],
+        "queries": [],
+        "tails": []
+      }
+    },
+    {
+      "name": "several sessions come back newest first",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/110.json": "{\"pid\":110,\"sessionId\":\"s110\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699300000,\"name\":\"task 110\"}",
+          "/home/.claude/sessions/111.json": "{\"pid\":111,\"sessionId\":\"s111\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699599000,\"name\":\"task 111\"}",
+          "/home/.claude/sessions/112.json": "{\"pid\":112,\"sessionId\":\"s112\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 112\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "110.json",
+            "111.json",
+            "112.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "110": "2026-09-06T12:00:00.000Z",
+          "111": "2026-09-06T12:00:00.000Z",
+          "112": "2026-09-06T12:00:00.000Z"
+        },
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [
+          {
+            "id": "claude.s111",
+            "providerId": "claude",
+            "name": "task 111",
+            "detail": "Working · local task event",
+            "state": "busy",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:59:59.000Z"
+          },
+          {
+            "id": "claude.s112",
+            "providerId": "claude",
+            "name": "task 112",
+            "detail": "Working · local task event",
+            "state": "busy",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:59:00.000Z"
+          },
+          {
+            "id": "claude.s110",
+            "providerId": "claude",
+            "name": "task 110",
+            "detail": "Working · local task event",
+            "state": "busy",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:55:00.000Z"
+          }
+        ],
+        "queries": [],
+        "tails": [
+          "/home/.claude/projects/-Users-dev-demo-app/s110.jsonl",
+          "/home/.claude/projects/-Users-dev-demo-app/s111.jsonl",
+          "/home/.claude/projects/-Users-dev-demo-app/s112.jsonl"
+        ]
+      }
+    },
+    {
+      "name": "no sessions directory",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {},
+        "dirs": {},
+        "modified": {},
+        "processes": {},
+        "queries": {},
+        "readTail": true
+      },
+      "expected": {
+        "sessions": [],
+        "queries": [],
+        "tails": []
+      }
+    },
+    {
+      "name": "without tail reads, a session is reported from its record alone",
+      "input": {
+        "home": "/home",
+        "now": "2026-09-06T13:00:00.000Z",
+        "files": {
+          "/home/.claude/sessions/113.json": "{\"pid\":113,\"sessionId\":\"s113\",\"cwd\":\"/Users/dev/demo-app\",\"startedAt\":1788696000000,\"status\":\"busy\",\"updatedAt\":1788699540000,\"name\":\"task 113\"}"
+        },
+        "dirs": {
+          "/home/.claude/sessions": [
+            "113.json"
+          ]
+        },
+        "modified": {},
+        "processes": {
+          "113": "2026-09-06T12:00:00.000Z"
+        },
+        "queries": {},
+        "readTail": false
+      },
+      "expected": {
+        "sessions": [
+          {
+            "id": "claude.s113",
+            "providerId": "claude",
+            "name": "task 113",
+            "detail": "Working · local task event",
+            "state": "busy",
+            "confirmed": true,
+            "waitingFor": null,
+            "since": "2026-09-06T12:59:00.000Z"
+          }
+        ],
+        "queries": [],
+        "tails": []
+      }
+    }
+  ]
+}
