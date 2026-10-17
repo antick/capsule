@@ -44,6 +44,13 @@ struct CorpusCoverageTests {
     "hud-metrics/scale-range",
     "hud-metrics/scale-steps",
     "hud-metrics/session-rows",
+    // CapsuleCoreTests — placement and snapping
+    "placement/compute-placement",
+    "placement/dock-along-edge",
+    "placement/layout-for-preset",
+    "placement/nearest-edge",
+    "placement/slide-along-edge",
+    "placement/zoom-hold-bounds",
   ]
 
   /// Fixtures whose Swift port has not landed. Must be empty by the end of
@@ -69,12 +76,6 @@ struct CorpusCoverageTests {
     "hud-paths/primitives",
     "hud-paths/rail-morph",
     "hud-paths/rail-path",
-    "placement/compute-placement",
-    "placement/dock-along-edge",
-    "placement/layout-for-preset",
-    "placement/nearest-edge",
-    "placement/slide-along-edge",
-    "placement/zoom-hold-bounds",
     "settings/defaults",
     "settings/parse-current",
     "updates/format-bytes",
