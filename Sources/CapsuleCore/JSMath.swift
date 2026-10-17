@@ -23,3 +23,75 @@ public func jsRound(_ value: Double) -> Double {
 public func jsFixed2(_ value: Double) -> Double {
   jsRound(value * 100) / 100
 }
+
+/// `new Date(ms)`: nil where JavaScript would make an Invalid Date. A time
+/// value outside ±8.64e15 ms is invalid, and a fractional one is truncated
+/// toward zero, as ECMAScript's TimeClip does.
+public func jsDate(milliseconds: Double) -> Date? {
+  guard milliseconds.isFinite, abs(milliseconds) <= 8.64e15 else { return nil }
+  return Date(timeIntervalSince1970: milliseconds.rounded(.towardZero) / 1000)
+}
+
+/// `Number.isSafeInteger`.
+public func jsIsSafeInteger(_ value: Double) -> Bool {
+  value.isFinite && value == value.rounded(.towardZero)
+    && abs(value) <= 9_007_199_254_740_991
+}
+
+/// `string.slice(0, length)`, which counts UTF-16 code units, not characters.
+/// A cut through a surrogate pair cannot survive as a Swift String, so that
+/// one case loses the half-character instead of keeping a lone surrogate.
+public func jsSlice(_ string: String, _ length: Int) -> String {
+  let units = Array(string.utf16.prefix(max(0, length)))
+  return String(decoding: units, as: UTF16.self)
+}
+
+/// `string.split("\n")`. Splitting a Swift String on the character "\n"
+/// leaves "\r\n" whole, because Swift treats the pair as one character;
+/// JavaScript splits on the code unit and leaves the "\r" behind.
+public func jsLines(_ string: String) -> [String] {
+  string.components(separatedBy: "\n")
+}
+
+/// JavaScript's `\s`, used to strip markdown and trim a preview.
+public func jsIsSpace(_ scalar: Unicode.Scalar) -> Bool {
+  scalar.properties.isWhitespace || scalar == "\u{FEFF}"
+}
+
+/// `string.trim()`.
+public func jsTrim(_ string: String) -> String {
+  let scalars = string.unicodeScalars
+  guard let first = scalars.firstIndex(where: { !jsIsSpace($0) }),
+    let last = scalars.lastIndex(where: { !jsIsSpace($0) })
+  else { return "" }
+  return String(scalars[first...last])
+}
+
+/// `String(value)` for a JSON value, as an id built from it would read.
+public func jsString(_ value: JSONValue?) -> String {
+  guard let value else { return "undefined" }
+  switch value {
+  case .null: return "null"
+  case .bool(let flag): return flag ? "true" : "false"
+  case .string(let text): return text
+  case .number(let number):
+    if number == number.rounded(.towardZero), abs(number) < 1e21 {
+      return String(Int64(number))
+    }
+    return "\(number)"
+  case .array(let items): return items.map { jsString($0) }.joined(separator: ",")
+  case .object: return "[object Object]"
+  }
+}
+
+/// JavaScript truthiness for a JSON value: everything but a missing value,
+/// `null`, `false`, `0`, `NaN` and the empty string.
+public func jsTruthy(_ value: JSONValue?) -> Bool {
+  switch value {
+  case .none, .null: return false
+  case .bool(let flag): return flag
+  case .number(let number): return number != 0 && !number.isNaN
+  case .string(let text): return !text.isEmpty
+  case .array, .object: return true
+  }
+}

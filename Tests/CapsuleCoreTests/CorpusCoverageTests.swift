@@ -67,11 +67,7 @@ struct CorpusCoverageTests {
     "hud-paths/primitives",
     "hud-paths/rail-morph",
     "hud-paths/rail-path",
-  ]
-
-  /// Fixtures whose Swift port has not landed. Must be empty by the end of
-  /// Phase 1; anything left here at that point is a gap, not a plan.
-  static let notYetPorted: Set<String> = [
+    // CapsuleActivityTests — passive activity
     "activity/claude-row-tokens",
     "activity/claude-session",
     "activity/codex-row-tokens",
@@ -81,6 +77,11 @@ struct CorpusCoverageTests {
     "activity/notice-tracker",
     "activity/proc-start",
     "activity/prune-token-cache",
+  ]
+
+  /// Fixtures whose Swift port has not landed. Must be empty by the end of
+  /// Phase 1; anything left here at that point is a gap, not a plan.
+  static let notYetPorted: Set<String> = [
     "updates/format-bytes",
     "updates/format-progress",
     "updates/initial-state",
