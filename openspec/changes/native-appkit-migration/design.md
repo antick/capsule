@@ -108,6 +108,12 @@ done package by package:
 | `@capsule/hud` | `CapsuleHUD` (path math + layer drawing) |
 | `@capsule/ui` | folded into `CapsuleSettingsUI` |
 | `apps/desktop` | `CapsuleApp` (app target) |
+| `apps/desktop/src/main/*-host.ts` | `CapsuleSystem` (the real Mac behind the host seams) |
+
+`CapsuleSystem` is the only module that touches the machine. The four logic
+modules reach files, processes, SQLite, the keychain and the network only
+through host protocols, which is what lets the corpus drive them against stub
+worlds.
 
 The repo keeps pnpm and Turborepo through Phase 3 because the Electron app is
 still shipping from it.

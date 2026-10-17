@@ -125,8 +125,8 @@ every re-record into a whitespace diff that hides the change that matters.
 
 | Area | Files | Cases |
 | --- | --- | --- |
-| `usage/` | 14 | 67 |
-| `activity/` | 13 | 126 |
+| `usage/` | 16 | 135 |
+| `activity/` | 19 | 168 |
 | `placement/` | 6 | 129 |
 | `hud-metrics/` | 9 | 173 |
 | `hud-paths/` | 8 | 271 |
@@ -134,19 +134,39 @@ every re-record into a whitespace diff that hides the change that matters.
 | `updates/` | 6 | 43 |
 | `dates/` | 5 | 17 |
 | `severity/` | 1 | 10 |
-| **Total** | **65** | **877** |
+| **Total** | **73** | **987** |
 
-Phase 0's extraction is done for everything the native app ports — usage,
-activity, placement and sizing, settings, updates, and the dock's
-silhouettes. Two pieces remain, neither of which blocks a Swift module:
+Extraction is done for everything the native app ports, including the
+wiring around the pure functions: each provider's whole read, the poller,
+and the activity readers all run against stub worlds the corpus describes.
+One piece remains, and it does not block a Swift module: **`apps/desktop`'s
+13 test files**, which cover the Electron main process — overlay placement,
+Dock and notch probing, the update host. They matter to the Phase 2 shell.
 
-- **The stubbed-host scenarios** (task 1.3a): a provider's full read with a
-  stubbed `fetch`, `readFile` and `readSecret`, and the activity readers'
-  walks over a stubbed filesystem. Their parsers are in the corpus; the wiring
-  around them is not yet data.
-- **`apps/desktop`'s 13 test files**, which cover the Electron main process —
-  overlay placement, Dock and notch probing, the update host. They matter to
-  the Phase 2 shell, not to the logic modules.
+## Stub worlds
+
+Some cases describe a world rather than a value, and the function runs
+against a stub built from it:
+
+- **`usage/provider-reads`** — files, keychain secrets, commands,
+  environment variables and canned HTTP responses. A response matches on url,
+  and on method and authorization when it names them; a request nothing
+  matches fails as a network error. Each case records the outcome and **every
+  request made**, headers lower-cased, so a port has to ask the same questions
+  in the same order. Cursor's token is recorded as the original's `sqlite3`
+  command; a port that queries the store directly serves that command's
+  output as the query's single cell.
+- **`usage/poller`** — providers with scripted answers and a script of steps.
+  Each step records what was emitted, fetched and published, and the backoff
+  and snapshots saved. A provider call the scenario did not script fails the
+  recording, since the poller swallows provider errors.
+- **`activity/*-reader`, `activity/token-scan`, `activity/token-scanner`,
+  `activity/monitor`** — files, directory listings, modification times, live
+  processes with their start times, and SQLite rows. Each records what was
+  found and every SQL query and tail read made.
+
+The recorders clear `CODEX_HOME`, `GROK_HOME` and `GITHUB_TOKEN` for every
+case, so nothing on the recording machine leaks into the corpus.
 
 ## Deliberately not portable
 
@@ -156,16 +176,10 @@ against:
 - `formatResetCopy` picking a style — the assertion is a shape (`/^Resets in /`),
   not a value.
 - `startOfDay` zeroing the hour — a property of every result, not one mapping.
-- Provider `fetchSnapshot` wiring — the rate-limit fallback, the cache
-  rollover rejection, and the keychain fallback all need a stubbed `fetch`,
-  `readFile`, and `readSecret`. The *scenarios* are worth porting; encoding
-  them as data is a follow-up, not part of this pass.
-- `rememberedSnapshots`, the poller's enabled-provider filtering, and the demo
-  provider — all need injected hosts or spies.
-- Reading activity off disk — the Claude registry walk, the Codex state
-  database and rollout scan, Grok session discovery, the token log scanner, and
-  the activity monitor itself. Each needs a stubbed host. Everything they hand
-  their parsers *is* in the corpus.
+- The demo provider, which returns fixed numbers and has nothing to port.
+- A poller with nothing enabled. The original loops forever there, and a hang
+  cannot be a fixture; the Swift poller's corrected rule is pinned by a
+  native test instead.
 - The dock's React rendering: `UsageDock.test.ts` and
   `activity-notices.test.ts` assert on rendered markup. The native dock is
   drawn with layers, and its look is checked by the snapshot target (design
@@ -215,3 +229,15 @@ with no buckets and were left alone. They keep `status: "ok"`, because for
 Copilot an absent percentage is often a legitimate, permanent answer — an
 unlimited quota has no percentage to show — and calling that an error would pin
 a stale reading on it forever.
+
+### Found while recording the stub worlds
+
+- **Grok has no 429 branch.** A rate-limited Grok read fails as a generic
+  error, so the poller never backs off for it. Recorded as-is and flagged in
+  `usage/provider-reads`; the fix belongs in the TypeScript first.
+- **A poller with nothing enabled loops forever.** It lands the default
+  placeholder set, finds every one of them unread, and queues another refresh.
+  Reachable from Settings by switching off the last provider. Not recorded —
+  it cannot be — and fixed in the Swift poller.
+- **The follow-up after a mid-fetch toggle re-reads every enabled provider**,
+  not only the one switched on. Noted in its `usage/poller` case.

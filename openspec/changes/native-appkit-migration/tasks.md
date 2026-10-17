@@ -3,17 +3,16 @@
 The gate for everything else. No production code moves in this phase and the
 Electron app keeps shipping from it.
 
-Status: extraction is done for everything the native app ports — 877 cases
-across 65 files covering usage, activity, placement and sizing, settings,
-updates, and the dock's silhouettes. What remains is the stubbed-host
-scenarios (1.3a) and `apps/desktop`'s Electron-main tests (1.8c), neither of
-which blocks a Swift logic module. All suites pass: dates 15, config 492,
-usage 88, activity 120, hud 339, desktop 63.
+Status: extraction is done for everything the native app ports — 987 cases
+across 73 files, including stub worlds for each provider's whole read, the
+poller, and the activity readers. What remains is `apps/desktop`'s
+Electron-main tests (1.8c), which feed the Phase 2 shell. All suites pass:
+dates 15, config 492, usage 150, activity 151, hud 339, desktop 63.
 
 - [x] 1.1 Create `fixtures/` at the repo root with one directory per capability (`usage/`, `activity/`, `placement/`, `hud-paths/`, `dates/`, `severity/`, `settings/`) and a short `fixtures/README.md` stating that both the TypeScript and Swift suites read it and that neither may keep a private copy of a case.
 - [x] 1.2 Agree the fixture file shape before extracting: a JSON object per case with `name`, `input`, `expected`, and an optional `note`, plus a frozen clock value wherever a case depends on "now".
 - [x] 1.3 Extract `packages/usage` cases (5 test files): Claude `five_hour`/`seven_day` mapping, Codex, Grok, Cursor, Copilot, clamp bounds, unauthenticated-is-not-zero, stale-on-error merge, backoff and `Retry-After` parsing, poller scheduling.
-- [ ] 1.3a Poller scheduling and the provider `fetchSnapshot` wiring stayed inline — they need stubbed hosts. Encode those scenarios as data (stub files, stub responses, expected outcome) so the Swift suite can drive them too, or record in `fixtures/README.md` that they are rewritten natively instead.
+- [x] 1.3a Encode the stubbed-host scenarios as data: 53 provider reads against stub worlds recording every request, 15 poller scenarios driven step by step, and 42 activity reader, token scan, scanner and monitor scenarios recording every query and tail read. The inline tests that stubbed hosts by hand are retired.
 - [x] 1.4 Extract `packages/activity` cases (6 test files): Claude session registry parsing, Codex JSON-RPC connection states, Grok reading, local-events derivation, token totals for today and 30 days, and the regression cases in `activity-regressions.test.ts`. The suspended agent chat (`claude-channel`, `codex-connection`) is not extracted: it is inactive per `AGENTS.md` and not part of the native app.
 - [x] 1.5a Extract the `packages/config` severity bands and token-count cases.
 - [x] 1.5b Extract the rest of `packages/config` (8 test files): placement geometry, snapping, motion curves, corner geometry, settings schema migration including the legacy provider and placement renames, and update-state transitions. Pre-v7 migrations are recorded but listed under `wontPort` (decision 9); the corner arc and the spring helpers are not extracted (decisions 10 and 6).
@@ -30,14 +29,12 @@ usage 88, activity 120, hud 339, desktop 63.
 No app target and no UI in this phase. Acceptance is the Phase 0 corpus
 passing under `swift test`.
 
-Status: all four logic modules exist — `CapsuleCore`, `CapsuleUsage`,
-`CapsuleHUD` and `CapsuleActivity` — and `swift test` runs 76 tests. 822 of
-the corpus's 877 cases pass in Swift, across 58 of its 65 files. Of the rest,
-43 cases are the update wording deferred to Sparkle (task 2.2e) and 12 are the
-pre-v7 settings migrations the native app deliberately does not run
-(`wontPort`). What remains in Phase 1 is host work with no fixtures to gate it:
-the HTTP reads and credential discovery (2.6b–e), the poller (2.5b), and the
-activity readers and monitor over the filesystem (2.7b).
+Status: Phase 1 is complete. The four logic modules — `CapsuleCore`,
+`CapsuleUsage`, `CapsuleHUD`, `CapsuleActivity` — and `CapsuleSystem`, the one
+module that touches the machine, all exist, and `swift test` runs 107 tests.
+932 of the corpus's 987 cases pass in Swift; the rest are the update wording
+deferred to Sparkle (2.2e, 43 cases) and the pre-v7 settings migrations the
+native app deliberately does not run (`wontPort`, 12 cases).
 
 - [x] 2.1 Add `Package.swift` at the repo root with a `macOS 14.0` platform floor, and commit `.swift-version` recording the toolchain. No third-party dependencies in this phase. Declares `CapsuleCore` and the `CapsuleFixtures` test-support target; `CapsuleUsage`, `CapsuleActivity` and `CapsuleHUD` are declared as their content lands, because an empty module would claim progress that does not exist.
 - [x] 2.1a Add a Swift corpus loader that finds `fixtures/` by walking up to `pnpm-workspace.yaml`, the same way the TypeScript loader does, so neither side keeps a copy inside its own target. Ignore `.build/` and `.swiftpm/`.
@@ -50,14 +47,15 @@ activity readers and monitor over the filesystem (2.7b).
 - [x] 2.3 Implement the reset-time formatters in `CapsuleCore`; every other module formats dates only through them. Includes `formatElapsed`, `formatAgo`, `dayKey`, `startOfDay` and `formatCompactCount`, and normalises the meridiem space so copy cannot drift with the toolchain.
 - [x] 2.4 Implement placement geometry and snapping in `CapsuleCore`; pass the `placement/` fixtures. Every `Math.round` goes through `jsRound`, and edge snapping keeps the original's left, right, top, bottom tie-break.
 - [x] 2.5a Implement the snapshot types, clamping, snapshot merge, and backoff in `CapsuleUsage`; pass those fixtures.
-- [ ] 2.5b Implement the poller — startup, interval, wake, network-online — which needs an injected host and has no fixture to match.
+- [x] 2.5b Implement the poller as an actor and pass `usage/poller`. Timers, wake and network become `tick()`, `resume()` and `online()` for the shell. The follow-up refresh uses the corrected rule, so nothing enabled no longer loops.
 - [x] 2.6a Implement all five providers' payload mapping and token reading in `CapsuleUsage` over `Codable`; pass every `usage/` fixture with whole-snapshot equality.
-- [ ] 2.6b Implement the five providers' HTTP reads over `URLSession`, reusing the same usage endpoints and headers, and the same local credential locations. Not fixture-covered: the TypeScript equivalents are tested with a stubbed host, which task 1.3a is about encoding as data.
-- [ ] 2.6c Read Claude's keychain credential through the Security framework rather than shelling out to `security`.
-- [ ] 2.6d Read Cursor's state database by linking `libsqlite3` directly instead of spawning `sqlite3 -readonly`, so the only remaining subprocess is `gh`.
-- [ ] 2.6e Add the one `Process` host helper that `gh auth token` needs, with PATH resolution that finds a Homebrew install, and treat a missing `gh` as "no token" rather than an error.
+- [x] 2.6b Implement the five providers' reads and pass `usage/provider-reads`, outcome and requests both. Responses decode leniently, as the original's do.
+- [x] 2.6c Read Claude's keychain credential through the Security framework rather than shelling out to `security`.
+- [x] 2.6d Read Cursor's state database, and Codex's stores, by linking `libsqlite3` directly instead of spawning `sqlite3 -readonly`, so the only remaining subprocess is `gh`.
+- [x] 2.6e Add the one `Process` host helper that `gh auth token` needs, with PATH resolution that finds a Homebrew install and the original's 8-second timeout, and treat a missing `gh` as "no token" rather than an error.
 - [x] 2.7a Implement `CapsuleActivity`'s pure logic — Claude registry parsing, the Codex activity hint, local event evidence, the notice tracker and token counting — and pass every `activity/` fixture.
-- [ ] 2.7b Implement the activity readers and monitor over the filesystem — the registry walk, the Codex state database and rollout scan, Grok discovery, the token log scanner — and a file-watching monitor over `FSEvents`, behind an injectable host as the TypeScript monitor has.
+- [x] 2.7b Implement the activity readers, token scanner and monitor behind an injectable host and pass every `activity/` reader scenario; watch the Claude sessions directory with `FSEvents`, which also sees a file rewritten in place.
+- [x] 2.7c Add `CapsuleSystem` with the real macOS hosts — files, the guarded tail reader, processes via `sysctl`, SQLite, the keychain, commands, the directory watcher and a JSON store — tested offline against temp directories.
 - The Codex JSON-RPC client is not ported: it serves the suspended agent chat, which is not part of the native app.
 - [x] 2.8 Port the silhouette math into `CapsuleHUD` — path builder, blob layout, rail and bubble outlines, frame padding, hit regions, the latch and its fold — and pass all eight `hud-paths/` fixtures with exact equality. The corner arc is not ported (design decision 10).
 - [x] 2.8a Convert outlines to `CGPath` for the shape layers (design decision 6), checked natively by bounding boxes and point containment, since the corpus checks commands rather than shapes.

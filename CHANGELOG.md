@@ -13,6 +13,23 @@ All notable changes to Capsule are documented in this file.
 
 - Re-recorded the Claude, Codex and Grok mapping fixtures against the fixed mappers, and added cases for the paths the fix opens up: a Claude payload with only a weekly window, a Codex window reporting a reset but no percentage, and a Grok product row with no headline credit percent. The corpus is now 102 cases across 21 files. The real mappings — Claude 73/7, Codex 21/8, Grok 52/18 — are unchanged.
 
+## Native migration, phase 1 — Swift host layer
+
+### Added
+
+- The fixture corpus now drives each provider's whole read against a stub world, recording every request made; the poller through scripted steps; and the activity readers, token scanner and monitor against a stub machine, recording every query and tail read. 987 cases across 73 files.
+- Swift ports of all of it: the five providers' reads, the usage poller, the Claude, Codex and Grok readers, the token scanner and the activity monitor. 932 of the corpus's 987 cases pass in Swift.
+- New `CapsuleSystem` module with the real macOS hosts, the only Swift module that touches the machine: read-only SQLite, local commands, the keychain, files, a guarded tail reader, process start times, an FSEvents directory watcher and a JSON store.
+
+### Fixed
+
+- The Swift poller does not loop when every provider is switched off, which the Electron app's does; the TypeScript fix is proposed separately.
+- Two bugs in the earlier Swift usage port, caught by the new scenarios: Claude's reset times were normalised where the original passes them through, and a token refresh answering 200 with a non-JSON body read as "no token" instead of failing.
+
+### Known
+
+- Grok's usage read has no rate-limit branch, so the poller never backs off for it. Recorded faithfully in the corpus and in the Swift port; the TypeScript fix is proposed separately.
+
 ## Native migration, phase 1 — Swift passive activity
 
 ### Added
