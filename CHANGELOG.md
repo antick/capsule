@@ -13,6 +13,13 @@ All notable changes to Capsule are documented in this file.
 
 - Re-recorded the Claude, Codex and Grok mapping fixtures against the fixed mappers, and added cases for the paths the fix opens up: a Claude payload with only a weekly window, a Codex window reporting a reset but no percentage, and a Grok product row with no headline credit percent. The corpus is now 102 cases across 21 files. The real mappings — Claude 73/7, Codex 21/8, Grok 52/18 — are unchanged.
 
+## Native migration, phase 1 — Swift HUD silhouettes
+
+### Added
+
+- New `CapsuleHUD` module: the path builder, dock layout, rail and bubble outlines, frame padding, hit regions, and the latch and its fold. All eight silhouette fixtures — 271 cases — pass with exact equality on every path coordinate.
+- Outlines convert to `CGPath` for the dock's shape layers, with native checks that each one makes the shape it describes.
+
 ## Native migration, phase 1 — Swift core geometry and settings
 
 ### Added

@@ -30,14 +30,12 @@ usage 88, activity 120, hud 339, desktop 63.
 No app target and no UI in this phase. Acceptance is the Phase 0 corpus
 passing under `swift test`.
 
-Status: `swift test` runs 53 tests across `CapsuleCoreTests` (38) and
-`CapsuleUsageTests` (15). `CapsuleCore` now carries HUD metrics, placement and
-snapping, settings parsing, dock styles, and session summary and ordering, as
-well as the formatters and usage types. 23 fixtures are left in
-`notYetPorted`: nine for `CapsuleActivity`, eight for `CapsuleHUD`, and six
-update-wording cases that belong with Sparkle in Phase 3. What is left in
-`CapsuleUsage` is host work: the HTTP reads, credential discovery and the
-poller.
+Status: `swift test` runs 65 tests across `CapsuleCoreTests` (38),
+`CapsuleUsageTests` (15) and `CapsuleHUDTests` (12). `CapsuleHUD` now carries
+the path builder, dock layout, rail and bubble outlines, hit regions, the
+latch and its fold, and their conversion to `CGPath`. 15 fixtures are left in
+`notYetPorted`: nine for `CapsuleActivity`, and six update-wording cases that
+belong with Sparkle in Phase 3.
 
 - [x] 2.1 Add `Package.swift` at the repo root with a `macOS 14.0` platform floor, and commit `.swift-version` recording the toolchain. No third-party dependencies in this phase. Declares `CapsuleCore` and the `CapsuleFixtures` test-support target; `CapsuleUsage`, `CapsuleActivity` and `CapsuleHUD` are declared as their content lands, because an empty module would claim progress that does not exist.
 - [x] 2.1a Add a Swift corpus loader that finds `fixtures/` by walking up to `pnpm-workspace.yaml`, the same way the TypeScript loader does, so neither side keeps a copy inside its own target. Ignore `.build/` and `.swiftpm/`.
@@ -57,7 +55,8 @@ poller.
 - [ ] 2.6d Read Cursor's state database by linking `libsqlite3` directly instead of spawning `sqlite3 -readonly`, so the only remaining subprocess is `gh`.
 - [ ] 2.6e Add the one `Process` host helper that `gh auth token` needs, with PATH resolution that finds a Homebrew install, and treat a missing `gh` as "no token" rather than an error.
 - [ ] 2.7 Implement `CapsuleActivity` session reading, the Codex JSON-RPC client, token totals, and a file-watching monitor over `FSEvents` behind the same injectable-host seam the TypeScript monitor used; pass the `activity/` fixtures.
-- [ ] 2.8 Port the silhouette math into `CapsuleHUD` as pure functions returning `CGPath` — blob, latch, and the `path-builder` primitives — and pass the `hud-paths/` fixtures. Do not port the corner arc (design decision 10); leave its fixtures unexecuted and note that in `fixtures/README.md`.
+- [x] 2.8 Port the silhouette math into `CapsuleHUD` — path builder, blob layout, rail and bubble outlines, frame padding, hit regions, the latch and its fold — and pass all eight `hud-paths/` fixtures with exact equality. The corner arc is not ported (design decision 10).
+- [x] 2.8a Convert outlines to `CGPath` for the shape layers (design decision 6), checked natively by bounding boxes and point containment, since the corpus checks commands rather than shapes.
 - [x] 2.9 Keep every Swift source file at or under 500 lines, splitting as needed. Largest is `Providers/Grok.swift` at 216.
 - [x] 2.10 Add a parity check that fails if any fixture in the corpus is not executed by the Swift suite, so a silently skipped case cannot pass as green.
 - [ ] 2.11 Run `swift test` one target at a time, backgrounded, per the repo's heavy-command rule, and record the case counts against Phase 0's numbers.
