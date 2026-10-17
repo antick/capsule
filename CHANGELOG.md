@@ -13,6 +13,17 @@ All notable changes to Capsule are documented in this file.
 
 - Re-recorded the Claude, Codex and Grok mapping fixtures against the fixed mappers, and added cases for the paths the fix opens up: a Claude payload with only a weekly window, a Codex window reporting a reset but no percentage, and a Grok product row with no headline credit percent. The corpus is now 102 cases across 21 files. The real mappings — Claude 73/7, Codex 21/8, Grok 52/18 — are unchanged.
 
+## Native migration, phase 1 — Swift passive activity
+
+### Added
+
+- New `CapsuleActivity` module: Claude registry parsing and process start times, the Codex activity hint, local event evidence for Claude, Codex and Grok, the notice tracker, and token counting from transcript rows. All nine activity fixtures pass.
+- All four Swift logic modules now exist. 822 of the corpus's 877 cases pass in Swift; the rest are update wording deferred to the Sparkle work and the pre-v7 settings migrations the native app deliberately skips.
+
+### Fixed
+
+- Date parsing and formatting built a new formatter on every call. They now share formatters built once, which took a thousand-update notice-tracker run from 28 seconds to well under one.
+
 ## Native migration, phase 1 — Swift HUD silhouettes
 
 ### Added
