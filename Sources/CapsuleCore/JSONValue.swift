@@ -1,8 +1,9 @@
 import Foundation
 
-/// Arbitrary JSON, for the one reader that has to walk a shape it does not
-/// know: Grok's CLI writes its auth file keyed by sign-in URL, with tokens
-/// nested at a depth that has changed between versions.
+/// Arbitrary JSON, for readers that have to look at a shape before deciding
+/// what it is: Grok's auth file, whose tokens sit at a depth that has changed
+/// between versions, and a settings file, whose fields fall back one at a
+/// time rather than failing as a whole.
 ///
 /// Object key order is not preserved — Swift has no ordered dictionary in the
 /// standard library — so a walk that finds several candidate tokens visits
@@ -23,6 +24,21 @@ public enum JSONValue: Sendable, Equatable {
 
   public var asDouble: Double? {
     if case .number(let value) = self { return value }
+    return nil
+  }
+
+  public var asBool: Bool? {
+    if case .bool(let value) = self { return value }
+    return nil
+  }
+
+  public var asObject: [String: JSONValue]? {
+    if case .object(let fields) = self { return fields }
+    return nil
+  }
+
+  public var asArray: [JSONValue]? {
+    if case .array(let items) = self { return items }
     return nil
   }
 

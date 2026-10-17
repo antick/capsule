@@ -34,6 +34,16 @@ struct CorpusCoverageTests {
     "usage/to-percent",
     "usage/tokens-from-file",
     "usage/unauthenticated",
+    // CapsuleCoreTests — HUD metrics
+    "hud-metrics/card-height",
+    "hud-metrics/clamp-scale",
+    "hud-metrics/metrics",
+    "hud-metrics/next-scale",
+    "hud-metrics/notch",
+    "hud-metrics/rail-sizes",
+    "hud-metrics/scale-range",
+    "hud-metrics/scale-steps",
+    "hud-metrics/session-rows",
   ]
 
   /// Fixtures whose Swift port has not landed. Must be empty by the end of
@@ -51,15 +61,6 @@ struct CorpusCoverageTests {
     "activity/proc-start",
     "activity/prune-token-cache",
     "activity/summarize",
-    "hud-metrics/card-height",
-    "hud-metrics/clamp-scale",
-    "hud-metrics/metrics",
-    "hud-metrics/next-scale",
-    "hud-metrics/notch",
-    "hud-metrics/rail-sizes",
-    "hud-metrics/scale-range",
-    "hud-metrics/scale-steps",
-    "hud-metrics/session-rows",
     "hud-paths/blob-layout",
     "hud-paths/bubble-path",
     "hud-paths/frame-padding",
