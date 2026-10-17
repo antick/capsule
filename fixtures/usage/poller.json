@@ -5282,6 +5282,407 @@
           ]
         }
       ]
+    },
+    {
+      "name": "a placeholder added by a toggle is flagged on the next single refresh",
+      "input": {
+        "now": "2026-08-27T11:00:00.000Z",
+        "settings": {
+          "enabled": [
+            "claude"
+          ],
+          "pollIntervalMs": 60000
+        },
+        "busy": true,
+        "outcomes": {
+          "claude": [
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            },
+            {
+              "snapshot": {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 46,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 46,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "steps": [
+          {
+            "op": "refresh"
+          },
+          {
+            "op": "setEnabled",
+            "ids": [
+              "claude",
+              "copilot"
+            ]
+          },
+          {
+            "op": "sync"
+          },
+          {
+            "op": "refreshProvider",
+            "id": "claude"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "op": "refresh",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "setEnabled",
+          "fetched": [],
+          "emitted": [],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "sync",
+          "fetched": [],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "copilot",
+                "displayName": "Copilot",
+                "iconId": "copilot",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z"
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "copilot",
+              "displayName": "Copilot",
+              "iconId": "copilot",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "unauthenticated",
+              "fetchedAt": "2026-08-27T11:00:00.000Z"
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 40,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 40,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "refreshProvider",
+          "fetched": [
+            "claude"
+          ],
+          "emitted": [
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 40,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 40,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": true
+              },
+              {
+                "providerId": "copilot",
+                "displayName": "Copilot",
+                "iconId": "copilot",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ],
+            [
+              {
+                "providerId": "claude",
+                "displayName": "Claude",
+                "iconId": "claude",
+                "primaryPercent": 46,
+                "status": "ok",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "buckets": [
+                  {
+                    "id": "b",
+                    "label": "Window",
+                    "percentUsed": 46,
+                    "resetsAt": "2026-08-27T13:00:00.000Z",
+                    "resetStyle": "relative"
+                  }
+                ],
+                "refreshing": false
+              },
+              {
+                "providerId": "copilot",
+                "displayName": "Copilot",
+                "iconId": "copilot",
+                "primaryPercent": null,
+                "buckets": [],
+                "status": "unauthenticated",
+                "fetchedAt": "2026-08-27T11:00:00.000Z",
+                "refreshing": false
+              }
+            ]
+          ],
+          "snapshots": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 46,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 46,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ],
+              "refreshing": false
+            },
+            {
+              "providerId": "copilot",
+              "displayName": "Copilot",
+              "iconId": "copilot",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "unauthenticated",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "refreshing": false
+            }
+          ],
+          "backoff": null,
+          "saved": [
+            {
+              "providerId": "claude",
+              "displayName": "Claude",
+              "iconId": "claude",
+              "primaryPercent": 46,
+              "status": "ok",
+              "fetchedAt": "2026-08-27T11:00:00.000Z",
+              "buckets": [
+                {
+                  "id": "b",
+                  "label": "Window",
+                  "percentUsed": 46,
+                  "resetsAt": "2026-08-27T13:00:00.000Z",
+                  "resetStyle": "relative"
+                }
+              ]
+            },
+            {
+              "providerId": "copilot",
+              "displayName": "Copilot",
+              "iconId": "copilot",
+              "primaryPercent": null,
+              "buckets": [],
+              "status": "unauthenticated",
+              "fetchedAt": "2026-08-27T11:00:00.000Z"
+            }
+          ]
+        }
+      ],
+      "note": "A placeholder starts with no refreshing flag at all, which is not the same as false: the single refresh writes false onto the new placeholder as it flags the one being read."
     }
   ]
 }

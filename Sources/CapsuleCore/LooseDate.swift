@@ -1,9 +1,10 @@
 import Foundation
 
 /// Formatters are expensive to build and the readers parse dates on every
-/// refresh, so each is built once. Both classes are documented thread-safe
-/// once configured, and these are never mutated after this point, which is
-/// what makes the unchecked sharing sound.
+/// refresh, so each is built once. `DateFormatter` is `Sendable` in the SDK;
+/// `ISO8601DateFormatter` is not marked so, but is documented thread-safe once
+/// configured, and these are never mutated after this point, which is what
+/// makes the unchecked sharing of those three sound.
 private enum Formatters {
   nonisolated(unsafe) static let isoFractional: ISO8601DateFormatter = {
     let formatter = ISO8601DateFormatter()
@@ -17,7 +18,7 @@ private enum Formatters {
     return formatter
   }()
 
-  nonisolated(unsafe) static let dateOnly: DateFormatter = {
+  static let dateOnly: DateFormatter = {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "en_US_POSIX")
     formatter.timeZone = TimeZone(identifier: "UTC")

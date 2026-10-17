@@ -64,3 +64,10 @@ public struct ActivityNotice: Sendable, Codable, Equatable {
     self.summary = summary
   }
 }
+
+/// How often usage is read.
+public enum PollerTuning {
+  /// While nobody is working, wait this long between reads: numbers that
+  /// cannot have moved are not worth spending rate limit on.
+  public static let idleIntervalMs = 300_000.0
+}
