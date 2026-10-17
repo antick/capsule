@@ -152,28 +152,34 @@ export function mapGrokCredits(
   fetchedAt: Date,
 ): UsageSnapshot {
   const config = payload.config ?? {};
-  const weeklyPercent = toPercent(
-    config.creditUsagePercent ?? payload.creditUsagePercent,
-  );
+  const credits = config.creditUsagePercent ?? payload.creditUsagePercent;
+  // No credit percent is not zero credits used: a bill xAI did not report has
+  // no bar to draw, and drawing it at 0% invents a reading.
+  const weeklyPercent =
+    typeof credits === "number" && Number.isFinite(credits)
+      ? toPercent(credits)
+      : null;
   const resetsAt = resetIso(
     config.currentPeriod?.end ?? config.billingPeriodEnd,
     fetchedAt,
   );
-  const buckets: UsageBucket[] = [
-    {
+  const buckets: UsageBucket[] = [];
+  if (weeklyPercent !== null) {
+    buckets.push({
       id: "weekly",
       label: COPY.grokWeekly,
       percentUsed: weeklyPercent,
       resetsAt,
       resetStyle: "absolute",
-    },
-  ];
+    });
+  }
   const products = (config.productUsage ?? []).filter(
     (item) => typeof item.usagePercent === "number",
   );
   const build = products.find((item) => /build/i.test(item.product ?? ""));
   const extra = build ?? products[0];
-  // xAI reports the headline credit percent again as a product row; skip the echo.
+  // xAI reports the headline credit percent again as a product row; skip the
+  // echo. With no headline there is nothing to echo, so the row stays.
   if (
     extra &&
     extra.usagePercent != null &&
@@ -203,8 +209,10 @@ export function mapGrokCredits(
     providerId: "grok",
     displayName: PROVIDER_LABELS.grok,
     iconId: "grok",
-    primaryPercent: weeklyPercent,
-    status: "ok",
+    primaryPercent: buckets[0]?.percentUsed ?? null,
+    // A 200 carrying no percentage told us nothing. Calling that "ok" would
+    // publish the nothing over the last good numbers; "error" keeps them.
+    status: buckets.length === 0 ? "error" : "ok",
     fetchedAt: fetchedAt.toISOString(),
     buckets,
   };
