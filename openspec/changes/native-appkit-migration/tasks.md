@@ -3,22 +3,25 @@
 The gate for everything else. No production code moves in this phase and the
 Electron app keeps shipping from it.
 
-Status: the corpus exists and holds 99 cases — usage, dates, severity, and
-token counts. `packages/activity`, most of `packages/config`, `packages/hud`,
-and `apps/desktop` are still to extract. All suites pass: dates 15, config 128,
-usage 85, activity 39, hud 68, desktop 63.
+Status: extraction is done for everything the native app ports — 877 cases
+across 65 files covering usage, activity, placement and sizing, settings,
+updates, and the dock's silhouettes. What remains is the stubbed-host
+scenarios (1.3a) and `apps/desktop`'s Electron-main tests (1.8c), neither of
+which blocks a Swift logic module. All suites pass: dates 15, config 492,
+usage 88, activity 120, hud 339, desktop 63.
 
 - [x] 1.1 Create `fixtures/` at the repo root with one directory per capability (`usage/`, `activity/`, `placement/`, `hud-paths/`, `dates/`, `severity/`, `settings/`) and a short `fixtures/README.md` stating that both the TypeScript and Swift suites read it and that neither may keep a private copy of a case.
 - [x] 1.2 Agree the fixture file shape before extracting: a JSON object per case with `name`, `input`, `expected`, and an optional `note`, plus a frozen clock value wherever a case depends on "now".
 - [x] 1.3 Extract `packages/usage` cases (5 test files): Claude `five_hour`/`seven_day` mapping, Codex, Grok, Cursor, Copilot, clamp bounds, unauthenticated-is-not-zero, stale-on-error merge, backoff and `Retry-After` parsing, poller scheduling.
 - [ ] 1.3a Poller scheduling and the provider `fetchSnapshot` wiring stayed inline — they need stubbed hosts. Encode those scenarios as data (stub files, stub responses, expected outcome) so the Swift suite can drive them too, or record in `fixtures/README.md` that they are rewritten natively instead.
-- [ ] 1.4 Extract `packages/activity` cases (6 test files): Claude session registry parsing, Codex JSON-RPC connection states, Grok reading, local-events derivation, token totals for today and 30 days, and the regression cases in `activity-regressions.test.ts`.
+- [x] 1.4 Extract `packages/activity` cases (6 test files): Claude session registry parsing, Codex JSON-RPC connection states, Grok reading, local-events derivation, token totals for today and 30 days, and the regression cases in `activity-regressions.test.ts`. The suspended agent chat (`claude-channel`, `codex-connection`) is not extracted: it is inactive per `AGENTS.md` and not part of the native app.
 - [x] 1.5a Extract the `packages/config` severity bands and token-count cases.
-- [ ] 1.5b Extract the rest of `packages/config` (8 test files): placement geometry, snapping, motion curves, corner geometry, settings schema migration including the legacy provider and placement renames, and update-state transitions.
+- [x] 1.5b Extract the rest of `packages/config` (8 test files): placement geometry, snapping, motion curves, corner geometry, settings schema migration including the legacy provider and placement renames, and update-state transitions. Pre-v7 migrations are recorded but listed under `wontPort` (decision 9); the corner arc and the spring helpers are not extracted (decisions 10 and 6).
 - [x] 1.6 Extract `packages/dates` cases: `formatResetRelative` and `formatResetAbsolute` against a frozen clock, including the exact strings in the init spec.
-- [ ] 1.7 Extract `packages/hud` path cases (5 test files) as canonical path commands rather than SVG strings, so a `CGPath` can be compared against them: blob silhouette per style and edge, latch geometry, corner geometry, and `path-builder` primitives.
+- [x] 1.7 Extract `packages/hud` path cases (5 test files) as canonical path commands rather than SVG strings, so a `CGPath` can be compared against them: blob silhouette per style and edge, latch geometry, and `path-builder` primitives. The corner arc is not extracted (decision 10), and the React rendering and CSS-only helpers have no values to port.
 - [x] 1.8a Re-point the extracted suites at `fixtures/` and confirm they pass with no expectation weakened. Done for dates, severity, clamp, backoff, token counts, and provider mapping.
-- [ ] 1.8b Re-point every remaining Vitest suite at `fixtures/` and confirm the whole suite still passes with no expectation edited. Any case that cannot be expressed as a fixture stays an inline test and is listed in `fixtures/README.md` as deliberately not portable.
+- [x] 1.8b Re-point the activity, config and HUD suites at `fixtures/`. Inline tests that assert a property stay; tests that only re-asserted a recorded value are removed. Every inline test left either takes an input JSON cannot carry, needs a stubbed host, or asserts a property.
+- [ ] 1.8c Extract the portable cases among `apps/desktop`'s 13 test files — overlay placement, Dock and notch probing, the update host. These feed the Phase 2 shell rather than a logic module.
 - [x] 1.9 Record the corpus size (cases per capability) in `fixtures/README.md` so Phase 1 parity can be stated as a number.
 - [x] 1.10 Update `CHANGELOG.md`.
 

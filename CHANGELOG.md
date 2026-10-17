@@ -13,6 +13,21 @@ All notable changes to Capsule are documented in this file.
 
 - Re-recorded the Claude, Codex and Grok mapping fixtures against the fixed mappers, and added cases for the paths the fix opens up: a Claude payload with only a weekly window, a Codex window reporting a reset but no percentage, and a Grok product row with no headline credit percent. The corpus is now 102 cases across 21 files. The real mappings — Claude 73/7, Codex 21/8, Grok 52/18 — are unchanged.
 
+## Native migration, phase 0 — config, activity and HUD fixtures
+
+### Added
+
+- Extended the fixture corpus to 877 cases across 65 files. Config adds placement and slide tracks, edge snapping, HUD metrics and scale snapping, card and rail sizing, notch geometry, settings parsing, update wording and session ordering. Activity adds Claude registry parsing, the Codex activity hint, local event evidence for Claude, Codex and Grok, the notice tracker replayed over step sequences, and token counting. The HUD adds dock layouts, rail and bubble outlines for every edge and style, hit regions, the latch and its fold, and the path builder's primitives.
+- Added a `wontPort` list to the Swift coverage gate for fixtures the native app deliberately does not match, each with the decision that explains it. Pre-v7 settings migrations are the first entry.
+- `fixtures/README.md` now records the traps a port must get right: JavaScript's rounding of negative halves, floating-point-sensitive scale snapping, stable sorts and tie order, string-ordered timestamps, three different epoch heuristics, and insertion-ordered sets.
+
+### Changed
+
+- Inline tests that only re-asserted a value the corpus now records are removed; tests that assert a property of the output stay. Config's `activity.test.ts` and `settings.test.ts` are retired as a result.
+- The shared golden helper moved into `@capsule/fixtures/vitest` and compares JSON-shaped values, so a `Date` matches its recorded ISO string.
+- The HUD package typechecks in two programs: source with no ambient types, so Node globals cannot reach renderer code, and tests with Node's types for the fixture loader.
+- Biome skips `fixtures/**/*.json`. The recorder is the corpus's only writer, so a re-record shows only the values that moved rather than a formatter's whitespace.
+
 ## Native migration, phase 1 — Swift usage readers
 
 ### Added
