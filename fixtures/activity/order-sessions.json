@@ -1,5 +1,5 @@
 {
-  "about": "orderSessions(sessions) \u2014 waiting first, then busy, newest first within a rank",
+  "about": "orderSessions(sessions) — waiting first, then busy, newest first within a rank",
   "cases": [
     {
       "name": "mixed states and ages",
@@ -8,7 +8,7 @@
           "id": "idle",
           "providerId": "claude",
           "name": "idle",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "idle",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -17,7 +17,7 @@
           "id": "busy-old",
           "providerId": "claude",
           "name": "busy-old",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T10:00:00.000Z"
@@ -26,7 +26,7 @@
           "id": "busy-new",
           "providerId": "claude",
           "name": "busy-new",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -35,7 +35,7 @@
           "id": "waiting",
           "providerId": "claude",
           "name": "waiting",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "waiting",
           "waitingFor": "permission",
           "since": "2026-08-27T11:00:00.000Z"
@@ -46,7 +46,7 @@
           "id": "waiting",
           "providerId": "claude",
           "name": "waiting",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "waiting",
           "waitingFor": "permission",
           "since": "2026-08-27T11:00:00.000Z"
@@ -55,7 +55,7 @@
           "id": "busy-new",
           "providerId": "claude",
           "name": "busy-new",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -64,7 +64,7 @@
           "id": "busy-old",
           "providerId": "claude",
           "name": "busy-old",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T10:00:00.000Z"
@@ -73,7 +73,7 @@
           "id": "idle",
           "providerId": "claude",
           "name": "idle",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "idle",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -87,7 +87,7 @@
           "id": "first",
           "providerId": "claude",
           "name": "first",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -96,7 +96,7 @@
           "id": "second",
           "providerId": "claude",
           "name": "second",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -105,7 +105,7 @@
           "id": "third",
           "providerId": "claude",
           "name": "third",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -116,7 +116,7 @@
           "id": "first",
           "providerId": "claude",
           "name": "first",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -125,7 +125,7 @@
           "id": "second",
           "providerId": "claude",
           "name": "second",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -134,7 +134,7 @@
           "id": "third",
           "providerId": "claude",
           "name": "third",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.000Z"
@@ -154,7 +154,7 @@
           "id": "a",
           "providerId": "claude",
           "name": "a",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00Z"
@@ -163,7 +163,7 @@
           "id": "b",
           "providerId": "claude",
           "name": "b",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.500Z"
@@ -174,7 +174,7 @@
           "id": "a",
           "providerId": "claude",
           "name": "a",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00Z"
@@ -183,13 +183,13 @@
           "id": "b",
           "providerId": "claude",
           "name": "b",
-          "detail": "Terminal \u00b7 repo",
+          "detail": "Terminal · repo",
           "state": "busy",
           "waitingFor": null,
           "since": "2026-08-27T11:00:00.500Z"
         }
       ],
-      "note": "Ordered by comparing the strings, as the original does, not by parsing them \u2014 so the timestamp without milliseconds sorts as newer even though it is 500 ms earlier. Every current writer uses toISOString, so the two forms never meet in practice; this pins the string ordering so a port that parses dates instead is noticed."
+      "note": "Ordered by comparing the strings, as the original does, not by parsing them — so the timestamp without milliseconds sorts as newer even though it is 500 ms earlier. Every current writer uses toISOString, so the two forms never meet in practice; this pins the string ordering so a port that parses dates instead is noticed."
     }
   ]
 }

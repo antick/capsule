@@ -6,7 +6,11 @@
       "input": null,
       "expected": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,

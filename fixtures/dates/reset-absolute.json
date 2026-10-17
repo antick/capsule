@@ -6,22 +6,30 @@
   "cases": [
     {
       "name": "next Thursday midnight",
-      "input": { "resetsAt": "2026-09-03T00:00:00Z" },
+      "input": {
+        "resetsAt": "2026-09-03T00:00:00Z"
+      },
       "expected": "Resets Thu 12:00 AM"
     },
     {
       "name": "later today",
-      "input": { "resetsAt": "2026-08-27T15:00:00Z" },
+      "input": {
+        "resetsAt": "2026-08-27T15:00:00Z"
+      },
       "expected": "Resets today 3:00 PM"
     },
     {
       "name": "tomorrow midnight",
-      "input": { "resetsAt": "2026-08-28T00:00:00Z" },
+      "input": {
+        "resetsAt": "2026-08-28T00:00:00Z"
+      },
       "expected": "Resets tomorrow 12:00 AM"
     },
     {
       "name": "named weekday inside the week",
-      "input": { "resetsAt": "2026-08-29T09:30:00Z" },
+      "input": {
+        "resetsAt": "2026-08-29T09:30:00Z"
+      },
       "expected": "Resets Sat 9:30 AM"
     }
   ]

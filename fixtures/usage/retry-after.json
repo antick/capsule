@@ -3,17 +3,33 @@
   "timeZone": "UTC",
   "frozenNow": "2026-08-27T11:22:00Z",
   "cases": [
-    { "name": "delta seconds", "input": { "header": "30" }, "expected": 30000 },
+    {
+      "name": "delta seconds",
+      "input": {
+        "header": "30"
+      },
+      "expected": 30000
+    },
     {
       "name": "HTTP date",
-      "input": { "header": "Thu, 27 Aug 2026 11:23:00 GMT" },
+      "input": {
+        "header": "Thu, 27 Aug 2026 11:23:00 GMT"
+      },
       "expected": 60000
     },
     {
       "name": "unparseable value is no hint at all",
-      "input": { "header": "soon" },
+      "input": {
+        "header": "soon"
+      },
       "expected": null
     },
-    { "name": "absent header", "input": { "header": null }, "expected": null }
+    {
+      "name": "absent header",
+      "input": {
+        "header": null
+      },
+      "expected": null
+    }
   ]
 }

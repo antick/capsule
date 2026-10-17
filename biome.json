@@ -17,7 +17,8 @@
       "!**/playwright-report",
       "!**/test-results",
       "!**/release",
-      "!**/*.gen.ts"
+      "!**/*.gen.ts",
+      "!fixtures/**/*.json"
     ]
   },
   "formatter": {

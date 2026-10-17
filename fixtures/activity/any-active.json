@@ -1,5 +1,5 @@
 {
-  "about": "anyAgentActive(activity) \u2014 whether any provider has an agent doing something",
+  "about": "anyAgentActive(activity) — whether any provider has an agent doing something",
   "cases": [
     {
       "name": "nothing",
@@ -14,7 +14,7 @@
             "id": "a",
             "providerId": "claude",
             "name": "a",
-            "detail": "Terminal \u00b7 repo",
+            "detail": "Terminal · repo",
             "state": "idle",
             "waitingFor": null,
             "since": "2026-08-27T11:00:00.000Z"
@@ -31,7 +31,7 @@
             "id": "a",
             "providerId": "claude",
             "name": "a",
-            "detail": "Terminal \u00b7 repo",
+            "detail": "Terminal · repo",
             "state": "idle",
             "waitingFor": null,
             "since": "2026-08-27T11:00:00.000Z"
@@ -42,7 +42,7 @@
             "id": "b",
             "providerId": "codex",
             "name": "b",
-            "detail": "Terminal \u00b7 repo",
+            "detail": "Terminal · repo",
             "state": "busy",
             "waitingFor": null,
             "since": "2026-08-27T11:00:00.000Z"
@@ -59,7 +59,7 @@
             "id": "a",
             "providerId": "grok",
             "name": "a",
-            "detail": "Terminal \u00b7 repo",
+            "detail": "Terminal · repo",
             "state": "waiting",
             "waitingFor": "permission",
             "since": "2026-08-27T11:00:00.000Z"
@@ -83,7 +83,7 @@
             "id": "a",
             "providerId": "claude",
             "name": "a",
-            "detail": "Terminal \u00b7 repo",
+            "detail": "Terminal · repo",
             "state": "busy",
             "waitingFor": null,
             "since": "2026-08-27T11:00:00.000Z",

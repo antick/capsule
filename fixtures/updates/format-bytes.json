@@ -1,5 +1,5 @@
 {
-  "about": "formatBytes(bytes) \u2014 download sizes in the updates pane",
+  "about": "formatBytes(bytes) — download sizes in the updates pane",
   "cases": [
     {
       "name": "zero",

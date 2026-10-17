@@ -113,6 +113,11 @@ weakening it.
 Re-record with `CAPSULE_WRITE_FIXTURES=1`. That rewrites the corpus, so it
 belongs in a commit a human has read — never in CI.
 
+The recorder is the corpus's only writer, so every file is exactly
+`JSON.stringify(value, null, 2)` plus a newline. Biome is told to leave
+`fixtures/**/*.json` alone: a formatter collapsing short arrays would turn
+every re-record into a whitespace diff that hides the change that matters.
+
 ## What is here
 
 | Area | Files | Cases |

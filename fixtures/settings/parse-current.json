@@ -5,7 +5,11 @@
       "name": "the defaults round-trip",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -27,7 +31,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -52,7 +60,10 @@
       "name": "providers kept in the dock's own order",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["grok", "claude"],
+        "enabledProviderIds": [
+          "grok",
+          "claude"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -74,7 +85,10 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -100,7 +114,11 @@
       "name": "duplicate providers collapse",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "claude", "codex"],
+        "enabledProviderIds": [
+          "claude",
+          "claude",
+          "codex"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -122,7 +140,10 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex"],
+          "enabledProviderIds": [
+            "claude",
+            "codex"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -194,7 +215,13 @@
       "name": "every provider",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["copilot", "cursor", "grok", "codex", "claude"],
+        "enabledProviderIds": [
+          "copilot",
+          "cursor",
+          "grok",
+          "codex",
+          "claude"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -247,7 +274,11 @@
       "name": "usage counted as remaining",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -269,7 +300,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -294,7 +329,11 @@
       "name": "unknown usage display falls back to used",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -316,7 +355,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -341,7 +384,11 @@
       "name": "unknown hide delay falls back to normal",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -363,7 +410,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -388,7 +439,11 @@
       "name": "a non-default hide delay is kept",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -410,7 +465,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -435,7 +494,11 @@
       "name": "unknown theme falls back to auto",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -457,7 +520,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -482,7 +549,11 @@
       "name": "unknown dock style falls back to rail",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -504,7 +575,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -529,7 +604,11 @@
       "name": "capsule style",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -551,7 +630,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -576,7 +659,11 @@
       "name": "corner arc is forced off while the feature is disabled",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -601,7 +688,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -630,7 +721,11 @@
       "name": "a remembered corner is dropped",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -652,7 +747,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -677,7 +776,11 @@
       "name": "notification popups default on when absent",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -698,7 +801,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -723,7 +830,11 @@
       "name": "notification popups kept off",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -745,7 +856,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -770,7 +885,11 @@
       "name": "a size on the grid is kept",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -792,7 +911,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -817,7 +940,11 @@
       "name": "a size below the range is held to the smallest step",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -839,7 +966,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -864,7 +995,11 @@
       "name": "a size between steps is snapped",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -886,7 +1021,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -911,7 +1050,11 @@
       "name": "a saved position is kept",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -936,7 +1079,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -964,7 +1111,11 @@
       "name": "the top-edge notch can be turned off",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -986,7 +1137,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -1011,7 +1166,11 @@
       "name": "demo mode survives a current-schema file",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": true,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -1033,7 +1192,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": true,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -1058,7 +1221,11 @@
       "name": "each placement",
       "input": {
         "placementPreset": "bottom-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -1080,7 +1247,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "bottom-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -1105,7 +1276,11 @@
       "name": "unknown keys are dropped",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -1130,7 +1305,11 @@
       "expected": {
         "accepted": {
           "placementPreset": "right-edge",
-          "enabledProviderIds": ["claude", "codex", "grok"],
+          "enabledProviderIds": [
+            "claude",
+            "codex",
+            "grok"
+          ],
           "demoMode": false,
           "pollIntervalMs": 60000,
           "launchAtLogin": false,
@@ -1156,7 +1335,11 @@
       "name": "an unknown placement is refused",
       "input": {
         "placementPreset": "middle",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -1183,7 +1366,11 @@
       "name": "a non-positive refresh interval is refused",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": -5,
         "launchAtLogin": false,
@@ -1210,7 +1397,10 @@
       "name": "an unknown provider is refused",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "gemini"],
+        "enabledProviderIds": [
+          "claude",
+          "gemini"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,
@@ -1237,7 +1427,11 @@
       "name": "a size that is not a number is refused",
       "input": {
         "placementPreset": "right-edge",
-        "enabledProviderIds": ["claude", "codex", "grok"],
+        "enabledProviderIds": [
+          "claude",
+          "codex",
+          "grok"
+        ],
         "demoMode": false,
         "pollIntervalMs": 60000,
         "launchAtLogin": false,

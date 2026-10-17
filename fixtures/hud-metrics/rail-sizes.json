@@ -12,7 +12,9 @@
         "meterBlock": 38,
         "meterStride": 46,
         "railLength": 54,
-        "joinOffsets": [21.5]
+        "joinOffsets": [
+          21.5
+        ]
       },
       "note": "No meters still lays out one: an empty rail is never zero-length."
     },
@@ -27,7 +29,9 @@
         "meterBlock": 38,
         "meterStride": 46,
         "railLength": 54,
-        "joinOffsets": [21.5]
+        "joinOffsets": [
+          21.5
+        ]
       }
     },
     {
@@ -41,7 +45,10 @@
         "meterBlock": 38,
         "meterStride": 46,
         "railLength": 100,
-        "joinOffsets": [21.5, 67.5]
+        "joinOffsets": [
+          21.5,
+          67.5
+        ]
       }
     },
     {
@@ -55,7 +62,11 @@
         "meterBlock": 38,
         "meterStride": 46,
         "railLength": 146,
-        "joinOffsets": [21.5, 67.5, 113.5]
+        "joinOffsets": [
+          21.5,
+          67.5,
+          113.5
+        ]
       }
     },
     {
@@ -69,7 +80,13 @@
         "meterBlock": 38,
         "meterStride": 46,
         "railLength": 238,
-        "joinOffsets": [21.5, 67.5, 113.5, 159.5, 205.5]
+        "joinOffsets": [
+          21.5,
+          67.5,
+          113.5,
+          159.5,
+          205.5
+        ]
       }
     },
     {
@@ -83,7 +100,9 @@
         "meterBlock": 27,
         "meterStride": 35,
         "railLength": 39,
-        "joinOffsets": [19.5]
+        "joinOffsets": [
+          19.5
+        ]
       },
       "note": "No meters still lays out one: an empty rail is never zero-length."
     },
@@ -98,7 +117,9 @@
         "meterBlock": 27,
         "meterStride": 35,
         "railLength": 39,
-        "joinOffsets": [19.5]
+        "joinOffsets": [
+          19.5
+        ]
       }
     },
     {
@@ -112,7 +133,10 @@
         "meterBlock": 27,
         "meterStride": 35,
         "railLength": 74,
-        "joinOffsets": [19.5, 54.5]
+        "joinOffsets": [
+          19.5,
+          54.5
+        ]
       }
     },
     {
@@ -126,7 +150,11 @@
         "meterBlock": 27,
         "meterStride": 35,
         "railLength": 109,
-        "joinOffsets": [19.5, 54.5, 89.5]
+        "joinOffsets": [
+          19.5,
+          54.5,
+          89.5
+        ]
       }
     },
     {
@@ -140,7 +168,13 @@
         "meterBlock": 27,
         "meterStride": 35,
         "railLength": 179,
-        "joinOffsets": [19.5, 54.5, 89.5, 124.5, 159.5]
+        "joinOffsets": [
+          19.5,
+          54.5,
+          89.5,
+          124.5,
+          159.5
+        ]
       }
     },
     {
@@ -154,7 +188,9 @@
         "meterBlock": 54,
         "meterStride": 66,
         "railLength": 78,
-        "joinOffsets": [31]
+        "joinOffsets": [
+          31
+        ]
       },
       "note": "No meters still lays out one: an empty rail is never zero-length."
     },
@@ -169,7 +205,9 @@
         "meterBlock": 54,
         "meterStride": 66,
         "railLength": 78,
-        "joinOffsets": [31]
+        "joinOffsets": [
+          31
+        ]
       }
     },
     {
@@ -183,7 +221,10 @@
         "meterBlock": 54,
         "meterStride": 66,
         "railLength": 144,
-        "joinOffsets": [31, 97]
+        "joinOffsets": [
+          31,
+          97
+        ]
       }
     },
     {
@@ -197,7 +238,11 @@
         "meterBlock": 54,
         "meterStride": 66,
         "railLength": 210,
-        "joinOffsets": [31, 97, 163]
+        "joinOffsets": [
+          31,
+          97,
+          163
+        ]
       }
     },
     {
@@ -211,7 +256,13 @@
         "meterBlock": 54,
         "meterStride": 66,
         "railLength": 342,
-        "joinOffsets": [31, 97, 163, 229, 295]
+        "joinOffsets": [
+          31,
+          97,
+          163,
+          229,
+          295
+        ]
       }
     },
     {
@@ -225,7 +276,9 @@
         "meterBlock": 38,
         "meterStride": 50,
         "railLength": 54,
-        "joinOffsets": [27]
+        "joinOffsets": [
+          27
+        ]
       },
       "note": "No meters still lays out one: an empty rail is never zero-length."
     },
@@ -240,7 +293,9 @@
         "meterBlock": 38,
         "meterStride": 50,
         "railLength": 54,
-        "joinOffsets": [27]
+        "joinOffsets": [
+          27
+        ]
       }
     },
     {
@@ -254,7 +309,10 @@
         "meterBlock": 38,
         "meterStride": 50,
         "railLength": 104,
-        "joinOffsets": [27, 77]
+        "joinOffsets": [
+          27,
+          77
+        ]
       }
     },
     {
@@ -268,7 +326,11 @@
         "meterBlock": 38,
         "meterStride": 50,
         "railLength": 154,
-        "joinOffsets": [27, 77, 127]
+        "joinOffsets": [
+          27,
+          77,
+          127
+        ]
       }
     },
     {
@@ -282,7 +344,13 @@
         "meterBlock": 38,
         "meterStride": 50,
         "railLength": 254,
-        "joinOffsets": [27, 77, 127, 177, 227]
+        "joinOffsets": [
+          27,
+          77,
+          127,
+          177,
+          227
+        ]
       }
     },
     {
@@ -296,7 +364,9 @@
         "meterBlock": 70,
         "meterStride": 86,
         "railLength": 102,
-        "joinOffsets": [40.5]
+        "joinOffsets": [
+          40.5
+        ]
       },
       "note": "No meters still lays out one: an empty rail is never zero-length."
     },
@@ -311,7 +381,9 @@
         "meterBlock": 70,
         "meterStride": 86,
         "railLength": 102,
-        "joinOffsets": [40.5]
+        "joinOffsets": [
+          40.5
+        ]
       }
     },
     {
@@ -325,7 +397,10 @@
         "meterBlock": 70,
         "meterStride": 86,
         "railLength": 188,
-        "joinOffsets": [40.5, 126.5]
+        "joinOffsets": [
+          40.5,
+          126.5
+        ]
       }
     },
     {
@@ -339,7 +414,11 @@
         "meterBlock": 70,
         "meterStride": 86,
         "railLength": 274,
-        "joinOffsets": [40.5, 126.5, 212.5]
+        "joinOffsets": [
+          40.5,
+          126.5,
+          212.5
+        ]
       }
     },
     {
@@ -353,7 +432,13 @@
         "meterBlock": 70,
         "meterStride": 86,
         "railLength": 446,
-        "joinOffsets": [40.5, 126.5, 212.5, 298.5, 384.5]
+        "joinOffsets": [
+          40.5,
+          126.5,
+          212.5,
+          298.5,
+          384.5
+        ]
       }
     },
     {
@@ -367,7 +452,9 @@
         "meterBlock": 49,
         "meterStride": 65,
         "railLength": 69,
-        "joinOffsets": [34.5]
+        "joinOffsets": [
+          34.5
+        ]
       },
       "note": "No meters still lays out one: an empty rail is never zero-length."
     },
@@ -382,7 +469,9 @@
         "meterBlock": 49,
         "meterStride": 65,
         "railLength": 69,
-        "joinOffsets": [34.5]
+        "joinOffsets": [
+          34.5
+        ]
       }
     },
     {
@@ -396,7 +485,10 @@
         "meterBlock": 49,
         "meterStride": 65,
         "railLength": 134,
-        "joinOffsets": [34.5, 99.5]
+        "joinOffsets": [
+          34.5,
+          99.5
+        ]
       }
     },
     {
@@ -410,7 +502,11 @@
         "meterBlock": 49,
         "meterStride": 65,
         "railLength": 199,
-        "joinOffsets": [34.5, 99.5, 164.5]
+        "joinOffsets": [
+          34.5,
+          99.5,
+          164.5
+        ]
       }
     },
     {
@@ -424,7 +520,13 @@
         "meterBlock": 49,
         "meterStride": 65,
         "railLength": 329,
-        "joinOffsets": [34.5, 99.5, 164.5, 229.5, 294.5]
+        "joinOffsets": [
+          34.5,
+          99.5,
+          164.5,
+          229.5,
+          294.5
+        ]
       }
     }
   ]

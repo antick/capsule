@@ -5,12 +5,16 @@
   "cases": [
     {
       "name": "this instant is not given an ago suffix",
-      "input": { "msBeforeNow": 0 },
+      "input": {
+        "msBeforeNow": 0
+      },
       "expected": "just now"
     },
     {
       "name": "minutes take the suffix",
-      "input": { "msBeforeNow": 720000 },
+      "input": {
+        "msBeforeNow": 720000
+      },
       "expected": "12 min ago"
     }
   ]

@@ -1,9 +1,21 @@
 {
   "about": "formatCompactCount(count) — token totals at a steady width so the dock does not reflow",
   "cases": [
-    { "name": "zero", "input": 0, "expected": "0" },
-    { "name": "two digits", "input": 12, "expected": "12" },
-    { "name": "three digits", "input": 840, "expected": "840" },
+    {
+      "name": "zero",
+      "input": 0,
+      "expected": "0"
+    },
+    {
+      "name": "two digits",
+      "input": 12,
+      "expected": "12"
+    },
+    {
+      "name": "three digits",
+      "input": 840,
+      "expected": "840"
+    },
     {
       "name": "thousands keep two decimals",
       "input": 1234,
@@ -14,12 +26,20 @@
       "input": 84000,
       "expected": "84k"
     },
-    { "name": "millions keep one", "input": 1200000, "expected": "1.2m" },
+    {
+      "name": "millions keep one",
+      "input": 1200000,
+      "expected": "1.2m"
+    },
     {
       "name": "hundreds of millions drop it",
       "input": 123456789,
       "expected": "123m"
     },
-    { "name": "billions", "input": 2500000000, "expected": "2.5b" }
+    {
+      "name": "billions",
+      "input": 2500000000,
+      "expected": "2.5b"
+    }
   ]
 }

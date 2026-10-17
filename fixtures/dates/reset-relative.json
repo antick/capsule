@@ -5,12 +5,16 @@
   "cases": [
     {
       "name": "fifty-one minutes",
-      "input": { "resetsAt": "2026-08-27T12:13:00Z" },
+      "input": {
+        "resetsAt": "2026-08-27T12:13:00Z"
+      },
       "expected": "Resets in 51 min"
     },
     {
       "name": "two hours ten minutes",
-      "input": { "resetsAt": "2026-08-27T13:32:00Z" },
+      "input": {
+        "resetsAt": "2026-08-27T13:32:00Z"
+      },
       "expected": "Resets in 2h 10 min"
     }
   ]
