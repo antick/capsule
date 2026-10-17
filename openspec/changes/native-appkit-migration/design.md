@@ -206,8 +206,12 @@ guessing.
 `CORNER_ARC_ENABLED` is `false`, and `settings.ts` transforms `customCorner` and
 `cornerArc` to nothing when it is off. `corner.ts`, `corner-path.ts`,
 `CornerFrame.tsx`, and their tests are ~800 lines serving a disabled feature.
-They are not ported. Their fixtures are still extracted in Phase 0 so the
-decision stays reversible.
+They are not ported, and their fixtures are not extracted either: an
+earlier draft of this decision extracted them "so the decision stays
+reversible", but reversibility already comes from the TypeScript source and
+its tests, which stay in the tree until Phase 4 and in history after. Inputs
+for a dead feature are effort with no reader. If the arc is revived, its
+goldens are recorded then.
 
 ### 11. Apple Silicon only, macOS 14.0 floor
 

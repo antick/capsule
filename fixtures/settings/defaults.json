@@ -1,0 +1,30 @@
+{
+  "about": "defaultSettings() — what a first launch starts from",
+  "cases": [
+    {
+      "name": "defaults",
+      "input": null,
+      "expected": {
+        "placementPreset": "right-edge",
+        "enabledProviderIds": ["claude", "codex", "grok"],
+        "demoMode": false,
+        "pollIntervalMs": 60000,
+        "launchAtLogin": false,
+        "hudScale": 1,
+        "hudTheme": "auto",
+        "dockStyle": "rail",
+        "cornerArc": false,
+        "autoHide": true,
+        "notificationPopups": true,
+        "autoUpdateCheck": true,
+        "autoUpdateDownload": false,
+        "hideDelay": "normal",
+        "customCorner": null,
+        "topEdgeNotch": true,
+        "usageDisplay": "used",
+        "customPosition": null,
+        "schemaVersion": 7
+      }
+    }
+  ]
+}

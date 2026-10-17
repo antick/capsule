@@ -1,0 +1,232 @@
+{
+  "about": "summarizeActivity(sessions) — the one state a ring shows for every live session",
+  "cases": [
+    {
+      "name": "nothing running",
+      "input": [],
+      "expected": null
+    },
+    {
+      "name": "no list at all",
+      "input": null,
+      "expected": null
+    },
+    {
+      "name": "waiting outranks busy",
+      "input": [
+        {
+          "id": "a",
+          "providerId": "claude",
+          "name": "a",
+          "detail": "Terminal · repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "b",
+          "providerId": "claude",
+          "name": "b",
+          "detail": "Terminal · repo",
+          "state": "waiting",
+          "waitingFor": "permission",
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "state": "waiting",
+        "sessions": [
+          {
+            "id": "a",
+            "providerId": "claude",
+            "name": "a",
+            "detail": "Terminal · repo",
+            "state": "busy",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          },
+          {
+            "id": "b",
+            "providerId": "claude",
+            "name": "b",
+            "detail": "Terminal · repo",
+            "state": "waiting",
+            "waitingFor": "permission",
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "busy outranks idle",
+      "input": [
+        {
+          "id": "a",
+          "providerId": "claude",
+          "name": "a",
+          "detail": "Terminal · repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "b",
+          "providerId": "claude",
+          "name": "b",
+          "detail": "Terminal · repo",
+          "state": "idle",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "state": "working",
+        "sessions": [
+          {
+            "id": "a",
+            "providerId": "claude",
+            "name": "a",
+            "detail": "Terminal · repo",
+            "state": "busy",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          },
+          {
+            "id": "b",
+            "providerId": "claude",
+            "name": "b",
+            "detail": "Terminal · repo",
+            "state": "idle",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "only idle",
+      "input": [
+        {
+          "id": "a",
+          "providerId": "claude",
+          "name": "a",
+          "detail": "Terminal · repo",
+          "state": "idle",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "state": "idle",
+        "sessions": [
+          {
+            "id": "a",
+            "providerId": "claude",
+            "name": "a",
+            "detail": "Terminal · repo",
+            "state": "idle",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "an unconfirmed busy hint does not read as working",
+      "input": [
+        {
+          "id": "a",
+          "providerId": "claude",
+          "name": "a",
+          "detail": "Terminal · repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z",
+          "confirmed": false
+        },
+        {
+          "id": "b",
+          "providerId": "claude",
+          "name": "b",
+          "detail": "Terminal · repo",
+          "state": "idle",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "state": "idle",
+        "sessions": [
+          {
+            "id": "a",
+            "providerId": "claude",
+            "name": "a",
+            "detail": "Terminal · repo",
+            "state": "busy",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z",
+            "confirmed": false
+          },
+          {
+            "id": "b",
+            "providerId": "claude",
+            "name": "b",
+            "detail": "Terminal · repo",
+            "state": "idle",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ]
+      },
+      "note": "A recent log write is a hint, not proof; it must not light the ring."
+    },
+    {
+      "name": "an unconfirmed waiting hint does not read as waiting",
+      "input": [
+        {
+          "id": "a",
+          "providerId": "claude",
+          "name": "a",
+          "detail": "Terminal · repo",
+          "state": "waiting",
+          "waitingFor": "permission",
+          "since": "2026-08-27T11:00:00.000Z",
+          "confirmed": false
+        },
+        {
+          "id": "b",
+          "providerId": "claude",
+          "name": "b",
+          "detail": "Terminal · repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ],
+      "expected": {
+        "state": "working",
+        "sessions": [
+          {
+            "id": "a",
+            "providerId": "claude",
+            "name": "a",
+            "detail": "Terminal · repo",
+            "state": "waiting",
+            "waitingFor": "permission",
+            "since": "2026-08-27T11:00:00.000Z",
+            "confirmed": false
+          },
+          {
+            "id": "b",
+            "providerId": "claude",
+            "name": "b",
+            "detail": "Terminal · repo",
+            "state": "busy",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ]
+      }
+    }
+  ]
+}

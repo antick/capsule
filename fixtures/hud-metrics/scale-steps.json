@@ -1,0 +1,10 @@
+{
+  "about": "hudScaleSteps() — every size the stepper offers, smallest first",
+  "cases": [
+    {
+      "name": "all steps",
+      "input": null,
+      "expected": [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3]
+    }
+  ]
+}

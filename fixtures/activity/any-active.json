@@ -1,0 +1,98 @@
+{
+  "about": "anyAgentActive(activity) \u2014 whether any provider has an agent doing something",
+  "cases": [
+    {
+      "name": "nothing",
+      "input": {},
+      "expected": false
+    },
+    {
+      "name": "only idle sessions",
+      "input": {
+        "claude": [
+          {
+            "id": "a",
+            "providerId": "claude",
+            "name": "a",
+            "detail": "Terminal \u00b7 repo",
+            "state": "idle",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ]
+      },
+      "expected": false
+    },
+    {
+      "name": "a busy session on one provider",
+      "input": {
+        "claude": [
+          {
+            "id": "a",
+            "providerId": "claude",
+            "name": "a",
+            "detail": "Terminal \u00b7 repo",
+            "state": "idle",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ],
+        "codex": [
+          {
+            "id": "b",
+            "providerId": "codex",
+            "name": "b",
+            "detail": "Terminal \u00b7 repo",
+            "state": "busy",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ]
+      },
+      "expected": true
+    },
+    {
+      "name": "a waiting session",
+      "input": {
+        "grok": [
+          {
+            "id": "a",
+            "providerId": "grok",
+            "name": "a",
+            "detail": "Terminal \u00b7 repo",
+            "state": "waiting",
+            "waitingFor": "permission",
+            "since": "2026-08-27T11:00:00.000Z"
+          }
+        ]
+      },
+      "expected": true
+    },
+    {
+      "name": "an empty list for a provider",
+      "input": {
+        "claude": []
+      },
+      "expected": false
+    },
+    {
+      "name": "an unconfirmed busy hint",
+      "input": {
+        "claude": [
+          {
+            "id": "a",
+            "providerId": "claude",
+            "name": "a",
+            "detail": "Terminal \u00b7 repo",
+            "state": "busy",
+            "waitingFor": null,
+            "since": "2026-08-27T11:00:00.000Z",
+            "confirmed": false
+          }
+        ]
+      },
+      "expected": true,
+      "note": "Counts a hint as activity, unlike summarizeActivity. This drives the monitor's polling cadence (isBusy), not what a ring shows, so a hint makes it look again sooner rather than lighting anything."
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 import type { ProviderId, UsageSnapshot } from "@capsule/config";
-import { openGolden } from "@capsule/fixtures";
-import { afterAll, describe, expect, it } from "vitest";
+import { goldenSuite } from "@capsule/fixtures/vitest";
 import { mergeSnapshot } from "../merge.ts";
 import { unauthenticatedSnapshot } from "../unauthenticated.ts";
 import { claudeUsageFromCache, mapClaudeUsage } from "./claude.ts";
@@ -8,30 +7,6 @@ import { mapCodexUsage } from "./codex.ts";
 import { copilotTokenFromApps, mapCopilotUsage } from "./copilot.ts";
 import { cursorTokenFromHex, jwtSubject, mapCursorUsage } from "./cursor.ts";
 import { grokTokenFromFile, mapGrokCredits } from "./grok.ts";
-
-/**
- * Every case here compares a whole mapped snapshot, not the handful of fields
- * a hand-written assertion would reach for, because the Swift port has to
- * reproduce all of it. The expectations are recorded from this
- * implementation; see `openGolden`.
- */
-function goldenSuite<Input, Expected>(
-  path: string,
-  run: (input: Input, now: Date) => Expected,
-): void {
-  const golden = openGolden<Input, Expected>(path);
-  const now = golden.frozenNow ? new Date(golden.frozenNow) : new Date(0);
-
-  describe(golden.about, () => {
-    for (const testCase of golden.cases) {
-      it(testCase.name, () => {
-        const actual = run(testCase.input, now);
-        expect(actual).toEqual(golden.expect(testCase, actual));
-      });
-    }
-    afterAll(() => golden.flush());
-  });
-}
 
 goldenSuite("usage/claude-mapping", (payload, now) =>
   mapClaudeUsage(payload as Parameters<typeof mapClaudeUsage>[0], now),

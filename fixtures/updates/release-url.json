@@ -1,0 +1,25 @@
+{
+  "about": "releaseUrlFor(version) — the release page for a version, or the list",
+  "cases": [
+    {
+      "name": "bare version",
+      "input": "0.2.0",
+      "expected": "https://github.com/antick/capsule/releases/tag/v0.2.0"
+    },
+    {
+      "name": "already prefixed",
+      "input": "v0.2.0",
+      "expected": "https://github.com/antick/capsule/releases/tag/v0.2.0"
+    },
+    {
+      "name": "no version known",
+      "input": null,
+      "expected": "https://github.com/antick/capsule/releases"
+    },
+    {
+      "name": "blank version",
+      "input": "",
+      "expected": "https://github.com/antick/capsule/releases"
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "about": "orderSessions(sessions) \u2014 waiting first, then busy, newest first within a rank",
+  "cases": [
+    {
+      "name": "mixed states and ages",
+      "input": [
+        {
+          "id": "idle",
+          "providerId": "claude",
+          "name": "idle",
+          "detail": "Terminal \u00b7 repo",
+          "state": "idle",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "busy-old",
+          "providerId": "claude",
+          "name": "busy-old",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T10:00:00.000Z"
+        },
+        {
+          "id": "busy-new",
+          "providerId": "claude",
+          "name": "busy-new",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "waiting",
+          "providerId": "claude",
+          "name": "waiting",
+          "detail": "Terminal \u00b7 repo",
+          "state": "waiting",
+          "waitingFor": "permission",
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ],
+      "expected": [
+        {
+          "id": "waiting",
+          "providerId": "claude",
+          "name": "waiting",
+          "detail": "Terminal \u00b7 repo",
+          "state": "waiting",
+          "waitingFor": "permission",
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "busy-new",
+          "providerId": "claude",
+          "name": "busy-new",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "busy-old",
+          "providerId": "claude",
+          "name": "busy-old",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T10:00:00.000Z"
+        },
+        {
+          "id": "idle",
+          "providerId": "claude",
+          "name": "idle",
+          "detail": "Terminal \u00b7 repo",
+          "state": "idle",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "name": "equal rank and time keep their order",
+      "input": [
+        {
+          "id": "first",
+          "providerId": "claude",
+          "name": "first",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "second",
+          "providerId": "claude",
+          "name": "second",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "third",
+          "providerId": "claude",
+          "name": "third",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ],
+      "expected": [
+        {
+          "id": "first",
+          "providerId": "claude",
+          "name": "first",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "second",
+          "providerId": "claude",
+          "name": "second",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        },
+        {
+          "id": "third",
+          "providerId": "claude",
+          "name": "third",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.000Z"
+        }
+      ],
+      "note": "The original sort is stable. A port must be too, or sessions with the same start time swap places between refreshes."
+    },
+    {
+      "name": "empty",
+      "input": [],
+      "expected": []
+    },
+    {
+      "name": "timestamps with and without milliseconds",
+      "input": [
+        {
+          "id": "a",
+          "providerId": "claude",
+          "name": "a",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00Z"
+        },
+        {
+          "id": "b",
+          "providerId": "claude",
+          "name": "b",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.500Z"
+        }
+      ],
+      "expected": [
+        {
+          "id": "a",
+          "providerId": "claude",
+          "name": "a",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00Z"
+        },
+        {
+          "id": "b",
+          "providerId": "claude",
+          "name": "b",
+          "detail": "Terminal \u00b7 repo",
+          "state": "busy",
+          "waitingFor": null,
+          "since": "2026-08-27T11:00:00.500Z"
+        }
+      ],
+      "note": "Ordered by comparing the strings, as the original does, not by parsing them \u2014 so the timestamp without milliseconds sorts as newer even though it is 500 ms earlier. Every current writer uses toISOString, so the two forms never meet in practice; this pins the string ordering so a port that parses dates instead is noticed."
+    }
+  ]
+}

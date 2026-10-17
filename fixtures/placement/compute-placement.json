@@ -1,0 +1,4617 @@
+{
+  "about": "computePlacement(preset, chrome, hud, PLACEMENT, { notchAllowed }) — where the dock's window goes and how far it may slide",
+  "cases": [
+    {
+      "name": "right-edge, MacBook, Dock at the bottom, closed, rail style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1364,
+        "y": 241,
+        "width": 76,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock at the bottom, closed, capsule style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1360,
+        "y": 267,
+        "width": 80,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock at the bottom, open, rail style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1110,
+        "y": 241,
+        "width": 330,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock at the bottom, open, capsule style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1106,
+        "y": 267,
+        "width": 334,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock hidden, closed, rail style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1364,
+        "y": 279,
+        "width": 76,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock hidden, closed, capsule style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1360,
+        "y": 305,
+        "width": 80,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock hidden, open, rail style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1110,
+        "y": 279,
+        "width": 330,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock hidden, open, capsule style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1106,
+        "y": 305,
+        "width": 334,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock on the left, closed, rail style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1364,
+        "y": 279,
+        "width": 76,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock on the left, closed, capsule style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1360,
+        "y": 305,
+        "width": 80,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock on the left, open, rail style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1110,
+        "y": 279,
+        "width": 330,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, Dock on the left, open, capsule style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1106,
+        "y": 305,
+        "width": 334,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, second display to the right, closed, rail style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 3924,
+        "y": 429,
+        "width": 76,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": -120,
+          "max": 988,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -138,
+          "windowMax": 970
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, second display to the right, closed, capsule style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 3920,
+        "y": 455,
+        "width": 80,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": -120,
+          "max": 1040,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -138,
+          "windowMax": 1022
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, second display to the right, open, rail style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 3670,
+        "y": 429,
+        "width": 330,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": -120,
+          "max": 988,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -138,
+          "windowMax": 970
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, second display to the right, open, capsule style",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 3666,
+        "y": 455,
+        "width": 334,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": -120,
+          "max": 1040,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -138,
+          "windowMax": 1022
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock at the bottom, closed, rail style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 241,
+        "width": 76,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock at the bottom, closed, capsule style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 267,
+        "width": 80,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock at the bottom, open, rail style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 241,
+        "width": 330,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock at the bottom, open, capsule style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 267,
+        "width": 334,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock hidden, closed, rail style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 279,
+        "width": 76,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock hidden, closed, capsule style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 305,
+        "width": 80,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock hidden, open, rail style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 279,
+        "width": 330,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock hidden, open, capsule style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 305,
+        "width": 334,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock on the left, closed, rail style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 279,
+        "width": 76,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock on the left, closed, capsule style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 305,
+        "width": 80,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock on the left, open, rail style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 279,
+        "width": 330,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, MacBook, Dock on the left, open, capsule style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 0,
+        "y": 305,
+        "width": 334,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 620,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 602
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, second display to the right, closed, rail style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 1440,
+        "y": 429,
+        "width": 76,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": -120,
+          "max": 988,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -138,
+          "windowMax": 970
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, second display to the right, closed, capsule style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 1440,
+        "y": 455,
+        "width": 80,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": -120,
+          "max": 1040,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -138,
+          "windowMax": 1022
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, second display to the right, open, rail style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 1440,
+        "y": 429,
+        "width": 330,
+        "height": 368,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": -120,
+          "max": 988,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -138,
+          "windowMax": 970
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "left-edge, second display to the right, open, capsule style",
+      "input": {
+        "preset": "left-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 1440,
+        "y": 455,
+        "width": 334,
+        "height": 316,
+        "orientation": "vertical",
+        "cardGrowth": "right",
+        "edge": "left",
+        "visualPreset": "left-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": -120,
+          "max": 1040,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -138,
+          "windowMax": 1022
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock at the bottom, closed, rail style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": true,
+        "slide": {
+          "axis": "x",
+          "min": 8,
+          "max": 1100,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -10,
+          "windowMax": 1082
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock at the bottom, closed, capsule style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 0,
+        "width": 316,
+        "height": 80,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock at the bottom, open, rail style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 266,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": true,
+        "slide": {
+          "axis": "x",
+          "min": 8,
+          "max": 1100,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -10,
+          "windowMax": 1082
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock at the bottom, open, capsule style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 0,
+        "width": 316,
+        "height": 270,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock hidden, closed, rail style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": true,
+        "slide": {
+          "axis": "x",
+          "min": 8,
+          "max": 1100,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -10,
+          "windowMax": 1082
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock hidden, closed, capsule style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 0,
+        "width": 316,
+        "height": 80,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock hidden, open, rail style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 266,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": true,
+        "slide": {
+          "axis": "x",
+          "min": 8,
+          "max": 1100,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -10,
+          "windowMax": 1082
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock hidden, open, capsule style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 0,
+        "width": 316,
+        "height": 270,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock on the left, closed, rail style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": true,
+        "slide": {
+          "axis": "x",
+          "min": 8,
+          "max": 1100,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -10,
+          "windowMax": 1082
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock on the left, closed, capsule style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 0,
+        "width": 316,
+        "height": 80,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock on the left, open, rail style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 266,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": true,
+        "slide": {
+          "axis": "x",
+          "min": 8,
+          "max": 1100,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -10,
+          "windowMax": 1082
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock on the left, open, capsule style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 0,
+        "width": 316,
+        "height": 270,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, second display to the right, closed, rail style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2536,
+        "y": -120,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": true,
+        "slide": {
+          "axis": "x",
+          "min": 1448,
+          "max": 3660,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1430,
+          "windowMax": 3642
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, second display to the right, closed, capsule style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2562,
+        "y": -120,
+        "width": 316,
+        "height": 80,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 1440,
+          "max": 3720,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1422,
+          "windowMax": 3702
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, second display to the right, open, rail style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2536,
+        "y": -120,
+        "width": 368,
+        "height": 266,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": true,
+        "slide": {
+          "axis": "x",
+          "min": 1448,
+          "max": 3660,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1430,
+          "windowMax": 3642
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, second display to the right, open, capsule style",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2562,
+        "y": -120,
+        "width": 316,
+        "height": 270,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 1440,
+          "max": 3720,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1422,
+          "windowMax": 3702
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock at the bottom, closed, rail style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 148,
+        "y": 824,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock at the bottom, closed, capsule style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 200,
+        "y": 820,
+        "width": 316,
+        "height": 80,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock at the bottom, open, rail style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 148,
+        "y": 634,
+        "width": 368,
+        "height": 266,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock at the bottom, open, capsule style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 200,
+        "y": 630,
+        "width": 316,
+        "height": 270,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock hidden, closed, rail style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 824,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock hidden, closed, capsule style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 820,
+        "width": 316,
+        "height": 80,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock hidden, open, rail style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 634,
+        "width": 368,
+        "height": 266,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock hidden, open, capsule style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 630,
+        "width": 316,
+        "height": 270,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock on the left, closed, rail style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 824,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock on the left, closed, capsule style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 820,
+        "width": 316,
+        "height": 80,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock on the left, open, rail style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 634,
+        "width": 368,
+        "height": 266,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, Dock on the left, open, capsule style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 562,
+        "y": 630,
+        "width": 316,
+        "height": 270,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1160,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1142
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, second display to the right, closed, rail style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2148,
+        "y": 1244,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 1440,
+          "max": 3668,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1422,
+          "windowMax": 3650
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, second display to the right, closed, capsule style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2200,
+        "y": 1240,
+        "width": 316,
+        "height": 80,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 1440,
+          "max": 3720,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1422,
+          "windowMax": 3702
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, second display to the right, open, rail style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2148,
+        "y": 1054,
+        "width": 368,
+        "height": 266,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 1440,
+          "max": 3668,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1422,
+          "windowMax": 3650
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, second display to the right, open, capsule style",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": true,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 0,
+          "edgeGap": 4
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2200,
+        "y": 1050,
+        "width": 316,
+        "height": 270,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 1440,
+          "max": 3720,
+          "railLength": 280,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1422,
+          "windowMax": 3702
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "top-edge, MacBook, Dock at the bottom, notch refused",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      },
+      "note": "A rail-style top dock that may not pass for a notch slides along the edge like any other."
+    },
+    {
+      "name": "top-edge, MacBook, Dock hidden, notch refused",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": true,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      },
+      "note": "A rail-style top dock that may not pass for a notch slides along the edge like any other."
+    },
+    {
+      "name": "top-edge, MacBook, Dock on the left, notch refused",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 80,
+              "y": 25,
+              "width": 1360,
+              "height": 875
+            }
+          },
+          "dock": {
+            "orientation": "left",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 536,
+        "y": 0,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railBias": 0,
+        "corner": null
+      },
+      "note": "A rail-style top dock that may not pass for a notch slides along the edge like any other."
+    },
+    {
+      "name": "top-edge, second display to the right, notch refused",
+      "input": {
+        "preset": "top-edge",
+        "chrome": {
+          "display": {
+            "id": 2,
+            "bounds": {
+              "x": 1440,
+              "y": -120,
+              "width": 2560,
+              "height": 1440
+            },
+            "workArea": {
+              "x": 1440,
+              "y": -95,
+              "width": 2560,
+              "height": 1415
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 58,
+          "railLength": 280,
+          "cardWidth": 232,
+          "cardHeight": 168,
+          "expanded": false,
+          "shadowPadding": 18,
+          "joinWidth": 22,
+          "edgeFlare": 26,
+          "edgeGap": 0
+        },
+        "notchAllowed": false
+      },
+      "expected": {
+        "displayId": 2,
+        "x": 2536,
+        "y": -120,
+        "width": 368,
+        "height": 76,
+        "orientation": "horizontal",
+        "cardGrowth": "down",
+        "edge": "top",
+        "visualPreset": "top-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 1440,
+          "max": 3668,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": 1422,
+          "windowMax": 3650
+        },
+        "railBias": 0,
+        "corner": null
+      },
+      "note": "A rail-style top dock that may not pass for a notch slides along the edge like any other."
+    },
+    {
+      "name": "right-edge, MacBook, open, three meters at scale 0.7",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 41,
+          "railLength": 146,
+          "cardWidth": 162,
+          "cardHeight": 360,
+          "expanded": true,
+          "shadowPadding": 13,
+          "joinWidth": 15,
+          "edgeFlare": 18,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1209,
+        "y": 232,
+        "width": 231,
+        "height": 386,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 718,
+          "railLength": 182,
+          "gutter": 13,
+          "slack": 178,
+          "windowMin": -13,
+          "windowMax": 527
+        },
+        "railBias": 89,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, open, three meters at scale 0.7",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 41,
+          "railLength": 146,
+          "cardWidth": 162,
+          "cardHeight": 360,
+          "expanded": true,
+          "shadowPadding": 13,
+          "joinWidth": 15,
+          "edgeFlare": 18,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 303,
+        "y": 471,
+        "width": 208,
+        "height": 429,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1258,
+          "railLength": 182,
+          "gutter": 13,
+          "slack": 0,
+          "windowMin": -13,
+          "windowMax": 1245
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    },
+    {
+      "name": "right-edge, MacBook, open, three meters at scale 1.3",
+      "input": {
+        "preset": "right-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 75,
+          "railLength": 274,
+          "cardWidth": 302,
+          "cardHeight": 656,
+          "expanded": true,
+          "shadowPadding": 23,
+          "joinWidth": 29,
+          "edgeFlare": 34,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 1011,
+        "y": 74,
+        "width": 429,
+        "height": 702,
+        "orientation": "vertical",
+        "cardGrowth": "left",
+        "edge": "right",
+        "visualPreset": "right-edge",
+        "notch": false,
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 558,
+          "railLength": 342,
+          "gutter": 23,
+          "slack": 314,
+          "windowMin": -23,
+          "windowMax": 221
+        },
+        "railBias": 157,
+        "corner": null
+      }
+    },
+    {
+      "name": "bottom-edge, MacBook, open, three meters at scale 1.3",
+      "input": {
+        "preset": "bottom-edge",
+        "chrome": {
+          "display": {
+            "id": 1,
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 900
+            },
+            "workArea": {
+              "x": 0,
+              "y": 25,
+              "width": 1440,
+              "height": 800
+            }
+          },
+          "dock": {
+            "orientation": "bottom",
+            "autohide": false,
+            "tilesize": 48
+          }
+        },
+        "hud": {
+          "railWidth": 75,
+          "railLength": 274,
+          "cardWidth": 302,
+          "cardHeight": 656,
+          "expanded": true,
+          "shadowPadding": 23,
+          "joinWidth": 29,
+          "edgeFlare": 34,
+          "edgeGap": 0
+        },
+        "notchAllowed": true
+      },
+      "expected": {
+        "displayId": 1,
+        "x": 133,
+        "y": 117,
+        "width": 388,
+        "height": 783,
+        "orientation": "horizontal",
+        "cardGrowth": "up",
+        "edge": "bottom",
+        "visualPreset": "bottom-edge",
+        "notch": false,
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1098,
+          "railLength": 342,
+          "gutter": 23,
+          "slack": 0,
+          "windowMin": -23,
+          "windowMax": 1075
+        },
+        "railBias": 0,
+        "corner": null
+      }
+    }
+  ]
+}

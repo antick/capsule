@@ -1,0 +1,425 @@
+{
+  "about": "dockAlongEdge(track, railStart) — window position and rail offset for a wanted rail position",
+  "cases": [
+    {
+      "name": "right edge, open, well before the start",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": -500
+      },
+      "expected": {
+        "window": -18,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, open, at the start",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 0
+      },
+      "expected": {
+        "window": -18,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, open, just after the start",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 7
+      },
+      "expected": {
+        "window": -11,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, open, in the middle",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 284
+      },
+      "expected": {
+        "window": 266,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, open, just before the end",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 561
+      },
+      "expected": {
+        "window": 543,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, open, at the end",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 568
+      },
+      "expected": {
+        "window": 550,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, open, well past the end",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 1068
+      },
+      "expected": {
+        "window": 550,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, closed, well before the start",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": -500
+      },
+      "expected": {
+        "window": -18,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, closed, at the start",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 0
+      },
+      "expected": {
+        "window": -18,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, closed, just after the start",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 7
+      },
+      "expected": {
+        "window": -11,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, closed, in the middle",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 284
+      },
+      "expected": {
+        "window": 266,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, closed, just before the end",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 561
+      },
+      "expected": {
+        "window": 543,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, closed, at the end",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 568
+      },
+      "expected": {
+        "window": 550,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "right edge, closed, well past the end",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "railStart": 1068
+      },
+      "expected": {
+        "window": 550,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, well before the start",
+      "input": {
+        "track": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railStart": -500
+      },
+      "expected": {
+        "window": -18,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, at the start",
+      "input": {
+        "track": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railStart": 0
+      },
+      "expected": {
+        "window": -18,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, just after the start",
+      "input": {
+        "track": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railStart": 7
+      },
+      "expected": {
+        "window": -11,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, in the middle",
+      "input": {
+        "track": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railStart": 554
+      },
+      "expected": {
+        "window": 536,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, just before the end",
+      "input": {
+        "track": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railStart": 1101
+      },
+      "expected": {
+        "window": 1083,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, at the end",
+      "input": {
+        "track": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railStart": 1108
+      },
+      "expected": {
+        "window": 1090,
+        "railBias": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, well past the end",
+      "input": {
+        "track": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "railStart": 1608
+      },
+      "expected": {
+        "window": 1090,
+        "railBias": 0
+      }
+    }
+  ]
+}

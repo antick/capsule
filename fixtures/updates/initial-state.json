@@ -1,0 +1,39 @@
+{
+  "about": "initialUpdateState(version, canInstall) — the state before anything has been asked",
+  "cases": [
+    {
+      "name": "installable build",
+      "input": {
+        "version": "0.1.0",
+        "canInstall": true
+      },
+      "expected": {
+        "phase": "idle",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      }
+    },
+    {
+      "name": "build that cannot replace itself",
+      "input": {
+        "version": "0.1.0",
+        "canInstall": false
+      },
+      "expected": {
+        "phase": "unsupported",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": false
+      }
+    }
+  ]
+}

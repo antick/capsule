@@ -1,0 +1,56 @@
+{
+  "about": "formatBytes(bytes) \u2014 download sizes in the updates pane",
+  "cases": [
+    {
+      "name": "zero",
+      "input": 0,
+      "expected": "0 MB"
+    },
+    {
+      "name": "bytes",
+      "input": 900,
+      "expected": "900 B"
+    },
+    {
+      "name": "a round kilobyte count",
+      "input": 2048,
+      "expected": "2 KB"
+    },
+    {
+      "name": "kilobytes with a fraction",
+      "input": 1536,
+      "expected": "1.5 KB"
+    },
+    {
+      "name": "just under a megabyte",
+      "input": 1048575,
+      "expected": "1024 KB",
+      "note": "Reads '1024 KB' rather than '1 MB': kilobytes round up to the next unit's worth. Cosmetic, recorded as-is."
+    },
+    {
+      "name": "exactly a megabyte",
+      "input": 1048576,
+      "expected": "1 MB"
+    },
+    {
+      "name": "megabytes with a decimal",
+      "input": 12939427.84,
+      "expected": "12.3 MB"
+    },
+    {
+      "name": "large megabytes drop the decimal",
+      "input": 134217728,
+      "expected": "128 MB"
+    },
+    {
+      "name": "gigabyte-sized",
+      "input": 2147483648,
+      "expected": "2 GB"
+    },
+    {
+      "name": "negative",
+      "input": -5,
+      "expected": "0 MB"
+    }
+  ]
+}

@@ -1,0 +1,290 @@
+{
+  "about": "updateTone, updateShortLabel, updateTitle, updateDetail and canCheckForUpdates — how every update state reads",
+  "cases": [
+    {
+      "name": "idle",
+      "input": {
+        "phase": "idle",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "neutral",
+        "shortLabel": "Not checked",
+        "title": "Not checked yet",
+        "detail": "Check to see whether a newer release is available.",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "checking",
+      "input": {
+        "phase": "checking",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "busy",
+        "shortLabel": "Checking",
+        "title": "Checking…",
+        "detail": null,
+        "canCheck": false
+      }
+    },
+    {
+      "name": "available",
+      "input": {
+        "phase": "available",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "warn",
+        "shortLabel": "Available",
+        "title": "Update available",
+        "detail": "A newer release is ready to download.",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "downloading",
+      "input": {
+        "phase": "downloading",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "busy",
+        "shortLabel": "Downloading",
+        "title": "Downloading update",
+        "detail": "A newer release is ready to download.",
+        "canCheck": false
+      }
+    },
+    {
+      "name": "ready",
+      "input": {
+        "phase": "ready",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "good",
+        "shortLabel": "Ready",
+        "title": "Update ready to install",
+        "detail": "Capsule will restart to finish installing.",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "current",
+      "input": {
+        "phase": "current",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "good",
+        "shortLabel": "Up to date",
+        "title": "Capsule is up to date",
+        "detail": "You are running the newest release.",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "error",
+      "input": {
+        "phase": "error",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "bad",
+        "shortLabel": "Check failed",
+        "title": "Could not check for updates",
+        "detail": null,
+        "canCheck": true
+      }
+    },
+    {
+      "name": "unsupported",
+      "input": {
+        "phase": "unsupported",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "neutral",
+        "shortLabel": "Manual",
+        "title": "Updates are handled outside this build",
+        "detail": "This copy of Capsule cannot replace itself — a development run, or a build macOS will not swap in place. Download the release and install it by hand.",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "available, naming the version",
+      "input": {
+        "phase": "available",
+        "currentVersion": "0.1.0",
+        "availableVersion": "0.2.0",
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "warn",
+        "shortLabel": "Available",
+        "title": "Update available",
+        "detail": "Capsule 0.2.0 is ready to download.",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "error, showing the failure itself",
+      "input": {
+        "phase": "error",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": "net::ERR_INTERNET_DISCONNECTED",
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "bad",
+        "shortLabel": "Check failed",
+        "title": "Could not check for updates",
+        "detail": "net::ERR_INTERNET_DISCONNECTED",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "downloading, with progress",
+      "input": {
+        "phase": "downloading",
+        "currentVersion": "0.1.0",
+        "availableVersion": "0.2.0",
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": {
+          "fraction": 0.25,
+          "transferredBytes": 5242880,
+          "totalBytes": 20971520,
+          "bytesPerSecond": 1048576
+        },
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "busy",
+        "shortLabel": "Downloading",
+        "title": "Downloading update",
+        "detail": "Capsule 0.2.0 is ready to download.",
+        "canCheck": false
+      }
+    },
+    {
+      "name": "ready to install",
+      "input": {
+        "phase": "ready",
+        "currentVersion": "0.1.0",
+        "availableVersion": "0.2.0",
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "good",
+        "shortLabel": "Ready",
+        "title": "Update ready to install",
+        "detail": "Capsule will restart to finish installing.",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "current, after a check",
+      "input": {
+        "phase": "current",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": "2026-08-27T11:22:00.000Z",
+        "progress": null,
+        "error": null,
+        "canInstall": true
+      },
+      "expected": {
+        "tone": "good",
+        "shortLabel": "Up to date",
+        "title": "Capsule is up to date",
+        "detail": "You are running the newest release.",
+        "canCheck": true
+      }
+    },
+    {
+      "name": "unsupported build",
+      "input": {
+        "phase": "unsupported",
+        "currentVersion": "0.1.0",
+        "availableVersion": null,
+        "releaseNotes": null,
+        "checkedAt": null,
+        "progress": null,
+        "error": null,
+        "canInstall": false
+      },
+      "expected": {
+        "tone": "neutral",
+        "shortLabel": "Manual",
+        "title": "Updates are handled outside this build",
+        "detail": "This copy of Capsule cannot replace itself — a development run, or a build macOS will not swap in place. Download the release and install it by hand.",
+        "canCheck": true
+      }
+    }
+  ]
+}

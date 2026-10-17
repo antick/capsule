@@ -1,0 +1,197 @@
+{
+  "about": "zoomHoldBounds(target, current, cardGrowth) — a window big enough for both sizes during a resize, anchored where the frame is",
+  "cases": [
+    {
+      "name": "left, growing",
+      "input": {
+        "target": {
+          "x": 100,
+          "y": 200,
+          "width": 400,
+          "height": 300
+        },
+        "current": {
+          "x": 120,
+          "y": 220,
+          "width": 320,
+          "height": 260
+        },
+        "cardGrowth": "left"
+      },
+      "expected": {
+        "x": 100,
+        "y": 200,
+        "width": 400,
+        "height": 300
+      }
+    },
+    {
+      "name": "left, shrinking",
+      "input": {
+        "target": {
+          "x": 100,
+          "y": 200,
+          "width": 320,
+          "height": 260
+        },
+        "current": {
+          "x": 90,
+          "y": 190,
+          "width": 400,
+          "height": 300
+        },
+        "cardGrowth": "left"
+      },
+      "expected": {
+        "x": 20,
+        "y": 200,
+        "width": 400,
+        "height": 300
+      }
+    },
+    {
+      "name": "right, growing",
+      "input": {
+        "target": {
+          "x": 100,
+          "y": 200,
+          "width": 400,
+          "height": 300
+        },
+        "current": {
+          "x": 120,
+          "y": 220,
+          "width": 320,
+          "height": 260
+        },
+        "cardGrowth": "right"
+      },
+      "expected": {
+        "x": 100,
+        "y": 200,
+        "width": 400,
+        "height": 300
+      }
+    },
+    {
+      "name": "right, shrinking",
+      "input": {
+        "target": {
+          "x": 100,
+          "y": 200,
+          "width": 320,
+          "height": 260
+        },
+        "current": {
+          "x": 90,
+          "y": 190,
+          "width": 400,
+          "height": 300
+        },
+        "cardGrowth": "right"
+      },
+      "expected": {
+        "x": 100,
+        "y": 200,
+        "width": 400,
+        "height": 300
+      }
+    },
+    {
+      "name": "up, growing",
+      "input": {
+        "target": {
+          "x": 100,
+          "y": 200,
+          "width": 400,
+          "height": 300
+        },
+        "current": {
+          "x": 120,
+          "y": 220,
+          "width": 320,
+          "height": 260
+        },
+        "cardGrowth": "up"
+      },
+      "expected": {
+        "x": 100,
+        "y": 200,
+        "width": 400,
+        "height": 300
+      }
+    },
+    {
+      "name": "up, shrinking",
+      "input": {
+        "target": {
+          "x": 100,
+          "y": 200,
+          "width": 320,
+          "height": 260
+        },
+        "current": {
+          "x": 90,
+          "y": 190,
+          "width": 400,
+          "height": 300
+        },
+        "cardGrowth": "up"
+      },
+      "expected": {
+        "x": 100,
+        "y": 160,
+        "width": 400,
+        "height": 300
+      }
+    },
+    {
+      "name": "down, growing",
+      "input": {
+        "target": {
+          "x": 100,
+          "y": 200,
+          "width": 400,
+          "height": 300
+        },
+        "current": {
+          "x": 120,
+          "y": 220,
+          "width": 320,
+          "height": 260
+        },
+        "cardGrowth": "down"
+      },
+      "expected": {
+        "x": 100,
+        "y": 200,
+        "width": 400,
+        "height": 300
+      }
+    },
+    {
+      "name": "down, shrinking",
+      "input": {
+        "target": {
+          "x": 100,
+          "y": 200,
+          "width": 320,
+          "height": 260
+        },
+        "current": {
+          "x": 90,
+          "y": 190,
+          "width": 400,
+          "height": 300
+        },
+        "cardGrowth": "down"
+      },
+      "expected": {
+        "x": 100,
+        "y": 200,
+        "width": 400,
+        "height": 300
+      }
+    }
+  ]
+}

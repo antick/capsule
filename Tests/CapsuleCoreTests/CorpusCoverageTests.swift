@@ -36,22 +36,56 @@ struct CorpusCoverageTests {
     "usage/unauthenticated",
   ]
 
-  /// Fixtures whose Swift port has not landed. Empty: every fixture extracted
-  /// so far is ported. It fills again as Phase 0 extracts the activity, config
-  /// geometry and HUD path cases, and must be empty again by the end of
-  /// Phase 1.
-  static let notYetPorted: Set<String> = []
+  /// Fixtures whose Swift port has not landed. Must be empty by the end of
+  /// Phase 1; anything left here at that point is a gap, not a plan.
+  static let notYetPorted: Set<String> = [
+    "activity/any-active",
+    "activity/order-sessions",
+    "activity/summarize",
+    "hud-metrics/card-height",
+    "hud-metrics/clamp-scale",
+    "hud-metrics/metrics",
+    "hud-metrics/next-scale",
+    "hud-metrics/notch",
+    "hud-metrics/rail-sizes",
+    "hud-metrics/scale-range",
+    "hud-metrics/scale-steps",
+    "hud-metrics/session-rows",
+    "placement/compute-placement",
+    "placement/dock-along-edge",
+    "placement/layout-for-preset",
+    "placement/nearest-edge",
+    "placement/slide-along-edge",
+    "placement/zoom-hold-bounds",
+    "settings/defaults",
+    "settings/parse-current",
+    "updates/format-bytes",
+    "updates/format-progress",
+    "updates/initial-state",
+    "updates/plain-release-notes",
+    "updates/release-url",
+    "updates/wording",
+  ]
+
+  /// Fixtures the native app deliberately does not match, each with the
+  /// decision that says why. They stay in the corpus because they pin the
+  /// Electron behaviour the TypeScript suites still check.
+  static let wontPort: [String: String] = [
+    "settings/migrate-legacy":
+      "Design decision 9: a settings file older than schema v7 falls back to defaults and onboarding rather than being migrated.",
+  ]
 
   @Test("every fixture is either covered or explicitly not yet ported")
   func accountedFor() throws {
     let onDisk = Set(try Fixtures.allPaths())
     let accounted = Self.covered.union(Self.notYetPorted)
+      .union(Self.wontPort.keys)
 
     let unaccounted = onDisk.subtracting(accounted)
     #expect(
       unaccounted.isEmpty,
       """
-      New fixtures nothing reads. Port them, or add them to `notYetPorted`:
+      New fixtures nothing reads. Port them, or add them to `notYetPorted` or `wontPort`:
       \(unaccounted.sorted().joined(separator: "\n"))
       """
     )

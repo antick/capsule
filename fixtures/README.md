@@ -35,6 +35,53 @@ One JSON object per file:
 - `input` and `expected` must survive JSON. A case needing a callback, a spy,
   or a live socket is not portable and stays an inline test.
 
+## Values, not properties
+
+A case is a **value**: an input and the exact output it must produce. An
+inline test that asserts a **property** of the output — "the rail rides the
+whole edge", "the window grows inward when the card opens" — explains intent
+and stays where it is, even over inputs the corpus also covers. A test that
+only re-asserts a value the corpus records is a duplicate and is removed.
+
+That is why most geometry and placement tests are still inline while the
+corpus holds their exact numbers over a wider matrix.
+
+## Traps for a port
+
+Things the TypeScript does that a straightforward Swift port will get wrong:
+
+- **Rounding.** JavaScript's `Math.round` rounds halves toward +∞, so
+  `Math.round(-2.5)` is `-2`. Swift's `.rounded()` rounds halves away from
+  zero and gives `-3`. Use `(x + 0.5).rounded(.down)` wherever the original
+  calls `Math.round`. Positive halves agree; negative ones do not.
+- **Two-decimal coordinates.** Path builders round every coordinate with
+  `Math.round(v * 100) / 100`. Compare paths as numbers after that rounding.
+- **Scale snapping is floating-point sensitive.** `clampHudScale(1.15)` is
+  `1.1` but `clampHudScale(1.25)` is `1.3`, because of how `1.15 / 0.1` and
+  `1.25 / 0.1` land in binary. The cases in `hud-metrics/clamp-scale` pin it;
+  do the same divisions in the same order rather than reasoning in decimal.
+- **Stable sorts.** `orderSessions` and `nearestEdgeForPoint` rely on
+  JavaScript's stable `sort` to break ties in insertion order. A port must sort
+  stably, and `nearestEdgeForPoint` must break ties in the order left, right,
+  top, bottom.
+- **String ordering of timestamps.** `orderSessions` compares `since` as
+  strings, not dates. See the note in `activity/order-sessions`.
+- **Unordered dictionaries.** JSON object key order does not survive a Swift
+  `Dictionary`. Anything that takes "the first entry" of an object needs an
+  ordered decode, or a deliberate, documented tie-break.
+- **Refusals.** A function that may refuse its input records
+  `{ "rejected": true }`, never the error text, which belongs to the library
+  that threw it.
+
+## Won't port
+
+Some fixtures pin Electron behaviour the native app deliberately does not
+match. The Swift coverage gate lists each in `wontPort` with the decision that
+says why, so they cannot be mistaken for gaps:
+
+- `settings/migrate-legacy` — design decision 9: a settings file older than
+  schema v7 falls back to defaults and onboarding instead of being migrated.
+
 ## Reading them
 
 TypeScript, through `@capsule/fixtures`:
@@ -87,9 +134,13 @@ against:
   them as data is a follow-up, not part of this pass.
 - `rememberedSnapshots`, the poller's enabled-provider filtering, and the demo
   provider — all need injected hosts or spies.
-- The corner-arc cases, once extracted, will sit unexecuted: the feature is
-  dead behind `CORNER_ARC_ENABLED = false` and is not being ported. They are
-  kept so the decision stays reversible.
+- The corner arc. It is dead behind `CORNER_ARC_ENABLED = false` and is not
+  being ported, so its cases are **not extracted**. The TypeScript source and
+  its tests stay in the tree until Phase 4 and in git history after it; if the
+  arc is ever revived, author inputs and record its goldens then.
+- The spring and animated-number helpers in `packages/config/src/motion.ts`.
+  Design decision 6 replaces them with Core Animation, so there is no Swift
+  function to hold to their values.
 
 ## Findings from the extraction
 

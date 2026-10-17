@@ -1,0 +1,69 @@
+{
+  "about": "nextHudScale(scale, direction) — one step up or down without escaping the range",
+  "cases": [
+    {
+      "name": "0.7 down",
+      "input": {
+        "scale": 0.7,
+        "direction": -1
+      },
+      "expected": 0.7
+    },
+    {
+      "name": "0.7 up",
+      "input": {
+        "scale": 0.7,
+        "direction": 1
+      },
+      "expected": 0.8
+    },
+    {
+      "name": "1 up",
+      "input": {
+        "scale": 1,
+        "direction": 1
+      },
+      "expected": 1.1
+    },
+    {
+      "name": "1 down",
+      "input": {
+        "scale": 1,
+        "direction": -1
+      },
+      "expected": 0.9
+    },
+    {
+      "name": "1.3 up",
+      "input": {
+        "scale": 1.3,
+        "direction": 1
+      },
+      "expected": 1.3
+    },
+    {
+      "name": "1.3 down",
+      "input": {
+        "scale": 1.3,
+        "direction": -1
+      },
+      "expected": 1.2
+    },
+    {
+      "name": "1.04 up",
+      "input": {
+        "scale": 1.04,
+        "direction": 1
+      },
+      "expected": 1.1
+    },
+    {
+      "name": "0.86 down",
+      "input": {
+        "scale": 0.86,
+        "direction": -1
+      },
+      "expected": 0.8
+    }
+  ]
+}

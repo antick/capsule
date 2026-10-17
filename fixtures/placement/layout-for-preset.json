@@ -1,0 +1,65 @@
+{
+  "about": "edgeForPreset, layoutForPreset, presetForEdge and the preset copy — what each placement means",
+  "cases": [
+    {
+      "name": "right-edge",
+      "input": "right-edge",
+      "expected": {
+        "edge": "right",
+        "layout": {
+          "orientation": "vertical",
+          "cardGrowth": "left",
+          "notch": false
+        },
+        "presetForEdge": "right-edge",
+        "label": "Right edge",
+        "hint": "Slides up and down the right side of the screen."
+      }
+    },
+    {
+      "name": "left-edge",
+      "input": "left-edge",
+      "expected": {
+        "edge": "left",
+        "layout": {
+          "orientation": "vertical",
+          "cardGrowth": "right",
+          "notch": false
+        },
+        "presetForEdge": "left-edge",
+        "label": "Left edge",
+        "hint": "Slides up and down the left side of the screen."
+      }
+    },
+    {
+      "name": "top-edge",
+      "input": "top-edge",
+      "expected": {
+        "edge": "top",
+        "layout": {
+          "orientation": "horizontal",
+          "cardGrowth": "down",
+          "notch": true
+        },
+        "presetForEdge": "top-edge",
+        "label": "Top, as a notch",
+        "hint": "Hangs from the menu bar like the MacBook notch."
+      }
+    },
+    {
+      "name": "bottom-edge",
+      "input": "bottom-edge",
+      "expected": {
+        "edge": "bottom",
+        "layout": {
+          "orientation": "horizontal",
+          "cardGrowth": "up",
+          "notch": false
+        },
+        "presetForEdge": "bottom-edge",
+        "label": "Bottom, beside the Dock",
+        "hint": "Sits level with the macOS Dock so you can park it alongside."
+      }
+    }
+  ]
+}

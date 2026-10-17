@@ -1,0 +1,341 @@
+{
+  "about": "slideAlongEdge(input) — where a dragged dock sits; only the axis along the edge follows the cursor",
+  "cases": [
+    {
+      "name": "right edge, open, cursor near the start",
+      "input": {
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1420,
+          "y": 10
+        },
+        "grabOffset": 20
+      },
+      "expected": {
+        "x": 1382,
+        "y": -18,
+        "railBias": 0,
+        "railStart": 0
+      }
+    },
+    {
+      "name": "right edge, open, cursor mid-track",
+      "input": {
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1420,
+          "y": 284
+        },
+        "grabOffset": 40
+      },
+      "expected": {
+        "x": 1382,
+        "y": 226,
+        "railBias": 0,
+        "railStart": 244
+      }
+    },
+    {
+      "name": "right edge, open, cursor past the end",
+      "input": {
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1420,
+          "y": 868
+        },
+        "grabOffset": 40
+      },
+      "expected": {
+        "x": 1382,
+        "y": 550,
+        "railBias": 0,
+        "railStart": 568
+      }
+    },
+    {
+      "name": "right edge, open, cursor before the start",
+      "input": {
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1420,
+          "y": -300
+        },
+        "grabOffset": 0
+      },
+      "expected": {
+        "x": 1382,
+        "y": -18,
+        "railBias": 0,
+        "railStart": 0
+      }
+    },
+    {
+      "name": "right edge, closed, cursor near the start",
+      "input": {
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1420,
+          "y": 10
+        },
+        "grabOffset": 20
+      },
+      "expected": {
+        "x": 1382,
+        "y": -18,
+        "railBias": 0,
+        "railStart": 0
+      }
+    },
+    {
+      "name": "right edge, closed, cursor mid-track",
+      "input": {
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1420,
+          "y": 284
+        },
+        "grabOffset": 40
+      },
+      "expected": {
+        "x": 1382,
+        "y": 226,
+        "railBias": 0,
+        "railStart": 244
+      }
+    },
+    {
+      "name": "right edge, closed, cursor past the end",
+      "input": {
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1420,
+          "y": 868
+        },
+        "grabOffset": 40
+      },
+      "expected": {
+        "x": 1382,
+        "y": 550,
+        "railBias": 0,
+        "railStart": 568
+      }
+    },
+    {
+      "name": "right edge, closed, cursor before the start",
+      "input": {
+        "slide": {
+          "axis": "y",
+          "min": 0,
+          "max": 568,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 550
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1420,
+          "y": -300
+        },
+        "grabOffset": 0
+      },
+      "expected": {
+        "x": 1382,
+        "y": -18,
+        "railBias": 0,
+        "railStart": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, cursor near the start",
+      "input": {
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 10,
+          "y": 880
+        },
+        "grabOffset": 20
+      },
+      "expected": {
+        "x": -18,
+        "y": 613,
+        "railBias": 0,
+        "railStart": 0
+      }
+    },
+    {
+      "name": "bottom edge, open, cursor mid-track",
+      "input": {
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 554,
+          "y": 880
+        },
+        "grabOffset": 40
+      },
+      "expected": {
+        "x": 496,
+        "y": 613,
+        "railBias": 0,
+        "railStart": 514
+      }
+    },
+    {
+      "name": "bottom edge, open, cursor past the end",
+      "input": {
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": 1408,
+          "y": 880
+        },
+        "grabOffset": 40
+      },
+      "expected": {
+        "x": 1090,
+        "y": 613,
+        "railBias": 0,
+        "railStart": 1108
+      }
+    },
+    {
+      "name": "bottom edge, open, cursor before the start",
+      "input": {
+        "slide": {
+          "axis": "x",
+          "min": 0,
+          "max": 1108,
+          "railLength": 332,
+          "gutter": 18,
+          "slack": 0,
+          "windowMin": -18,
+          "windowMax": 1090
+        },
+        "anchorX": 1382.4,
+        "anchorY": 612.6,
+        "cursor": {
+          "x": -300,
+          "y": 880
+        },
+        "grabOffset": 0
+      },
+      "expected": {
+        "x": -18,
+        "y": 613,
+        "railBias": 0,
+        "railStart": 0
+      }
+    }
+  ]
+}
