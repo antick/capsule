@@ -2691,6 +2691,312 @@
           }
         ]
       }
+    },
+    {
+      "name": "claude: a field of the wrong type is ignored, not fatal",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\": {\"accessToken\": \"sk-ant-oat-file\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 200,
+            "body": {
+              "five_hour": {
+                "utilization": "73"
+              },
+              "seven_day": {
+                "utilization": 7,
+                "resets_at": "2026-09-03T00:00:00Z"
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "claude",
+            "displayName": "Claude",
+            "iconId": "claude",
+            "primaryPercent": 7,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "all-models",
+                "label": "All models",
+                "percentUsed": 7,
+                "resetsAt": "2026-09-03T00:00:00Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      },
+      "note": "The original reads a wrong-typed field as missing. A strict decoder would fail the whole read over one field."
+    },
+    {
+      "name": "claude: a body that is not JSON fails",
+      "input": {
+        "provider": "claude",
+        "home": "/home",
+        "files": {
+          "/home/.claude/.credentials.json": "{\"claudeAiOauth\": {\"accessToken\": \"sk-ant-oat-file\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "status": 200,
+            "body": "<html>maintenance</html>"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "failed": true
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.anthropic.com/api/oauth/usage",
+            "headers": {
+              "accept": "application/json",
+              "anthropic-beta": "oauth-2025-04-20",
+              "authorization": "Bearer sk-ant-oat-file",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "codex: a window with a non-numeric percentage is skipped",
+      "input": {
+        "provider": "codex",
+        "home": "/home",
+        "files": {
+          "/home/.codex/auth.json": "{\"tokens\": {\"access_token\": \"at-1\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "status": 200,
+            "body": {
+              "rate_limit": {
+                "primary_window": {
+                  "used_percent": "21",
+                  "limit_window_seconds": 18000
+                },
+                "secondary_window": {
+                  "used_percent": 8,
+                  "limit_window_seconds": 604800,
+                  "reset_at": 1789000000
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "codex",
+            "displayName": "Codex",
+            "iconId": "codex",
+            "primaryPercent": 8,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "secondary",
+                "label": "Weekly",
+                "percentUsed": 8,
+                "resetsAt": "2026-09-10T00:26:40.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://chatgpt.com/backend-api/wham/usage",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer at-1",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "grok: a product row of the wrong shape is ignored",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/home/.grok/auth.json": "{\"k\": {\"key\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 200,
+            "body": {
+              "config": {
+                "creditUsagePercent": 52,
+                "currentPeriod": {
+                  "end": "2026-09-03T00:00:00Z"
+                },
+                "productUsage": [
+                  "junk",
+                  {
+                    "product": "PRODUCT_GROK_BUILD",
+                    "usagePercent": 18
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "grok",
+            "displayName": "Grok",
+            "iconId": "grok",
+            "primaryPercent": 52,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "weekly",
+                "label": "Weekly credits",
+                "percentUsed": 52,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              },
+              {
+                "id": "product",
+                "label": "Grok Build",
+                "percentUsed": 18,
+                "resetsAt": "2026-09-03T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      },
+      "note": "One malformed element must not cost the rest of the list."
+    },
+    {
+      "name": "copilot: a quota with a non-numeric remaining is skipped",
+      "input": {
+        "provider": "copilot",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "gh",
+            "args": [
+              "auth",
+              "token"
+            ],
+            "output": "gho_cli"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://api.github.com/copilot_internal/user",
+            "status": 200,
+            "body": {
+              "quota_snapshots": {
+                "premium_interactions": {
+                  "percent_remaining": "64.5"
+                },
+                "chat": {
+                  "percent_remaining": 90
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "copilot",
+            "displayName": "Copilot",
+            "iconId": "copilot",
+            "primaryPercent": 10,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "chat",
+                "label": "Chat",
+                "percentUsed": 10,
+                "resetsAt": "2026-08-27T11:22:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://api.github.com/copilot_internal/user",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "token gho_cli",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      }
     }
   ]
 }
