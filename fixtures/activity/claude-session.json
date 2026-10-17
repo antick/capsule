@@ -1,0 +1,532 @@
+{
+  "about": "parseClaudeSession(raw, now) — one entry of Claude Code's session registry, read leniently",
+  "frozenNow": "2026-09-05T22:00:00Z",
+  "cases": [
+    {
+      "name": "what Claude Code writes",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "tempo outranks status, and the wanted thing is read",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493,
+        "tempo": "blocked",
+        "needs": "approval"
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "waiting",
+          "confirmed": true,
+          "waitingFor": "approval",
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "tempo active reads as busy",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "idle",
+        "updatedAt": 1788622256493,
+        "tempo": "active"
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "idle status",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "idle",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "idle",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "waiting status with waitingFor",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "waiting",
+        "updatedAt": 1788622256493,
+        "waitingFor": "permission"
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "waiting",
+          "confirmed": true,
+          "waitingFor": "permission",
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "the current registry format, with neither status nor tempo",
+      "input": {
+        "pid": 52296,
+        "cwd": "/project",
+        "sessionId": "task",
+        "startedAt": 1788699600000,
+        "entrypoint": "claude-desktop"
+      },
+      "expected": {
+        "pid": 52296,
+        "startedAt": "2026-09-06T13:00:00.000Z",
+        "session": {
+          "id": "claude.task",
+          "providerId": "claude",
+          "name": "project",
+          "detail": "Desktop · project",
+          "state": "idle",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T13:00:00.000Z"
+        }
+      },
+      "note": "Unconfirmed idle: the record says nothing about what the session is doing."
+    },
+    {
+      "name": "an untimestamped waiting record",
+      "input": {
+        "pid": 5,
+        "cwd": "/project",
+        "status": "waiting"
+      },
+      "expected": {
+        "pid": 5,
+        "startedAt": null,
+        "session": {
+          "id": "claude.5",
+          "providerId": "claude",
+          "name": "project",
+          "detail": "Terminal · project",
+          "state": "waiting",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "1970-01-01T00:00:00.000Z"
+        }
+      },
+      "note": "Falls back to the epoch rather than now, so the record's `since` is stable between reads."
+    },
+    {
+      "name": "statusUpdatedAt wins over updatedAt",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493,
+        "statusUpdatedAt": 1788622300000
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:31:40.000Z"
+        }
+      }
+    },
+    {
+      "name": "startedAt missing falls back to procStart",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.000Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "neither startedAt nor procStart",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": null,
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "no name falls back to the folder",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "a trailing slash on the folder",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app/",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "no sessionId falls back to the pid",
+      "input": {
+        "pid": 71555,
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.71555",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "VS Code surface",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-vscode",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "VS Code · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "third-party desktop surface",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "claude-desktop-3p",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Desktop · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "local agent surface",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "local-agent",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Agent · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "an unknown surface reads as the terminal",
+      "input": {
+        "pid": 71555,
+        "sessionId": "c5ba92e2",
+        "cwd": "/Users/dev/Projects/demo-app",
+        "startedAt": 1788622255869,
+        "procStart": "Sat Sep  5 15:30:55 2026",
+        "entrypoint": "something-new",
+        "name": "demo-app-4e",
+        "status": "busy",
+        "updatedAt": 1788622256493
+      },
+      "expected": {
+        "pid": 71555,
+        "startedAt": "2026-09-05T15:30:55.869Z",
+        "session": {
+          "id": "claude.c5ba92e2",
+          "providerId": "claude",
+          "name": "demo-app-4e",
+          "detail": "Terminal · demo-app",
+          "state": "busy",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-05T15:30:56.493Z"
+        }
+      }
+    },
+    {
+      "name": "an impossible date is refused",
+      "input": {
+        "pid": 5,
+        "cwd": "/project",
+        "status": "waiting",
+        "updatedAt": 1e+30
+      },
+      "expected": null
+    },
+    {
+      "name": "a negative pid is refused",
+      "input": {
+        "pid": -1,
+        "cwd": "/project",
+        "status": "waiting"
+      },
+      "expected": null
+    },
+    {
+      "name": "a fractional pid is refused",
+      "input": {
+        "pid": 5.5,
+        "cwd": "/project"
+      },
+      "expected": null
+    },
+    {
+      "name": "a pid given as a string is refused",
+      "input": {
+        "pid": "71555",
+        "cwd": "/project"
+      },
+      "expected": null
+    },
+    {
+      "name": "no cwd is refused",
+      "input": {
+        "pid": 5
+      },
+      "expected": null
+    },
+    {
+      "name": "no pid is refused",
+      "input": {
+        "cwd": "/x"
+      },
+      "expected": null
+    },
+    {
+      "name": "not an object",
+      "input": "nonsense",
+      "expected": null
+    },
+    {
+      "name": "null",
+      "input": null,
+      "expected": null
+    }
+  ]
+}

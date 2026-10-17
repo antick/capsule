@@ -1,0 +1,905 @@
+{
+  "about": "applyLocalEvents(session, raw) — what a session is doing, read from its own local event log",
+  "cases": [
+    {
+      "name": "codex: no log at all",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": null
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: a truncated line",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"incomplete\":"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: started then completed",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_started\"}}\n{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_complete\",\"turn_id\":\"turn-1\",\"last_agent_message\":\"private text\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z",
+        "completion": {
+          "id": "turn-1",
+          "at": "2026-09-06T12:00:01.000Z",
+          "summary": "private text"
+        }
+      }
+    },
+    {
+      "name": "codex: an aborted turn is not a completion",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"turn_aborted\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: an interrupted task is not a completion",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_started\"}}\n{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_interrupted\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: a completion cleared when the task starts again",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "idle",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_complete\",\"turn_id\":\"old\"}}\n{\"timestamp\":\"2026-09-06T12:01:00.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_started\",\"turn_id\":\"new\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Working · local task event",
+        "state": "busy",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:01:00.000Z"
+      }
+    },
+    {
+      "name": "codex: a synchronous input request is waiting",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"function_call\",\"name\":\"request_user_input\",\"call_id\":\"call-1\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "waiting",
+        "confirmed": true,
+        "waitingFor": "Waiting for your input",
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: answering the request resumes",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"function_call\",\"name\":\"request_user_input\",\"call_id\":\"call-1\"}}\n{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"function_call_output\",\"call_id\":\"call-1\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Working · local task event",
+        "state": "busy",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: an answer to a different call does not resume",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"function_call\",\"name\":\"request_user_input\",\"call_id\":\"call-1\"}}\n{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"function_call_output\",\"call_id\":\"call-2\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "waiting",
+        "confirmed": true,
+        "waitingFor": "Waiting for your input",
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: an async input tool is not blocking",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"function_call\",\"name\":\"request_user_input_async\",\"call_id\":\"call-1\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: a namespaced input tool still counts",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"custom_tool_call\",\"name\":\"functions.request_user_input\",\"call_id\":\"call-1\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "waiting",
+        "confirmed": true,
+        "waitingFor": "Waiting for your input",
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: rows that are not event messages are ignored",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"turn_context\",\"payload\":{\"type\":\"task_complete\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: a completion summary skips markdown and keeps the first line",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_complete\",\"turn_id\":\"t\",\"last_agent_message\":\"\\n## Fixed it\\n- and more\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z",
+        "completion": {
+          "id": "t",
+          "at": "2026-09-06T12:00:01.000Z",
+          "summary": "Fixed it"
+        }
+      }
+    },
+    {
+      "name": "codex: a long summary is cut",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_complete\",\"turn_id\":\"t\",\"last_agent_message\":\"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z",
+        "completion": {
+          "id": "t",
+          "at": "2026-09-06T12:00:01.000Z",
+          "summary": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+        }
+      }
+    },
+    {
+      "name": "codex: a row without a time is skipped",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"event_msg\",\"payload\":{\"type\":\"task_complete\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "codex: a numeric timestamp is read",
+      "input": {
+        "session": {
+          "id": "codex.test",
+          "providerId": "codex",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":1788696001000,\"type\":\"event_msg\",\"payload\":{\"type\":\"task_complete\",\"turn_id\":\"t\"}}"
+      },
+      "expected": {
+        "id": "codex.test",
+        "providerId": "codex",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z",
+        "completion": {
+          "id": "t",
+          "at": "2026-09-06T12:00:01.000Z"
+        }
+      }
+    },
+    {
+      "name": "grok: a permission request is waiting",
+      "input": {
+        "session": {
+          "id": "grok.test",
+          "providerId": "grok",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"permission_requested\",\"ts\":\"2026-09-06T12:00:01.000Z\"}"
+      },
+      "expected": {
+        "id": "grok.test",
+        "providerId": "grok",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "waiting",
+        "confirmed": true,
+        "waitingFor": "Waiting for your input",
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "grok: a resolved permission resumes",
+      "input": {
+        "session": {
+          "id": "grok.test",
+          "providerId": "grok",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"permission_requested\",\"ts\":\"2026-09-06T12:00:01.000Z\"}\n{\"type\":\"permission_resolved\",\"ts\":\"2026-09-06T12:00:01.000Z\"}"
+      },
+      "expected": {
+        "id": "grok.test",
+        "providerId": "grok",
+        "name": "Example task",
+        "detail": "Working · local task event",
+        "state": "busy",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "grok: a failed turn is not a completion",
+      "input": {
+        "session": {
+          "id": "grok.test",
+          "providerId": "grok",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"turn_ended\",\"ts\":\"2026-09-06T12:00:01.000Z\",\"outcome\":\"failed\"}"
+      },
+      "expected": {
+        "id": "grok.test",
+        "providerId": "grok",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "grok: a completed turn is",
+      "input": {
+        "session": {
+          "id": "grok.test",
+          "providerId": "grok",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"turn_ended\",\"ts\":\"2026-09-06T12:00:01.000Z\",\"outcome\":\"completed\",\"turn_id\":\"g1\"}"
+      },
+      "expected": {
+        "id": "grok.test",
+        "providerId": "grok",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z",
+        "completion": {
+          "id": "g1",
+          "at": "2026-09-06T12:00:01.000Z"
+        }
+      }
+    },
+    {
+      "name": "grok: a permission prompt phase is waiting",
+      "input": {
+        "session": {
+          "id": "grok.test",
+          "providerId": "grok",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"phase_changed\",\"ts\":\"2026-09-06T12:00:01.000Z\",\"phase\":\"permission_prompt\"}"
+      },
+      "expected": {
+        "id": "grok.test",
+        "providerId": "grok",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "waiting",
+        "confirmed": true,
+        "waitingFor": "Waiting for your input",
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "grok: a streaming phase is busy",
+      "input": {
+        "session": {
+          "id": "grok.test",
+          "providerId": "grok",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"phase_changed\",\"ts\":\"2026-09-06T12:00:01.000Z\",\"phase\":\"streaming_reasoning\"}"
+      },
+      "expected": {
+        "id": "grok.test",
+        "providerId": "grok",
+        "name": "Example task",
+        "detail": "Working · local task event",
+        "state": "busy",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "grok: an idle phase changes nothing",
+      "input": {
+        "session": {
+          "id": "grok.test",
+          "providerId": "grok",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"phase_changed\",\"ts\":\"2026-09-06T12:00:01.000Z\",\"phase\":\"idle\"}"
+      },
+      "expected": {
+        "id": "grok.test",
+        "providerId": "grok",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "claude: end_turn completes with its uuid",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"assistant\",\"uuid\":\"reply-1\",\"message\":{\"stop_reason\":\"end_turn\"}}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z",
+        "completion": {
+          "id": "reply-1",
+          "at": "2026-09-06T12:00:01.000Z"
+        }
+      }
+    },
+    {
+      "name": "claude: a tool response is not a completion",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"assistant\",\"uuid\":\"reply-1\",\"message\":{\"stop_reason\":\"tool_use\"}}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Working · local task event",
+        "state": "busy",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "claude: a question tool is waiting",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"assistant\",\"message\":{\"stop_reason\":\"tool_use\",\"content\":[{\"type\":\"tool_use\",\"name\":\"AskUserQuestion\"}]}}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "waiting",
+        "confirmed": true,
+        "waitingFor": "Waiting for your input",
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "claude: a completion preview is the first line",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"assistant\",\"uuid\":\"done\",\"message\":{\"stop_reason\":\"end_turn\",\"content\":[{\"type\":\"text\",\"text\":\"Fixed the upload error.\\nDetails follow.\"}]}}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z",
+        "completion": {
+          "id": "done",
+          "at": "2026-09-06T12:00:01.000Z",
+          "summary": "Fixed the upload error."
+        }
+      }
+    },
+    {
+      "name": "claude: a question after a completion clears it",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "idle",
+          "confirmed": true,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z",
+          "completion": {
+            "id": "done",
+            "at": "2026-09-06T12:00:01.000Z",
+            "summary": "Fixed the upload error."
+          }
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"assistant\",\"message\":{\"stop_reason\":\"tool_use\",\"content\":[{\"type\":\"tool_use\",\"name\":\"AskUserQuestion\"}]}}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "waiting",
+        "confirmed": true,
+        "waitingFor": "Waiting for your input",
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "claude: end_turn with only tool blocks is not a completion",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"assistant\",\"message\":{\"stop_reason\":\"end_turn\",\"content\":[{\"type\":\"tool_use\",\"name\":\"Read\"}]}}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Working · local task event",
+        "state": "busy",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "claude: the message id wins over the row uuid",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"assistant\",\"uuid\":\"row-1\",\"message\":{\"id\":\"msg_1\",\"stop_reason\":\"end_turn\"}}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Local",
+        "state": "idle",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z",
+        "completion": {
+          "id": "msg_1",
+          "at": "2026-09-06T12:00:01.000Z"
+        }
+      }
+    },
+    {
+      "name": "claude: a user row is work",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "idle",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"user\",\"message\":{\"content\":\"hi\"}}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Working · local task event",
+        "state": "busy",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    },
+    {
+      "name": "claude: a custom title renames the session",
+      "input": {
+        "session": {
+          "id": "claude.test",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "busy",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"type\":\"custom-title\",\"customTitle\":\"Rename uploads\"}"
+      },
+      "expected": {
+        "id": "claude.test",
+        "providerId": "claude",
+        "name": "Rename uploads",
+        "detail": "Local",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      },
+      "note": "Applied even without a timestamp: a title is not a state change."
+    },
+    {
+      "name": "claude: a tool use in the current registry format",
+      "input": {
+        "session": {
+          "id": "claude.task",
+          "providerId": "claude",
+          "name": "Example task",
+          "detail": "Local",
+          "state": "idle",
+          "confirmed": false,
+          "waitingFor": null,
+          "since": "2026-09-06T12:00:01.000Z"
+        },
+        "raw": "{\"timestamp\":\"2026-09-06T12:00:01.000Z\",\"type\":\"assistant\",\"uuid\":\"tool\",\"message\":{\"stop_reason\":\"tool_use\",\"content\":[{\"type\":\"tool_use\",\"name\":\"Read\",\"id\":\"read\"}]}}"
+      },
+      "expected": {
+        "id": "claude.task",
+        "providerId": "claude",
+        "name": "Example task",
+        "detail": "Working · local task event",
+        "state": "busy",
+        "confirmed": true,
+        "waitingFor": null,
+        "since": "2026-09-06T12:00:01.000Z"
+      }
+    }
+  ]
+}

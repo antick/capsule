@@ -66,6 +66,15 @@ Things the TypeScript does that a straightforward Swift port will get wrong:
   top, bottom.
 - **String ordering of timestamps.** `orderSessions` compares `since` as
   strings, not dates. See the note in `activity/order-sessions`.
+- **Three epoch heuristics.** Numbers are read as times in three different
+  ways, each deliberate where it lives: `resetIso` treats anything under
+  `1e12` as seconds, the token readers treat anything under `1e11` as seconds,
+  and local event logs treat every number as milliseconds. Port each one as
+  written rather than sharing a helper between them.
+- **Insertion-ordered sets.** The notice tracker evicts the oldest remembered
+  id first once it holds `maxSeen`, which relies on JavaScript's `Set`
+  iterating in insertion order. A Swift `Set` does not; use an ordered
+  structure.
 - **Unordered dictionaries.** JSON object key order does not survive a Swift
   `Dictionary`. Anything that takes "the first entry" of an object needs an
   ordered decode, or a deliberate, documented tie-break.
@@ -134,6 +143,13 @@ against:
   them as data is a follow-up, not part of this pass.
 - `rememberedSnapshots`, the poller's enabled-provider filtering, and the demo
   provider — all need injected hosts or spies.
+- Reading activity off disk — the Claude registry walk, the Codex state
+  database and rollout scan, Grok session discovery, the token log scanner, and
+  the activity monitor itself. Each needs a stubbed host. Everything they hand
+  their parsers *is* in the corpus.
+- The agent chat: `claude-channel.test.ts` and `codex-connection.test.ts`. The
+  feature is suspended — its source is kept but inactive, per `AGENTS.md` — and
+  it is not part of the native app, so nothing about it is extracted.
 - The corner arc. It is dead behind `CORNER_ARC_ENABLED = false` and is not
   being ported, so its cases are **not extracted**. The TypeScript source and
   its tests stay in the tree until Phase 4 and in git history after it; if the

@@ -40,7 +40,16 @@ struct CorpusCoverageTests {
   /// Phase 1; anything left here at that point is a gap, not a plan.
   static let notYetPorted: Set<String> = [
     "activity/any-active",
+    "activity/claude-row-tokens",
+    "activity/claude-session",
+    "activity/codex-row-tokens",
+    "activity/codex-session",
+    "activity/histogram-totals",
+    "activity/local-events",
+    "activity/notice-tracker",
     "activity/order-sessions",
+    "activity/proc-start",
+    "activity/prune-token-cache",
     "activity/summarize",
     "hud-metrics/card-height",
     "hud-metrics/clamp-scale",

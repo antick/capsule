@@ -19,12 +19,22 @@ export function goldenSuite<Input, Expected>(
   describe(`${path}: ${golden.about}`, () => {
     for (const testCase of golden.cases) {
       it(testCase.name, () => {
-        const actual = run(testCase.input, now);
+        const actual = asJson(run(testCase.input, now));
         expect(actual).toEqual(golden.expect(testCase, actual));
       });
     }
     afterAll(() => golden.flush());
   });
+}
+
+/**
+ * The value as the corpus stores it. A `Date` becomes its ISO string and an
+ * absent field disappears, exactly as recording would write them, so a result
+ * is compared in the same shape a Swift suite will see — not as a live object
+ * that can never equal its own serialised form.
+ */
+function asJson<T>(value: T): T {
+  return value === undefined ? value : JSON.parse(JSON.stringify(value));
 }
 
 /**

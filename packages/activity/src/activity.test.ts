@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  parseClaudeSession,
-  parseProcStart,
-  readClaudeSessions,
-} from "./claude.ts";
-import { codexSessionFrom, newestRollout, readCodexSessions } from "./codex.ts";
+
+/*
+ * Registry parsing and the Codex activity hint are in the fixture corpus; see
+ * `activity-fixtures.test.ts`. What stays here needs a stubbed host: files,
+ * processes, and the Codex state database.
+ */
+import { readClaudeSessions } from "./claude.ts";
+import { newestRollout, readCodexSessions } from "./codex.ts";
 import type { ActivityHost } from "./host.ts";
 import { createActivityMonitor } from "./monitor.ts";
 
@@ -36,53 +38,6 @@ function fakeHost(overrides: Partial<ActivityHost> = {}): ActivityHost {
     ...overrides,
   };
 }
-
-describe("parseClaudeSession", () => {
-  it("keeps untimestamped waiting records stable and rejects impossible dates", () => {
-    const source = { pid: 5, cwd: "/project", status: "waiting" };
-    expect(parseClaudeSession(source, now)?.session.since).toBe(
-      parseClaudeSession(source, new Date(now.getTime() + 2000))?.session.since,
-    );
-    expect(parseClaudeSession({ ...source, updatedAt: 1e30 }, now)).toBeNull();
-    expect(parseClaudeSession({ ...source, pid: -1 }, now)).toBeNull();
-  });
-
-  it("reads what Claude Code writes, and names the surface", () => {
-    const parsed = parseClaudeSession(record, now);
-    expect(parsed?.pid).toBe(71555);
-    expect(parsed?.session).toMatchObject({
-      id: "claude.c5ba92e2",
-      providerId: "claude",
-      name: "demo-app-4e",
-      detail: "Desktop · demo-app",
-      state: "busy",
-      waitingFor: null,
-    });
-    expect(parsed?.session.since).toBe(new Date(1788622256493).toISOString());
-    expect(parsed?.startedAt?.getTime()).toBe(1788622255869);
-  });
-
-  it("maps the normalised tempo before the raw status, and reads what it wants", () => {
-    expect(
-      parseClaudeSession(
-        { ...record, tempo: "blocked", needs: "approval" },
-        now,
-      )?.session,
-    ).toMatchObject({ state: "waiting", waitingFor: "approval" });
-    expect(
-      parseClaudeSession({ ...record, status: "idle" }, now)?.session.state,
-    ).toBe("idle");
-    expect(parseClaudeSession({ cwd: "/x" }, now)).toBeNull();
-    expect(parseClaudeSession("nonsense", now)).toBeNull();
-  });
-
-  it("parses a ctime start with a space-padded day, in UTC", () => {
-    expect(parseProcStart("Sat Sep  5 15:30:55 2026")?.toISOString()).toBe(
-      "2026-09-05T15:30:55.000Z",
-    );
-    expect(parseProcStart("yesterday")).toBeNull();
-  });
-});
 
 describe("readClaudeSessions", () => {
   const files: Record<string, string> = {
@@ -116,38 +71,7 @@ describe("readClaudeSessions", () => {
   });
 });
 
-describe("codexSessionFrom", () => {
-  it("marks recent writes as an unconfirmed activity hint", () => {
-    const fresh = codexSessionFrom(
-      [{ id: "codex.a", name: "Codex", at: new Date(now.getTime() - 3000) }],
-      now,
-    );
-    expect(fresh).toMatchObject({
-      providerId: "codex",
-      state: "busy",
-      detail: "Recent activity · status unconfirmed",
-    });
-    expect(
-      codexSessionFrom(
-        [
-          {
-            id: "codex.a",
-            name: "Codex",
-            at: new Date(now.getTime() - 20_000),
-          },
-        ],
-        now,
-      ),
-    ).toBeNull();
-    expect(codexSessionFrom([], now)).toBeNull();
-    expect(
-      codexSessionFrom(
-        [{ id: "codex.invalid", name: "Codex", at: new Date("invalid") }],
-        now,
-      ),
-    ).toBeNull();
-  });
-
+describe("reading Codex sessions", () => {
   it("retains fresh distinct indexed sessions without borrowing the desktop title", async () => {
     const readFile = vi.fn(() => Promise.resolve(null));
     const times: Record<string, number> = {

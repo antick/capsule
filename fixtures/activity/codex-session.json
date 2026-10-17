@@ -1,0 +1,154 @@
+{
+  "about": "codexSessionFrom(candidates, now) — a recent rollout write as an unconfirmed activity hint",
+  "frozenNow": "2026-09-05T22:00:00.000Z",
+  "cases": [
+    {
+      "name": "a fresh write",
+      "input": [
+        {
+          "id": "codex.a",
+          "name": "Codex",
+          "at": "2026-09-05T21:59:57.000Z"
+        }
+      ],
+      "expected": {
+        "id": "codex.a",
+        "providerId": "codex",
+        "name": "Codex",
+        "detail": "Recent activity · status unconfirmed",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-05T21:59:57.000Z"
+      }
+    },
+    {
+      "name": "a stale write",
+      "input": [
+        {
+          "id": "codex.a",
+          "name": "Codex",
+          "at": "2026-09-05T21:59:40.000Z"
+        }
+      ],
+      "expected": null
+    },
+    {
+      "name": "nothing to go on",
+      "input": [],
+      "expected": null
+    },
+    {
+      "name": "an unreadable date",
+      "input": [
+        {
+          "id": "codex.invalid",
+          "name": "Codex",
+          "at": "invalid"
+        }
+      ],
+      "expected": null
+    },
+    {
+      "name": "the newest of several wins",
+      "input": [
+        {
+          "id": "codex.old",
+          "name": "Old task",
+          "at": "2026-09-05T21:59:51.000Z"
+        },
+        {
+          "id": "codex.new",
+          "name": "New task",
+          "at": "2026-09-05T21:59:59.000Z"
+        },
+        {
+          "id": "codex.mid",
+          "name": "Mid task",
+          "at": "2026-09-05T21:59:55.000Z"
+        }
+      ],
+      "expected": {
+        "id": "codex.new",
+        "providerId": "codex",
+        "name": "New task",
+        "detail": "Recent activity · status unconfirmed",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-05T21:59:59.000Z"
+      }
+    },
+    {
+      "name": "an unreadable date does not hide a good one",
+      "input": [
+        {
+          "id": "codex.invalid",
+          "name": "Codex",
+          "at": "invalid"
+        },
+        {
+          "id": "codex.good",
+          "name": "Good",
+          "at": "2026-09-05T21:59:58.000Z"
+        }
+      ],
+      "expected": {
+        "id": "codex.good",
+        "providerId": "codex",
+        "name": "Good",
+        "detail": "Recent activity · status unconfirmed",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-05T21:59:58.000Z"
+      }
+    },
+    {
+      "name": "a write from the future still counts",
+      "input": [
+        {
+          "id": "codex.ahead",
+          "name": "Codex",
+          "at": "2026-09-05T22:00:04.000Z"
+        }
+      ],
+      "expected": {
+        "id": "codex.ahead",
+        "providerId": "codex",
+        "name": "Codex",
+        "detail": "Recent activity · status unconfirmed",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-05T22:00:04.000Z"
+      },
+      "note": "Clock skew between processes is normal; a write slightly ahead is not stale."
+    },
+    {
+      "name": "two writes at the same instant keep the first",
+      "input": [
+        {
+          "id": "codex.first",
+          "name": "First",
+          "at": "2026-09-05T21:59:59.000Z"
+        },
+        {
+          "id": "codex.second",
+          "name": "Second",
+          "at": "2026-09-05T21:59:59.000Z"
+        }
+      ],
+      "expected": {
+        "id": "codex.first",
+        "providerId": "codex",
+        "name": "First",
+        "detail": "Recent activity · status unconfirmed",
+        "state": "busy",
+        "confirmed": false,
+        "waitingFor": null,
+        "since": "2026-09-05T21:59:59.000Z"
+      }
+    }
+  ]
+}

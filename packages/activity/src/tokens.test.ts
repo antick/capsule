@@ -2,10 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { ActivityHost } from "./host.ts";
 import {
   claudeRowTokens,
-  codexRowTokens,
   createTokenScanner,
   histogramTotals,
-  pruneTokenCache,
   scanTokenLogs,
   type TokenFileCache,
   type TokenScanHost,
@@ -74,46 +72,6 @@ function fakeHost(
   };
 }
 
-describe("row parsers", () => {
-  it("sums every kind of Claude token and ignores rows without usage", () => {
-    expect(
-      claudeRowTokens({
-        timestamp: iso(now),
-        message: {
-          usage: {
-            input_tokens: 10,
-            cache_read_input_tokens: 100,
-            cache_creation_input_tokens: 5,
-            output_tokens: 20,
-          },
-        },
-      })?.tokens,
-    ).toBe(135);
-    expect(claudeRowTokens({ timestamp: iso(now), type: "user" })).toBeNull();
-    expect(claudeRowTokens("nope")).toBeNull();
-  });
-
-  it("turns Codex running totals into deltas and restarts on a new thread", () => {
-    const state = { previous: 0 };
-    expect(codexRowTokens(JSON.parse(codexLine(now, 100)), state)?.tokens).toBe(
-      100,
-    );
-    expect(codexRowTokens(JSON.parse(codexLine(now, 250)), state)?.tokens).toBe(
-      150,
-    );
-    expect(codexRowTokens(JSON.parse(codexLine(now, 250)), state)).toBeNull();
-    expect(codexRowTokens(JSON.parse(codexLine(now, 40)), state)?.tokens).toBe(
-      40,
-    );
-    expect(
-      codexRowTokens(
-        { timestamp: iso(now), payload: { type: "other" } },
-        state,
-      ),
-    ).toBeNull();
-  });
-});
-
 describe("scanTokenLogs", () => {
   it("counts today and the month, skips files older than the window, and reuses unchanged files", async () => {
     const files = {
@@ -157,14 +115,6 @@ describe("scanTokenLogs", () => {
     });
     expect(eachLine).not.toHaveBeenCalled();
     expect(histogramTotals(second.days, now)).toEqual(totals);
-  });
-
-  it("forgets files that are gone", () => {
-    const cache: TokenFileCache = {
-      a: { size: 1, modifiedMs: 1, days: {} },
-      b: { size: 1, modifiedMs: 2, days: {} },
-    };
-    expect(Object.keys(pruneTokenCache(cache, new Set(["b"])))).toEqual(["b"]);
   });
 });
 

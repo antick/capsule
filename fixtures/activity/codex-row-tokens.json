@@ -1,0 +1,169 @@
+{
+  "about": "codexRowTokens(row, state) over a file's rows in order — Codex's running totals turned into deltas",
+  "note": "Each case is the rows of one file. The carried total starts at zero for every file, as the scanner does.",
+  "cases": [
+    {
+      "name": "running totals become deltas, and a drop starts a new thread",
+      "input": [
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "token_count",
+            "info": {
+              "total_token_usage": {
+                "input_tokens": 100,
+                "output_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "token_count",
+            "info": {
+              "total_token_usage": {
+                "input_tokens": 250,
+                "output_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "token_count",
+            "info": {
+              "total_token_usage": {
+                "input_tokens": 250,
+                "output_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "token_count",
+            "info": {
+              "total_token_usage": {
+                "input_tokens": 40,
+                "output_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "other"
+          }
+        }
+      ],
+      "expected": [
+        {
+          "at": "2026-09-06T12:00:00.000Z",
+          "tokens": 100
+        },
+        {
+          "at": "2026-09-06T12:00:00.000Z",
+          "tokens": 150
+        },
+        null,
+        {
+          "at": "2026-09-06T12:00:00.000Z",
+          "tokens": 40
+        },
+        null
+      ]
+    },
+    {
+      "name": "input and output both count",
+      "input": [
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "token_count",
+            "info": {
+              "total_token_usage": {
+                "input_tokens": 30,
+                "output_tokens": 12
+              }
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "at": "2026-09-06T12:00:00.000Z",
+          "tokens": 42
+        }
+      ]
+    },
+    {
+      "name": "a row without totals is skipped and does not reset the count",
+      "input": [
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "token_count",
+            "info": {
+              "total_token_usage": {
+                "input_tokens": 100,
+                "output_tokens": 0
+              }
+            }
+          }
+        },
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "token_count",
+            "info": {}
+          }
+        },
+        {
+          "timestamp": "2026-09-06T12:00:00.000Z",
+          "payload": {
+            "type": "token_count",
+            "info": {
+              "total_token_usage": {
+                "input_tokens": 160,
+                "output_tokens": 0
+              }
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "at": "2026-09-06T12:00:00.000Z",
+          "tokens": 100
+        },
+        null,
+        {
+          "at": "2026-09-06T12:00:00.000Z",
+          "tokens": 60
+        }
+      ]
+    },
+    {
+      "name": "a row without a time is skipped",
+      "input": [
+        {
+          "payload": {
+            "type": "token_count",
+            "info": {
+              "total_token_usage": {
+                "input_tokens": 5
+              }
+            }
+          }
+        }
+      ],
+      "expected": [
+        null
+      ]
+    }
+  ]
+}
