@@ -4,9 +4,8 @@ import PackageDescription
 /// Capsule, native. Modules mirror the TypeScript workspace packages they
 /// replace, so the port can be reviewed one package at a time.
 ///
-/// `CapsuleActivity` and `CapsuleHUD` are not declared yet: both are gated on
-/// their fixtures being extracted, and an empty module would only pretend
-/// otherwise. See `openspec/changes/native-appkit-migration/tasks.md`.
+/// `CapsuleActivity` is not declared yet; an empty module would only pretend
+/// to progress. See `openspec/changes/native-appkit-migration/tasks.md`.
 let package = Package(
   name: "Capsule",
   platforms: [
@@ -17,10 +16,12 @@ let package = Package(
   products: [
     .library(name: "CapsuleCore", targets: ["CapsuleCore"]),
     .library(name: "CapsuleUsage", targets: ["CapsuleUsage"]),
+    .library(name: "CapsuleHUD", targets: ["CapsuleHUD"]),
   ],
   targets: [
     .target(name: "CapsuleCore"),
     .target(name: "CapsuleUsage", dependencies: ["CapsuleCore"]),
+    .target(name: "CapsuleHUD", dependencies: ["CapsuleCore"]),
     // Test support: reads the same JSON corpus the Vitest suites read.
     .target(name: "CapsuleFixtures"),
     .testTarget(
@@ -30,6 +31,10 @@ let package = Package(
     .testTarget(
       name: "CapsuleUsageTests",
       dependencies: ["CapsuleUsage", "CapsuleFixtures"]
+    ),
+    .testTarget(
+      name: "CapsuleHUDTests",
+      dependencies: ["CapsuleHUD", "CapsuleFixtures"]
     ),
   ]
 )

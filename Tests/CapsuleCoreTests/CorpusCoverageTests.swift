@@ -58,6 +58,15 @@ struct CorpusCoverageTests {
     "activity/any-active",
     "activity/order-sessions",
     "activity/summarize",
+    // CapsuleHUDTests — dock silhouettes
+    "hud-paths/blob-layout",
+    "hud-paths/bubble-path",
+    "hud-paths/frame-padding",
+    "hud-paths/hit-regions",
+    "hud-paths/latch",
+    "hud-paths/primitives",
+    "hud-paths/rail-morph",
+    "hud-paths/rail-path",
   ]
 
   /// Fixtures whose Swift port has not landed. Must be empty by the end of
@@ -72,14 +81,6 @@ struct CorpusCoverageTests {
     "activity/notice-tracker",
     "activity/proc-start",
     "activity/prune-token-cache",
-    "hud-paths/blob-layout",
-    "hud-paths/bubble-path",
-    "hud-paths/frame-padding",
-    "hud-paths/hit-regions",
-    "hud-paths/latch",
-    "hud-paths/primitives",
-    "hud-paths/rail-morph",
-    "hud-paths/rail-path",
     "updates/format-bytes",
     "updates/format-progress",
     "updates/initial-state",
