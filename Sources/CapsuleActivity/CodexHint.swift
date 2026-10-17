@@ -7,11 +7,14 @@ public struct CodexCandidate: Sendable, Equatable {
   public var id: String
   public var name: String
   public var at: Date?
+  /// The rollout file, when the candidate came from one.
+  public var path: String?
 
-  public init(id: String, name: String, at: Date?) {
+  public init(id: String, name: String, at: Date?, path: String? = nil) {
     self.id = id
     self.name = name
     self.at = at
+    self.path = path
   }
 }
 

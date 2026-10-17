@@ -81,17 +81,18 @@ struct CorpusCoverageTests {
     "usage/provider-reads",
     // CapsuleUsageTests — poller
     "usage/poller",
-  ]
-
-  /// Fixtures whose Swift port has not landed. Must be empty by the end of
-  /// Phase 1; anything left here at that point is a gap, not a plan.
-  static let notYetPorted: Set<String> = [
+    // CapsuleActivityTests — readers, token scan and monitor
     "activity/claude-reader",
     "activity/codex-reader",
     "activity/grok-reader",
     "activity/monitor",
     "activity/token-scan",
     "activity/token-scanner",
+  ]
+
+  /// Fixtures whose Swift port has not landed. Must be empty by the end of
+  /// Phase 1; anything left here at that point is a gap, not a plan.
+  static let notYetPorted: Set<String> = [
     "updates/format-bytes",
     "updates/format-progress",
     "updates/initial-state",

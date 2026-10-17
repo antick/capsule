@@ -121,3 +121,67 @@ public func formURLEncoded(_ pairs: [(String, String)]) -> String {
 public func joinPath(_ base: String, _ parts: [String]) -> String {
   parts.reduce(base as NSString) { $0.appendingPathComponent($1) as NSString } as String
 }
+
+/// `Number(string)` for the text a database column hands back: blank is 0, as
+/// in JavaScript, and anything else that is not a number is NaN.
+public func jsNumber(_ text: String) -> Double {
+  let trimmed = jsTrim(text)
+  if trimmed.isEmpty { return 0 }
+  return Double(trimmed) ?? .nan
+}
+
+/// Whether every UTF-16 code unit is an ASCII letter, digit, `_` or `-`, and
+/// there is at least one: the original's `/^[a-zA-Z0-9_-]+$/`.
+public func jsIsSafeId(_ text: String) -> Bool {
+  !text.isEmpty && text.utf16.allSatisfy(isSafeIdUnit)
+}
+
+/// The original's `text.replace(/[^a-zA-Z0-9_-]/g, "-")`, which works on
+/// UTF-16 code units: a character outside the BMP becomes two dashes.
+public func jsSafeIdDashed(_ text: String) -> String {
+  String(decoding: text.utf16.map { isSafeIdUnit($0) ? $0 : UInt16(UInt8(ascii: "-")) }, as: UTF16.self)
+}
+
+private func isSafeIdUnit(_ unit: UInt16) -> Bool {
+  switch unit {
+  case 0x30...0x39, 0x41...0x5A, 0x61...0x7A, 0x2D, 0x5F: return true
+  default: return false
+  }
+}
+
+/// Array `sort()` with no comparator: by UTF-16 code units.
+public func jsSorted(_ names: [String]) -> [String] {
+  names.sorted { $0.utf16.lexicographicallyPrecedes($1.utf16) }
+}
+
+/// A stable sort, newest `since` first, compared as strings — the order every
+/// reader returns its sessions in.
+public func newestFirst(_ sessions: [AgentSession]) -> [AgentSession] {
+  sessions.enumerated()
+    .sorted { $0.element.since != $1.element.since ? $0.element.since > $1.element.since : $0.offset < $1.offset }
+    .map(\.element)
+}
+
+/// A dictionary that remembers first-insertion order, as a JavaScript `Map`
+/// does: setting an existing key replaces its value and keeps its place.
+public struct OrderedMap<Key: Hashable & Sendable, Value: Sendable>: Sendable {
+  public private(set) var keys: [Key] = []
+  private var storage: [Key: Value] = [:]
+
+  public init() {}
+
+  public subscript(key: Key) -> Value? {
+    get { storage[key] }
+    set {
+      if let newValue {
+        if storage[key] == nil { keys.append(key) }
+        storage[key] = newValue
+      } else if storage.removeValue(forKey: key) != nil {
+        keys.removeAll { $0 == key }
+      }
+    }
+  }
+
+  public var values: [Value] { keys.compactMap { storage[$0] } }
+  public func contains(_ key: Key) -> Bool { storage[key] != nil }
+}

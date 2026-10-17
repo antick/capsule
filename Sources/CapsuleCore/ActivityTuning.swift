@@ -4,6 +4,36 @@ import Foundation
 public enum ActivityTuning {
   /// A Codex rollout write older than this is not a sign of a running turn.
   public static let codexStaleAfterMs = 8_000.0
+  /// How often the monitor looks again without a file event to prompt it.
+  public static let pollMs = 2_000.0
+  /// A process whose start differs from the record's by more than this is a
+  /// different process that happens to have the same pid.
+  public static let pidReuseToleranceMs = 300_000.0
+  /// Days of Codex's dated rollout folders worth scanning.
+  public static let codexRecentDays = 2
+  /// Most sessions any one reader reports, or reads from an index.
+  public static let maxSessions = 100
+  /// Explicit evidence older than this does not keep a stale session alive.
+  public static let activeEvidenceMs = 120_000.0
+  /// The most of a local event log ever read: its tail.
+  public static let tailBytes = 256 * 1024
+
+  public static let claudeSessionsDir = [".claude", "sessions"]
+  public static let claudeProjectsDir = [".claude", "projects"]
+  public static let codexStateDatabase = [".codex", "state_5.sqlite"]
+  public static let codexDesktopDatabase = [".codex", "sqlite", "codex-dev.db"]
+  public static let codexSessionsDir = [".codex", "sessions"]
+  public static let grokRegistry = [".grok", "active_sessions.json"]
+  public static let grokSessionsDir = [".grok", "sessions"]
+  public static let grokEventsFile = "events.jsonl"
+  public static let grokSummaryFile = "summary.json"
+
+  /// Codex's thread index, newest first.
+  public static let codexRolloutsSQL =
+    "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT \(maxSessions)"
+  /// The desktop app's catalogue, for when there is no rollout at all.
+  public static let codexDesktopSQL =
+    "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1"
 }
 
 /// Limits on activity notices.
@@ -22,6 +52,12 @@ public enum NoticeTuning {
 public enum TokenTuning {
   /// Days in the longer window, today included.
   public static let historyDays = 30
+  /// How often the logs are re-read. Unchanged files cost a stat each.
+  public static let scanIntervalMs = 60_000.0
+  /// Longest line worth parsing; anything bigger is a blob, not a row.
+  public static let maxLineLength = 1_048_576
+  public static let claudeLogsDir = [".claude", "projects"]
+  public static let codexLogsDir = [".codex", "sessions"]
   /// Remembered per-file totals, so a fresh launch skips unchanged history.
   public static let maxCacheEntries = 4_096
 }
@@ -34,6 +70,22 @@ extension Copy {
   public static let codexRecent = "Recent activity · status unconfirmed"
   public static let localWorking = "Working · local task event"
   public static let localWaiting = "Waiting for your input"
+  public static let statusUnknown = "Status unconfirmed"
+}
+
+/// Tokens one provider's agents got through, from the logs they keep locally.
+public struct TokenUsage: Sendable, Codable, Equatable {
+  public var providerId: ProviderId
+  public var todayTokens: Double
+  public var monthTokens: Double
+  public var scannedAt: String
+
+  public init(providerId: ProviderId, todayTokens: Double, monthTokens: Double, scannedAt: String) {
+    self.providerId = providerId
+    self.todayTokens = todayTokens
+    self.monthTokens = monthTokens
+    self.scannedAt = scannedAt
+  }
 }
 
 /// One thing the dock tells you about without being asked: a turn finished,
