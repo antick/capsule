@@ -1,0 +1,17 @@
+{
+  "about": "formatResetRelative(resetsAt, now) — countdown copy for a reset under a day away",
+  "timeZone": "UTC",
+  "frozenNow": "2026-08-27T11:22:00Z",
+  "cases": [
+    {
+      "name": "fifty-one minutes",
+      "input": { "resetsAt": "2026-08-27T12:13:00Z" },
+      "expected": "Resets in 51 min"
+    },
+    {
+      "name": "two hours ten minutes",
+      "input": { "resetsAt": "2026-08-27T13:32:00Z" },
+      "expected": "Resets in 2h 10 min"
+    }
+  ]
+}

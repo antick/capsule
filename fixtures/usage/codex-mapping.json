@@ -1,0 +1,140 @@
+{
+  "about": "mapCodexUsage(payload, now) \u2014 Codex rate-limit windows to a Capsule snapshot",
+  "timeZone": "UTC",
+  "frozenNow": "2026-08-27T11:22:00Z",
+  "cases": [
+    {
+      "name": "primary and secondary windows",
+      "input": {
+        "plan_type": "plus",
+        "rate_limit": {
+          "primary_window": {
+            "used_percent": 21,
+            "limit_window_seconds": 18000,
+            "reset_at": 1782770922
+          },
+          "secondary_window": {
+            "used_percent": 8,
+            "limit_window_seconds": 604800,
+            "reset_at": 1783357722
+          }
+        }
+      },
+      "expected": {
+        "providerId": "codex",
+        "displayName": "Codex",
+        "iconId": "codex",
+        "primaryPercent": 21,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": [
+          {
+            "id": "primary",
+            "label": "5-hour window",
+            "percentUsed": 21,
+            "resetsAt": "2026-06-29T22:08:42.000Z",
+            "resetStyle": "relative"
+          },
+          {
+            "id": "secondary",
+            "label": "Weekly",
+            "percentUsed": 8,
+            "resetsAt": "2026-07-06T17:08:42.000Z",
+            "resetStyle": "absolute"
+          }
+        ]
+      },
+      "note": "limit_window_seconds is what names the bucket: 18000s reads as the 5-hour window, 604800s as Weekly."
+    },
+    {
+      "name": "primary window only",
+      "input": {
+        "plan_type": "plus",
+        "rate_limit": {
+          "primary_window": {
+            "used_percent": 21,
+            "limit_window_seconds": 18000,
+            "reset_at": 1782770922
+          }
+        }
+      },
+      "expected": {
+        "providerId": "codex",
+        "displayName": "Codex",
+        "iconId": "codex",
+        "primaryPercent": 21,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": [
+          {
+            "id": "primary",
+            "label": "5-hour window",
+            "percentUsed": 21,
+            "resetsAt": "2026-06-29T22:08:42.000Z",
+            "resetStyle": "relative"
+          }
+        ]
+      }
+    },
+    {
+      "name": "no rate limit block",
+      "input": {
+        "plan_type": "free"
+      },
+      "expected": {
+        "providerId": "codex",
+        "displayName": "Codex",
+        "iconId": "codex",
+        "primaryPercent": 0,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": []
+      },
+      "note": "RECORDS CURRENT BEHAVIOUR, WHICH LOOKS WRONG: a payload that carries no utilization maps to a confident 0%, not to absent. Cursor and Copilot return null here. The dock therefore shows '0% Used' for a provider that reported nothing. Recorded so the Swift port is a faithful port, but do not enshrine it \u2014 see the Phase 0 findings in fixtures/README.md."
+    },
+    {
+      "name": "empty payload",
+      "input": {},
+      "expected": {
+        "providerId": "codex",
+        "displayName": "Codex",
+        "iconId": "codex",
+        "primaryPercent": 0,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": []
+      },
+      "note": "RECORDS CURRENT BEHAVIOUR, WHICH LOOKS WRONG: a payload that carries no utilization maps to a confident 0%, not to absent. Cursor and Copilot return null here. The dock therefore shows '0% Used' for a provider that reported nothing. Recorded so the Swift port is a faithful port, but do not enshrine it \u2014 see the Phase 0 findings in fixtures/README.md."
+    },
+    {
+      "name": "reset_at in epoch seconds is read as seconds not milliseconds",
+      "input": {
+        "rate_limit": {
+          "primary_window": {
+            "used_percent": 50,
+            "limit_window_seconds": 18000,
+            "reset_at": 1782770922
+          }
+        }
+      },
+      "expected": {
+        "providerId": "codex",
+        "displayName": "Codex",
+        "iconId": "codex",
+        "primaryPercent": 50,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": [
+          {
+            "id": "primary",
+            "label": "5-hour window",
+            "percentUsed": 50,
+            "resetsAt": "2026-06-29T22:08:42.000Z",
+            "resetStyle": "relative"
+          }
+        ]
+      },
+      "note": "A seconds-vs-milliseconds slip here puts the reset tens of thousands of years out."
+    }
+  ]
+}

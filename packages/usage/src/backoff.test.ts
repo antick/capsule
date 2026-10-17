@@ -1,31 +1,38 @@
 import { BACKOFF } from "@capsule/config";
+import { frozenNow, loadCases, loadFixture } from "@capsule/fixtures";
 import { describe, expect, it } from "vitest";
 import { backoffMs, retryAfterMs } from "./backoff.ts";
 
 describe("backoffMs", () => {
-  it("starts at the floor and doubles per refusal, up to the ceiling", () => {
-    expect(backoffMs(1, null)).toBe(BACKOFF.floorMs);
-    expect(backoffMs(2, null)).toBe(BACKOFF.floorMs * 2);
-    expect(backoffMs(3, null)).toBe(BACKOFF.floorMs * 4);
-    expect(backoffMs(9, null)).toBe(BACKOFF.ceilingMs);
+  // The fixtures hold literal milliseconds so a Swift suite can read them.
+  // That only stays honest while the literals agree with the constants the
+  // app actually backs off by, so check that before trusting the cases.
+  it("fixture literals still match the configured floor and ceiling", () => {
+    expect(BACKOFF.floorMs).toBe(60_000);
+    expect(BACKOFF.ceilingMs).toBe(900_000);
   });
 
-  it("treats the server's hint as a floor-raiser only", () => {
-    // `Retry-After: 0` must not mean "retry now" — that is what keeps you
-    // rate limited.
-    expect(backoffMs(1, 0)).toBe(BACKOFF.floorMs);
-    expect(backoffMs(1, 3 * 60_000)).toBe(3 * 60_000);
-    expect(backoffMs(1, 60 * 60_000)).toBe(BACKOFF.ceilingMs);
-  });
+  for (const testCase of loadCases<
+    { refusals: number; retryAfterMs: number | null },
+    number
+  >("usage/backoff")) {
+    it(testCase.name, () => {
+      expect(
+        backoffMs(testCase.input.refusals, testCase.input.retryAfterMs),
+      ).toBe(testCase.expected);
+    });
+  }
 });
 
 describe("retryAfterMs", () => {
-  const now = new Date("2026-08-27T11:22:00.000Z");
+  const file = loadFixture<{ header: string | null }, number | null>(
+    "usage/retry-after",
+  );
+  const now = frozenNow(file);
 
-  it("reads seconds and HTTP dates, and shrugs at anything else", () => {
-    expect(retryAfterMs("30", now)).toBe(30_000);
-    expect(retryAfterMs("Thu, 27 Aug 2026 11:23:00 GMT", now)).toBe(60_000);
-    expect(retryAfterMs("soon", now)).toBeNull();
-    expect(retryAfterMs(null, now)).toBeNull();
-  });
+  for (const testCase of file.cases) {
+    it(testCase.name, () => {
+      expect(retryAfterMs(testCase.input.header, now)).toBe(testCase.expected);
+    });
+  }
 });

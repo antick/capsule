@@ -1,0 +1,38 @@
+{
+  "about": "formatElapsed(since, now) — how long a session has been running",
+  "timeZone": "UTC",
+  "frozenNow": "2026-08-27T11:22:00Z",
+  "cases": [
+    {
+      "name": "this instant",
+      "input": { "msBeforeNow": 0 },
+      "expected": "just now",
+      "note": "msBeforeNow is subtracted from frozenNow to get `since`."
+    },
+    {
+      "name": "just under the forty-five second rounding point",
+      "input": { "msBeforeNow": 44000 },
+      "expected": "just now"
+    },
+    {
+      "name": "at the rounding point",
+      "input": { "msBeforeNow": 45000 },
+      "expected": "1 min"
+    },
+    {
+      "name": "whole minutes",
+      "input": { "msBeforeNow": 180000 },
+      "expected": "3 min"
+    },
+    {
+      "name": "whole hours drop the minutes",
+      "input": { "msBeforeNow": 7200000 },
+      "expected": "2 hr"
+    },
+    {
+      "name": "hours and minutes together",
+      "input": { "msBeforeNow": 7500000 },
+      "expected": "2 hr 5 min"
+    }
+  ]
+}

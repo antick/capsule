@@ -1,0 +1,145 @@
+{
+  "about": "mergeSnapshot(previous, next) — what the dock keeps showing when a read fails",
+  "timeZone": "UTC",
+  "frozenNow": "2026-08-27T11:22:00Z",
+  "cases": [
+    {
+      "name": "a failed read keeps the last good numbers and marks them stale",
+      "input": {
+        "previous": {
+          "providerId": "claude",
+          "displayName": "Claude",
+          "iconId": "claude",
+          "primaryPercent": 73,
+          "status": "ok",
+          "fetchedAt": "2026-08-27T11:00:00.000Z",
+          "buckets": [
+            {
+              "id": "session",
+              "label": "Current session",
+              "percentUsed": 73,
+              "resetsAt": "2026-08-27T12:13:00.000Z",
+              "resetStyle": "relative"
+            }
+          ]
+        },
+        "next": {
+          "providerId": "claude",
+          "displayName": "Claude",
+          "iconId": "claude",
+          "primaryPercent": null,
+          "status": "error",
+          "fetchedAt": "2026-08-27T11:22:00.000Z",
+          "buckets": []
+        }
+      },
+      "expected": {
+        "providerId": "claude",
+        "displayName": "Claude",
+        "iconId": "claude",
+        "primaryPercent": 73,
+        "status": "stale",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": [
+          {
+            "id": "session",
+            "label": "Current session",
+            "percentUsed": 73,
+            "resetsAt": "2026-08-27T12:13:00.000Z",
+            "resetStyle": "relative"
+          }
+        ],
+        "staleSince": "2026-08-27T11:00:00.000Z"
+      },
+      "note": "A blank meter is worse than a slightly old number, so the previous reading survives with status stale."
+    },
+    {
+      "name": "a good read replaces the previous one outright",
+      "input": {
+        "previous": {
+          "providerId": "claude",
+          "displayName": "Claude",
+          "iconId": "claude",
+          "primaryPercent": 73,
+          "status": "ok",
+          "fetchedAt": "2026-08-27T11:00:00.000Z",
+          "buckets": []
+        },
+        "next": {
+          "providerId": "claude",
+          "displayName": "Claude",
+          "iconId": "claude",
+          "primaryPercent": 80,
+          "status": "ok",
+          "fetchedAt": "2026-08-27T11:22:00.000Z",
+          "buckets": []
+        }
+      },
+      "expected": {
+        "providerId": "claude",
+        "displayName": "Claude",
+        "iconId": "claude",
+        "primaryPercent": 80,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": []
+      }
+    },
+    {
+      "name": "losing credentials is reported, not papered over with a stale number",
+      "input": {
+        "previous": {
+          "providerId": "claude",
+          "displayName": "Claude",
+          "iconId": "claude",
+          "primaryPercent": 73,
+          "status": "ok",
+          "fetchedAt": "2026-08-27T11:00:00.000Z",
+          "buckets": []
+        },
+        "next": {
+          "providerId": "claude",
+          "displayName": "Claude",
+          "iconId": "claude",
+          "primaryPercent": null,
+          "status": "unauthenticated",
+          "fetchedAt": "2026-08-27T11:22:00.000Z",
+          "buckets": []
+        }
+      },
+      "expected": {
+        "providerId": "claude",
+        "displayName": "Claude",
+        "iconId": "claude",
+        "primaryPercent": null,
+        "status": "unauthenticated",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": []
+      }
+    },
+    {
+      "name": "nothing previous to fall back on",
+      "input": {
+        "previous": null,
+        "next": {
+          "providerId": "claude",
+          "displayName": "Claude",
+          "iconId": "claude",
+          "primaryPercent": null,
+          "status": "error",
+          "fetchedAt": "2026-08-27T11:22:00.000Z",
+          "buckets": []
+        }
+      },
+      "expected": {
+        "providerId": "claude",
+        "displayName": "Claude",
+        "iconId": "claude",
+        "primaryPercent": null,
+        "status": "error",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": []
+      }
+    }
+  ]
+}

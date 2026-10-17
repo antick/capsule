@@ -1,0 +1,8 @@
+{
+  "about": "clampPercent(value) — holds a percent inside 0-100",
+  "cases": [
+    { "name": "above the ceiling", "input": 112, "expected": 100 },
+    { "name": "below the floor", "input": -4, "expected": 0 },
+    { "name": "in range", "input": 73, "expected": 73 }
+  ]
+}

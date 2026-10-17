@@ -1,0 +1,73 @@
+{
+  "about": "unauthenticatedSnapshot(providerId, now) — what a provider with no credentials reports",
+  "timeZone": "UTC",
+  "frozenNow": "2026-08-27T11:22:00Z",
+  "cases": [
+    {
+      "name": "claude",
+      "input": "claude",
+      "expected": {
+        "providerId": "claude",
+        "displayName": "Claude",
+        "iconId": "claude",
+        "primaryPercent": null,
+        "buckets": [],
+        "status": "unauthenticated",
+        "fetchedAt": "2026-08-27T11:22:00.000Z"
+      },
+      "note": "primaryPercent must be absent, never 0: a provider that was never asked is not a provider at zero usage."
+    },
+    {
+      "name": "codex",
+      "input": "codex",
+      "expected": {
+        "providerId": "codex",
+        "displayName": "Codex",
+        "iconId": "codex",
+        "primaryPercent": null,
+        "buckets": [],
+        "status": "unauthenticated",
+        "fetchedAt": "2026-08-27T11:22:00.000Z"
+      }
+    },
+    {
+      "name": "grok",
+      "input": "grok",
+      "expected": {
+        "providerId": "grok",
+        "displayName": "Grok",
+        "iconId": "grok",
+        "primaryPercent": null,
+        "buckets": [],
+        "status": "unauthenticated",
+        "fetchedAt": "2026-08-27T11:22:00.000Z"
+      }
+    },
+    {
+      "name": "cursor",
+      "input": "cursor",
+      "expected": {
+        "providerId": "cursor",
+        "displayName": "Cursor",
+        "iconId": "cursor",
+        "primaryPercent": null,
+        "buckets": [],
+        "status": "unauthenticated",
+        "fetchedAt": "2026-08-27T11:22:00.000Z"
+      }
+    },
+    {
+      "name": "copilot",
+      "input": "copilot",
+      "expected": {
+        "providerId": "copilot",
+        "displayName": "Copilot",
+        "iconId": "copilot",
+        "primaryPercent": null,
+        "buckets": [],
+        "status": "unauthenticated",
+        "fetchedAt": "2026-08-27T11:22:00.000Z"
+      }
+    }
+  ]
+}

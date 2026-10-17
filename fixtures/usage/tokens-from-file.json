@@ -1,0 +1,95 @@
+{
+  "about": "grokTokenFromFile / copilotTokenFromApps / cursorTokenFromHex — pulling a token out of a tool's own auth file",
+  "cases": [
+    {
+      "name": "grok: JWT nested under the sign-in URL",
+      "input": {
+        "reader": "grok",
+        "raw": "{\"https://accounts.x.ai/sign-in\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+      },
+      "expected": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig"
+    },
+    {
+      "name": "grok: an expired entry is still read",
+      "input": {
+        "reader": "grok",
+        "raw": "{\"https://accounts.x.ai/sign-in\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\",\"expires_at\":\"2020-01-01T00:00:00Z\",\"user_id\":\"user-1\"}}"
+      },
+      "expected": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+      "note": "Expiry is the provider's call to make, not Capsule's. Refusing a stale-looking token locally only turns a working read into a blank meter."
+    },
+    {
+      "name": "grok: no token",
+      "input": {
+        "reader": "grok",
+        "raw": "{}"
+      },
+      "expected": null
+    },
+    {
+      "name": "copilot: oauth_token under a host key",
+      "input": {
+        "reader": "copilot",
+        "raw": "{\"github.com:Iv1.abc\":{\"oauth_token\":\"gho_x\"}}"
+      },
+      "expected": "gho_x"
+    },
+    {
+      "name": "copilot: no token",
+      "input": {
+        "reader": "copilot",
+        "raw": "{}"
+      },
+      "expected": null
+    },
+    {
+      "name": "copilot: unparseable file",
+      "input": {
+        "reader": "copilot",
+        "raw": "garbage"
+      },
+      "expected": null
+    },
+    {
+      "name": "cursor: hex-encoded JWT from the state store",
+      "input": {
+        "reader": "cursor-hex",
+        "raw": "782e65794a7a645749694f694a3163325679587a5179496e302e79"
+      },
+      "expected": "x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+      "note": "Cursor's state store hands the token back hex-encoded."
+    },
+    {
+      "name": "cursor: a token that is already plain passes through",
+      "input": {
+        "reader": "cursor-hex",
+        "raw": "x.eyJzdWIiOiJ1c2VyXzQyIn0.y"
+      },
+      "expected": "x.eyJzdWIiOiJ1c2VyXzQyIn0.y"
+    },
+    {
+      "name": "cursor: blank input",
+      "input": {
+        "reader": "cursor-hex",
+        "raw": "  "
+      },
+      "expected": null
+    },
+    {
+      "name": "cursor: subject read off the JWT payload",
+      "input": {
+        "reader": "cursor-subject",
+        "raw": "x.eyJzdWIiOiJ1c2VyXzQyIn0.y"
+      },
+      "expected": "user_42"
+    },
+    {
+      "name": "cursor: subject of a non-JWT",
+      "input": {
+        "reader": "cursor-subject",
+        "raw": "nope"
+      },
+      "expected": null
+    }
+  ]
+}

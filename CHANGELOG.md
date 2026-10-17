@@ -2,6 +2,24 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Native migration, phase 0 — fixture corpus
+
+### Added
+
+- Added `fixtures/`, a JSON corpus of extracted test cases read by both the TypeScript suites and, from phase 1, the Swift suites. It is how the Swift/AppKit migration transfers proven behaviour instead of re-deriving it. 99 cases across 21 files so far: usage mapping, token reading, snapshot merging, backoff, reset-time formatting, severity bands, and token-count formatting.
+- Added `@capsule/fixtures`, the loader for that corpus. It refuses a fixture with no cases, throws rather than falling back to the real clock when a case declares a frozen `now`, and can re-record provider-mapping expectations under `CAPSULE_WRITE_FIXTURES=1`.
+- Added `fixtures/README.md` covering the file shape, hand-written versus recorded expectations, what stayed inline as deliberately not portable, and what phase 0 still has to extract.
+
+### Changed
+
+- Re-pointed the date, severity, clamp, backoff, token-count and provider-mapping tests at the corpus. Each case is now its own test, so the suites report per-case rather than per-group.
+- Provider mapping tests now assert the whole mapped snapshot rather than the few fields a hand-written assertion reached for, which is what a Swift port has to reproduce.
+- Every package's `test` script pins `TZ=UTC`. There was no vitest config and no timezone pinning, so the date tests passed only because local-time construction and local formatting cancelled out; a corpus shared with Swift cannot rely on that.
+
+### Fixed
+
+- Nothing yet, but the extraction found a bug worth naming: given a payload carrying no utilization, `mapClaudeUsage`, `mapCodexUsage` and `mapGrokCredits` return `0%` with status `ok`, and Claude and Grok also fabricate a bucket. Cursor and Copilot correctly return nothing. A successful response Capsule does not understand therefore shows a confident `0% Used`. The cases are recorded as-is and flagged in their notes; the fix belongs in the TypeScript app before the port, not after.
+
 ## Public-repo privacy sweep
 
 ### Changed

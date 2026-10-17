@@ -1,0 +1,17 @@
+{
+  "about": "formatAgo(since, now) — the same span as formatElapsed, phrased as a point in the past",
+  "timeZone": "UTC",
+  "frozenNow": "2026-08-27T11:22:00Z",
+  "cases": [
+    {
+      "name": "this instant is not given an ago suffix",
+      "input": { "msBeforeNow": 0 },
+      "expected": "just now"
+    },
+    {
+      "name": "minutes take the suffix",
+      "input": { "msBeforeNow": 720000 },
+      "expected": "12 min ago"
+    }
+  ]
+}

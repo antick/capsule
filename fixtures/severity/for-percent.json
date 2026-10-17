@@ -1,0 +1,20 @@
+{
+  "about": "severityForPercent(percent) — which band a usage percent falls in",
+  "cases": [
+    { "name": "low", "input": 21, "expected": "low" },
+    { "name": "mid", "input": 52, "expected": "mid" },
+    { "name": "high", "input": 73, "expected": "high" },
+    { "name": "critical", "input": 95, "expected": "critical" },
+    {
+      "name": "top of low",
+      "input": 39,
+      "expected": "low",
+      "note": "Band edges are inclusive; these six cases pin both sides of each edge."
+    },
+    { "name": "bottom of mid", "input": 40, "expected": "mid" },
+    { "name": "top of mid", "input": 69, "expected": "mid" },
+    { "name": "bottom of high", "input": 70, "expected": "high" },
+    { "name": "top of high", "input": 89, "expected": "high" },
+    { "name": "bottom of critical", "input": 90, "expected": "critical" }
+  ]
+}

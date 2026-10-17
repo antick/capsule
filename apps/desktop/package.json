@@ -13,7 +13,7 @@
     "format": "biome format --write .",
     "check": "biome check .",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
-    "test": "vitest run",
+    "test": "TZ=UTC vitest run",
     "dist": "node ../../scripts/release-notes.mjs && electron-vite build && electron-builder --mac --publish never",
     "release": "node ../../scripts/release-notes.mjs && electron-vite build && electron-builder --mac --publish always"
   },

@@ -1,3 +1,4 @@
+import { type FixtureFile, frozenNow, loadFixture } from "@capsule/fixtures";
 import { describe, expect, it } from "vitest";
 import {
   formatAgo,
@@ -7,70 +8,79 @@ import {
   formatResetRelative,
 } from "./index.ts";
 
-describe("formatResetRelative", () => {
-  it("formats fifty-one minutes", () => {
-    const now = new Date("2026-08-27T11:22:00");
-    const resetsAt = new Date("2026-08-27T12:13:00");
-    expect(formatResetRelative(resetsAt, now)).toBe("Resets in 51 min");
-  });
+/** A case whose `since` is given as a distance back from `frozenNow`. */
+interface SpanInput {
+  msBeforeNow: number;
+}
 
-  it("formats two hours ten minutes", () => {
-    const now = new Date("2026-08-27T11:22:00");
-    const resetsAt = new Date("2026-08-27T13:32:00");
-    expect(formatResetRelative(resetsAt, now)).toBe("Resets in 2h 10 min");
-  });
+function spanCases(path: string): [FixtureFile<SpanInput, string>, Date] {
+  const file = loadFixture<SpanInput, string>(path);
+  return [file, frozenNow(file)];
+}
+
+describe("formatResetRelative", () => {
+  const file = loadFixture<{ resetsAt: string }, string>(
+    "dates/reset-relative",
+  );
+  const now = frozenNow(file);
+
+  for (const testCase of file.cases) {
+    it(testCase.name, () => {
+      expect(formatResetRelative(new Date(testCase.input.resetsAt), now)).toBe(
+        testCase.expected,
+      );
+    });
+  }
 });
 
 describe("formatResetAbsolute", () => {
-  const now = new Date("2026-08-27T11:22:00");
+  const file = loadFixture<{ resetsAt: string }, string>(
+    "dates/reset-absolute",
+  );
+  const now = frozenNow(file);
 
-  it("formats Thursday midnight", () => {
-    const resetsAt = new Date("2026-09-03T00:00:00");
-    expect(formatResetAbsolute(resetsAt, "en-US", now)).toBe(
-      "Resets Thu 12:00 AM",
-    );
-  });
-
-  it("says today and tomorrow when that is what they are", () => {
-    expect(
-      formatResetAbsolute(new Date("2026-08-27T15:00:00"), "en-US", now),
-    ).toBe("Resets today 3:00 PM");
-    expect(
-      formatResetAbsolute(new Date("2026-08-28T00:00:00"), "en-US", now),
-    ).toBe("Resets tomorrow 12:00 AM");
-    expect(
-      formatResetAbsolute(new Date("2026-08-29T09:30:00"), "en-US", now),
-    ).toBe("Resets Sat 9:30 AM");
-  });
-});
-
-describe("formatResetCopy", () => {
-  it("uses relative style under 24 hours", () => {
-    const now = new Date("2026-08-27T11:22:00");
-    expect(
-      formatResetCopy("2026-08-27T12:13:00.000Z", "relative", now, "en-US"),
-    ).toMatch(/^Resets in /);
-  });
+  for (const testCase of file.cases) {
+    it(testCase.name, () => {
+      expect(
+        formatResetAbsolute(
+          new Date(testCase.input.resetsAt),
+          file.locale ?? "en-US",
+          now,
+        ),
+      ).toBe(testCase.expected);
+    });
+  }
 });
 
 describe("formatElapsed", () => {
-  const now = new Date("2026-08-27T11:22:00");
-  const ago = (ms: number) => new Date(now.getTime() - ms);
+  const [file, now] = spanCases("dates/elapsed");
 
-  it("rounds anything under forty-five seconds to just now", () => {
-    expect(formatElapsed(ago(0), now)).toBe("just now");
-    expect(formatElapsed(ago(44_000), now)).toBe("just now");
-  });
+  for (const testCase of file.cases) {
+    it(testCase.name, () => {
+      const since = new Date(now.getTime() - testCase.input.msBeforeNow);
+      expect(formatElapsed(since, now)).toBe(testCase.expected);
+    });
+  }
+});
 
-  it("counts minutes, then hours and minutes", () => {
-    expect(formatElapsed(ago(45_000), now)).toBe("1 min");
-    expect(formatElapsed(ago(3 * 60_000), now)).toBe("3 min");
-    expect(formatElapsed(ago(2 * 60 * 60_000), now)).toBe("2 hr");
-    expect(formatElapsed(ago(125 * 60_000), now)).toBe("2 hr 5 min");
-  });
+describe("formatAgo", () => {
+  const [file, now] = spanCases("dates/ago");
 
-  it("phrases the same span as a point in the past", () => {
-    expect(formatAgo(ago(0), now)).toBe("just now");
-    expect(formatAgo(ago(12 * 60_000), now)).toBe("12 min ago");
+  for (const testCase of file.cases) {
+    it(testCase.name, () => {
+      const since = new Date(now.getTime() - testCase.input.msBeforeNow);
+      expect(formatAgo(since, now)).toBe(testCase.expected);
+    });
+  }
+});
+
+describe("formatResetCopy", () => {
+  // Not a fixture case: the assertion is a shape, not a value, so there is
+  // nothing for a Swift suite to compare against.
+  it("uses relative style under 24 hours", () => {
+    const now = new Date("2026-08-27T11:22:00Z");
+    expect(
+      formatResetCopy("2026-08-27T12:13:00.000Z", "relative", now, "en-US"),
+    ).toMatch(/^Resets in /);
   });
 });

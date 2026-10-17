@@ -11,12 +11,13 @@
     "format": "biome format --write .",
     "check": "biome check .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "TZ=UTC vitest run"
   },
   "dependencies": {
     "@capsule/config": "workspace:*"
   },
   "devDependencies": {
+    "@capsule/fixtures": "workspace:*",
     "@capsule/tsconfig": "workspace:*",
     "@types/node": "24.2.0",
     "typescript": "5.9.3",

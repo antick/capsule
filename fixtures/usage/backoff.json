@@ -1,0 +1,41 @@
+{
+  "about": "backoffMs(refusals, retryAfterMs) — how long to wait after a rate-limited usage read",
+  "cases": [
+    {
+      "name": "first refusal waits the floor",
+      "input": { "refusals": 1, "retryAfterMs": null },
+      "expected": 60000
+    },
+    {
+      "name": "second refusal doubles",
+      "input": { "refusals": 2, "retryAfterMs": null },
+      "expected": 120000
+    },
+    {
+      "name": "third refusal doubles again",
+      "input": { "refusals": 3, "retryAfterMs": null },
+      "expected": 240000
+    },
+    {
+      "name": "refusals past the doubling limit sit at the ceiling",
+      "input": { "refusals": 9, "retryAfterMs": null },
+      "expected": 900000
+    },
+    {
+      "name": "a zero hint does not mean retry now",
+      "input": { "refusals": 1, "retryAfterMs": 0 },
+      "expected": 60000,
+      "note": "Obeying Retry-After: 0 is what keeps a client rate limited. The hint may only raise the floor."
+    },
+    {
+      "name": "a hint above the floor is obeyed",
+      "input": { "refusals": 1, "retryAfterMs": 180000 },
+      "expected": 180000
+    },
+    {
+      "name": "a hint above the ceiling is capped",
+      "input": { "refusals": 1, "retryAfterMs": 3600000 },
+      "expected": 900000
+    }
+  ]
+}

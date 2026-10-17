@@ -1,0 +1,97 @@
+{
+  "about": "mapCursorUsage(payload, now) — Cursor plan usage to a Capsule snapshot",
+  "timeZone": "UTC",
+  "frozenNow": "2026-08-27T11:22:00Z",
+  "cases": [
+    {
+      "name": "the plan states its own percentage",
+      "input": {
+        "billingCycleEnd": "2026-09-01T00:00:00Z",
+        "individualUsage": {
+          "plan": {
+            "totalPercentUsed": 42.4
+          }
+        }
+      },
+      "expected": {
+        "providerId": "cursor",
+        "displayName": "Cursor",
+        "iconId": "cursor",
+        "primaryPercent": 42.4,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": [
+          {
+            "id": "plan",
+            "label": "Plan usage",
+            "percentUsed": 42.4,
+            "resetsAt": "2026-09-01T00:00:00.000Z",
+            "resetStyle": "absolute"
+          }
+        ]
+      },
+      "note": "Fractional percents are kept, not rounded."
+    },
+    {
+      "name": "percentage worked out from used and limit",
+      "input": {
+        "individualUsage": {
+          "overall": {
+            "used": 150,
+            "limit": 500
+          }
+        }
+      },
+      "expected": {
+        "providerId": "cursor",
+        "displayName": "Cursor",
+        "iconId": "cursor",
+        "primaryPercent": 30,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": [
+          {
+            "id": "plan",
+            "label": "Plan usage",
+            "percentUsed": 30,
+            "resetsAt": "2026-08-27T11:22:00.000Z",
+            "resetStyle": "absolute"
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty payload yields no buckets",
+      "input": {},
+      "expected": {
+        "providerId": "cursor",
+        "displayName": "Cursor",
+        "iconId": "cursor",
+        "primaryPercent": null,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": []
+      }
+    },
+    {
+      "name": "a zero limit does not divide by zero",
+      "input": {
+        "individualUsage": {
+          "overall": {
+            "used": 10,
+            "limit": 0
+          }
+        }
+      },
+      "expected": {
+        "providerId": "cursor",
+        "displayName": "Cursor",
+        "iconId": "cursor",
+        "primaryPercent": null,
+        "status": "ok",
+        "fetchedAt": "2026-08-27T11:22:00.000Z",
+        "buckets": []
+      }
+    }
+  ]
+}
