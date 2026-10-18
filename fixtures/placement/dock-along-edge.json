@@ -420,6 +420,69 @@
         "window": 1090,
         "railBias": 0
       }
+    },
+    {
+      "name": "card overhang, centring lands on a half point near the start",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 720,
+          "railLength": 262,
+          "gutter": 18,
+          "slack": 231,
+          "windowMin": -18,
+          "windowMax": 471
+        },
+        "railStart": 120
+      },
+      "expected": {
+        "window": -13,
+        "railBias": 115
+      },
+      "note": "Slack of 231 puts the centred window on a half point. The rail bias is measured from the rounded window, so the rail lands exactly at railStart; rounding the two apart drew it a point off."
+    },
+    {
+      "name": "card overhang, centring lands on a half point mid-track",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 720,
+          "railLength": 262,
+          "gutter": 18,
+          "slack": 231,
+          "windowMin": -18,
+          "windowMax": 471
+        },
+        "railStart": 300
+      },
+      "expected": {
+        "window": 167,
+        "railBias": 115
+      },
+      "note": "Slack of 231 puts the centred window on a half point. The rail bias is measured from the rounded window, so the rail lands exactly at railStart; rounding the two apart drew it a point off."
+    },
+    {
+      "name": "card overhang, window stopped at the start",
+      "input": {
+        "track": {
+          "axis": "y",
+          "min": 0,
+          "max": 720,
+          "railLength": 262,
+          "gutter": 18,
+          "slack": 231,
+          "windowMin": -18,
+          "windowMax": 471
+        },
+        "railStart": 10
+      },
+      "expected": {
+        "window": -18,
+        "railBias": 10
+      },
+      "note": "Centring would put the window above the screen, so it stops at its minimum and the rail slides on within the slack."
     }
   ]
 }

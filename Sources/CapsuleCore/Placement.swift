@@ -67,9 +67,11 @@ public func dockAlongEdge(_ track: SlideTrack, railStart: Double)
 {
   let rail = clamp(railStart, track.min, track.max)
   let centred = rail - track.gutter - track.slack / 2
-  let window = clamp(centred, track.windowMin, track.windowMax)
+  let window = jsRound(clamp(centred, track.windowMin, track.windowMax))
+  // The bias is measured from the window as it actually lands. Rounding the
+  // two apart left the rail a point from where it was put.
   return (
-    window: jsRound(window),
+    window: window,
     railBias: clamp(
       jsRound(rail - window - track.gutter), 0, jsRound(track.slack)
     )

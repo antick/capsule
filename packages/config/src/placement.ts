@@ -240,9 +240,11 @@ export function dockAlongEdge(
 ): { window: number; railBias: number } {
   const rail = clamp(railStart, track.min, track.max);
   const centred = rail - track.gutter - track.slack / 2;
-  const window = clamp(centred, track.windowMin, track.windowMax);
+  const window = Math.round(clamp(centred, track.windowMin, track.windowMax));
+  // The bias is measured from the window as it actually lands. Rounding the
+  // two apart left the rail a point from where it was put.
   return {
-    window: Math.round(window),
+    window,
     railBias: clamp(
       Math.round(rail - window - track.gutter),
       0,
