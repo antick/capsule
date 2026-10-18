@@ -14,6 +14,8 @@ All notable changes to Capsule are documented in this file.
 
 ### Fixed
 
+- A usage request that gets no answer now gives up after 15 seconds instead of 60. Providers are read one after another, so one blocked endpoint held every other reading up by a minute.
+- Failed reads, rate limits, and Claude falling back to its cached reading are logged with their reason (a status, never a token), so a stale reading can be explained.
 - Raw JSON could pop up in the card as an activity notice. Codex runs internal "guardian" reviewers as sub-agent threads, and their final message is a JSON verdict, which became a "task completed" notice. Codex sub-agent threads, guardians and spawned children alike, are no longer listed as sessions, and a summary that is itself a JSON object or array is never shown.
 
 ## Copilot removed

@@ -138,5 +138,10 @@ public enum PollerTuning {
   public static let comeBackGapMs = 60_000.0
   /// The quickest a click on the same meter reads its provider again.
   public static let manualRefreshGapMs = 15_000.0
+  /// How long a usage request may wait for an answer, and for the whole
+  /// response. Providers answer in a second or two; reads go one after
+  /// another, so one stuck endpoint must not hold the rest up for minutes.
+  public static let requestTimeoutSeconds = 15.0
+  public static let responseTimeoutSeconds = 30.0
 }
 

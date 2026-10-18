@@ -1,5 +1,6 @@
 import CapsuleCore
 import Foundation
+import os
 
 /// What the poller needs beyond a provider's read: a clock, and somewhere to
 /// remember penalties and readings across launches.
@@ -116,10 +117,15 @@ public actor UsagePoller {
     } catch let refusal as RateLimited {
       let attempt = (refusals[key] ?? 0) + 1
       refusals[key] = attempt
-      blockedUntil[key] = now + Double(backoffMs(refusals: attempt, retryAfterMs: refusal.retryAfterMs))
+      let wait = backoffMs(refusals: attempt, retryAfterMs: refusal.retryAfterMs)
+      blockedUntil[key] = now + Double(wait)
       host.saveBackoff(blockedUntil)
+      UsageLog.poller.notice("\(key, privacy: .public) rate limited; asking again in \(wait / 1000, privacy: .public) s")
       if let fallback = refusal.fallback { return mergeSnapshot(previous: previous, next: fallback) }
-    } catch {}
+    } catch {
+      // What went wrong, never what was sent: a status, or the kind of error.
+      UsageLog.poller.notice("\(key, privacy: .public) read failed: \(describe(error), privacy: .public)")
+    }
     return heldBack(provider.id, previous: previous)
   }
 
@@ -232,4 +238,19 @@ public actor UsagePoller {
 
   /// The network came back.
   public func online() async { await refresh() }
+}
+
+/// The poller's log: providers, statuses and waits only.
+enum UsageLog {
+  static let poller = Logger(subsystem: AppIdentity.logSubsystem, category: "usage")
+}
+
+/// A failed read in a few words, safe to log.
+private func describe(_ error: Error) -> String {
+  switch error {
+  case UsageReadError.http(_, let status): return "HTTP \(status)"
+  case UsageReadError.unreadable: return "unreadable response"
+  case let url as URLError: return "network error \(url.code.rawValue)"
+  default: return String(describing: type(of: error))
+  }
 }

@@ -80,7 +80,15 @@ public struct ClaudeUsageProvider: UsageProvider {
     if let refused {
       throw RateLimited(retryAfterMs: refused.retryAfterMs, fallback: cached)
     }
-    if let cached { return cached }
+    if let cached {
+      // The live read failed, so say why: the cache would otherwise hide it.
+      let reason =
+        tokens.isEmpty
+        ? "no token in the keychain or the credentials file"
+        : lastError.map { "\($0)" } ?? "every token was rejected"
+      UsageLog.poller.notice("claude showing its cached reading: \(reason, privacy: .public)")
+      return cached
+    }
     if let lastError { throw lastError }
     return unauthenticatedSnapshot(id, fetchedAt: now)
   }

@@ -17,6 +17,8 @@ public struct MacUsageHost: UsageHost {
     configuration.httpCookieAcceptPolicy = .never
     configuration.urlCache = nil
     configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+    configuration.timeoutIntervalForRequest = PollerTuning.requestTimeoutSeconds
+    configuration.timeoutIntervalForResource = PollerTuning.responseTimeoutSeconds
     session = URLSession(configuration: configuration)
   }
 
