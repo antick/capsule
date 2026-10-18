@@ -240,3 +240,63 @@ struct PollerTests {
     #expect(await poller.snapshots.map(\.providerId) == SettingsDefaults.enabledProviderIds)
   }
 }
+
+@Suite("Poller with a provider it cannot read")
+struct UnreadableProviderTests {
+  /// Demo mode reads Claude, Codex and Grok; Cursor switched on has no reader.
+  @Test func anEnabledProviderWithNoReaderNeitherLoopsNorSpins() async {
+    var settings = CapsuleSettings.defaults
+    settings.enabledProviderIds = [.claude, .codex, .grok, .cursor]
+    let frozen = settings
+    let reads = Counter()
+    let poller = UsagePoller(
+      providers: [ProviderId.claude, .codex, .grok].map { CountingProvider(id: $0, reads: reads) },
+      host: StubPollerHost(),
+      settings: { frozen },
+      onChange: { _ in }
+    )
+    // As the app starts it: placeholders first, then the first read.
+    await poller.start()
+    // One pass: three reads, not a refresh queued after every refresh.
+    #expect(await reads.value == 3)
+    let snapshots = await poller.snapshots
+    #expect(snapshots.map(\.providerId) == [.claude, .codex, .grok, .cursor])
+    #expect(snapshots.allSatisfy { $0.refreshing != true })
+  }
+}
+
+actor Counter {
+  private(set) var value = 0
+  func bump() { value += 1 }
+}
+
+struct CountingProvider: UsageProvider {
+  let id: ProviderId
+  let reads: Counter
+
+  func fetchSnapshot(_ host: UsageHost, now: Date) async throws -> UsageSnapshot {
+    await reads.bump()
+    return UsageSnapshot(
+      providerId: id, displayName: ProviderLabels.label(id), iconId: id, primaryPercent: 10, buckets: [],
+      status: .ok, fetchedAt: isoString(now))
+  }
+}
+
+struct StubPollerHost: PollerHost {
+  struct NoNetwork: UsageHost {
+    var homeDir: String { "/nonexistent" }
+    func send(_ request: HTTPRequest) async throws -> HTTPResponse { throw URLError(.notConnectedToInternet) }
+    func readFile(_ path: String) async -> String? { nil }
+    func readSecret(_ service: String) async -> String? { nil }
+    func runCommand(_ file: String, _ arguments: [String]) async -> String? { nil }
+    func query(_ database: String, _ sql: String) async -> [[String]] { [] }
+    func environment(_ name: String) -> String? { nil }
+  }
+
+  var usage: UsageHost { NoNetwork() }
+  func now() -> Date { Date(timeIntervalSince1970: 1_800_000_000) }
+  func loadBackoff() -> [String: Double] { [:] }
+  func saveBackoff(_ until: [String: Double]) {}
+  func loadSnapshots() -> [UsageSnapshot] { [] }
+  func saveSnapshots(_ snapshots: [UsageSnapshot]) {}
+}

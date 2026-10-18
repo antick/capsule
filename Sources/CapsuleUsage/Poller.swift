@@ -133,9 +133,13 @@ public actor UsagePoller {
   /// Returns whether a follow-up refresh is needed.
   private func refreshBody() async -> Bool {
     let enabled = Set(settings().enabledProviderIds)
+    // Only a provider this poller can read is waited on. Demo mode reads
+    // three; a fourth switched on would otherwise be flagged as refreshing
+    // for good, its sweep spinning without end.
+    let readable = Set(providers.map(\.id))
     // Fetched in turn, so clearing each flag as it lands settles the rail in
     // order rather than all at once.
-    var pending = enabled
+    var pending = enabled.intersection(readable)
     markRefreshing(pending)
     var fetched: [UsageSnapshot] = []
     for provider in providers where enabled.contains(provider.id) {
@@ -162,7 +166,9 @@ public actor UsagePoller {
     // the placeholders are the default set, none of them read — so it queues
     // refresh after refresh forever. That loop is fixed separately in the
     // TypeScript; this rule is the corrected one.
-    return enabledNow.contains { id in !fetched.contains { $0.providerId == id } }
+    // A provider with no reader is never read, so it never asks for one:
+    // asking would refresh in a loop, and every pass re-flags every ring.
+    return enabledNow.contains { id in readable.contains(id) && !fetched.contains { $0.providerId == id } }
   }
 
   /// Re-reads one provider, for when the user asks for that one.
