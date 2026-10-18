@@ -6,6 +6,8 @@ public enum ActivityTuning {
   public static let codexStaleAfterMs = 8_000.0
   /// How often the monitor looks again without a file event to prompt it.
   public static let pollMs = 2_000.0
+  /// A burst of session-file writes becomes one rescan this long after the last.
+  public static let watchDebounceMs = 120.0
   /// A process whose start differs from the record's by more than this is a
   /// different process that happens to have the same pid.
   public static let pidReuseToleranceMs = 300_000.0

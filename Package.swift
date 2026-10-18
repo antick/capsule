@@ -17,6 +17,7 @@ let package = Package(
     .library(name: "CapsuleHUD", targets: ["CapsuleHUD"]),
     .library(name: "CapsuleActivity", targets: ["CapsuleActivity"]),
     .library(name: "CapsuleSystem", targets: ["CapsuleSystem"]),
+    .executable(name: "CapsuleApp", targets: ["CapsuleApp"]),
   ],
   targets: [
     .target(name: "CapsuleCore"),
@@ -31,6 +32,15 @@ let package = Package(
       dependencies: ["CapsuleCore", "CapsuleUsage", "CapsuleActivity"],
       linkerSettings: [.linkedLibrary("sqlite3")]
     ),
+    // The AppKit shell: the dock's panel, the menu-bar item, and the Mac's
+    // timers and notifications driving the logic modules on the real hosts.
+    .target(
+      name: "CapsuleShell",
+      dependencies: ["CapsuleCore", "CapsuleUsage", "CapsuleHUD", "CapsuleActivity", "CapsuleSystem"]
+    ),
+    // The app itself. `scripts/bundle-macos.sh` wraps it in Capsule.app with
+    // `Support/CapsuleApp/Info.plist`.
+    .executableTarget(name: "CapsuleApp", dependencies: ["CapsuleCore", "CapsuleShell", "CapsuleSystem"]),
     // Test support: reads the same JSON corpus the Vitest suites read.
     .target(name: "CapsuleFixtures"),
     .testTarget(
@@ -50,5 +60,9 @@ let package = Package(
       dependencies: ["CapsuleActivity", "CapsuleFixtures"]
     ),
     .testTarget(name: "CapsuleSystemTests", dependencies: ["CapsuleSystem"]),
+    .testTarget(
+      name: "CapsuleShellTests",
+      dependencies: ["CapsuleShell", "CapsuleCore", "CapsuleHUD"]
+    ),
   ]
 )

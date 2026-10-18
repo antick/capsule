@@ -1,3 +1,4 @@
+import CapsuleCore
 import CoreServices
 import Foundation
 
@@ -11,7 +12,10 @@ public final class DirectoryWatcher: @unchecked Sendable {
   private let onChange: @Sendable () -> Void
 
   /// Nil when the directory cannot be watched; the poll still covers it.
-  public init?(_ dir: String, latency: TimeInterval = 0.12, onChange: @escaping @Sendable () -> Void) {
+  public init?(
+    _ dir: String, latency: TimeInterval = ActivityTuning.watchDebounceMs / 1000,
+    onChange: @escaping @Sendable () -> Void
+  ) {
     self.onChange = onChange
     var context = FSEventStreamContext(
       version: 0, info: Unmanaged.passUnretained(self).toOpaque(), retain: nil, release: nil, copyDescription: nil
