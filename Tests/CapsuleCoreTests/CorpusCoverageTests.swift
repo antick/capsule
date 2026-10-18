@@ -88,17 +88,18 @@ struct CorpusCoverageTests {
     "activity/monitor",
     "activity/token-scan",
     "activity/token-scanner",
-  ]
-
-  /// Fixtures whose Swift port has not landed. Must be empty by the end of
-  /// Phase 1; anything left here at that point is a gap, not a plan.
-  static let notYetPorted: Set<String> = [
+    // updates
     "updates/format-bytes",
     "updates/format-progress",
     "updates/initial-state",
     "updates/plain-release-notes",
     "updates/release-url",
     "updates/wording",
+  ]
+
+  /// Fixtures whose Swift port has not landed. Must be empty by the end of
+  /// Phase 1; anything left here at that point is a gap, not a plan.
+  static let notYetPorted: Set<String> = [
   ]
 
   /// Fixtures the native app deliberately does not match, each with the

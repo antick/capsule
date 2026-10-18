@@ -108,3 +108,36 @@ struct DockStyleTests {
     #expect(!styleSupportsNotch(.tray))
   }
 }
+
+@Suite("Settings document")
+struct SettingsDocumentTests {
+  @Test func defaultsRoundTrip() throws {
+    let data = try #require(CapsuleSettings.defaults.documentData)
+    #expect(CapsuleSettings.read(data: data) == .defaults)
+  }
+
+  @Test func everyFieldRoundTrips() throws {
+    var settings = CapsuleSettings.defaults
+    settings.placementPreset = .topEdge
+    settings.enabledProviderIds = [.codex, .cursor]
+    settings.demoMode = true
+    settings.pollIntervalMs = 300_000
+    settings.hudScale = 1.2
+    settings.hudTheme = .ink
+    settings.dockStyle = .tray
+    settings.autoHide = false
+    settings.hideDelay = .relaxed
+    settings.topEdgeNotch = false
+    settings.usageDisplay = .remaining
+    settings.customPosition = DockPosition(x: 120, y: 0)
+    let data = try #require(settings.documentData)
+    #expect(CapsuleSettings.read(data: data) == settings)
+  }
+
+  @Test func absentValuesAreWrittenAsNull() throws {
+    let data = try #require(CapsuleSettings.defaults.documentData)
+    let text = String(decoding: data, as: UTF8.self)
+    #expect(text.contains("\"customPosition\" : null"))
+    #expect(text.contains("\"customCorner\" : null"))
+  }
+}
