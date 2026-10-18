@@ -1,5 +1,5 @@
 {
-  "about": "grokTokenFromFile / copilotTokenFromApps / cursorTokenFromHex — pulling a token out of a tool's own auth file",
+  "about": "grokTokenFromFile / cursorTokenFromHex — pulling a token out of a tool's own auth file",
   "cases": [
     {
       "name": "grok: JWT nested under the sign-in URL",
@@ -23,30 +23,6 @@
       "input": {
         "reader": "grok",
         "raw": "{}"
-      },
-      "expected": null
-    },
-    {
-      "name": "copilot: oauth_token under a host key",
-      "input": {
-        "reader": "copilot",
-        "raw": "{\"github.com:Iv1.abc\":{\"oauth_token\":\"gho_x\"}}"
-      },
-      "expected": "gho_x"
-    },
-    {
-      "name": "copilot: no token",
-      "input": {
-        "reader": "copilot",
-        "raw": "{}"
-      },
-      "expected": null
-    },
-    {
-      "name": "copilot: unparseable file",
-      "input": {
-        "reader": "copilot",
-        "raw": "garbage"
       },
       "expected": null
     },

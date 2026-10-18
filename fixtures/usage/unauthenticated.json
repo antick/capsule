@@ -55,19 +55,6 @@
         "status": "unauthenticated",
         "fetchedAt": "2026-08-27T11:22:00.000Z"
       }
-    },
-    {
-      "name": "copilot",
-      "input": "copilot",
-      "expected": {
-        "providerId": "copilot",
-        "displayName": "Copilot",
-        "iconId": "copilot",
-        "primaryPercent": null,
-        "buckets": [],
-        "status": "unauthenticated",
-        "fetchedAt": "2026-08-27T11:22:00.000Z"
-      }
     }
   ]
 }

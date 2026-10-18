@@ -98,7 +98,7 @@ extension Copy {
   public static let showDockHint =
     "Unrolls the dock and holds it there for a few seconds, for when you have lost track of the latch."
   public static let providersHint =
-    "Capsule reads the logins these tools already keep on this Mac. Turn one off to hide its ring; Cursor and Copilot start off."
+    "Capsule reads the logins these tools already keep on this Mac. Turn one off to hide its ring; Cursor starts off."
   public static let notificationPopups = "Show notification popups"
   public static let notificationPopupsHint =
     "Open a popup for new activity. When off, an animated provider icon and unread count let you know."

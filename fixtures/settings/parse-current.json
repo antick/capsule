@@ -212,7 +212,7 @@
       }
     },
     {
-      "name": "every provider",
+      "name": "every provider, with a retired one dropped",
       "input": {
         "placementPreset": "right-edge",
         "enabledProviderIds": [
@@ -247,8 +247,7 @@
             "claude",
             "codex",
             "grok",
-            "cursor",
-            "copilot"
+            "cursor"
           ],
           "demoMode": false,
           "pollIntervalMs": 60000,
@@ -268,7 +267,8 @@
           "customPosition": null,
           "schemaVersion": 7
         }
-      }
+      },
+      "note": "Copilot was removed from the app. A file that still lists it keeps every other setting; the retired id is dropped rather than refusing the file."
     },
     {
       "name": "usage counted as remaining",

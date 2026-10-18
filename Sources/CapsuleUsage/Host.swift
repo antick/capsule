@@ -43,8 +43,6 @@ public protocol UsageHost: Sendable {
   func readFile(_ path: String) async -> String?
   /// A generic-password item from the login keychain.
   func readSecret(_ service: String) async -> String?
-  /// What a local command printed, or nil if it failed or is not installed.
-  func runCommand(_ file: String, _ arguments: [String]) async -> String?
   /// Rows from a read-only SQL query, or none if the store cannot be read.
   func query(_ database: String, _ sql: String) async -> [[String]]
   func environment(_ name: String) -> String?

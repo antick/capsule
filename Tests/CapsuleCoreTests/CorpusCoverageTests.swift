@@ -25,7 +25,6 @@ struct CorpusCoverageTests {
     "usage/claude-cache",
     "usage/claude-mapping",
     "usage/codex-mapping",
-    "usage/copilot-mapping",
     "usage/cursor-mapping",
     "usage/grok-echo-row",
     "usage/grok-mapping",

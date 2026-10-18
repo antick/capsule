@@ -56,33 +56,6 @@ struct SQLiteTests {
   }
 }
 
-@Suite("Running local commands")
-struct CommandTests {
-  @Test("output of a command named by path, and one found on PATH")
-  func output() async {
-    #expect(await runCommand("/bin/echo", ["hi"]) == "hi\n")
-    #expect(await runCommand("echo", ["on", "path"]) == "on path\n")
-  }
-
-  @Test("a failing, missing or hung command is nil")
-  func failures() async {
-    #expect(await runCommand("/usr/bin/false", []) == nil)
-    #expect(await runCommand("capsule-no-such-tool-\(UUID().uuidString)", []) == nil)
-    let started = Date()
-    #expect(await runCommand("/bin/sleep", ["5"], timeout: 0.3) == nil)
-    #expect(Date().timeIntervalSince(started) < 3, "the timeout ended it")
-  }
-
-  @Test("PATH gains Homebrew's directories without repeating any")
-  func path() {
-    let path = commandPath(environment: ["PATH": "/usr/bin:/opt/homebrew/bin:/usr/bin"])
-    let parts = path.split(separator: ":").map(String.init)
-    #expect(parts.first == "/usr/bin")
-    #expect(parts.contains("/usr/local/bin"))
-    #expect(parts.count == Set(parts).count)
-  }
-}
-
 @Suite("The keychain")
 struct KeychainTests {
   /// Reads only; nothing is ever written to the user's keychain.

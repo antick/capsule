@@ -93,7 +93,6 @@ public final class Engine {
       ? SettingsDefaults.enabledProviderIds.map { DemoUsageProvider($0) }
       : [
         ClaudeUsageProvider(), CodexUsageProvider(), GrokUsageProvider(), CursorUsageProvider(),
-        CopilotUsageProvider(),
       ]
   }
 

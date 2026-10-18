@@ -1,7 +1,7 @@
 {
   "about": "createPoller(...) driven through a script of steps — what it published, what it fetched, and what it persisted after each",
   "timeZone": "UTC",
-  "note": "Providers answer from their scripted outcomes in order. `thenEnable` changes the enabled set while that fetch is in flight. Every step reports the lists emitted during it, the providers fetched, the final list, and the last backoff and snapshots saved. Providers are fetched in the order claude, codex, grok, cursor, copilot.",
+  "note": "Providers answer from their scripted outcomes in order. `thenEnable` changes the enabled set while that fetch is in flight. Every step reports the lists emitted during it, the providers fetched, the final list, and the last backoff and snapshots saved. Providers are fetched in the order claude, codex, grok, cursor.",
   "cases": [
     {
       "name": "a first launch shows placeholders, then fetches each enabled provider in turn",
@@ -4497,7 +4497,7 @@
             "op": "setEnabled",
             "ids": [
               "claude",
-              "copilot"
+              "cursor"
             ]
           },
           {
@@ -4506,7 +4506,7 @@
           {
             "op": "setEnabled",
             "ids": [
-              "copilot"
+              "cursor"
             ]
           },
           {
@@ -4652,9 +4652,9 @@
                 "refreshing": false
               },
               {
-                "providerId": "copilot",
-                "displayName": "Copilot",
-                "iconId": "copilot",
+                "providerId": "cursor",
+                "displayName": "Cursor",
+                "iconId": "cursor",
                 "primaryPercent": null,
                 "buckets": [],
                 "status": "unauthenticated",
@@ -4682,9 +4682,9 @@
               "refreshing": false
             },
             {
-              "providerId": "copilot",
-              "displayName": "Copilot",
-              "iconId": "copilot",
+              "providerId": "cursor",
+              "displayName": "Cursor",
+              "iconId": "cursor",
               "primaryPercent": null,
               "buckets": [],
               "status": "unauthenticated",
@@ -4736,9 +4736,9 @@
               "refreshing": false
             },
             {
-              "providerId": "copilot",
-              "displayName": "Copilot",
-              "iconId": "copilot",
+              "providerId": "cursor",
+              "displayName": "Cursor",
+              "iconId": "cursor",
               "primaryPercent": null,
               "buckets": [],
               "status": "unauthenticated",
@@ -4772,9 +4772,9 @@
           "emitted": [
             [
               {
-                "providerId": "copilot",
-                "displayName": "Copilot",
-                "iconId": "copilot",
+                "providerId": "cursor",
+                "displayName": "Cursor",
+                "iconId": "cursor",
                 "primaryPercent": null,
                 "buckets": [],
                 "status": "unauthenticated",
@@ -4784,9 +4784,9 @@
           ],
           "snapshots": [
             {
-              "providerId": "copilot",
-              "displayName": "Copilot",
-              "iconId": "copilot",
+              "providerId": "cursor",
+              "displayName": "Cursor",
+              "iconId": "cursor",
               "primaryPercent": null,
               "buckets": [],
               "status": "unauthenticated",
@@ -5344,7 +5344,7 @@
             "op": "setEnabled",
             "ids": [
               "claude",
-              "copilot"
+              "cursor"
             ]
           },
           {
@@ -5494,9 +5494,9 @@
                 "refreshing": false
               },
               {
-                "providerId": "copilot",
-                "displayName": "Copilot",
-                "iconId": "copilot",
+                "providerId": "cursor",
+                "displayName": "Cursor",
+                "iconId": "cursor",
                 "primaryPercent": null,
                 "buckets": [],
                 "status": "unauthenticated",
@@ -5524,9 +5524,9 @@
               "refreshing": false
             },
             {
-              "providerId": "copilot",
-              "displayName": "Copilot",
-              "iconId": "copilot",
+              "providerId": "cursor",
+              "displayName": "Cursor",
+              "iconId": "cursor",
               "primaryPercent": null,
               "buckets": [],
               "status": "unauthenticated",
@@ -5580,9 +5580,9 @@
                 "refreshing": true
               },
               {
-                "providerId": "copilot",
-                "displayName": "Copilot",
-                "iconId": "copilot",
+                "providerId": "cursor",
+                "displayName": "Cursor",
+                "iconId": "cursor",
                 "primaryPercent": null,
                 "buckets": [],
                 "status": "unauthenticated",
@@ -5610,9 +5610,9 @@
                 "refreshing": false
               },
               {
-                "providerId": "copilot",
-                "displayName": "Copilot",
-                "iconId": "copilot",
+                "providerId": "cursor",
+                "displayName": "Cursor",
+                "iconId": "cursor",
                 "primaryPercent": null,
                 "buckets": [],
                 "status": "unauthenticated",
@@ -5641,9 +5641,9 @@
               "refreshing": false
             },
             {
-              "providerId": "copilot",
-              "displayName": "Copilot",
-              "iconId": "copilot",
+              "providerId": "cursor",
+              "displayName": "Cursor",
+              "iconId": "cursor",
               "primaryPercent": null,
               "buckets": [],
               "status": "unauthenticated",
@@ -5671,9 +5671,9 @@
               ]
             },
             {
-              "providerId": "copilot",
-              "displayName": "Copilot",
-              "iconId": "copilot",
+              "providerId": "cursor",
+              "displayName": "Cursor",
+              "iconId": "cursor",
               "primaryPercent": null,
               "buckets": [],
               "status": "unauthenticated",

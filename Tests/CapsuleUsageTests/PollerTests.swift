@@ -136,7 +136,6 @@ struct UnusedHost: UsageHost {
   func send(_ request: HTTPRequest) async throws -> HTTPResponse { throw URLError(.unsupportedURL) }
   func readFile(_ path: String) async -> String? { nil }
   func readSecret(_ service: String) async -> String? { nil }
-  func runCommand(_ file: String, _ arguments: [String]) async -> String? { nil }
   func query(_ database: String, _ sql: String) async -> [[String]] { [] }
   func environment(_ name: String) -> String? { nil }
 }
@@ -288,8 +287,7 @@ struct StubPollerHost: PollerHost {
     func send(_ request: HTTPRequest) async throws -> HTTPResponse { throw URLError(.notConnectedToInternet) }
     func readFile(_ path: String) async -> String? { nil }
     func readSecret(_ service: String) async -> String? { nil }
-    func runCommand(_ file: String, _ arguments: [String]) async -> String? { nil }
-    func query(_ database: String, _ sql: String) async -> [[String]] { [] }
+      func query(_ database: String, _ sql: String) async -> [[String]] { [] }
     func environment(_ name: String) -> String? { nil }
   }
 

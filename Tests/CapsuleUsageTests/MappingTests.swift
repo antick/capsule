@@ -46,11 +46,6 @@ struct MappingTests {
     try checkMapping("usage/cursor-mapping", mapCursorUsage)
   }
 
-  @Test("mapCopilotUsage")
-  func copilot() throws {
-    try checkMapping("usage/copilot-mapping", mapCopilotUsage)
-  }
-
   @Test("unauthenticatedSnapshot")
   func unauthenticated() throws {
     let file: FixtureFile<ProviderId, UsageSnapshot> = try Fixtures.load(
@@ -121,8 +116,6 @@ struct TokenReaderTests {
       switch testCase.input.reader {
       case "grok":
         actual = grokTokenFromFile(testCase.input.raw, now: now)
-      case "copilot":
-        actual = copilotTokenFromApps(testCase.input.raw)
       case "cursor-hex":
         actual = cursorTokenFromHex(testCase.input.raw)
       case "cursor-subject":

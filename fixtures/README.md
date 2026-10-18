@@ -122,7 +122,7 @@ CI, and only after the Swift behaviour it pins has been decided.
 
 | Area | Files | Cases |
 | --- | --- | --- |
-| `usage/` | 16 | 135 |
+| `usage/` | 15 | 120 |
 | `activity/` | 19 | 168 |
 | `placement/` | 6 | 132 |
 | `hud-metrics/` | 9 | 173 |
@@ -131,7 +131,7 @@ CI, and only after the Swift behaviour it pins has been decided.
 | `updates/` | 6 | 43 |
 | `dates/` | 5 | 17 |
 | `severity/` | 1 | 10 |
-| **Total** | **73** | **990** |
+| **Total** | **72** | **975** |
 
 Every file here is read by the Swift suite except `settings/migrate-legacy`,
 which pins Electron behaviour the native app deliberately does not match.
@@ -217,11 +217,9 @@ fix opens up: a Claude payload with only a weekly window, a Codex window that
 reports a reset but no percentage, a Grok product row with no headline credit
 percent. The real mappings (Claude 73/7, Codex 21/8, Grok 52/18) are unchanged.
 
-`mapCursorUsage` and `mapCopilotUsage` already returned `primaryPercent: null`
-with no buckets and were left alone. They keep `status: "ok"`, because for
-Copilot an absent percentage is often a legitimate, permanent answer — an
-unlimited quota has no percentage to show — and calling that an error would pin
-a stale reading on it forever.
+`mapCursorUsage` already returned `primaryPercent: null` with no buckets and was
+left alone. (So did the Copilot mapping, before Copilot was removed from the
+app.)
 
 ### Found while recording the stub worlds
 

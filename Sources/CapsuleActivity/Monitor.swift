@@ -26,14 +26,14 @@ public actor ActivityMonitor {
     joinPath(host.homeDir, ActivityTuning.claudeSessionsDir)
   }
 
-  /// Cursor and Copilot leave no session record that can be read honestly, so
-  /// they report nothing rather than guess from the process table.
+  /// Cursor leaves no session record that can be read honestly, so it
+  /// reports nothing rather than guess from the process table.
   private func read(_ id: ProviderId) async -> [AgentSession] {
     switch id {
     case .claude: return await readClaudeSessions(host)
     case .codex: return await readCodexSessions(host)
     case .grok: return await readGrokSessions(host)
-    case .cursor, .copilot: return []
+    case .cursor: return []
     }
   }
 

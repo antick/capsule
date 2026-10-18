@@ -137,12 +137,3 @@ public enum PollerTuning {
   public static let manualRefreshGapMs = 15_000.0
 }
 
-/// How the shell runs the local tools it asks for a token.
-public enum CommandTuning {
-  /// Long enough for `gh` to wake up, short enough that a hung tool cannot
-  /// stall a poll.
-  public static let timeoutSeconds = 8.0
-  /// A menu-bar app launched from Finder inherits a bare PATH, so the places
-  /// Homebrew and the CLIs' own installers put things are added explicitly.
-  public static let extraPathDirectories = ["/opt/homebrew/bin", "/usr/local/bin", "~/.local/bin"]
-}

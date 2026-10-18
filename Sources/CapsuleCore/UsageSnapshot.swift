@@ -1,7 +1,7 @@
 import Foundation
 
 public enum ProviderId: String, Sendable, Codable, CaseIterable {
-  case claude, codex, grok, cursor, copilot
+  case claude, codex, grok, cursor
 }
 
 public enum UsageStatus: String, Sendable, Codable {
@@ -77,7 +77,6 @@ public enum ProviderLabels {
     .codex: "Codex",
     .grok: "Grok",
     .cursor: "Cursor",
-    .copilot: "Copilot",
   ]
 
   public static func label(_ id: ProviderId) -> String {
@@ -98,8 +97,6 @@ public enum Copy {
   public static let grokOnDemand = "On-demand"
   public static let grokBuild = "Grok Build"
   public static let cursorPlan = "Plan usage"
-  public static let copilotPremium = "Premium requests"
-  public static let copilotChat = "Chat"
 }
 
 /// How long to wait after a rate-limited read. Milliseconds, matching the

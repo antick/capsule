@@ -42,11 +42,4 @@ public enum UsageEndpoints {
       "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
   }
 
-  public enum Copilot {
-    public static let usageURL = "https://api.github.com/copilot_internal/user"
-    public static let appsPath = [".config", "github-copilot", "apps.json"]
-    public static let ghCommand = "gh"
-    public static let ghTokenArguments = ["auth", "token"]
-    public static let tokenEnv = "GITHUB_TOKEN"
-  }
 }

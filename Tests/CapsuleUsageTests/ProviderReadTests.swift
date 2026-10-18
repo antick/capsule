@@ -74,10 +74,6 @@ final class StubUsageHost: UsageHost, @unchecked Sendable {
   func readFile(_ path: String) async -> String? { world.files[path] }
   func readSecret(_ service: String) async -> String? { world.secrets[service] }
 
-  func runCommand(_ file: String, _ arguments: [String]) async -> String? {
-    world.commands.first { $0.file == file && $0.args == arguments }?.output
-  }
-
   /// The corpus records Cursor's token as the original's `sqlite3` command;
   /// the Swift reader queries the same store directly, so the command's
   /// output is served as the query's single cell.
@@ -115,7 +111,6 @@ func provider(_ id: ProviderId) -> UsageProvider {
   case .codex: return CodexUsageProvider()
   case .grok: return GrokUsageProvider()
   case .cursor: return CursorUsageProvider()
-  case .copilot: return CopilotUsageProvider()
   }
 }
 

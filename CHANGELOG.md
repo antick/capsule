@@ -2,6 +2,17 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Copilot removed
+
+### Removed
+
+- GitHub Copilot as a provider: its usage reader, its mark, its settings row and its fixtures. With it goes the app's only reason to run a local command (`gh auth token`), so the command runner is gone too and the app no longer starts other programs.
+
+### Changed
+
+- A settings file that still lists Copilot keeps every other setting: the retired provider is dropped instead of the whole file being refused and reset to defaults.
+- The README no longer carries a project layout section.
+
 ## GPL license
 
 ### Added

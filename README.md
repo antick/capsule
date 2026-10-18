@@ -15,7 +15,7 @@ of your Mac—visible when you need them and folded away when you do not.
 
 ## At a glance
 
-- See usage for Claude, Codex, Grok, Cursor, and GitHub Copilot.
+- See usage for Claude, Codex, Grok, and Cursor.
 - Know when local Claude Code, Codex, or Grok sessions are working, waiting,
   or finished.
 - Get small, non-blocking activity notices without leaving your current app.
@@ -44,10 +44,9 @@ and scale the whole dock from one place.
 | Codex | Yes | Yes | Yes |
 | Grok | Yes | Yes | — |
 | Cursor | Yes | — | — |
-| GitHub Copilot | Yes | — | — |
 
-Claude, Codex, and Grok are enabled by default. Cursor and GitHub Copilot can
-be enabled from **Settings → Providers**.
+Claude, Codex, and Grok are enabled by default. Cursor can be enabled from
+**Settings → Providers**.
 
 ## How it works
 
@@ -138,25 +137,6 @@ release body and the "What's new" text in Settings → Updates.
 
 Signing and notarising the build is set up once, in
 [docs/releasing.md](docs/releasing.md).
-
-## Project layout
-
-```text
-Sources/CapsuleCore        Settings, copy, placement, metrics, dates, themes
-Sources/CapsuleUsage       Provider usage readers and the poller
-Sources/CapsuleActivity    Local agent activity, notices and token readers
-Sources/CapsuleHUD         The dock's outlines: rail, card, latch, icons
-Sources/CapsuleSystem      The Mac behind the readers: files, SQLite, keychain
-Sources/CapsuleDock        The dock: behaviour, meters, card, layers
-Sources/CapsuleSettingsUI  Settings and onboarding, in SwiftUI
-Sources/CapsuleShell       The panel, menus, hover, drag, updater, wiring
-Sources/CapsuleApp         The app's entry point
-fixtures                   The shared behaviour corpus the tests read
-openspec                   Product specs and design history
-```
-
-Capsule uses Swift, AppKit, Core Animation and SwiftUI, built with Swift
-Package Manager. It has no third-party dependencies.
 
 ## License
 

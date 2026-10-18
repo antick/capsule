@@ -41,9 +41,6 @@ public struct MacUsageHost: UsageHost {
 
   public func readFile(_ path: String) async -> String? { readTextFile(path) }
   public func readSecret(_ service: String) async -> String? { keychainPassword(service: service) }
-  public func runCommand(_ file: String, _ arguments: [String]) async -> String? {
-    await CapsuleSystem.runCommand(file, arguments)
-  }
   public func query(_ database: String, _ sql: String) async -> [[String]] { sqliteRows(database, sql) }
   public func environment(_ name: String) -> String? { ProcessInfo.processInfo.environment[name] }
 }

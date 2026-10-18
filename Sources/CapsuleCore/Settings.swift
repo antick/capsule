@@ -28,6 +28,9 @@ public enum SettingsDefaults {
   public static let schemaVersion = 7
   public static let pollIntervalMs = 60_000
   public static let enabledProviderIds: [ProviderId] = [.claude, .codex, .grok]
+  /// Providers the app has dropped. A settings file naming one keeps
+  /// everything else; the id is skipped.
+  public static let retiredProviderIds: Set<String> = ["copilot"]
   /// The corner arc is disabled, so a stored corner is always discarded.
   public static let cornerArcEnabled = false
 }
@@ -174,6 +177,9 @@ extension CapsuleSettings {
     guard let items = raw?.asArray else { return nil }
     var wanted: Set<ProviderId> = []
     for item in items {
+      // A provider the app no longer has is dropped, not a reason to refuse
+      // every other setting in the file.
+      if let raw = item.asString, SettingsDefaults.retiredProviderIds.contains(raw) { continue }
       guard let id = item.asString.flatMap(ProviderId.init(rawValue:)) else {
         return nil
       }
