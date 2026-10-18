@@ -62,7 +62,16 @@ extension DockView {
     window?.convertPoint(toScreen: event.locationInWindow) ?? NSEvent.mouseLocation
   }
 
+  /// The cursor for where the pointer is: a pointing hand on a meter or a
+  /// badge, an open hand on the rail, which can be dragged.
+  public override func mouseMoved(with event: NSEvent) {
+    guard !moving else { return }
+    let point = convert(event.locationInWindow, from: nil)
+    (badgeAt(point) != nil || meterAt(point) != nil ? NSCursor.pointingHand : NSCursor.openHand).set()
+  }
+
   public override func mouseDown(with event: NSEvent) {
+    NSCursor.closedHand.set()
     let point = convert(event.locationInWindow, from: nil)
     pressStart = screenPoint(event)
     moving = false
@@ -90,6 +99,7 @@ extension DockView {
 
   public override func mouseUp(with event: NSEvent) {
     defer {
+      NSCursor.openHand.set()
       pressStart = nil
       moving = false
       onPressedChange?(false)

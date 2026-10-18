@@ -54,6 +54,8 @@ public final class DockView: FlippedView {
   let cardView = FlippedView()
   let hosting = CardHost(rootView: AnyView(EmptyView()))
   var meters: [MeterView] = []
+  /// What the card is showing and what its buttons do.
+  var cardContent: CardContent?
   var meterKey = ""
 
   var openness = SpringState(value: 1)
@@ -250,6 +252,7 @@ public final class DockView: FlippedView {
       onDismissNotice: { [weak self] id in self?.onDismissNotice?(id) },
       onClearAll: { [weak self] in self?.onClearNotices?() }
     )
+    cardContent = content
     hosting.rootView = AnyView(DockCardView(content: content, m: look.spec.metrics, theme: look.theme))
     hosting.frame = CGRect(x: 0, y: 0, width: look.spec.metrics.cardWidth, height: height)
   }

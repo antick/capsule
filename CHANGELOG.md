@@ -2,6 +2,22 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Fewer provider calls, and the last of the dock's motion
+
+### Fixed
+
+- Grok now backs off when rate-limited, honouring `Retry-After`, like the other providers; before, a 429 failed as a plain error and Grok was asked again every poll.
+- Changing a setting no longer re-reads every provider: only switching providers on or off does. Each step of the size slider and every dock drag used to send a full round of usage requests.
+- Waking, unlocking and the network returning now share one read a minute instead of each starting a round.
+- Clicking a meter re-reads its provider at most once every 15 seconds.
+- A provider that answered "not signed in" is asked again every 5 minutes rather than every poll — for Codex that also meant posting its refresh token each minute. Clicking its meter still asks at once.
+- No focus ring is drawn round the first page in the settings sidebar.
+
+### Added
+
+- Resizing the dock eases through the sizes in between, with the window holding both sizes until the ease is done, as the Electron dock did.
+- A dragged rail lifts slightly off its edge, and the cursor shows an open hand on the rail, a pointing hand on a meter, and a closed hand while dragging.
+
 ## Native migration — the Swift app replaces Electron
 
 ### Added

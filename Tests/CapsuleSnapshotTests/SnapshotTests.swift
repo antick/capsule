@@ -172,3 +172,36 @@ struct SettingsSnapshotTests {
     }
   }
 }
+
+@MainActor
+@Suite("Settings controls")
+struct SettingsControlTests {
+  /// Every switch on the General page, top to bottom, as AppKit holds it.
+  func switches(_ settings: CapsuleSettings) throws -> [NSControl.StateValue] {
+    let model = SettingsModel(settings: settings, update: .initial(version: "0.1.0", canInstall: false))
+    model.page = .general
+    let host = NSHostingView(rootView: SettingsRoot(model: model))
+    let window = NSWindow(
+      contentRect: NSRect(x: -20_000, y: -20_000, width: 940, height: 1400), styleMask: [.titled],
+      backing: .buffered, defer: false)
+    window.isReleasedWhenClosed = false
+    window.contentView = host
+    host.layoutSubtreeIfNeeded()
+    RunLoop.main.run(until: Date().addingTimeInterval(0.4))
+    defer { window.close() }
+    func all(_ view: NSView) -> [NSSwitch] { (view as? NSSwitch).map { [$0] } ?? view.subviews.flatMap(all) }
+    return all(host).sorted { $0.convert($0.bounds, to: nil).maxY > $1.convert($1.bounds, to: nil).maxY }.map(\.state)
+  }
+
+  @Test func theGeneralPagesSwitchesShowTheSettings() throws {
+    var settings = CapsuleSettings.defaults
+    settings.notificationPopups = true
+    settings.launchAtLogin = false
+    settings.demoMode = true
+    // Notification popups, launch at login, demo mode.
+    #expect(try switches(settings) == [.on, .off, .on])
+    settings.notificationPopups = false
+    settings.demoMode = false
+    #expect(try switches(settings) == [.off, .off, .off])
+  }
+}

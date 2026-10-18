@@ -63,6 +63,7 @@ public struct SettingsRoot: View {
         .contentShape(Rectangle())
       }
       .buttonStyle(.plain)
+      .focusEffectDisabled()
       .padding(.horizontal, 10).padding(.bottom, 12)
     }
     .frame(width: 228)
@@ -82,6 +83,9 @@ public struct SettingsRoot: View {
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
+    // The selected row is already highlighted; the system focus ring drawn
+    // round the first button when the window opens only doubles it.
+    .focusEffectDisabled()
     .accessibilityAddTraits(active ? .isSelected : [])
   }
 }

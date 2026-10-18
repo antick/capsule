@@ -93,6 +93,8 @@ public enum Motion {
   public static let sweepMs = 1100.0
   public static let sweepArc = 0.18
   public static let zoomMs = 280.0
+  /// Grace before the window shrinks back onto the eased-down dock.
+  public static let zoomSettleMs = 60.0
   public static let barMs = 420.0
   public static let meterMs = 180.0
   public static let dragThreshold = 5.0

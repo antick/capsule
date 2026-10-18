@@ -155,4 +155,59 @@ struct InteractionTests {
     }
     #expect(meters.first?.accessibilityLabel() == "Claude 73%")
   }
+
+  @Test func aResizeEasesInsideAWindowHoldingBothSizes() throws {
+    let before = dock.panel.frame
+    var bigger = CapsuleSettings.defaults
+    bigger.autoHide = false
+    bigger.hudScale = HudScale.max
+    dock.apply(settings: bigger)
+    let held = dock.panel.frame
+    let target = dock.view.frameSize
+    #expect(held.width >= max(before.width, target.width) - 0.5)
+    #expect(held.height >= max(before.height, target.height) - 0.5)
+    // Pinned against the right edge throughout.
+    #expect(abs(held.maxX - before.maxX) < 0.5)
+    #expect(dock.view.layer?.animation(forKey: "zoom") != nil)
+    RunLoop.main.run(until: Date().addingTimeInterval((Motion.zoomMs + Motion.zoomSettleMs) / 1000 + 0.2))
+    #expect(abs(dock.panel.frame.width - target.width) < 0.5)
+    #expect(abs(dock.panel.frame.height - target.height) < 0.5)
+  }
+
+  @Test func aDraggedRailLiftsAndSettlesBackOnDrop() throws {
+    let start = try meterCentre(.claude)
+    dock.pointerMoved(start)
+    dock.view.mouseDown(with: event(.leftMouseDown, at: start))
+    let away = NSPoint(x: start.x, y: start.y - 40)
+    dock.view.mouseDragged(with: event(.leftMouseDragged, at: away))
+    dock.view.draw()
+    #expect(!CATransform3DIsIdentity(dock.view.railShape.transform))
+    dock.view.mouseUp(with: event(.leftMouseUp, at: away))
+    dock.view.draw()
+    #expect(CATransform3DIsIdentity(dock.view.railShape.transform))
+  }
+
+  @Test func theCardsButtonsReachTheirHandlers() throws {
+    var dismissed: [String] = []
+    var cleared = 0
+    dock.view.onDismissNotice = { dismissed.append($0) }
+    dock.view.onClearNotices = { cleared += 1 }
+    var state = ShellState()
+    state.snapshots = Demo.snapshots
+    let notices = [
+      ActivityNotice(id: "n1", sessionId: "s", providerId: .claude, title: "Ship it", kind: .completed, at: isoString(Demo.now))
+    ]
+    dock.update(state: state, notices: notices, keepOpen: false, demoNow: Demo.now)
+    #expect(dock.behavior.openId == .claude)
+    let card = try #require(dock.view.cardContent)
+    #expect(card.notices.map(\.id) == ["n1"])
+    card.onDismissNotice("n1")
+    card.onClearAll()
+    #expect(dismissed == ["n1"])
+    #expect(cleared == 1)
+    // "View notifications" on a usage card reopens the provider's notices.
+    dock.behavior.notices.close()
+    card.onOpenNotices()
+    #expect(dock.behavior.notices.providerId == .claude)
+  }
 }

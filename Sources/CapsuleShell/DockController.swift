@@ -112,9 +112,16 @@ public final class DockController {
   // MARK: What to show
 
   public func apply(settings next: CapsuleSettings) {
+    // A new size eases from the old one rather than jumping to it.
+    if next.hudScale != settings.hudScale, placement != nil { zoomFrom = settings.hudScale }
     settings = next
     relayout()
   }
+
+  /// The size a resize is easing from, until it has been drawn.
+  private var zoomFrom: Double?
+  /// Shrinks the window back onto the dock once a resize has eased.
+  private var zoomSettle: DispatchWorkItem?
 
   public func update(
     state: ShellState, notices: [ActivityNotice], keepOpen: Bool, demoNow: Date?
@@ -178,9 +185,23 @@ public final class DockController {
   }
 
   private func place(_ next: PlacementResult) {
+    let previousBox = placement.map(windowBox)
     placement = next
     let box = windowBox(next)
-    panel.setFrame(appKit(box, Self.primaryHeight), display: false)
+    let zooming = zoomFrom.flatMap { from in previousBox.map { (from, $0) } }
+    zoomFrom = nil
+    zoomSettle?.cancel()
+    // While a resize eases, the window holds both sizes at once, anchored
+    // against the docked edge, so neither end of the ease is clipped.
+    let shown = zooming.map { _, current in
+      let hold = zoomHoldBounds(
+        target: WindowBox(x: box.x, y: box.y, width: box.width, height: box.height),
+        current: WindowBox(x: current.x, y: current.y, width: current.width, height: current.height),
+        cardGrowth: next.cardGrowth
+      )
+      return Rect(x: hold.x, y: hold.y, width: hold.width, height: hold.height)
+    } ?? box
+    panel.setFrame(appKit(shown, Self.primaryHeight), display: false)
     let dark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
     view.update(
       look: DockLook(
@@ -199,7 +220,44 @@ public final class DockController {
       y: next.cardGrowth == .up ? 0 : height - size.height,
       width: size.width, height: size.height
     )
+    if let (from, _) = zooming {
+      easeSize(from: from, to: settings.hudScale, growth: next.cardGrowth)
+      let settle = DispatchWorkItem { [weak self] in
+        MainActor.assumeIsolated {
+          guard let self, let placement = self.placement else { return }
+          self.place(placement)
+        }
+      }
+      zoomSettle = settle
+      DispatchQueue.main.asyncAfter(
+        deadline: .now() + (Motion.zoomMs + Motion.zoomSettleMs) / 1000, execute: settle)
+    }
     pointerMoved(NSEvent.mouseLocation)
+  }
+
+  /// Draws the new size at once and scales it from the old one, about the
+  /// middle of the docked edge, so the dock grows out of where it sits.
+  private func easeSize(from: Double, to: Double, growth: CardGrowth) {
+    guard let layer = view.layer, to > 0, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
+    let size = view.bounds.size
+    // The layer's own space runs y-up from its bottom-left corner.
+    let pivot: CGPoint
+    switch growth {
+    case .left: pivot = CGPoint(x: size.width, y: size.height / 2)
+    case .right: pivot = CGPoint(x: 0, y: size.height / 2)
+    case .up: pivot = CGPoint(x: size.width / 2, y: 0)
+    case .down: pivot = CGPoint(x: size.width / 2, y: size.height)
+    }
+    let start = hudScaleRange(from) / hudScaleRange(to)
+    var transform = CATransform3DMakeTranslation(pivot.x, pivot.y, 0)
+    transform = CATransform3DScale(transform, start, start, 1)
+    transform = CATransform3DTranslate(transform, -pivot.x, -pivot.y, 0)
+    let ease = CABasicAnimation(keyPath: "transform")
+    ease.fromValue = NSValue(caTransform3D: transform)
+    ease.toValue = NSValue(caTransform3D: CATransform3DIdentity)
+    ease.duration = Motion.zoomMs / 1000
+    ease.timingFunction = CAMediaTimingFunction(controlPoints: 0.22, 1, 0.36, 1)
+    layer.add(ease, forKey: "zoom")
   }
 
   /// The display's own notch, from the menu-bar strips either side of it.
@@ -224,7 +282,10 @@ public final class DockController {
     view.pointer(at: point)
     // Take the mouse only over the dock itself, and for the whole of a
     // press or a drag, which may slide the dock out from under the pointer.
-    panel.ignoresMouseEvents = !(view.answers(point) || pressed || drag != nil)
+    let taking = view.answers(point) || pressed || drag != nil
+    // Leaving, hand the cursor back as it was found.
+    if !taking, !panel.ignoresMouseEvents { NSCursor.arrow.set() }
+    panel.ignoresMouseEvents = !taking
   }
 
   // MARK: Drag

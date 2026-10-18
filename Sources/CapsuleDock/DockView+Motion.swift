@@ -71,6 +71,10 @@ extension DockView {
       shape.bounds = bounds
       shape.path = frame.rail
     }
+    // Picked up, the rail rises a touch off the edge it was resting on.
+    let lift = behavior.dragging ? scaled(about: railOrigin(frame), by: Motion.liftScale) : CATransform3DIdentity
+    railShape.transform = lift
+    railEdge.transform = lift
     railEdge.isHidden = !(spec.style.outline || (folding && spec.joined == nil))
     railEdge.opacity = spec.style.outline ? 1 : Float(1 - motion.openness)
 
@@ -129,6 +133,19 @@ extension DockView {
     beaconHalo.fillColor = color
     if state == .waiting, beaconHalo.animation(forKey: "pulse") == nil, !reduceMotion {
       beaconHalo.add(pulse(), forKey: "pulse")
+    }
+  }
+}
+
+extension DockView {
+  /// The middle of the rail's edge-facing side: what a lifted rail grows from.
+  func railOrigin(_ frame: FrameLayout) -> CGPoint {
+    let box = frame.railBox
+    switch look.spec.growth {
+    case .left: return CGPoint(x: box.maxX, y: box.midY)
+    case .right: return CGPoint(x: box.minX, y: box.midY)
+    case .up: return CGPoint(x: box.midX, y: box.maxY)
+    case .down: return CGPoint(x: box.midX, y: box.minY)
     }
   }
 }

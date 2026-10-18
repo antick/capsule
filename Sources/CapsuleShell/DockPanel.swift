@@ -25,6 +25,8 @@ public final class DockPanel: NSPanel {
     // Click-through until the pointer reaches the dock itself; the
     // controller follows the pointer and takes the mouse only over the dock.
     ignoresMouseEvents = true
+    // Moves reach the dock while it has the mouse, to set the cursor.
+    acceptsMouseMovedEvents = true
   }
 
   public override var canBecomeKey: Bool { false }
