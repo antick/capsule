@@ -23,7 +23,7 @@ jobs:
           xcode-version: latest-stable
 
       # A release that fails its own checks is worse than a late one.
-      - run: swift test
+      - run: scripts/test-all.sh
       - run: scripts/test-scripts.sh
       - run: scripts/release-notes.sh --check
 

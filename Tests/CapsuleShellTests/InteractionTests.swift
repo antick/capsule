@@ -156,7 +156,7 @@ struct InteractionTests {
     #expect(meters.first?.accessibilityLabel() == "Claude 73%")
   }
 
-  @Test func aResizeEasesInsideAWindowHoldingBothSizes() throws {
+  @Test func aResizeEasesInsideAWindowHoldingBothSizes() async throws {
     let before = dock.panel.frame
     var bigger = CapsuleSettings.defaults
     bigger.autoHide = false
@@ -169,7 +169,7 @@ struct InteractionTests {
     // Pinned against the right edge throughout.
     #expect(abs(held.maxX - before.maxX) < 0.5)
     #expect(dock.view.layer?.animation(forKey: "zoom") != nil)
-    RunLoop.main.run(until: Date().addingTimeInterval((Motion.zoomMs + Motion.zoomSettleMs) / 1000 + 0.2))
+    try await Task.sleep(for: .milliseconds(Int(Motion.zoomMs + Motion.zoomSettleMs) + 200))
     #expect(abs(dock.panel.frame.width - target.width) < 0.5)
     #expect(abs(dock.panel.frame.height - target.height) < 0.5)
   }

@@ -22,6 +22,6 @@ jobs:
 
       - run: swift --version
       - run: swift build
-      - run: swift test
+      - run: scripts/test-all.sh
       - run: scripts/test-scripts.sh
       - run: scripts/bundle-macos.sh release

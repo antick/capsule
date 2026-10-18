@@ -38,7 +38,7 @@ struct SnapshotTests {
     )
   }
 
-  func render(_ name: String, look: DockLook, card: Card, peek: Bool = false) throws -> NSBitmapImageRep {
+  func render(_ name: String, look: DockLook, card: Card, peek: Bool = false) async throws -> NSBitmapImageRep {
     let behavior = DockBehavior(clock: MainClock())
     let view = DockView(look: look, behavior: behavior)
     var inputs = DockBehavior.Inputs()
@@ -90,7 +90,7 @@ struct SnapshotTests {
     view.layoutSubtreeIfNeeded()
     view.settle()
     // Let SwiftUI lay the card out before the layers are drawn.
-    RunLoop.main.run(until: Date().addingTimeInterval(0.25))
+    try await Task.sleep(for: .milliseconds(250))
     view.settle()
     let scale = 2.0
     let size = view.frameSize
@@ -115,28 +115,28 @@ struct SnapshotTests {
     return rep
   }
 
-  @Test func everyEdgeStyleAndTheme() throws {
+  @Test func everyEdgeStyleAndTheme() async throws {
     for preset in Self.presets {
       for style in DockStyleId.allCases {
         for theme in [HudTheme.midnight, .porcelain] {
           let name = "\(preset.rawValue)-\(style.rawValue)-\(theme.id.rawValue)"
-          let rep = try render(name, look: look(preset, style: style, theme: theme, count: 3), card: .open)
+          let rep = try await render(name, look: look(preset, style: style, theme: theme, count: 3), card: .open)
           #expect(rep.pixelsWide > 0)
         }
       }
     }
   }
 
-  @Test func everyCardState() throws {
+  @Test func everyCardState() async throws {
     for theme in [HudTheme.midnight, .graphite, .ink, .porcelain, .linen] {
       let base = look(.rightEdge, style: .rail, theme: theme, count: 3)
       for (card, label) in [
         (Card.closed, "closed"), (.open, "open"), (.notices, "notices"), (.sessions, "sessions"),
         (.unauthenticated, "unauthenticated"), (.stale, "stale"),
       ] {
-        _ = try render("right-edge-\(label)-\(theme.id.rawValue)", look: base, card: card)
+        _ = try await render("right-edge-\(label)-\(theme.id.rawValue)", look: base, card: card)
       }
-      _ = try render("right-edge-latch-\(theme.id.rawValue)", look: base, card: .closed, peek: true)
+      _ = try await render("right-edge-latch-\(theme.id.rawValue)", look: base, card: .closed, peek: true)
     }
   }
 }
@@ -145,7 +145,7 @@ struct SnapshotTests {
 @MainActor
 @Suite("Settings snapshots", .serialized)
 struct SettingsSnapshotTests {
-  @Test func everyPage() throws {
+  @Test func everyPage() async throws {
     for appearance in [NSAppearance.Name.aqua, .darkAqua] {
       for page in SettingsPage.allCases {
         let model = SettingsModel(settings: .defaults, update: .initial(version: "0.1.0", canInstall: false))
@@ -160,7 +160,7 @@ struct SettingsSnapshotTests {
         window.appearance = NSAppearance(named: appearance)
         window.contentView = host
         host.layoutSubtreeIfNeeded()
-        RunLoop.main.run(until: Date().addingTimeInterval(0.4))
+        try await Task.sleep(for: .milliseconds(400))
         let rep = try #require(host.bitmapImageRepForCachingDisplay(in: host.bounds))
         host.cacheDisplay(in: host.bounds, to: rep)
         let data = try #require(rep.representation(using: .png, properties: [:]))
@@ -177,7 +177,7 @@ struct SettingsSnapshotTests {
 @Suite("Settings controls")
 struct SettingsControlTests {
   /// Every switch on the General page, top to bottom, as AppKit holds it.
-  func switches(_ settings: CapsuleSettings) throws -> [NSControl.StateValue] {
+  func switches(_ settings: CapsuleSettings) async throws -> [NSControl.StateValue] {
     let model = SettingsModel(settings: settings, update: .initial(version: "0.1.0", canInstall: false))
     model.page = .general
     let host = NSHostingView(rootView: SettingsRoot(model: model))
@@ -187,21 +187,21 @@ struct SettingsControlTests {
     window.isReleasedWhenClosed = false
     window.contentView = host
     host.layoutSubtreeIfNeeded()
-    RunLoop.main.run(until: Date().addingTimeInterval(0.4))
+    try await Task.sleep(for: .milliseconds(400))
     defer { window.close() }
     func all(_ view: NSView) -> [NSSwitch] { (view as? NSSwitch).map { [$0] } ?? view.subviews.flatMap(all) }
     return all(host).sorted { $0.convert($0.bounds, to: nil).maxY > $1.convert($1.bounds, to: nil).maxY }.map(\.state)
   }
 
-  @Test func theGeneralPagesSwitchesShowTheSettings() throws {
+  @Test func theGeneralPagesSwitchesShowTheSettings() async throws {
     var settings = CapsuleSettings.defaults
     settings.notificationPopups = true
     settings.launchAtLogin = false
     settings.demoMode = true
     // Notification popups, launch at login, demo mode.
-    #expect(try switches(settings) == [.on, .off, .on])
+    #expect(try await switches(settings) == [.on, .off, .on])
     settings.notificationPopups = false
     settings.demoMode = false
-    #expect(try switches(settings) == [.off, .off, .off])
+    #expect(try await switches(settings) == [.off, .off, .off])
   }
 }
