@@ -1,13 +1,14 @@
 # Fixtures
 
-Extracted test cases, in JSON, read by **both** the TypeScript suites and —
-from Phase 1 — the Swift suites. They are the mechanism by which the
-Swift/AppKit migration transfers proven behaviour instead of re-deriving it:
-see `openspec/changes/native-appkit-migration/`.
+Test cases, in JSON, read by the Swift suites through `CapsuleFixtures`. They
+were extracted from the Electron app's TypeScript suites and are how the
+Swift/AppKit migration transferred proven behaviour instead of re-deriving it:
+see `openspec/changes/native-appkit-migration/`. The TypeScript that recorded
+them is kept in git history at the `electron-final` tag.
 
-Neither language's suite may keep a private copy of a case that lives here. A
-provider changes its response shape, the fixture is corrected once, and both
-suites read the correction.
+No suite may keep a private copy of a case that lives here. A provider changes
+its response shape, the fixture is corrected once, and every test reads the
+correction.
 
 ## Shape
 
@@ -96,30 +97,26 @@ says why, so they cannot be mistaken for gaps:
 
 ## Reading them
 
-TypeScript, through `@capsule/fixtures`:
+Swift, through `CapsuleFixtures`, which finds this folder by walking up to
+`Package.swift`:
 
-```ts
-import { loadCases, loadFixture, frozenNow, openGolden } from "@capsule/fixtures";
-
-for (const c of loadCases<number, string>("severity/for-percent")) { /* ... */ }
+```swift
+let file: FixtureFile<Double, String> = try Fixtures.load("severity/for-percent")
+for testCase in file.cases { /* ... */ }
 ```
+
+The coverage gate in `Tests/CapsuleCoreTests/CorpusCoverageTests.swift` fails
+when a file here is read by no test and is not listed as deliberately not
+ported.
 
 ### Hand-written vs recorded expectations
 
-Most `expected` values are hand-written. The provider mappings are **recorded**
-from the TypeScript implementation via `openGolden`, because a full mapped
-snapshot is too large to transcribe and the Swift port needs all of it, not the
-four fields a hand-written assertion reached for. Each recorded case therefore
-asserts deep equality, which subsumes the original assertion rather than
-weakening it.
-
-Re-record with `CAPSULE_WRITE_FIXTURES=1`. That rewrites the corpus, so it
-belongs in a commit a human has read — never in CI.
-
-The recorder is the corpus's only writer, so every file is exactly
-`JSON.stringify(value, null, 2)` plus a newline. Biome is told to leave
-`fixtures/**/*.json` alone: a formatter collapsing short arrays would turn
-every re-record into a whitespace diff that hides the change that matters.
+Most `expected` values are hand-written. The provider mappings, the stub
+worlds and much of the geometry were **recorded** from the TypeScript
+implementation, because a full mapped snapshot is too large to transcribe.
+With that implementation retired, a case is now changed by hand, in a commit
+that says why — the same way a recorded case was re-recorded before: never in
+CI, and only after the Swift behaviour it pins has been decided.
 
 ## What is here
 
@@ -127,21 +124,17 @@ every re-record into a whitespace diff that hides the change that matters.
 | --- | --- | --- |
 | `usage/` | 16 | 135 |
 | `activity/` | 19 | 168 |
-| `placement/` | 6 | 129 |
+| `placement/` | 6 | 132 |
 | `hud-metrics/` | 9 | 173 |
 | `hud-paths/` | 8 | 271 |
 | `settings/` | 3 | 41 |
 | `updates/` | 6 | 43 |
 | `dates/` | 5 | 17 |
 | `severity/` | 1 | 10 |
-| **Total** | **73** | **987** |
+| **Total** | **73** | **990** |
 
-Extraction is done for everything the native app ports, including the
-wiring around the pure functions: each provider's whole read, the poller,
-and the activity readers all run against stub worlds the corpus describes.
-One piece remains, and it does not block a Swift module: **`apps/desktop`'s
-13 test files**, which cover the Electron main process — overlay placement,
-Dock and notch probing, the update host. They matter to the Phase 2 shell.
+Every file here is read by the Swift suite except `settings/migrate-legacy`,
+which pins Electron behaviour the native app deliberately does not match.
 
 ## Stub worlds
 

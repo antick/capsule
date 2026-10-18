@@ -5,25 +5,23 @@ context: |
   gutters (display edges, empty Dock flanks, Stage Manager leftover space).
   Visual source of truth: openspec/changes/init-capsule-desktop/references/hud-reference.jpg
 
-  Stack (locked for this change):
-  - pnpm 11.22.0 workspaces + Turborepo 2.10.11
-  - Electron 43.4.1 + electron-vite 5.0.0 + Node.js (main process)
-  - React 19.2.8 + TanStack Router file-based (1.170.31) + Vite 8.2.2
-  - Tailwind CSS 4.3.3 + shadcn/ui (CLI 4.18.x or older; must be ≥7 days old)
-  - Biome 2.5.9 for lint + format (no ESLint/Prettier)
-  - TypeScript 5.9.3 (not 7.x: electron-vite 5 does not target TS 7)
-  - All dependency versions MUST be published at least 7 days before 2026-08-28
+  Stack:
+  - Swift 6 with Swift Package Manager; no third-party dependencies
+  - AppKit (dock panel, menus, windows) + Core Animation (dock drawing and motion)
+  - SwiftUI for the settings window and the card's contents
+  - macOS 14 or newer, Apple silicon only
+  - Behaviour pinned by the JSON corpus in fixtures/, read by the Swift suites
+  - The Electron/TypeScript app it replaced is kept at the electron-final tag
 
   Conventions:
   - Conventional commits
-  - No hard-coded values in app code — shared config/constants package
+  - No hard-coded values in app code — CapsuleCore holds them
   - Shared date formatters only (never inline date formatting)
   - Reusable components; no duplication
   - Source files ≤ 500 lines; split when larger
   - Changelog every completed change
-  - OpenAPI spec only if HTTP endpoints exist (v1 is Electron IPC only)
-  - Prefer pnpm; never npm/yarn as the workspace package manager
-  - Tests required (unit for usage/placement math; renderer visual checks)
+  - OpenAPI spec only if HTTP endpoints exist (the app has none)
+  - Tests required (unit for usage/placement/date math; dock snapshots)
 
   Platform: macOS is v1. Windows/Linux are out of scope for this change.
 
@@ -41,7 +39,7 @@ rules:
     - Cover empty, error, unauthenticated, and hover/leave edge cases
   design:
     - Pin every runtime dependency to a version published at least 7 days ago
-    - List constants that belong in packages/config rather than literals
+    - List constants that belong in CapsuleCore rather than literals
   tasks:
     - Tasks are checkbox items an implementer can complete in order
     - Group by capability, not by file

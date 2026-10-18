@@ -2,6 +2,38 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Native migration — the Swift app replaces Electron
+
+### Added
+
+- The native dock in full: meters whose arcs spring to each reading, a refresh sweep, an arc for agents working or waiting, the card with readings, token totals and live sessions, activity notices with unread badges, the auto-hide latch and its beacon, Show Dock, Keep open, and drag-to-snap onto any edge and display.
+- Hover tracking from mouse event monitors instead of a 24 ms cursor poll: the dock takes the mouse only over itself, and its concave fillets let clicks through.
+- The menu-bar item, the dock's right-click menu and the application menu, with Position, the update item and the shortcuts.
+- Settings and onboarding in SwiftUI: a live preview of the dock, style, theme, size, placement, behaviour, providers, updates and general settings, with launch at login through the system's login-item service.
+- Updates check GitHub's latest release and link to its page.
+- On first launch the app adopts the Electron app's schema v7 settings, last readings, penalties and token cache, once. It now runs as `com.antick.capsule`.
+- Snapshot tests that render every dock style, edge, theme and card state, and every settings page, to PNG; interaction tests that drive the real panel with synthetic events.
+- Release scripts in shell (`scripts/version.sh`, `release-notes.sh`, `tag-release.sh`, `package-macos.sh`, tested by `test-scripts.sh`) and CI on `swift build` and `swift test`.
+
+### Changed
+
+- Measured on the same Mac in demo mode: the dock appears in 0.25 s instead of 0.63 s, and the app settles at a 58 MB footprint in one process instead of 551 MB across four.
+
+### Removed
+
+- The Electron app, the TypeScript packages, pnpm, Turborepo and Biome. The last commit with them is tagged `electron-final`, which also keeps the suspended agent chat source.
+
+### Fixed
+
+- Demo mode with Cursor or Copilot switched on refreshed in an endless loop, flashing a sweep across every ring and redrawing the card on every pass.
+- A dock dropped at a remembered position could be drawn a point away from it, because the window and the rail's offset were rounded separately. Fixed in the shared placement engine.
+- Freed parsing memory from the token scan is handed back to the system after each scan.
+
+### Known
+
+- Updates are not installed in place yet: that needs Sparkle, an EdDSA key pair and a published appcast (tasks 4.1–4.5).
+- Releases are unsigned until the Developer ID secrets are set (docs/releasing.md).
+
 ## Native migration, phase 2 — the shell starts
 
 ### Added

@@ -4,7 +4,7 @@ Project instructions for every agent working in this repository.
 
 ## Usage monitoring stays enabled; agent chat is suspended
 
-The user clarified that only the added agent chat feature was to be disabled. Preserve the existing Claude, Codex, and Grok usage monitoring, percentage display, and refresh behavior. Do not interpret the chat suspension as authorization to disable usage monitoring. Keep chat source preserved but inactive; do not run its setup commands or live-provider chat tests. Passive activity notifications are additive and must not take over usage navigation. Do not claim the existing usage integrations carry a guarantee against account enforcement.
+The user clarified that only the added agent chat feature was to be disabled. Preserve the existing Claude, Codex, and Grok usage monitoring, percentage display, and refresh behavior. Do not interpret the chat suspension as authorization to disable usage monitoring. The chat source is TypeScript and was not ported; it is preserved in git history at the `electron-final` tag. Do not restore or run it, its setup commands, or live-provider chat tests. Passive activity notifications are additive and must not take over usage navigation. Do not claim the existing usage integrations carry a guarantee against account enforcement.
 
 ## Git: always auto-commit
 
@@ -25,23 +25,29 @@ After every completed task that produces file changes, **create a git commit you
 
 ## Product
 
-Capsule is a macOS always-on-top AI usage dock. Specs and the current change live under `openspec/`. Visual source of truth for the HUD: `openspec/changes/init-capsule-desktop/references/hud-reference.jpg`.
+Capsule is a native macOS always-on-top AI usage dock, in Swift and AppKit. Specs and the current change live under `openspec/`. Visual source of truth for the HUD: `openspec/changes/init-capsule-desktop/references/hud-reference.jpg`.
 
 ## Stack
 
-- pnpm workspaces + Turborepo. Never use npm or yarn as the workspace package manager.
-- Electron + Node (main), React + TanStack Router file-based (renderer).
-- Tailwind CSS + shadcn/ui for settings; the HUD is custom.
-- Biome for lint and format (no ESLint/Prettier).
-- Pin dependency versions; do not add a package published less than 7 days ago.
+- Swift 6 with Swift Package Manager (`Package.swift` at the root). No third-party dependencies; any added one is pinned to an exact version published at least 7 days ago.
+- AppKit for the dock panel, menus and windows; Core Animation for the dock's drawing and motion; SwiftUI only for the settings window and the card's contents.
+- macOS 14 or newer, Apple silicon only.
+- Modules: `CapsuleCore` (values, settings, placement, dates), `CapsuleUsage`, `CapsuleActivity`, `CapsuleHUD`, `CapsuleSystem` (the only module that touches the machine), `CapsuleDock`, `CapsuleSettingsUI`, `CapsuleShell`, `CapsuleApp`.
+- Behaviour is pinned by the JSON corpus in `fixtures/`, read through `CapsuleFixtures`.
 
 ## Conventions
 
 - Conventional commits (see auto-commit above).
-- No hard-coded values in app code — put them in the shared config package.
-- Date and reset-time strings only through the shared date util. Never format dates inline.
+- No hard-coded values in app code — put them in `CapsuleCore`.
+- Date and reset-time strings only through `CapsuleCore`'s formatters. Never format dates inline.
 - Reuse components; do not duplicate HUD, date, or config logic.
 - Source files stay at or under 500 lines; split when they would grow past that.
 - Update `CHANGELOG.md` for every completed change.
-- Add or update `openapi.json` only when an HTTP endpoint is added, changed, or removed. v1 is Electron IPC, so do not add OpenAPI until there is an HTTP surface.
-- Prefer tests with the change (unit tests for usage/placement/date math; HUD visual checks against the reference).
+- Add or update `openapi.json` only when an HTTP endpoint is added, changed, or removed. The app has no HTTP surface, so do not add OpenAPI until there is one.
+- Prefer tests with the change: unit tests for usage, placement and date math; `CapsuleSnapshotTests` for anything drawn, compared against the reference.
+
+## Heavy commands
+
+- Run one test target at a time, in the background: `taskpolicy -b swift test --filter CapsuleDockTests`.
+- `swift build` for the app product only when the change needs it: `taskpolicy -b scripts/bundle-macos.sh`.
+- The whole `swift test` runs on CI.

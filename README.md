@@ -62,19 +62,21 @@ can change, so an installed tool may occasionally show as unavailable until
 Capsule is updated.
 
 Activity notices are passive. Capsule does not install hooks, send prompts,
-approve actions, or control an agent. The experimental agent chat source is
-kept in the repository but is not started, built, or exposed in the app.
+approve actions, or control an agent. The experimental agent chat is not part
+of the app; its source is kept in git history at the `electron-final` tag.
 
 ## Install
 
 Download the latest `.dmg` from
 [Releases](https://github.com/antick/capsule/releases), open it, and drag
-Capsule to Applications. Pick the `arm64` build for Apple silicon and the
-`x64` build for Intel Macs.
+Capsule to Applications. Capsule is a native Swift app and needs an Apple
+silicon Mac on macOS 14 Sonoma or newer. Intel Macs stay on the final Electron
+release, `v0.1.0`.
 
 Capsule lives in the menu bar, not the Dock. On first launch it parks itself on
 the right edge of your screen; right-click it or use the menu bar icon for
-**Settings**.
+**Settings**. Settings from the Electron version are carried over on first
+launch.
 
 Releases are not yet signed with an Apple Developer ID, so macOS refuses to
 open the download the first time:
@@ -83,24 +85,21 @@ open the download the first time:
 2. Scroll to the message about Capsule being blocked, and click **Open Anyway**
 3. Confirm in the dialog that follows
 
-Until a release is signed, Capsule cannot replace itself in place — **Settings →
-Updates** says so and links to the release page instead of downloading. See
-[docs/releasing.md](docs/releasing.md) for what signing involves.
-
 ## Updates
 
-**Settings → Updates** shows the running version, checks GitHub Releases for a
-newer one, and installs it with a restart. Capsule checks on launch and once a
-day; turn that off, or turn on background downloading, on the same page. The
-check sends nothing but the request for the release feed.
+**Settings → Updates** shows the running version and checks GitHub Releases
+for a newer one, on launch and once a day unless you turn that off. A release
+that is found is downloaded from its release page; installing in place arrives
+with signed releases. The check sends nothing but the request for the latest
+release.
 
 ## Run it locally
 
-Capsule requires macOS, Node.js 22 or newer, and pnpm 11.25.0.
+Capsule needs macOS 14 or newer on Apple silicon, and Xcode with Swift 6.
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm dev
+scripts/bundle-macos.sh
+open .build/out/Products/Debug/Capsule.app
 ```
 
 Right-click the dock for **Settings**, **Keep open**, placement shortcuts, and
@@ -110,52 +109,51 @@ Settings to explore the full interface without provider accounts.
 ## Check a change
 
 ```bash
-pnpm check
-pnpm typecheck
-pnpm test
-pnpm build
+swift build
+swift test
+scripts/test-scripts.sh
 ```
 
-Build an installable app without publishing it — the DMGs and zips land in
-`apps/desktop/release`:
+`swift test --filter CapsuleSnapshotTests` renders every dock state and every
+settings page to PNG under `.build/snapshots`, for looking at a change rather
+than imagining it.
+
+Build an installable app without publishing it — the zip and the DMG land in
+`.build/release-artifacts`:
 
 ```bash
-pnpm dist
+scripts/package-macos.sh
 ```
 
 ## Cut a release
 
-1. Bump `version` in `apps/desktop/package.json`
+1. Bump `CFBundleShortVersionString` in `Support/CapsuleApp/Info.plist`
 2. Add a `## <version>` section to `CHANGELOG.md`
 3. Commit both
-4. Run `pnpm release:tag`, then push the tag it prints
+4. Run `scripts/tag-release.sh`, then push the tag it prints
 
-Pushing the tag runs the Release workflow: it re-runs the checks, builds the
-arm64 and x64 apps, and publishes them to GitHub Releases. The changelog section
-becomes both the release body and the "What's new" text in Settings → Updates.
+Pushing the tag runs the Release workflow: it re-runs the tests, builds the
+app, and publishes it to GitHub Releases. The changelog section becomes both the
+release body and the "What's new" text in Settings → Updates.
 
-Signing the build — which is what lets Capsule install its own updates — is set
-up once, in [docs/releasing.md](docs/releasing.md).
-
-The native notification check runs after a build and uses temporary files and
-sample data. It does not contact provider accounts.
-
-```bash
-CAPSULE_PLAYWRIGHT_PATH=/path/to/playwright \
-  node apps/desktop/scripts/verify-notifications.cjs
-```
+Signing and notarising the build is set up once, in
+[docs/releasing.md](docs/releasing.md).
 
 ## Project layout
 
 ```text
-apps/desktop       Electron app and renderer windows
-packages/activity Local agent activity and token readers
-packages/config   Shared settings, copy, and visual constants
-packages/dates    Shared reset-time formatting
-packages/hud      Edge dock, meters, cards, and notices
-packages/usage    Provider usage readers and polling
-openspec          Product specs and design history
+Sources/CapsuleCore        Settings, copy, placement, metrics, dates, themes
+Sources/CapsuleUsage       Provider usage readers and the poller
+Sources/CapsuleActivity    Local agent activity, notices and token readers
+Sources/CapsuleHUD         The dock's outlines: rail, card, latch, icons
+Sources/CapsuleSystem      The Mac behind the readers: files, SQLite, keychain
+Sources/CapsuleDock        The dock: behaviour, meters, card, layers
+Sources/CapsuleSettingsUI  Settings and onboarding, in SwiftUI
+Sources/CapsuleShell       The panel, menus, hover, drag, updater, wiring
+Sources/CapsuleApp         The app's entry point
+fixtures                   The shared behaviour corpus the tests read
+openspec                   Product specs and design history
 ```
 
-Capsule uses Electron, React, TanStack Router, Tailwind CSS, Biome, pnpm
-workspaces, and Turborepo.
+Capsule uses Swift, AppKit, Core Animation and SwiftUI, built with Swift
+Package Manager. It has no third-party dependencies.
