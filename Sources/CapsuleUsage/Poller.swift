@@ -33,6 +33,8 @@ public actor UsagePoller {
   private var lastAttempt: Double?
   private var blockedUntil: [String: Double]
   private var refusals: [String: Int] = [:]
+  /// When each provider last answered "not signed in".
+  private var signedOutAt: [String: Double] = [:]
 
   public init(
     providers: [UsageProvider],
@@ -91,10 +93,15 @@ public actor UsagePoller {
   }
 
   /// One provider's turn on the network, with a failure folded into a snapshot.
-  private func fetchOne(_ provider: UsageProvider) async -> UsageSnapshot {
+  private func fetchOne(_ provider: UsageProvider, asked: Bool = false) async -> UsageSnapshot {
     let key = provider.id.rawValue
     let previous = snapshots.first { $0.providerId == provider.id }
     let now = nowMs
+    // Signed out a moment ago: still signed out, most likely, and asking
+    // again each poll spends the account's goodwill on a known answer.
+    if !asked, let previous, let since = signedOutAt[key], now - since < PollerTuning.signedOutRetryMs {
+      return previous
+    }
     // Inside a penalty the answer is already known: show the dated numbers
     // rather than spend an attempt extending the penalty.
     if (blockedUntil[key] ?? 0) > now { return heldBack(provider.id, previous: previous) }
@@ -104,6 +111,7 @@ public actor UsagePoller {
       )
       if blockedUntil.removeValue(forKey: key) != nil { host.saveBackoff(blockedUntil) }
       refusals[key] = nil
+      if fresh.status == .unauthenticated { signedOutAt[key] = now } else { signedOutAt[key] = nil }
       return fresh
     } catch let refusal as RateLimited {
       let attempt = (refusals[key] ?? 0) + 1
@@ -180,7 +188,7 @@ public actor UsagePoller {
     var flagged = Set(snapshots.filter { $0.refreshing == true }.map(\.providerId))
     flagged.insert(id)
     markRefreshing(flagged)
-    let reading = await fetchOne(provider)
+    let reading = await fetchOne(provider, asked: true)
     snapshots = snapshots.map { item in
       guard item.providerId == id else { return item }
       var landed = reading

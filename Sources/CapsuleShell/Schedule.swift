@@ -81,12 +81,17 @@ public final class ShellSchedule {
   private let events: ShellEvents
   private let watchedDirectory: String
   private var pollSubscription: Subscription?
+  /// Milliseconds on a monotonic clock, for merging come-back events.
+  private let clock: @MainActor () -> Double
+  private var lastComeBack: Double?
   private var subscriptions: [Subscription] = []
 
   public init(
     usage: UsageDriving, activity: Rescanning, tokens: Rescanning,
-    events: ShellEvents, watchedDirectory: String
+    events: ShellEvents, watchedDirectory: String,
+    clock: @escaping @MainActor () -> Double = { ProcessInfo.processInfo.systemUptime * 1000 }
   ) {
+    self.clock = clock
     self.usage = usage
     self.activity = activity
     self.tokens = tokens
@@ -103,9 +108,9 @@ public final class ShellSchedule {
     let tokens = tokens
     setPollInterval(pollIntervalMs)
     subscriptions = [
-      events.onWake { Task { await usage.resume() } },
-      events.onUnlock { Task { await usage.online() } },
-      events.onOnline { Task { await usage.online() } },
+      events.onWake { [weak self] in self?.cameBack { await usage.resume() } },
+      events.onUnlock { [weak self] in self?.cameBack { await usage.online() } },
+      events.onOnline { [weak self] in self?.cameBack { await usage.online() } },
       events.every(ActivityTuning.pollMs / 1000) { Task { await activity.rescan() } },
       events.every(TokenTuning.scanIntervalMs / 1000) {
         Task {
@@ -126,6 +131,15 @@ public final class ShellSchedule {
       await tokens.rescan()
       releaseFreedMemory()
     }
+  }
+
+  /// Waking, unlocking and the network returning usually arrive together:
+  /// the first of them reads, the rest within the gap do not.
+  private func cameBack(_ read: @escaping @Sendable () async -> Void) {
+    let now = clock()
+    if let last = lastComeBack, now - last < PollerTuning.comeBackGapMs { return }
+    lastComeBack = now
+    Task { await read() }
   }
 
   /// Re-times the poller's tick without re-reading anything.

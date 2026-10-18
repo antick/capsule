@@ -300,3 +300,55 @@ struct StubPollerHost: PollerHost {
   func loadSnapshots() -> [UsageSnapshot] { [] }
   func saveSnapshots(_ snapshots: [UsageSnapshot]) {}
 }
+
+@Suite("Poller and a signed-out provider")
+struct SignedOutTests {
+  struct SignedOut: UsageProvider {
+    let id = ProviderId.codex
+    let reads: Counter
+
+    func fetchSnapshot(_ host: UsageHost, now: Date) async throws -> UsageSnapshot {
+      await reads.bump()
+      return UsageSnapshot(
+        providerId: id, displayName: "Codex", iconId: id, primaryPercent: nil, buckets: [],
+        status: .unauthenticated, fetchedAt: isoString(now))
+    }
+  }
+
+  final class Clock: @unchecked Sendable {
+    var ms = 1_800_000_000_000.0
+  }
+
+  struct Host: PollerHost {
+    let clock: Clock
+    var usage: UsageHost { StubPollerHost.NoNetwork() }
+    func now() -> Date { Date(timeIntervalSince1970: clock.ms / 1000) }
+    func loadBackoff() -> [String: Double] { [:] }
+    func saveBackoff(_ until: [String: Double]) {}
+    func loadSnapshots() -> [UsageSnapshot] { [] }
+    func saveSnapshots(_ snapshots: [UsageSnapshot]) {}
+  }
+
+  @Test func isAskedAgainOnlyEveryFewMinutesUnlessClicked() async {
+    var settings = CapsuleSettings.defaults
+    settings.enabledProviderIds = [.codex]
+    let frozen = settings
+    let reads = Counter()
+    let clock = Clock()
+    let poller = UsagePoller(
+      providers: [SignedOut(reads: reads)], host: Host(clock: clock), settings: { frozen }, onChange: { _ in }
+    )
+    await poller.start()
+    #expect(await reads.value == 1)
+    clock.ms += 60_000
+    await poller.refresh()
+    #expect(await reads.value == 1)
+    // Asking for it by name reads it at once.
+    await poller.refreshProvider(.codex)
+    #expect(await reads.value == 2)
+    clock.ms += PollerTuning.signedOutRetryMs
+    await poller.refresh()
+    #expect(await reads.value == 3)
+    #expect(await poller.snapshots.first?.status == .unauthenticated)
+  }
+}

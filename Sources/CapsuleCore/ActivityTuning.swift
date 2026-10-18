@@ -126,6 +126,15 @@ public enum PollerTuning {
   /// While nobody is working, wait this long between reads: numbers that
   /// cannot have moved are not worth spending rate limit on.
   public static let idleIntervalMs = 300_000.0
+  /// A provider that answered "not signed in" is asked again this often, not
+  /// every poll: a dead token re-sent each minute — and, for Codex, a refresh
+  /// posted with it — looks like abuse. Clicking its meter asks at once.
+  public static let signedOutRetryMs = 300_000.0
+  /// Waking, unlocking and the network returning often arrive together; they
+  /// make one read between them, not three.
+  public static let comeBackGapMs = 60_000.0
+  /// The quickest a click on the same meter reads its provider again.
+  public static let manualRefreshGapMs = 15_000.0
 }
 
 /// How the shell runs the local tools it asks for a token.

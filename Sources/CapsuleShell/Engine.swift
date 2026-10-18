@@ -151,6 +151,9 @@ public final class Engine {
     if next.pollIntervalMs != previous.pollIntervalMs {
       schedule.setPollInterval(next.pollIntervalMs)
     }
+    // Only a change to which providers are shown needs the network. A theme,
+    // a size step or a drag is not a reason to ask every provider again.
+    guard next.enabledProviderIds != previous.enabledProviderIds else { return }
     let poller = poller
     let monitor = monitor
     let scanner = scanner
@@ -162,11 +165,19 @@ public final class Engine {
     Task { await scanner.rescan() }
   }
 
-  /// The user asked for one provider to be read again.
+  /// The user asked for one provider to be read again. Clicks on the same
+  /// meter read it at most once per gap, however fast they come.
   public func refreshProvider(_ id: ProviderId) {
+    let now = clock()
+    if let last = lastAsked[id], now - last < PollerTuning.manualRefreshGapMs { return }
+    lastAsked[id] = now
     let poller = poller
     Task { await poller.refreshProvider(id) }
   }
+
+  private var lastAsked: [ProviderId: Double] = [:]
+  /// Milliseconds on a monotonic clock; replaceable for tests.
+  var clock: () -> Double = { ProcessInfo.processInfo.systemUptime * 1000 }
 
   // MARK: Notices
 

@@ -85,17 +85,25 @@ func waitFor(_ calls: Calls, _ expected: [String: Int]) async -> [String: Int] {
   return await counts()
 }
 
+/// A clock the schedule tests move by hand.
+@MainActor
+final class Millis {
+  var now = 0.0
+}
+
 @MainActor
 @Suite("Shell schedule")
 struct ScheduleTests {
   let calls = Calls()
   let fake = FakeEvents()
+  let time = Millis()
 
   func schedule() -> ShellSchedule {
-    ShellSchedule(
+    let time = time
+    return ShellSchedule(
       usage: FakeUsage(calls: calls), activity: FakeRescan(calls: calls, name: "activity"),
       tokens: FakeRescan(calls: calls, name: "tokens"), events: fake.events,
-      watchedDirectory: "/home/.claude/sessions"
+      watchedDirectory: "/home/.claude/sessions", clock: { time.now }
     )
   }
 
@@ -114,14 +122,30 @@ struct ScheduleTests {
     #expect(await waitFor(calls, ["tick": 2])["tick"] == 2)
   }
 
-  @Test func wakeResumesAndUnlockOrNetworkReadsAgain() async {
-    schedule().start(pollIntervalMs: 60_000)
+  @Test func wakeUnlockAndNetworkTogetherMakeOneRead() async {
+    let running = schedule()
+    running.start(pollIntervalMs: 60_000)
     fake.wake.forEach { $0() }
     fake.unlock.forEach { $0() }
     fake.online.forEach { $0() }
-    let counts = await waitFor(calls, ["resume": 1, "online": 2])
+    let counts = await waitFor(calls, ["resume": 1])
     #expect(counts["resume"] == 1)
-    #expect(counts["online"] == 2)
+    #expect(counts["online"] == nil)
+    running.stop()
+  }
+
+  @Test func aComeBackAfterTheGapReadsAgain() async {
+    let running = schedule()
+    running.start(pollIntervalMs: 60_000)
+    fake.wake.forEach { $0() }
+    time.now += PollerTuning.comeBackGapMs - 1
+    fake.unlock.forEach { $0() }
+    time.now += 1
+    fake.online.forEach { $0() }
+    let counts = await waitFor(calls, ["resume": 1, "online": 1])
+    #expect(counts["resume"] == 1)
+    #expect(counts["online"] == 1)
+    running.stop()
   }
 
   @Test func activityRescansOnItsPollAndOnADirectoryChange() async {

@@ -17,9 +17,9 @@ public struct GrokUsageProvider: UsageProvider {
     if let user = auth.userId { headers[UsageEndpoints.Grok.userIdHeader] = user }
     let response = try await host.send(HTTPRequest(url: UsageEndpoints.Grok.billingURL, headers: headers))
     if response.status == 401 || response.status == 403 { return unauthenticatedSnapshot(id, fetchedAt: now) }
-    // No 429 branch, exactly as the original: a rate limit fails as a generic
-    // error, so the poller does not back off. That is a bug, recorded in
-    // `usage/provider-reads` and fixed in the TypeScript first.
+    // Told to wait: say so, so the poller backs off rather than knocking
+    // again next minute.
+    if response.status == 429 { throw rateLimited(response, now: now) }
     guard response.ok else { throw UsageReadError.http(id, response.status) }
     return mapGrokCredits(try decode(GrokBillingPayload.self, response, id), fetchedAt: now)
   }

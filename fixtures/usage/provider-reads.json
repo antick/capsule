@@ -1884,7 +1884,10 @@
       },
       "expected": {
         "outcome": {
-          "failed": true
+          "rateLimited": {
+            "retryAfterMs": null,
+            "fallback": null
+          }
         },
         "requests": [
           {
@@ -1898,8 +1901,49 @@
             }
           }
         ]
+      }
+    },
+    {
+      "name": "grok: rate limited honours Retry-After",
+      "input": {
+        "provider": "grok",
+        "home": "/home",
+        "files": {
+          "/home/.grok/auth.json": "{\"k\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+        },
+        "secrets": {},
+        "commands": [],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "status": 429,
+            "headers": {
+              "Retry-After": "45"
+            }
+          }
+        ]
       },
-      "note": "RECORDS CURRENT BEHAVIOUR, WHICH LOOKS WRONG: Grok has no 429 branch, so a rate-limited read fails as a generic error instead of a RateLimitedError. The poller therefore never backs off for Grok and knocks again on every refresh. Claude, Codex, Cursor and Copilot all throw RateLimitedError here. Recorded so the port is faithful; fix it in the TypeScript first and re-record rather than carrying it into Swift."
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": 45000,
+            "fallback": null
+          }
+        },
+        "requests": [
+          {
+            "method": "GET",
+            "url": "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+            "headers": {
+              "accept": "application/json",
+              "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1",
+              "x-xai-token-auth": "xai-grok-cli"
+            }
+          }
+        ]
+      }
     },
     {
       "name": "grok: a server error fails",

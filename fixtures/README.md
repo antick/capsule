@@ -225,9 +225,9 @@ a stale reading on it forever.
 
 ### Found while recording the stub worlds
 
-- **Grok has no 429 branch.** A rate-limited Grok read fails as a generic
-  error, so the poller never backs off for it. Recorded as-is and flagged in
-  `usage/provider-reads`; the fix belongs in the TypeScript first.
+- **Grok had no 429 branch.** A rate-limited Grok read failed as a generic
+  error, so the poller never backed off for it. Fixed: `usage/provider-reads`
+  now expects a rate-limit outcome, and honours `Retry-After`.
 - **A poller with nothing enabled loops forever.** It lands the default
   placeholder set, finds every one of them unread, and queues another refresh.
   Reachable from Settings by switching off the last provider. Not recorded —
