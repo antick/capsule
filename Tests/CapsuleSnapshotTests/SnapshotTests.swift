@@ -80,6 +80,7 @@ struct SnapshotTests {
       contentRect: NSRect(origin: NSPoint(x: -20_000, y: -20_000), size: view.frameSize),
       styleMask: .borderless, backing: .buffered, defer: false)
     window.isOpaque = false
+    window.isReleasedWhenClosed = false
     window.backgroundColor = .clear
     window.contentView = view
     view.frame = NSRect(origin: .zero, size: view.frameSize)
@@ -101,7 +102,9 @@ struct SnapshotTests {
     // A desktop to read the shadows and the surface against.
     cg.setFillColor(look.theme.appearance == .dark ? CGColor(gray: 0.45, alpha: 1) : CGColor(gray: 0.82, alpha: 1))
     cg.fill(CGRect(x: 0, y: 0, width: size.width * scale, height: size.height * scale))
-    cg.scaleBy(x: scale, y: scale)
+    // The dock draws y-down; the bitmap is y-up.
+    cg.translateBy(x: 0, y: size.height * scale)
+    cg.scaleBy(x: scale, y: -scale)
     try #require(view.layer).render(in: cg)
     try FileManager.default.createDirectory(at: Self.output, withIntermediateDirectories: true)
     let data = try #require(rep.representation(using: .png, properties: [:]))
