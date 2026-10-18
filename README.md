@@ -69,37 +69,35 @@ of the app; its source is kept in git history at the `electron-final` tag.
 Download the latest `.dmg` from
 [Releases](https://github.com/antick/capsule/releases), open it, and drag
 Capsule to Applications. Capsule is a native Swift app and needs an Apple
-silicon Mac on macOS 14 Sonoma or newer. Intel Macs stay on the final Electron
-release, `v0.1.0`.
+silicon Mac on macOS 14 Sonoma or newer. New releases do not support Intel Macs.
 
 Capsule lives in the menu bar, not the Dock. On first launch it parks itself on
 the right edge of your screen; right-click it or use the menu bar icon for
 **Settings**. Settings from the Electron version are carried over on first
 launch.
 
-Releases are not yet signed with an Apple Developer ID, so macOS refuses to
-open the download the first time:
-
-1. Open **System Settings → Privacy & Security**
-2. Scroll to the message about Capsule being blocked, and click **Open Anyway**
-3. Confirm in the dialog that follows
+Public releases are signed with Developer ID and notarized by Apple.
 
 ## Updates
 
-**Settings → Updates** shows the running version and checks GitHub Releases
-for a newer one, on launch and once a day unless you turn that off. A release
-that is found is downloaded from its release page; installing in place arrives
-with signed releases. The check sends nothing but the request for the latest
-release.
+**Settings → Updates** checks for signed releases and can download and install
+them. Automatic checks run shortly after launch and once a day when enabled.
+Choose **Restart and install** when an update is ready, or quit Capsule to let
+it finish installing. Background downloads are optional.
+
+Update checks contact GitHub; provider credentials and usage readings are never
+sent to the update service. Development builds do not check for updates.
 
 ## Run it locally
 
 Capsule needs macOS 14 or newer on Apple silicon, and Xcode with Swift 6.
 
 ```bash
-scripts/bundle-macos.sh
-open .build/out/Products/Debug/Capsule.app
+taskpolicy -b scripts/dev.sh
 ```
+
+This opens **Capsule Dev**, with a blue icon and separate settings and caches.
+Your installed Capsule can keep running alongside it.
 
 Right-click the dock for **Settings**, **Keep open**, placement shortcuts, and
 **Quit Capsule**. You can also use the menu bar icon. Turn on **Demo mode** in
@@ -121,18 +119,18 @@ Build an installable app without publishing it — the zip and the DMG land in
 `.build/release-artifacts`:
 
 ```bash
-scripts/package-macos.sh
+NOTARY_PROFILE=capsule-notary taskpolicy -b scripts/package-macos.sh
 ```
 
 ## Cut a release
 
-1. Bump `CFBundleShortVersionString` in `Support/CapsuleApp/Info.plist`
+1. Bump `CFBundleShortVersionString` and `CFBundleVersion` in `Support/CapsuleApp/Info.plist`
 2. Add a `## <version>` section to `CHANGELOG.md`
 3. Commit both
 4. Run `scripts/tag-release.sh`, then push the tag it prints
 
 Pushing the tag runs the Release workflow: it re-runs the tests, builds the
-app, and publishes it to GitHub Releases. The changelog section becomes both the
+signed and notarized app, publishes it to GitHub Releases, and updates the signed feed. The changelog section becomes both the
 release body and the "What's new" text in Settings → Updates.
 
 Signing and notarising the build is set up once, in

@@ -40,6 +40,7 @@ public final class AppModel: MenuHandlers {
     let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
     let autoCheck = LockedFlag(loaded.autoUpdateCheck)
     updater = Updater(version: version) { autoCheck.value }
+    updater.autoDownload = loaded.autoUpdateDownload
     autoCheckBox = autoCheck
     settingsModel = SettingsModel(settings: loaded, update: updater.state)
     wire()
@@ -72,6 +73,7 @@ public final class AppModel: MenuHandlers {
       self.apply(next)
     }
     dock.contextMenu = { [weak self] in self?.menus?.contextMenu() ?? NSMenu() }
+    updater.onFocus = { [weak self] in self?.openSettings(.updates) }
     updater.onChange = { [weak self] state in self?.settingsModel.update = state }
     settingsModel.onApply = { [weak self] next in self?.apply(next) }
     settingsModel.onRevealDock = { [weak self] in self?.revealDock() }
@@ -127,6 +129,7 @@ public final class AppModel: MenuHandlers {
     engine.apply(next)
     dock.apply(settings: next)
     pushToDock()
+    updater.autoDownload = next.autoUpdateDownload
     if next.autoUpdateCheck != previous.autoUpdateCheck {
       autoCheckBox.value = next.autoUpdateCheck
       updater.syncSchedule()
@@ -163,8 +166,7 @@ public final class AppModel: MenuHandlers {
 
   public func checkForUpdates() { updater.check() }
 
-  /// Nothing to install in place until the cutover brings Sparkle.
-  public func installUpdate() { updater.openReleasePage() }
+  public func installUpdate() { updater.install() }
 }
 
 /// A flag the updater's timer reads from its own closure.

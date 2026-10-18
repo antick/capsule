@@ -1,15 +1,29 @@
 import Foundation
 
-/// Who the app is, and where it keeps its files: the same identifier and
-/// folder the Electron app used, so the native app takes its place.
+/// Unbundled executables and unknown identities are always development builds.
+public enum AppChannel: String, Sendable {
+  case development, production
+
+  public static let productionIdentifier = "com.antick.capsule"
+  public static let developmentIdentifier = "com.antick.capsule.dev"
+
+  public init(bundleIdentifier: String?) {
+    self = bundleIdentifier == Self.productionIdentifier ? .production : .development
+  }
+
+  public var name: String { self == .production ? "Capsule" : "Capsule Dev" }
+  public var bundleIdentifier: String {
+    self == .production ? Self.productionIdentifier : Self.developmentIdentifier
+  }
+  public var supportDirectory: String { name }
+  public var allowsUpdates: Bool { self == .production }
+}
+
 public enum AppIdentity {
-  public static let name = "Capsule"
-  public static let bundleIdentifier = "com.antick.capsule"
-  /// Folder under Application Support, the Electron app's own. The native
-  /// app's files are named differently from that app's, so both can sit
-  /// there while settings are carried over.
-  public static let supportDirectory = name
-  /// Schema v7 settings, the same shape the Electron app writes.
+  public static let channel = AppChannel(bundleIdentifier: Bundle.main.bundleIdentifier)
+  public static let name = channel.name
+  public static let bundleIdentifier = channel.bundleIdentifier
+  public static let supportDirectory = channel.supportDirectory
   public static let settingsFile = "config.json"
   public static let logSubsystem = bundleIdentifier
 }

@@ -6,9 +6,19 @@ import Testing
 @MainActor
 @Suite("Capsule branding")
 struct BrandIconTests {
+  @Test func developmentIconHasADistinctBlueMeter() throws {
+    let image = BrandIcon.image(development: true)
+    let data = try #require(image.tiffRepresentation)
+    let bitmap = try #require(NSBitmapImageRep(data: data))
+    let scale = CGFloat(bitmap.pixelsWide) / image.size.width
+    let fill = try #require(bitmap.colorAt(x: Int(300 * scale), y: Int(512 * scale))?.usingColorSpace(.deviceRGB))
+    #expect(fill.blueComponent > 0.95)
+    #expect(fill.redComponent < 0.4)
+  }
+
   @Test func appAndMenuImagesRenderWithTransparentMargins() throws {
     for template in [false, true] {
-      let image = BrandIcon.image(template: template)
+      let image = BrandIcon.image(template: template, development: false)
       #expect(image.isTemplate == template)
       #expect(image.accessibilityDescription == AppIdentity.name)
       let data = try #require(image.tiffRepresentation)

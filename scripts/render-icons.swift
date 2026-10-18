@@ -1,5 +1,6 @@
 
 // Appended to the shared renderer by generate-icons.sh.
+let development = CommandLine.arguments.contains("--development")
 let destination = URL(fileURLWithPath: CommandLine.arguments[1])
 let iconset = destination.appendingPathComponent("AppIcon.iconset")
 try FileManager.default.createDirectory(at: iconset, withIntermediateDirectories: true)
@@ -19,11 +20,11 @@ func save(_ image: NSImage, pixels: Int, to url: URL) throws {
 for size in [16, 32, 128, 256, 512] {
   for scale in [1, 2] {
     let suffix = scale == 2 ? "@2x" : ""
-    try save(BrandIcon.image(), pixels: size * scale,
+    try save(BrandIcon.image(development: development), pixels: size * scale,
       to: iconset.appendingPathComponent("icon_\(size)x\(size)\(suffix).png"))
   }
 }
-try save(BrandIcon.image(), pixels: 1024, to: destination.appendingPathComponent("AppIcon.png"))
+try save(BrandIcon.image(development: development), pixels: 1024, to: destination.appendingPathComponent("AppIcon.png"))
 for scale in [1, 2] {
   let suffix = scale == 2 ? "@2x" : ""
   try save(BrandIcon.image(template: true), pixels: Int(Branding.menuSize.width) * scale,

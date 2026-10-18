@@ -167,6 +167,16 @@ struct UpdatesPage: View {
           actions(state)
         }
       }
+      if state.phase == .downloading {
+        SettingsSection {
+          if let progress = state.progress, progress.totalBytes > 0 {
+            ProgressView(value: progress.fraction)
+            Text(formatProgress(progress)).font(.caption).foregroundStyle(.secondary)
+          } else {
+            ProgressView().controlSize(.small)
+          }
+        }
+      }
       if let notes = state.releaseNotes {
         SettingsSection(title: UpdateCopy.releaseNotes, hint: state.availableVersion.map { "\(AppIdentity.name) \($0)" }) {
           ScrollView {
@@ -182,6 +192,7 @@ struct UpdatesPage: View {
             "", isOn: Binding(get: { model.settings.autoUpdateCheck }, set: { on in model.change { $0.autoUpdateCheck = on } })
           )
           .labelsHidden().toggleStyle(.switch).accessibilityLabel(UpdateCopy.autoCheck)
+          .disabled(!state.canInstall)
         }
         Divider()
         SettingRow(label: UpdateCopy.autoDownload, hint: UpdateCopy.autoDownloadHint) {
@@ -212,7 +223,9 @@ struct UpdatesPage: View {
     case .available:
       HStack {
         Button(UpdateCopy.viewRelease) { model.onOpenRelease() }
-        Button(UpdateCopy.download) { model.onDownloadUpdate() }.keyboardShortcut(.defaultAction)
+        if state.canInstall {
+          Button(UpdateCopy.download) { model.onDownloadUpdate() }.keyboardShortcut(.defaultAction)
+        }
       }
     default:
       HStack {

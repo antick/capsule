@@ -1,39 +1,51 @@
 #!/bin/sh
-# Builds the native app and wraps it in Capsule.app next to the binary,
-# ad-hoc signed, so LaunchServices reads its Info.plist (LSUIElement, the
-# side-by-side bundle identifier). Prints the bundle's path.
-#
-#   taskpolicy -b scripts/bundle-macos.sh [debug|release]
+# Build optimization and app identity are separate: default is always Dev.
+# taskpolicy -b scripts/bundle-macos.sh [debug|release] [development|production]
 set -eu
-
 root=$(cd "$(dirname "$0")/.." && pwd)
+. "$root/scripts/release/config.sh"
 config=${1:-debug}
+channel=${2:-development}
+case "$config" in debug|release) ;; *) release_fail "Expected debug or release" ;; esac
+case "$channel" in development|production) ;; *) release_fail "Expected development or production" ;; esac
 cd "$root"
-
-swift build -c "$config" --product CapsuleApp >&2
-bin=$(swift build -c "$config" --show-bin-path)
-app="$bin/Capsule.app"
-
+[ "$(uname -m)" = "$CAPSULE_ARCH" ] || release_fail "Capsule builds require an Apple silicon Mac."
+bin=$(swift build -c "$config" --arch "$CAPSULE_ARCH" --show-bin-path)
+swift build -c "$config" --arch "$CAPSULE_ARCH" --product CapsuleApp >&2
+name=$(plist_value CFBundleName)
+identifier=$(plist_value CFBundleIdentifier)
+icon=AppIcon
+if [ "$channel" = development ]; then
+  name="$name Dev"
+  identifier="$identifier.dev"
+  icon=AppIconDev
+fi
+app="$root/.build/bundles/$channel/$name.app"
 rm -rf "$app"
-mkdir -p "$app/Contents/MacOS"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources" "$app/Contents/Frameworks"
 cp "$bin/CapsuleApp" "$app/Contents/MacOS/CapsuleApp"
-cp Support/CapsuleApp/Info.plist "$app/Contents/Info.plist"
-mkdir -p "$app/Contents/Resources"
+cp "$CAPSULE_PLIST" "$app/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $identifier" "$app/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleName $name" "$app/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName $name" "$app/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleIconFile $icon" "$app/Contents/Info.plist"
 cp Support/CapsuleApp/Resources/* "$app/Contents/Resources/"
-
-# Signed with a Developer ID, so every build carries the same identity: a
-# network filter's rule and the keychain's "Always Allow" then survive
-# rebuilds instead of asking again each time. CAPSULE_SIGN_IDENTITY names one;
-# otherwise the first Developer ID Application identity in the keychain is
-# used, by its hash since several can share a name; ad hoc when there is none.
+cp LICENSE "$app/Contents/Resources/LICENSE.txt"
+framework="$root/.build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework"
+[ -d "$framework" ] || release_fail "Resolved Sparkle framework is missing."
+ditto "$framework" "$app/Contents/Frameworks/Sparkle.framework"
+cp .build/checkouts/Sparkle/LICENSE "$app/Contents/Resources/Sparkle-LICENSE.txt"
+# SPM's executable needs a bundle-relative runtime search path.
+install_name_tool -add_rpath @executable_path/../Frameworks "$app/Contents/MacOS/CapsuleApp" 2>/dev/null ||
+  otool -l "$app/Contents/MacOS/CapsuleApp" | grep -q '@executable_path/../Frameworks'
 identity=${CAPSULE_SIGN_IDENTITY:-$(security find-identity -v -p codesigning 2>/dev/null |
   awk '/Developer ID Application/ { print $2; exit }')}
-if [ -z "$identity" ] || [ "$identity" = "-" ]; then
-  codesign --force --sign - "$app" >&2
-elif [ "$config" = release ]; then
-  codesign --force --options runtime --timestamp --sign "$identity" "$app" >&2
+if [ "$channel" = production ]; then
+  [ -n "$identity" ] && [ "$identity" != - ] || release_fail "Production requires Developer ID signing."
+  timestamp=--timestamp
 else
-  # A local build needs no secure timestamp, so building needs no network.
-  codesign --force --options runtime --timestamp=none --sign "$identity" "$app" >&2
+  identity=${identity:--}
+  timestamp=--timestamp=none
 fi
+python3 scripts/release/sign-bundle.py "$app" "$identity" "$timestamp"
 echo "$app"

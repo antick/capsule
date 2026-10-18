@@ -2,6 +2,22 @@
 
 All notable changes to Capsule are documented in this file.
 
+## 0.2.0 — signed native release
+
+### Added
+
+- Native Swift/AppKit app for Apple silicon on macOS 14 or newer, with live provider usage, reset times, and passive activity notices.
+- Signed and notarized Apple silicon installer with an Applications shortcut.
+- Verified in-app updates, download progress, and restart-to-install through Sparkle.
+- Capsule Dev with a blue icon, separate settings and caches, and no production updates.
+- Automated release checks, signed update feed, checksums, and release recovery instructions.
+
+### Changed
+
+- Public releases require Apple signing and notarization; unsigned publishing is blocked.
+- New builds support Apple silicon only, including every bundled updater helper.
+- Usage monitoring remains available for Claude, Codex, Grok, and Cursor.
+
 ## Amber-and-cream identity
 
 ### Changed

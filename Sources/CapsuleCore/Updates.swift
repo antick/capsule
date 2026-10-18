@@ -82,7 +82,7 @@ public struct UpdateState: Sendable, Codable, Equatable {
   }
 
   /// Whether asking for a check right now would do anything.
-  public var canCheck: Bool { phase != .checking && phase != .downloading }
+  public var canCheck: Bool { phase != .unsupported && phase != .checking && phase != .downloading && phase != .ready }
 
   /// The standing in two or three words, for the sidebar and menus.
   public var shortLabel: String {
@@ -93,7 +93,7 @@ public struct UpdateState: Sendable, Codable, Equatable {
     case .downloading: return "Downloading"
     case .ready: return "Ready"
     case .current: return "Up to date"
-    case .error: return "Check failed"
+    case .error: return "Update failed"
     case .unsupported: return "Manual"
     }
   }
@@ -130,7 +130,7 @@ public struct UpdateState: Sendable, Codable, Equatable {
 public enum UpdateCopy {
   public static let updates = "Updates"
   public static let updatesHint =
-    "Capsule installs updates from its GitHub releases. Nothing is sent when it checks."
+    "Install verified updates from Capsule’s public releases. Checks contact the update host; no provider sessions or usage readings are sent."
   public static let currentVersion = "Current version"
   public static let checkNow = "Check now"
   public static let checking = "Checking…"
@@ -144,12 +144,12 @@ public enum UpdateCopy {
   public static let availableDetailSuffix = " is ready to download."
   public static let downloadingTitle = "Downloading update"
   public static let readyTitle = "Update ready to install"
-  public static let readyDetail = "Capsule will restart to finish installing."
-  public static let errorTitle = "Could not check for updates"
+  public static let readyDetail = "Restart to finish installing, or the update will be applied when you quit Capsule."
+  public static let errorTitle = "Could not update Capsule"
   public static let timedOut = "The update service did not answer in time."
   public static let unsupportedTitle = "Updates are handled outside this build"
   public static let unsupportedDetail =
-    "This copy of Capsule cannot replace itself — a development run, or a build macOS will not swap in place. Download the release and install it by hand."
+    "Development builds do not check for or install updates. Install Capsule from its release page for everyday use."
   public static let download = "Download"
   public static let restartAndInstall = "Restart and install"
   public static let viewRelease = "View release"

@@ -11,6 +11,7 @@ public enum Branding {
   public static let progress = 0.60
   public static let charcoal = (red: 29.0, green: 29.0, blue: 29.0)
   public static let cream = (red: 255.0, green: 242.0, blue: 211.0)
+  public static let developmentBlue = (red: 73.0, green: 173.0, blue: 255.0)
   public static let amber = (red: 255.0, green: 184.0, blue: 15.0)
   public static let menuSize = CGSize(width: 22, height: 18)
   public static let menuCapsule = CGRect(x: 1, y: 5, width: 20, height: 8)

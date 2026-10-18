@@ -4,7 +4,7 @@ import CapsuleCore
 /// One drawing for the bundle, in-app branding, and the menu-bar template.
 @MainActor
 public enum BrandIcon {
-  public static func image(size: CGFloat = Branding.artboard, template: Bool = false) -> NSImage {
+  public static func image(size: CGFloat = Branding.artboard, template: Bool = false, development: Bool = AppIdentity.channel == .development) -> NSImage {
     let dimensions = template ? Branding.menuSize : CGSize(width: size, height: size)
     let image = NSImage(size: dimensions, flipped: false) { _ in
       guard let context = NSGraphicsContext.current?.cgContext else { return false }
@@ -18,7 +18,7 @@ public enum BrandIcon {
                               cornerHeight: Branding.tileRadius, transform: nil))
         context.fillPath()
         drawMeter(context, rect: Branding.capsule, inset: Branding.inset,
-                  outline: color(Branding.cream), fill: color(Branding.amber))
+                  outline: color(Branding.cream), fill: color(development ? Branding.developmentBlue : Branding.amber))
       }
       return true
     }

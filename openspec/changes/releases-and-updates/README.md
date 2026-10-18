@@ -1,5 +1,9 @@
 # Releases and self-update
 
+> Historical Electron design. The native implementation and release procedure
+> are documented in [signed native releases](../signed-native-releases/README.md)
+> and [releasing](../../../docs/releasing.md).
+
 Capsule ships as a versioned macOS build and can install its own updates. The
 settings window was rebuilt around that addition, and now follows the system
 appearance in light and dark.

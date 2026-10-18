@@ -1,81 +1,117 @@
 # Releasing Capsule
 
-## Cutting a release
+Capsule ships only for Apple silicon, macOS 14 or newer. Every public build
+is Developer ID signed, notarized by Apple, and contains only arm64 code,
+including Sparkle's installer helpers. Signing credentials are mandatory.
 
-1. Bump `CFBundleShortVersionString` in `Support/CapsuleApp/Info.plist`
-2. Add a `## <version>` section to `CHANGELOG.md` describing what changed
-3. Commit both
-4. Run `scripts/tag-release.sh`
-5. Push the tag it prints
+## Everyday development
 
-`scripts/tag-release.sh` refuses to tag a dirty tree, a branch other than main,
-a version already tagged, or a version with no changelog section. Pushing the
-tag runs the Release workflow: it re-runs the tests, builds the Apple silicon
-app, and publishes a zip and a DMG to GitHub Releases.
+Run `taskpolicy -b scripts/dev.sh`. This builds and opens **Capsule Dev** with a
+blue icon. `scripts/dev.sh release` uses optimized code with the same separate
+development identity. An unbundled `swift run` also uses development storage.
 
-The changelog section becomes the release body **and** the "What's new" text
-inside Settings → Updates. There is no second place to write release notes.
+Production uses `com.antick.capsule`, `/Applications/Capsule.app`, and
+`~/Library/Application Support/Capsule`. Development uses
+`com.antick.capsule.dev`, `.build/bundles/development/Capsule Dev.app`, and
+`~/Library/Application Support/Capsule Dev`. Preferences, caches, logging and
+login-item registration follow the separate identities. Both read existing
+provider sessions, so running both can make independent usage requests.
+Development never starts the updater. Neither build changes your normal HOME.
 
-To build the same artifacts locally without publishing:
+## One-time credentials and hosting
 
-```bash
-taskpolicy -b scripts/package-macos.sh
+- Developer ID Application certificate and private key, exported as a
+  password-protected PKCS#12 file. Team: `2L85KT5GNL`.
+- Apple notarization API key, key ID, and issuer. A valid existing team key can
+  be reused. Never commit private keys or paste them into logs.
+- Sparkle Ed25519 key in login Keychain under account `capsule`. Generate with
+  `.build/artifacts/sparkle/Sparkle/bin/generate_keys --account capsule` after
+  `swift package resolve`. The public key alone belongs in Info.plist.
+- GitHub Pages configured for Actions at `https://antick.github.io/capsule/`.
+- GitHub environment `release`, restricted to `v*` tags, with these secrets:
+  `MAC_CERTIFICATE` (base64 PKCS#12), `MAC_CERTIFICATE_PASSWORD`,
+  `APPLE_API_KEY_P8`, `APPLE_API_KEY_ID`, `APPLE_API_ISSUER`,
+  `SPARKLE_PRIVATE_KEY` (Sparkle export, base64 text).
+- The `github-pages` environment must permit deployment from release tags.
+
+Use `gh secret set NAME --env release` with input from a protected local file
+or stdin; never put secret values in shell history. Keep a secure backup of the
+Apple certificate/private key, its password, and Sparkle key. GitHub secrets
+cannot be downloaded later. The local Sparkle key remains in login Keychain.
+
+CI imports the certificate into a temporary keychain, restores its prior
+keychain search list and deletes temporary secrets even when a step fails.
+The bundled Apple intermediate certificate is public, not a secret.
+
+## Cut a release
+
+1. Increase `CFBundleShortVersionString` and numeric `CFBundleVersion` in
+   `Support/CapsuleApp/Info.plist`. Both must move forward. The next version
+   after 0.2.0/build 2 might be 0.2.1/build 3.
+2. Write that version's section in CHANGELOG.md; it supplies the GitHub and
+   in-app release notes.
+3. Run focused test targets sequentially with `taskpolicy -b swift test
+   --filter <target>`, `scripts/test-scripts.sh`, and
+   `python3 -m unittest discover -s scripts/release -p 'test_*.py'`.
+4. Commit, push main, and verify its Check workflow.
+5. Run `scripts/tag-release.sh`, then push the printed tag.
+
+The Release workflow checks the tag/version/main ancestry and increasing build,
+runs all test targets, builds, signs nested helpers, notarizes, staples and
+checks Gatekeeper. It produces a DMG, ZIP, SHA256SUMS and signed appcast.xml.
+It creates a draft, uploads the complete set, publishes the release, then
+updates Pages. Nothing is published if an earlier check fails. The feed is
+published only after its downloads are public. Never move a published tag.
+
+DMG installation is drag-and-drop into Applications. No administrator installer
+or Developer ID Installer certificate is required for this distribution format.
+
+## Local release rehearsal
+
+Save a validated notarytool profile named `capsule-notary` in Keychain using
+Apple's `notarytool store-credentials` command. Existing API credentials can be
+used; the setup does not need a new Apple login.
+
+```sh
+NOTARY_PROFILE=capsule-notary taskpolicy -b scripts/package-macos.sh
+scripts/release/appcast.sh
 ```
 
-They land in `.build/release-artifacts`. Set `CAPSULE_SIGN_IDENTITY` to a
-Developer ID identity to sign them, and `NOTARY_PROFILE` to a `notarytool`
-keychain profile to notarise them.
+The app is `.build/bundles/production/Capsule.app`; public files are under
+`.build/release-artifacts`. `CAPSULE_SIGN_IDENTITY` can select an explicit
+Developer ID certificate hash. `NOTARY_KEYCHAIN` optionally selects a custom
+Keychain. `SPARKLE_KEY_FILE` optionally selects a protected Sparkle key file;
+otherwise account `capsule` in login Keychain is used.
 
-## Why signing matters here
+Verify the downloaded ZIP and DMG, not just the build output. Test an older,
+signed/notarized app against a separate feed offering the new signed archive.
+Use normal HOME and Keychain so provider access resembles the real installed
+app. Verify the app restarts into the newer version and retains settings.
+`scripts/release/prepare-upgrade-test.sh` creates a signed/notarized older copy
+under `.build/upgrade-test` and a separate localhost feed. Serve its `site`
+directory on port 18763, open that copy, and perform the update in Settings.
+The resulting app is the unchanged production ZIP. Stop the local server after
+the test. `scripts/release/test-signatures.sh` also proves that Sparkle rejects
+a modified archive with its original signature.
 
-- **Unsigned release.** People download the DMG, and macOS blocks the first
-  launch until they allow it in Privacy & Security. Network filters such as
-  Little Snitch or LuLu ask about it again with every release.
-- **Signed and notarised release.** People download and open the DMG normally.
-  Installing updates in place, through Sparkle, needs a signed build as well.
+## Updates and recovery
 
-Signing needs an Apple Developer Program membership (currently $99/year).
+Capsule checks on launch after 15 seconds and daily when enabled. Downloads
+only start on request unless background downloads are enabled. Once prepared,
+the update installs on explicit restart or when Capsule quits. The feed and
+archive are signed; system profiling is disabled. Requests still expose normal
+network metadata to GitHub; provider credentials and readings are never sent.
 
-## Setting up signing, once
+For a faulty release, publish the previous release's already signed appcast.xml
+as a new Pages deployment. Do not edit it after signing. Existing installations
+are not downgraded: ship a higher version/build containing the fix. If Pages
+fails after the GitHub release publishes, rerun only the failed feed job; do
+not recreate or replace the release assets. For lost signing keys follow
+Sparkle's documented key rotation, changing only one signing identity at a
+time. With verification before extraction, rotating the Sparkle key requires
+a Developer ID signed DMG update as described in Sparkle's documentation.
 
-### 1. Get a Developer ID Application certificate
-
-1. Open **Xcode → Settings → Accounts**, add your Apple ID, select the team
-2. Click **Manage Certificates…**, then **+ → Developer ID Application**
-3. Close the sheet. Open **Keychain Access → login → My Certificates**
-4. Right-click **Developer ID Application: …** and choose **Export…**
-5. Save it as a `.p12` and set a password when asked — you need that password
-
-Check it landed:
-
-```bash
-security find-identity -v -p codesigning
-```
-
-One line reading `Developer ID Application: <your name> (<TEAMID>)` means you
-are ready. The 10-character `TEAMID` in the parentheses is your Team ID.
-
-### 2. Get an app-specific password for notarising
-
-1. Go to [account.apple.com](https://account.apple.com), sign in
-2. Under **Sign-In and Security**, open **App-Specific Passwords**
-3. Create one named `Capsule notarisation` and copy it
-
-### 3. Put both into the repository secrets
-
-From the repo, with the `.p12` path and the values above:
-
-```bash
-base64 -i /path/to/DeveloperID.p12 | tr -d '\n' | gh secret set MAC_CERTIFICATE
-gh secret set MAC_CERTIFICATE_PASSWORD
-gh secret set APPLE_ID
-gh secret set APPLE_APP_SPECIFIC_PASSWORD
-gh secret set APPLE_TEAM_ID
-```
-
-Each `gh secret set` without a value prompts for it, so nothing lands in your
-shell history.
-
-The next release is signed and notarised. The workflow warns in the run log
-when the secrets are missing rather than failing, so an unsigned release stays
-possible.
+Sparkle 2.10.0 was published 2026-09-13 and satisfies the repository's seven-day
+minimum age. It is exact-pinned in Package.swift and Package.resolved. Action
+versions are pinned to immutable commits; the runner's supported Xcode 26.6
+version is explicit. Update these pins deliberately and rerun release checks.

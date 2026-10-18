@@ -15,3 +15,7 @@ DerivedData/
 # The final Electron release's built DMGs and zips, kept locally for Intel
 # Macs. Not part of the Swift app.
 apps/desktop/release/
+
+# Local Python release checks
+__pycache__/
+*.pyc

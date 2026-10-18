@@ -19,6 +19,9 @@ let package = Package(
     .library(name: "CapsuleSystem", targets: ["CapsuleSystem"]),
     .executable(name: "CapsuleApp", targets: ["CapsuleApp"]),
   ],
+  dependencies: [
+    .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.10.0"),
+  ],
   targets: [
     .target(name: "CapsuleCore"),
     .target(name: "CapsuleUsage", dependencies: ["CapsuleCore"]),
@@ -29,7 +32,7 @@ let package = Package(
     // touches the machine.
     .target(
       name: "CapsuleSystem",
-      dependencies: ["CapsuleCore", "CapsuleUsage", "CapsuleActivity"],
+      dependencies: ["CapsuleCore", "CapsuleUsage", "CapsuleActivity", .product(name: "Sparkle", package: "Sparkle")],
       linkerSettings: [.linkedLibrary("sqlite3")]
     ),
     // The dock: its behaviour, its layers and its card, drawn from CapsuleHUD.
