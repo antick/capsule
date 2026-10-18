@@ -32,15 +32,30 @@ let package = Package(
       dependencies: ["CapsuleCore", "CapsuleUsage", "CapsuleActivity"],
       linkerSettings: [.linkedLibrary("sqlite3")]
     ),
+    // The dock: its behaviour, its layers and its card, drawn from CapsuleHUD.
+    .target(
+      name: "CapsuleDock",
+      dependencies: ["CapsuleCore", "CapsuleHUD", "CapsuleUsage"]
+    ),
+    // Settings and onboarding, in SwiftUI.
+    .target(
+      name: "CapsuleSettingsUI",
+      dependencies: ["CapsuleCore", "CapsuleHUD", "CapsuleDock"]
+    ),
     // The AppKit shell: the dock's panel, the menu-bar item, and the Mac's
     // timers and notifications driving the logic modules on the real hosts.
     .target(
       name: "CapsuleShell",
-      dependencies: ["CapsuleCore", "CapsuleUsage", "CapsuleHUD", "CapsuleActivity", "CapsuleSystem"]
+      dependencies: [
+        "CapsuleCore", "CapsuleUsage", "CapsuleHUD", "CapsuleActivity", "CapsuleSystem", "CapsuleDock",
+        "CapsuleSettingsUI",
+      ]
     ),
     // The app itself. `scripts/bundle-macos.sh` wraps it in Capsule.app with
     // `Support/CapsuleApp/Info.plist`.
-    .executableTarget(name: "CapsuleApp", dependencies: ["CapsuleCore", "CapsuleShell", "CapsuleSystem"]),
+    .executableTarget(
+      name: "CapsuleApp", dependencies: ["CapsuleCore", "CapsuleShell", "CapsuleSystem", "CapsuleSettingsUI"]
+    ),
     // Test support: reads the same JSON corpus the Vitest suites read.
     .target(name: "CapsuleFixtures"),
     .testTarget(
@@ -60,9 +75,16 @@ let package = Package(
       dependencies: ["CapsuleActivity", "CapsuleFixtures"]
     ),
     .testTarget(name: "CapsuleSystemTests", dependencies: ["CapsuleSystem"]),
+    .testTarget(name: "CapsuleDockTests", dependencies: ["CapsuleDock", "CapsuleCore", "CapsuleHUD"]),
+    // Renders the dock in every style, edge, theme and card state to PNG under
+    // `.build/snapshots`, for eyes and for the reference comparison.
+    .testTarget(
+      name: "CapsuleSnapshotTests",
+      dependencies: ["CapsuleDock", "CapsuleCore", "CapsuleHUD", "CapsuleShell"]
+    ),
     .testTarget(
       name: "CapsuleShellTests",
-      dependencies: ["CapsuleShell", "CapsuleCore", "CapsuleHUD"]
+      dependencies: ["CapsuleShell", "CapsuleCore", "CapsuleHUD", "CapsuleDock"]
     ),
   ]
 )

@@ -18,6 +18,8 @@ rm -rf "$app"
 mkdir -p "$app/Contents/MacOS"
 cp "$bin/CapsuleApp" "$app/Contents/MacOS/CapsuleApp"
 cp Support/CapsuleApp/Info.plist "$app/Contents/Info.plist"
+mkdir -p "$app/Contents/Resources"
+cp Support/CapsuleApp/Resources/* "$app/Contents/Resources/"
 
 # One version for both apps: the workspace's.
 version=$(plutil -extract version raw -o - package.json)

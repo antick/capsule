@@ -27,12 +27,13 @@ public enum ShellTuning {
   public static let appearanceChangedNotification = "AppleInterfaceThemeChangedNotification"
   /// The key under which `NSScreen.deviceDescription` keeps the display id.
   public static let screenNumberKey = "NSScreenNumber"
-  /// SF Symbol drawn in the menu bar.
+  /// Pretend the display has a notch of this size, as "200x37", for trying
+  /// the joined top edge on a Mac that has none. Development only.
+  public static let fakeNotchEnvironment = "CAPSULE_FAKE_NOTCH"
+  /// The menu-bar template image the bundle carries, by resource name.
+  public static let statusImage = "trayTemplate"
+  /// SF Symbol drawn in the menu bar when the bundle has no image.
   public static let statusSymbol = "capsule.portrait"
-  /// Opacity of the theme surface over the dock's vibrancy. At 1 the dock is
-  /// the solid surface the reference shows; the vibrancy layer underneath is
-  /// in place for when the reference comparison (task 3.15) asks for less.
-  public static let surfaceOpacity = 1.0
   /// Width of the hairline outlined dock styles draw.
   public static let outlineWidth = 1.0
 }
@@ -48,6 +49,4 @@ public enum MacDockDefaults {
 }
 
 /// Strings the shell shows. The only place they live.
-public enum ShellCopy {
-  public static let quit = "Quit Capsule"
-}
+

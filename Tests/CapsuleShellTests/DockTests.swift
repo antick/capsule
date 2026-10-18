@@ -1,5 +1,7 @@
 import AppKit
 import CapsuleCore
+import CapsuleDock
+import CapsuleHUD
 import Foundation
 import Testing
 
@@ -9,28 +11,35 @@ import Testing
 let screen = CGRect(x: 0, y: 0, width: 1512, height: 982)
 let visible = CGRect(x: 0, y: 70, width: 1512, height: 875)
 let bottomDock = ChromeSnapshot.Dock(orientation: .bottom, autohide: false, tilesize: 48)
+let chrome = chromeSnapshot(id: 1, frame: screen, visibleFrame: visible, primaryHeight: screen.height, dock: bottomDock)
 
-func frame(_ preset: PlacementPreset, style: DockStyleId = .rail, meters: Int = 3) -> DockFrame {
+struct Placed {
+  let placement: PlacementResult
+  let window: Rect
+  let frame: FrameLayout
+  /// The drawn rail, in the placement engine's screen coordinates.
+  let rail: CGRect
+}
+
+func place(
+  _ preset: PlacementPreset, style: DockStyleId = .rail, meters: Int = 3, joined: HardwareNotch? = nil,
+  railStart: Double? = nil
+) -> Placed {
   var settings = CapsuleSettings.defaults
   settings.placementPreset = preset
   settings.dockStyle = style
-  let chrome = chromeSnapshot(
-    id: 1, frame: screen, visibleFrame: visible, primaryHeight: screen.height, dock: bottomDock
-  )
-  return dockFrame(settings: settings, meterCount: meters, chrome: chrome, primaryHeight: screen.height)
+  var placement = dockPlacement(settings: settings, preset: preset, meterCount: meters, chrome: chrome, joined: joined)
+  if let railStart { placement = slid(placement, railStart: railStart) }
+  let spec = frameSpec(settings: settings, placement: placement, meterCount: meters, joined: joined)
+  let frame = frameLayout(spec, FrameMotion(openness: 1, joinOffset: 0, cardAlong: 0))
+  let window = windowBox(placement)
+  let rail = frame.rail.boundingBoxOfPath.offsetBy(dx: window.x, dy: window.y)
+  return Placed(placement: placement, window: window, frame: frame, rail: rail)
 }
 
-/// The rail's outline in screen coordinates.
-func railOnScreen(_ frame: DockFrame) -> CGRect {
-  frame.rail.boundingBoxOfPath.offsetBy(dx: frame.window.minX, dy: frame.window.minY)
-}
-
-@Suite("Dock geometry")
-struct DockGeometryTests {
+@Suite("Dock placement")
+struct PlacementShellTests {
   @Test func flipsIntoThePlacementEnginesCoordinates() {
-    let chrome = chromeSnapshot(
-      id: 7, frame: screen, visibleFrame: visible, primaryHeight: screen.height, dock: bottomDock
-    )
     #expect(chrome.display.bounds == Rect(x: 0, y: 0, width: 1512, height: 982))
     #expect(chrome.display.workArea == Rect(x: 0, y: 37, width: 1512, height: 875))
     // A display stacked above the primary sits at negative y, as in Electron.
@@ -39,50 +48,80 @@ struct DockGeometryTests {
     #expect(appKit(above, screen.height) == CGRect(x: 0, y: 982, width: 1920, height: 1080))
   }
 
+  @Test func theWindowIsExactlyTheFrameTheViewDraws() {
+    for preset in PlacementPreset.allCases {
+      for style in DockStyleId.allCases {
+        let placed = place(preset, style: style)
+        #expect(
+          abs(placed.frame.size.width - placed.window.width) < 1
+            && abs(placed.frame.size.height - placed.window.height) < 1,
+          "\(preset) \(style): frame \(placed.frame.size) window \(placed.window)"
+        )
+      }
+    }
+  }
+
   @Test func theRailSitsFlushOnTheRightEdgeCentredOnTheUsableHeight() {
-    let dock = frame(.rightEdge)
-    let rail = railOnScreen(dock)
-    #expect(abs(rail.maxX - screen.maxX) < 0.001)
-    #expect(dock.window.contains(rail))
-    // Drawn exactly where placement put it: the window, its shadow gutter,
-    // then the rail's bias inside the frame.
-    let placement = dock.placement
-    let railTop = screen.height - rail.maxY
-    #expect(abs(railTop - (placement.y + placement.slide.gutter + placement.railBias)) < 0.001, "\(railTop)")
-    // Which is the middle of the usable height, to the engine's rounding.
-    #expect(abs(rail.midY - visible.midY) < 2)
-    #expect(dock.placement.edge == .right)
-    #expect(dock.placement.cardGrowth == .left)
+    let placed = place(.rightEdge)
+    #expect(abs(placed.rail.maxX - screen.maxX) < 0.001)
+    let p = placed.placement
+    #expect(abs(placed.rail.minY - railStartOf(p)) < 0.001)
+    #expect(abs(placed.rail.midY - (37 + 875.0 / 2)) < 2)
   }
 
   @Test func theLeftEdgeMirrorsIt() {
-    let rail = railOnScreen(frame(.leftEdge))
-    #expect(abs(rail.minX - screen.minX) < 0.001)
+    #expect(abs(place(.leftEdge).rail.minX) < 0.001)
   }
 
   @Test func theTopEdgeHangsFromTheTopOfTheDisplay() {
-    let dock = frame(.topEdge)
-    let rail = railOnScreen(dock)
-    #expect(abs(rail.maxY - screen.maxY) < 0.001)
-    #expect(abs(rail.midX - screen.midX) < 1)
-    #expect(dock.placement.notch)
+    let placed = place(.topEdge)
+    #expect(abs(placed.rail.minY) < 0.001)
+    #expect(abs(placed.rail.midX - screen.midX) < 1)
+    #expect(placed.placement.notch)
   }
 
   @Test func floatingStylesStandClearOfTheEdge() {
     let m = hudMetrics()
     for style in [DockStyleId.capsule, .tray] {
-      let rail = railOnScreen(frame(.rightEdge, style: style))
-      let gap = screen.maxX - rail.maxX
+      let gap = screen.maxX - place(.rightEdge, style: style).rail.maxX
       #expect(abs(gap - dockEdgeGap(m, .of(style))) < 0.001)
       #expect(gap > 0)
     }
   }
 
   @Test func moreMetersMakeALongerRail() {
-    let three = railOnScreen(frame(.rightEdge, meters: 3)).height
-    let five = railOnScreen(frame(.rightEdge, meters: 5)).height
     let m = hudMetrics()
-    #expect(abs(five - three - 2 * meterStrideSize(m)) < 0.001)
+    let grown = place(.rightEdge, meters: 5).rail.height - place(.rightEdge, meters: 3).rail.height
+    #expect(abs(grown - 2 * meterStrideSize(m)) < 0.001)
+  }
+
+  @Test func aRememberedPositionPutsTheRailExactlyThere() {
+    // 120 puts the window at -13.5: the rail must still start at 120, not at
+    // the 121 that rounding the window and the offset apart would give.
+    for start in [120.0, 121.0, 300.0] {
+      let placed = place(.rightEdge, railStart: start)
+      #expect(abs(placed.rail.minY - start) < 0.001, "\(start) drew \(placed.rail.minY) window \(placed.window.y) bias \(placed.placement.railBias) railBox \(placed.frame.railBox)")
+    }
+  }
+
+  @Test func aJoinedNotchIsAtLeastTheHardwareWideAndDeeperByIt() {
+    let notch = HardwareNotch(width: 200, height: 32)
+    let m = hudMetrics()
+    let placed = place(.topEdge, joined: notch)
+    #expect(placed.frame.railBox.width >= notch.width + 2 * m.notchRadius)
+    #expect(abs(placed.frame.railBox.height - (m.railWidth + notch.height)) < 0.001)
+    #expect(abs(placed.rail.midX - screen.midX) < 1)
+  }
+
+  @Test func onlyTheTopEdgeInANotchStyleIsJoined() {
+    var settings = CapsuleSettings.defaults
+    let hardware = HardwareNotch(width: 180, height: 32)
+    #expect(joinedNotch(settings: settings, preset: .rightEdge, hardware: hardware, chrome: chrome) == nil)
+    #expect(joinedNotch(settings: settings, preset: .topEdge, hardware: hardware, chrome: chrome) == hardware)
+    // No hardware notch: one the dock draws, as deep as the menu bar.
+    #expect(joinedNotch(settings: settings, preset: .topEdge, hardware: nil, chrome: chrome)?.height == 37)
+    settings.topEdgeNotch = false
+    #expect(joinedNotch(settings: settings, preset: .topEdge, hardware: hardware, chrome: chrome) == nil)
   }
 
   @Test func readsTheMacDocksPreferences() throws {
@@ -123,15 +162,6 @@ struct DockPanelTests {
     panel.makeKeyAndOrderFront(nil)
     #expect(!panel.isKeyWindow)
     panel.orderOut(nil)
-  }
-
-  @Test func theSurfaceAnswersInsideTheRailOnly() {
-    let dock = frame(.rightEdge)
-    let view = DockView(frame: NSRect(origin: .zero, size: dock.window.size))
-    view.show(rail: dock.rail, style: dock.style, theme: .midnight, reduceTransparency: false)
-    let rail = dock.rail.boundingBoxOfPath
-    #expect(view.contains(NSPoint(x: rail.midX, y: rail.midY)))
-    #expect(!view.contains(NSPoint(x: 1, y: 1)))
   }
 }
 

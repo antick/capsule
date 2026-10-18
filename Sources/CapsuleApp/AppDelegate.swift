@@ -1,29 +1,24 @@
 import AppKit
-import CapsuleCore
 import CapsuleShell
-import CapsuleSystem
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-  private var engine: Engine?
-  private var dock: DockController?
-  private var status: StatusItem?
+  private var model: AppModel?
 
   func applicationDidFinishLaunching(_ notification: Notification) {
-    let store = JSONStore.applicationSupport(AppIdentity.supportDirectory)
-    let settings = Engine.loadSettings(store)
-    let engine = Engine(store: store, events: .mac, settings: settings)
-    let dock = DockController(settings: settings)
-    engine.onChange = { [weak dock] state in dock?.update(state) }
-    status = StatusItem()
-    dock.show()
-    engine.start()
-    self.engine = engine
-    self.dock = dock
+    let model = AppModel()
+    model.start()
+    self.model = model
+  }
+
+  /// Opening the app again — from Finder or Spotlight — shows its settings,
+  /// since it has no window of its own.
+  func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+    model?.openSettings(.appearance)
+    return false
   }
 
   func applicationWillTerminate(_ notification: Notification) {
-    engine?.stop()
-    dock?.hide()
+    model?.stop()
   }
 }

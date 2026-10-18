@@ -72,6 +72,9 @@ public struct SpringState: Sendable, Equatable {
 
 /// Timings and proportions. Mirrors `MOTION` and `HUD`'s delays.
 public enum Motion {
+  /// The card popping out of the rail, and being drawn back in.
+  public static let openMs = 260.0
+  public static let closeMs = 170.0
   public static let hoverOpenDelayMs = 70.0
   public static let hoverCloseDelayMs = 220.0
   /// Grace after the pointer leaves before the dock retracts.

@@ -93,8 +93,9 @@ public final class ShellSchedule {
     self.watchedDirectory = watchedDirectory
   }
 
-  /// Starts everything and reads once straight away.
-  public func start(pollIntervalMs: Int) {
+  /// Starts everything and reads once straight away. `onStarted` runs once
+  /// that first read of usage has landed.
+  public func start(pollIntervalMs: Int, onStarted: ShellAction? = nil) {
     stop()
     let usage = usage
     let activity = activity
@@ -110,7 +111,10 @@ public final class ShellSchedule {
     if let watch = events.watch(watchedDirectory, { Task { await activity.rescan() } }) {
       subscriptions.append(watch)
     }
-    Task { await usage.start() }
+    Task { @MainActor in
+      await usage.start()
+      onStarted?()
+    }
     Task { await activity.rescan() }
     Task { await tokens.rescan() }
   }
