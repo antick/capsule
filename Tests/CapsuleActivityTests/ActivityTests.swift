@@ -249,3 +249,31 @@ struct TokenTests {
     }
   }
 }
+
+@Suite("Machine output kept out of notices")
+struct MachineOutputTests {
+  func finished(saying message: String) -> AgentSession {
+    let line: [String: Any] = [
+      "timestamp": "2026-09-06T12:00:01.000Z", "type": "event_msg",
+      "payload": ["type": "task_complete", "turn_id": "turn-1", "last_agent_message": message],
+    ]
+    let raw = String(decoding: try! JSONSerialization.data(withJSONObject: line), as: UTF8.self)
+    let session = AgentSession(
+      id: "s", providerId: .codex, name: "Task", detail: "", state: .busy, waitingFor: nil,
+      since: "2026-09-06T12:00:00.000Z")
+    return applyLocalEvents(session, raw)
+  }
+
+  @Test func aJSONVerdictIsNotASummary() {
+    let verdict = #"{"risk_level":"low","user_authorization":"high","outcome":"allow","rationale":"Reads only."}"#
+    #expect(finished(saying: verdict).completion != nil)
+    #expect(finished(saying: verdict).completion?.summary == nil)
+    #expect(finished(saying: "[1, 2, 3]").completion?.summary == nil)
+  }
+
+  @Test func ordinaryWordsStillAre() {
+    #expect(finished(saying: "Done: the poller backs off now.").completion?.summary == "Done: the poller backs off now.")
+    // Braces in prose are not JSON.
+    #expect(finished(saying: "{not json} but words").completion?.summary == "{not json} but words")
+  }
+}

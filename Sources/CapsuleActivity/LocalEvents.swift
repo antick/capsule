@@ -22,6 +22,14 @@ private func time(_ value: JSONValue?) -> String? {
 /// stripped and cut to the summary length.
 private func preview(_ value: JSONValue?) -> String? {
   guard let text = value?.asString else { return nil }
+  // A message that is itself a JSON object or array is machine output — a
+  // reviewer's verdict, a tool's result — and reads as noise in a notice.
+  let body = jsTrim(text)
+  if let first = body.first, first == "{" || first == "[", JSONValue.parse(body)?.asObject != nil
+    || JSONValue.parse(body)?.asArray != nil
+  {
+    return nil
+  }
   let markers: Set<Unicode.Scalar> = ["#", "*", ">", "-"]
   for line in jsLines(text) {
     let stripped = String(

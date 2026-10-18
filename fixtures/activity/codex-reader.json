@@ -40,7 +40,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": [
@@ -88,7 +88,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": [
@@ -136,7 +136,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": [
@@ -172,7 +172,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": [
@@ -220,7 +220,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": [
@@ -255,7 +255,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": []
@@ -321,7 +321,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": [
@@ -368,7 +368,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": [
@@ -430,7 +430,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           }
         ],
         "tails": [
@@ -473,7 +473,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           },
           {
             "db": "/home/.codex/sqlite/codex-dev.db",
@@ -508,7 +508,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           },
           {
             "db": "/home/.codex/sqlite/codex-dev.db",
@@ -535,7 +535,7 @@
         "queries": [
           {
             "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT 100"
+            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           },
           {
             "db": "/home/.codex/sqlite/codex-dev.db",

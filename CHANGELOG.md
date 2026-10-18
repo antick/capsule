@@ -10,6 +10,12 @@ All notable changes to Capsule are documented in this file.
 - The menu bar uses a matching monochrome mark. Settings, updates, About, and the running app share the same native artwork, including when launched without a bundle.
 - Added a repeatable icon asset generator using the shared drawing.
 
+## JSON kept out of the card
+
+### Fixed
+
+- Raw JSON could pop up in the card as an activity notice. Codex runs internal "guardian" reviewers as sub-agent threads, and their final message is a JSON verdict, which became a "task completed" notice. Codex sub-agent threads, guardians and spawned children alike, are no longer listed as sessions, and a summary that is itself a JSON object or array is never shown.
+
 ## Copilot removed
 
 ### Removed

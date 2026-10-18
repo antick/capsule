@@ -33,8 +33,11 @@ public enum ActivityTuning {
   public static let grokSummaryFile = "summary.json"
 
   /// Codex's thread index, newest first.
+  /// Sub-agent threads are left out: a guardian reviewing an approval, or a
+  /// child a task spawned, is the parent task's own work, and a guardian's
+  /// final message is a JSON verdict, not something to show anyone.
   public static let codexRolloutsSQL =
-    "SELECT id, title, rollout_path FROM threads WHERE archived = 0 ORDER BY updated_at_ms DESC LIMIT \(maxSessions)"
+    "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT \(maxSessions)"
   /// The desktop app's catalogue, for when there is no rollout at all.
   public static let codexDesktopSQL =
     "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1"

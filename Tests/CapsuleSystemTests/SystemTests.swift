@@ -257,3 +257,22 @@ struct HostTests {
     await #expect(throws: (any Error).self) { try await MacUsageHost().send(request) }
   }
 }
+
+@Suite("Codex's thread list")
+struct CodexThreadQueryTests {
+  @Test("sub-agent threads, guardians and spawned children alike, are left out")
+  func subagentsLeftOut() throws {
+    let path = try scratch().appendingPathComponent("state.sqlite").path
+    var db: OpaquePointer?
+    #expect(sqlite3_open(path, &db) == SQLITE_OK)
+    sqlite3_exec(db, """
+      CREATE TABLE threads (id TEXT, title TEXT, rollout_path TEXT, archived INTEGER, source TEXT, updated_at_ms INTEGER);
+      INSERT INTO threads VALUES ('task', 'Build the logo', '/r/task.jsonl', 0, 'vscode', 3);
+      INSERT INTO threads VALUES ('guard', 'Guardian review', '/r/guard.jsonl', 0, '{"subagent":{"other":"guardian"}}', 2);
+      INSERT INTO threads VALUES ('child', '', '/r/child.jsonl', 0, '{"subagent":{"thread_spawn":{"depth":1}}}', 1);
+      INSERT INTO threads VALUES ('old', 'Archived', '/r/old.jsonl', 1, 'cli', 4);
+      """, nil, nil, nil)
+    sqlite3_close(db)
+    #expect(sqliteRows(path, ActivityTuning.codexRolloutsSQL) == [["task", "Build the logo", "/r/task.jsonl"]])
+  }
+}
