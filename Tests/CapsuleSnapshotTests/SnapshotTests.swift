@@ -39,6 +39,7 @@ struct SnapshotTests {
   }
 
   func render(_ name: String, look: DockLook, card: Card, peek: Bool = false) async throws -> NSBitmapImageRep {
+    _ = NSApplication.shared
     let behavior = DockBehavior(clock: MainClock())
     let view = DockView(look: look, behavior: behavior)
     var inputs = DockBehavior.Inputs()
@@ -146,6 +147,7 @@ struct SnapshotTests {
 @Suite("Settings snapshots", .serialized)
 struct SettingsSnapshotTests {
   @Test func everyPage() async throws {
+    _ = NSApplication.shared
     for appearance in [NSAppearance.Name.aqua, .darkAqua] {
       for page in SettingsPage.allCases {
         let model = SettingsModel(settings: .defaults, update: .initial(version: "0.1.0", canInstall: false))
@@ -178,6 +180,7 @@ struct SettingsSnapshotTests {
 struct SettingsControlTests {
   /// Every switch on the General page, top to bottom, as AppKit holds it.
   func switches(_ settings: CapsuleSettings) async throws -> [NSControl.StateValue] {
+    _ = NSApplication.shared
     let model = SettingsModel(settings: settings, update: .initial(version: "0.1.0", canInstall: false))
     model.page = .general
     let host = NSHostingView(rootView: SettingsRoot(model: model))

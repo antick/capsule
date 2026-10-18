@@ -38,6 +38,9 @@ struct InteractionTests {
   let dock: DockController
 
   init() throws {
+    // The app object the dock reads the system appearance from. The real app
+    // makes it before anything else; a test process does not.
+    _ = NSApplication.shared
     var settings = CapsuleSettings.defaults
     settings.autoHide = false
     dock = DockController(settings: settings, clock: clock)
