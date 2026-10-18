@@ -2,6 +2,12 @@
 
 All notable changes to Capsule are documented in this file.
 
+## GPL license
+
+### Added
+
+- Capsule is now licensed under the GNU General Public License v3.0 or later: the `LICENSE` file and a License section in the README. The `"license"` fields the change also added to the workspace `package.json` files went with the TypeScript packages.
+
 ## Fewer provider calls, and the last of the dock's motion
 
 ### Fixed

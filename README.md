@@ -157,3 +157,10 @@ openspec                   Product specs and design history
 
 Capsule uses Swift, AppKit, Core Animation and SwiftUI, built with Swift
 Package Manager. It has no third-party dependencies.
+
+## License
+
+Capsule is free software under the
+[GNU General Public License v3.0 or later](LICENSE). You can use, study,
+change, and share it. If you share a changed version, you must release its
+source code under the same license.
