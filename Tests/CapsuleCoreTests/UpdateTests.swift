@@ -4,6 +4,22 @@ import Testing
 
 @Suite("Update wording and sizes, against the shared corpus")
 struct UpdateTests {
+  @Test("Scheduled checks leave pending updates and development builds alone")
+  func quietAutomaticChecks() {
+    for phase in [UpdatePhase.available, .downloading, .ready, .checking, .unsupported] {
+      var state = UpdateState.initial(version: "0.2.1", canInstall: true)
+      state.phase = phase
+      #expect(!state.canCheckAutomatically)
+    }
+    for phase in [UpdatePhase.idle, .current, .error] {
+      var state = UpdateState.initial(version: "0.2.1", canInstall: true)
+      state.phase = phase
+      #expect(state.canCheckAutomatically)
+      state.canInstall = false
+      #expect(!state.canCheckAutomatically)
+    }
+  }
+
   @Test("formatBytes")
   func bytes() throws {
     let file: FixtureFile<Double, String> = try Fixtures.load("updates/format-bytes")

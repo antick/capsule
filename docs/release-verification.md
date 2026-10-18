@@ -24,3 +24,8 @@ Local verification on 2026-10-18, Apple silicon, Xcode 27.1:
 These are local artifact and real-app checks. Hosted workflow results, public
 feed availability, and installation from the final GitHub download are separate
 release gates; do not infer those from a successful local build.
+
+The 0.2.0 release published before cancellation took effect. A final review
+found that an automatic check could refocus a pending update.
+Version 0.2.1/build 3 adds a tested scheduling guard; its hosted release checks
+and final published installation are tracked separately.

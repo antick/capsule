@@ -47,7 +47,7 @@ The bundled Apple intermediate certificate is public, not a secret.
 
 1. Increase `CFBundleShortVersionString` and numeric `CFBundleVersion` in
    `Support/CapsuleApp/Info.plist`. Both must move forward. The next version
-   after 0.2.0/build 2 might be 0.2.1/build 3.
+   after 0.2.1/build 3 might be 0.2.2/build 4.
 2. Write that version's section in CHANGELOG.md; it supplies the GitHub and
    in-app release notes.
 3. Run focused test targets sequentially with `taskpolicy -b swift test

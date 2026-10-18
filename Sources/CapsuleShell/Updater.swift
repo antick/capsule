@@ -35,10 +35,10 @@ public final class Updater {
     dailyTimer = nil
     guard AppIdentity.channel.allowsUpdates, autoCheck() else { return }
     launchTimer = Timer.scheduledTimer(withTimeInterval: UpdateTiming.launchDelayMs / 1000, repeats: false) {
-      [weak self] _ in MainActor.assumeIsolated { self?.check() }
+      [weak self] _ in MainActor.assumeIsolated { self?.checkAutomatically() }
     }
     dailyTimer = Timer.scheduledTimer(withTimeInterval: UpdateTiming.intervalMs / 1000, repeats: true) {
-      [weak self] _ in MainActor.assumeIsolated { self?.check() }
+      [weak self] _ in MainActor.assumeIsolated { self?.checkAutomatically() }
     }
   }
 
@@ -46,6 +46,11 @@ public final class Updater {
     launchTimer?.invalidate()
     dailyTimer?.invalidate()
     service.stop()
+  }
+
+  private func checkAutomatically() {
+    guard autoCheck(), state.canCheckAutomatically else { return }
+    service.check()
   }
 
   public func check() { service.check() }

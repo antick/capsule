@@ -2,6 +2,12 @@
 
 All notable changes to Capsule are documented in this file.
 
+## 0.2.1
+
+### Fixed
+
+- Scheduled update checks stay quiet while an update is waiting to download or install.
+
 ## 0.2.0 — signed native release
 
 ### Added

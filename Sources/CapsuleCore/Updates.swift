@@ -84,6 +84,11 @@ public struct UpdateState: Sendable, Codable, Equatable {
   /// Whether asking for a check right now would do anything.
   public var canCheck: Bool { phase != .unsupported && phase != .checking && phase != .downloading && phase != .ready }
 
+  /// Background checks must not refocus an update already awaiting a decision.
+  public var canCheckAutomatically: Bool {
+    canInstall && (phase == .idle || phase == .current || phase == .error)
+  }
+
   /// The standing in two or three words, for the sidebar and menus.
   public var shortLabel: String {
     switch phase {
