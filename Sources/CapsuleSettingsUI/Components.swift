@@ -1,5 +1,6 @@
 import AppKit
 import CapsuleCore
+import CapsuleHUD
 import SwiftUI
 
 /// How a status reads at a glance, across the settings window.
@@ -179,6 +180,6 @@ struct AppMark: View {
   var size: Double = 34
 
   var body: some View {
-    Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: size, height: size)
+    Image(nsImage: BrandIcon.image()).resizable().frame(width: size, height: size)
   }
 }

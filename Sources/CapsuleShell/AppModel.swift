@@ -1,6 +1,7 @@
 import AppKit
 import CapsuleCore
 import CapsuleDock
+import CapsuleHUD
 import CapsuleSettingsUI
 import CapsuleSystem
 import os
@@ -81,6 +82,7 @@ public final class AppModel: MenuHandlers {
   }
 
   public func start() {
+    NSApp.applicationIconImage = BrandIcon.image()
     menus = Menus(handlers: self)
     settingsModel.appearance = systemAppearance
     pushToDock()

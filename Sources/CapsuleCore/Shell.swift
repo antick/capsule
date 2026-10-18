@@ -40,10 +40,6 @@ public enum ShellTuning {
   /// Pretend the display has a notch of this size, as "200x37", for trying
   /// the joined top edge on a Mac that has none. Development only.
   public static let fakeNotchEnvironment = "CAPSULE_FAKE_NOTCH"
-  /// The menu-bar template image the bundle carries, by resource name.
-  public static let statusImage = "trayTemplate"
-  /// SF Symbol drawn in the menu bar when the bundle has no image.
-  public static let statusSymbol = "capsule.portrait"
   /// Width of the hairline outlined dock styles draw.
   public static let outlineWidth = 1.0
 }

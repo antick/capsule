@@ -2,6 +2,14 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Amber-and-cream identity
+
+### Changed
+
+- Capsule now uses an amber progress meter inside a cream capsule on charcoal, with transparent outer corners and all macOS app-icon sizes.
+- The menu bar uses a matching monochrome mark. Settings, updates, About, and the running app share the same native artwork, including when launched without a bundle.
+- Added a repeatable icon asset generator using the shared drawing.
+
 ## Copilot removed
 
 ### Removed

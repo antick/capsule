@@ -1,5 +1,6 @@
 import AppKit
 import CapsuleCore
+import CapsuleHUD
 import CapsuleSettingsUI
 
 /// What the menus act on. The app implements it; the menus only read and ask.
@@ -38,13 +39,8 @@ public final class Menus: NSObject, NSMenuDelegate {
     NSApp.mainMenu = applicationMenu()
   }
 
-  /// The tray template the Electron app ships, or a symbol when run bare.
-  private static func statusImage() -> NSImage? {
-    let image =
-      Bundle.main.image(forResource: ShellTuning.statusImage)
-      ?? NSImage(systemSymbolName: ShellTuning.statusSymbol, accessibilityDescription: AppIdentity.name)
-    image?.isTemplate = true
-    return image
+  private static func statusImage() -> NSImage {
+    BrandIcon.image(template: true)
   }
 
   /// Rebuilt each time it opens, so it always says what is true now.
