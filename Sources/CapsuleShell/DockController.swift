@@ -217,7 +217,7 @@ public final class DockController {
 
   // MARK: Pointer
 
-  private func pointerMoved(_ screenPoint: NSPoint) {
+  func pointerMoved(_ screenPoint: NSPoint) {
     guard panel.isVisible else { return }
     let windowPoint = panel.convertPoint(fromScreen: screenPoint)
     let point = view.convert(windowPoint, from: nil)
@@ -233,7 +233,7 @@ public final class DockController {
     (Double(point.x), Double(Self.primaryHeight - point.y))
   }
 
-  private func startMove(_ screenPoint: NSPoint) {
+  func startMove(_ screenPoint: NSPoint) {
     guard let placement, let screen = display() else { return }
     // Grab the rail, not the window: where the window has been stopped by a
     // screen edge the two no longer move together.
@@ -247,7 +247,7 @@ public final class DockController {
   }
 
   /// Re-docks to whichever edge the cursor is nearest, then slides along it.
-  private func move(to screenPoint: NSPoint) {
+  func move(to screenPoint: NSPoint) {
     guard var state = drag else { return }
     let screen =
       NSScreen.screens.first { NSMouseInRect(screenPoint, $0.frame, false) } ?? display()
@@ -278,7 +278,7 @@ public final class DockController {
     place(moved)
   }
 
-  private func endMove() {
+  func endMove() {
     guard let state = drag, let placement else {
       drag = nil
       return

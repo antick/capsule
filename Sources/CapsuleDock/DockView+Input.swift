@@ -57,9 +57,14 @@ extension DockView {
 
   public override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
+  /// Where an event happened, on screen.
+  func screenPoint(_ event: NSEvent) -> NSPoint {
+    window?.convertPoint(toScreen: event.locationInWindow) ?? NSEvent.mouseLocation
+  }
+
   public override func mouseDown(with event: NSEvent) {
     let point = convert(event.locationInWindow, from: nil)
-    pressStart = NSEvent.mouseLocation
+    pressStart = screenPoint(event)
     moving = false
     if let id = badgeAt(point) {
       pressTarget = .badge(id)
@@ -73,7 +78,7 @@ extension DockView {
 
   public override func mouseDragged(with event: NSEvent) {
     guard let start = pressStart else { return }
-    let at = NSEvent.mouseLocation
+    let at = screenPoint(event)
     if !moving {
       guard hypot(at.x - start.x, at.y - start.y) >= Motion.dragThreshold else { return }
       moving = true
