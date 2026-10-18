@@ -108,6 +108,7 @@ done package by package:
 | `@capsule/hud` | `CapsuleHUD` (path math + layer drawing) |
 | `@capsule/ui` | folded into `CapsuleSettingsUI` |
 | `apps/desktop` | `CapsuleApp` (app target) |
+| `apps/desktop/src/main/index.ts` wiring | `CapsuleShell` (panel, status item, timers and notifications) |
 | `apps/desktop/src/main/*-host.ts` | `CapsuleSystem` (the real Mac behind the host seams) |
 
 `CapsuleSystem` is the only module that touches the machine. The four logic

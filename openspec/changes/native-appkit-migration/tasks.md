@@ -69,15 +69,22 @@ native app deliberately does not run (`wontPort`, 12 cases).
 Built under bundle identifier `com.antick.capsule.native` so it installs beside
 the released Electron app for side-by-side comparison. Electron still ships.
 
-- [ ] 3.1 Add the `CapsuleApp` target as an `LSUIElement` accessory app with no Dock tile and no window on launch.
-- [ ] 3.2 Implement the dock as a non-activating floating `NSPanel` at status-bar level with `canJoinAllSpaces`, `stationary`, `ignoresCycle`, and `fullScreenNone`, and confirm it never becomes the key window on hover, click, pin, or drag.
-- [ ] 3.3 Draw the dock as a `CAShapeLayer` path from `CapsuleHUD` used as the mask of an `NSVisualEffectView`, and honour Reduce Transparency by falling back to an opaque surface.
+Status: the shell runs. The app launches as an accessory, draws the resting
+rail on the primary display's right edge, and drives the poller, the activity
+monitor and the token scanner on the real hosts. Meters, cards, hover, hit
+testing and settings are still to come.
+
+- [x] 3.1 Add the `CapsuleApp` target as an `LSUIElement` accessory app with no Dock tile and no window on launch. `scripts/bundle-macos.sh` wraps the SwiftPM executable in `Capsule.app` with `Support/CapsuleApp/Info.plist`, stamps the workspace version, and signs it ad hoc.
+- [x] 3.1a Drive the logic modules on the real hosts from the Mac's own events, in `CapsuleShell`: the poller ticks on the settings' interval, resumes on wake, and reads again on screen unlock (the original's "online") and when the network path returns; the activity monitor rescans on its 2-second poll and on FSEvents in the Claude sessions directory; the token scanner rescans every minute. Unit-tested against fake event sources, and run live once.
+- [x] 3.1b Read the native app's own schema v7 settings from its own Application Support folder, named after the side-by-side identifier, falling back to defaults; nothing is shared with the Electron app's files.
+- [ ] 3.2 Implement the dock as a non-activating floating `NSPanel` at status-bar level with `canJoinAllSpaces`, `stationary`, `ignoresCycle`, and `fullScreenNone`, and confirm it never becomes the key window on hover, click, pin, or drag. The panel exists, is configured so and cannot become key or main (tested); it ignores the mouse until 3.4, so the hover, click, pin and drag checks wait for those to exist.
+- [x] 3.3 Draw the dock as a `CAShapeLayer` path from `CapsuleHUD` used as the mask of an `NSVisualEffectView`, and honour Reduce Transparency by falling back to an opaque surface. The theme palettes are ported to `CapsuleCore`; the surface sits over the vibrancy at full opacity (`ShellTuning.surfaceOpacity`) to match the reference until 3.15 says otherwise. The rail is placed by `computePlacement` on the primary display, sized as Electron sizes it.
 - [ ] 3.4 Implement hit testing against the live path inside `hitTest(_:)` with `NSTrackingArea` for enter and leave, and verify pass-through inside a Rail style's concave fillet and mid-unroll.
 - [ ] 3.5 Implement meters as stroked layers animated through `strokeEnd`, and card open/close with `CASpringAnimation`. Do not port the spring, animated-number, reveal, or shadow helpers.
 - [ ] 3.6 Implement hover-open, pointer-move-onto-card, leave-close, and click pin/unpin with the existing delays from `CapsuleCore`.
 - [ ] 3.7 Implement the auto-hide latch and its hide delays, and drag-to-move with edge snapping.
 - [ ] 3.8 Implement display and Dock geometry from `NSScreen.visibleFrame` and notch awareness from `NSScreen.safeAreaInsets`, replacing the chrome poll, and recompute placement on display reconfiguration.
-- [ ] 3.9 Implement the `NSStatusItem` menu-bar item and the dock's context menu, including Settings and Quit.
+- [ ] 3.9 Implement the `NSStatusItem` menu-bar item and the dock's context menu, including Settings and Quit. The status item exists with Quit only, so the accessory app can be left.
 - [ ] 3.10 Implement unauthenticated, stale, and error meter and card states so an unauthenticated provider never reads as `0% Used`.
 - [ ] 3.11 Implement activity notices as passive, non-blocking surfaces that do not take focus and do not displace usage as the dock's primary content.
 - [ ] 3.12 Build settings and onboarding in SwiftUI in an ordinary `NSWindow`, covering placement, dock style, theme, scale, providers, auto-hide and delay, refresh interval, launch at login via the system login-item service, notification popups, and the updates pane.

@@ -2,6 +2,20 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Native migration, phase 2 — the shell starts
+
+### Added
+
+- `CapsuleApp`, the native app as a menu-bar accessory with no Dock tile, built into `Capsule.app` by `scripts/bundle-macos.sh` under the side-by-side identifier `com.antick.capsule.native`.
+- The dock's window: a non-activating floating panel on every Space that can never take focus, drawing the resting rail through `CapsuleHUD`'s outline over vibrancy, in the theme's palette, placed by the same engine as the Electron dock.
+- `CapsuleShell`, which runs the usage poller, activity monitor and token scanner on the real Mac: the poll interval, wake, screen unlock, the network coming back, and file changes in the Claude sessions directory each prompt the read the Electron app makes for them.
+- A menu-bar item with Quit.
+
+### Known
+
+- A development build is signed ad hoc, so a network filter such as Little Snitch or LuLu asks about it again after every rebuild, and its reads wait on that prompt until it is answered.
+- No meters, cards, hover or settings window yet; the dock lets every click through.
+
 ## Providers no longer invent a zero
 
 ### Fixed
