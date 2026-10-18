@@ -171,7 +171,10 @@ struct InteractionTests {
     #expect(held.height >= max(before.height, target.height) - 0.5)
     // Pinned against the right edge throughout.
     #expect(abs(held.maxX - before.maxX) < 0.5)
-    #expect(dock.view.layer?.animation(forKey: "zoom") != nil)
+    // The ease itself, unless the system asks for less motion: then the new
+    // size simply lands.
+    let eased = dock.view.layer?.animation(forKey: "zoom") != nil
+    #expect(eased == !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
     try await Task.sleep(for: .milliseconds(Int(Motion.zoomMs + Motion.zoomSettleMs) + 200))
     #expect(abs(dock.panel.frame.width - target.width) < 0.5)
     #expect(abs(dock.panel.frame.height - target.height) < 0.5)
