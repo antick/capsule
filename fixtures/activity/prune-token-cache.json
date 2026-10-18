@@ -1,140 +1,144 @@
 {
-  "about": "pruneTokenCache(cache, keep) — forget files that are gone, newest kept first",
-  "cases": [
+  "about" : "pruneTokenCache(cache, keep) — forget files that are gone, newest kept first",
+  "cases" : [
     {
-      "name": "files that are gone are forgotten",
-      "input": {
-        "cache": {
-          "/a": {
-            "size": 100,
-            "modifiedMs": 3,
-            "days": {
-              "2026-09-06": 3
-            }
-          },
-          "/b": {
-            "size": 100,
-            "modifiedMs": 2,
-            "days": {
-              "2026-09-06": 2
-            }
-          },
-          "/c": {
-            "size": 100,
-            "modifiedMs": 1,
-            "days": {
-              "2026-09-06": 1
-            }
-          }
-        },
-        "keep": [
-          "/a",
-          "/c"
-        ]
-      },
-      "expected": [
+      "expected" : [
         [
           "/a",
           {
-            "size": 100,
-            "modifiedMs": 3,
-            "days": {
-              "2026-09-06": 3
-            }
+            "days" : {
+              "2026-09-06" : 3
+            },
+            "modifiedMs" : 3,
+            "size" : 100
           }
         ],
         [
           "/c",
           {
-            "size": 100,
-            "modifiedMs": 1,
-            "days": {
-              "2026-09-06": 1
-            }
+            "days" : {
+              "2026-09-06" : 1
+            },
+            "modifiedMs" : 1,
+            "size" : 100
           }
         ]
-      ]
-    },
-    {
-      "name": "kept newest first",
-      "input": {
-        "cache": {
-          "/old": {
-            "size": 100,
-            "modifiedMs": 1,
-            "days": {
-              "2026-09-06": 1
-            }
+      ],
+      "input" : {
+        "cache" : {
+          "/a" : {
+            "days" : {
+              "2026-09-06" : 3
+            },
+            "modifiedMs" : 3,
+            "size" : 100
           },
-          "/new": {
-            "size": 100,
-            "modifiedMs": 9,
-            "days": {
-              "2026-09-06": 9
-            }
+          "/b" : {
+            "days" : {
+              "2026-09-06" : 2
+            },
+            "modifiedMs" : 2,
+            "size" : 100
           },
-          "/mid": {
-            "size": 100,
-            "modifiedMs": 5,
-            "days": {
-              "2026-09-06": 5
-            }
+          "/c" : {
+            "days" : {
+              "2026-09-06" : 1
+            },
+            "modifiedMs" : 1,
+            "size" : 100
           }
         },
-        "keep": [
-          "/old",
-          "/new",
-          "/mid"
+        "keep" : [
+          "/a",
+          "/c"
         ]
       },
-      "expected": [
+      "name" : "files that are gone are forgotten"
+    },
+    {
+      "expected" : [
         [
           "/new",
           {
-            "size": 100,
-            "modifiedMs": 9,
-            "days": {
-              "2026-09-06": 9
-            }
+            "days" : {
+              "2026-09-06" : 9
+            },
+            "modifiedMs" : 9,
+            "size" : 100
           }
         ],
         [
           "/mid",
           {
-            "size": 100,
-            "modifiedMs": 5,
-            "days": {
-              "2026-09-06": 5
-            }
+            "days" : {
+              "2026-09-06" : 5
+            },
+            "modifiedMs" : 5,
+            "size" : 100
           }
         ],
         [
           "/old",
           {
-            "size": 100,
-            "modifiedMs": 1,
-            "days": {
-              "2026-09-06": 1
-            }
+            "days" : {
+              "2026-09-06" : 1
+            },
+            "modifiedMs" : 1,
+            "size" : 100
           }
         ]
-      ]
-    },
-    {
-      "name": "nothing kept",
-      "input": {
-        "cache": {
-          "/a": {
-            "size": 100,
-            "modifiedMs": 1,
-            "days": {
-              "2026-09-06": 1
-            }
+      ],
+      "input" : {
+        "cache" : {
+          "/mid" : {
+            "days" : {
+              "2026-09-06" : 5
+            },
+            "modifiedMs" : 5,
+            "size" : 100
+          },
+          "/new" : {
+            "days" : {
+              "2026-09-06" : 9
+            },
+            "modifiedMs" : 9,
+            "size" : 100
+          },
+          "/old" : {
+            "days" : {
+              "2026-09-06" : 1
+            },
+            "modifiedMs" : 1,
+            "size" : 100
           }
         },
-        "keep": []
+        "keep" : [
+          "/old",
+          "/new",
+          "/mid"
+        ]
       },
-      "expected": []
+      "name" : "kept newest first"
+    },
+    {
+      "expected" : [
+
+      ],
+      "input" : {
+        "cache" : {
+          "/a" : {
+            "days" : {
+              "2026-09-06" : 1
+            },
+            "modifiedMs" : 1,
+            "size" : 100
+          }
+        },
+        "keep" : [
+
+        ]
+      },
+      "name" : "nothing kept"
     }
   ]
 }

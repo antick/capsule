@@ -1,71 +1,71 @@
 {
-  "about": "grokTokenFromFile / cursorTokenFromHex — pulling a token out of a tool's own auth file",
-  "cases": [
+  "about" : "grokTokenFromFile / cursorTokenFromHex — pulling a token out of a tool's own auth file",
+  "cases" : [
     {
-      "name": "grok: JWT nested under the sign-in URL",
-      "input": {
-        "reader": "grok",
-        "raw": "{\"https://accounts.x.ai/sign-in\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}"
+      "expected" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+      "input" : {
+        "raw" : "{\"https://accounts.x.ai/sign-in\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\"}}",
+        "reader" : "grok"
       },
-      "expected": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig"
+      "name" : "grok: JWT nested under the sign-in URL"
     },
     {
-      "name": "grok: an expired entry is still read",
-      "input": {
-        "reader": "grok",
-        "raw": "{\"https://accounts.x.ai/sign-in\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\",\"expires_at\":\"2020-01-01T00:00:00Z\",\"user_id\":\"user-1\"}}"
+      "expected" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
+      "input" : {
+        "raw" : "{\"https://accounts.x.ai/sign-in\":{\"key\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig\",\"expires_at\":\"2020-01-01T00:00:00Z\",\"user_id\":\"user-1\"}}",
+        "reader" : "grok"
       },
-      "expected": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.sig",
-      "note": "Expiry is the provider's call to make, not Capsule's. Refusing a stale-looking token locally only turns a working read into a blank meter."
+      "name" : "grok: an expired entry is still read",
+      "note" : "Expiry is the provider's call to make, not Capsule's. Refusing a stale-looking token locally only turns a working read into a blank meter."
     },
     {
-      "name": "grok: no token",
-      "input": {
-        "reader": "grok",
-        "raw": "{}"
+      "expected" : null,
+      "input" : {
+        "raw" : "{}",
+        "reader" : "grok"
       },
-      "expected": null
+      "name" : "grok: no token"
     },
     {
-      "name": "cursor: hex-encoded JWT from the state store",
-      "input": {
-        "reader": "cursor-hex",
-        "raw": "782e65794a7a645749694f694a3163325679587a5179496e302e79"
+      "expected" : "x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+      "input" : {
+        "raw" : "782e65794a7a645749694f694a3163325679587a5179496e302e79",
+        "reader" : "cursor-hex"
       },
-      "expected": "x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
-      "note": "Cursor's state store hands the token back hex-encoded."
+      "name" : "cursor: hex-encoded JWT from the state store",
+      "note" : "Cursor's state store hands the token back hex-encoded."
     },
     {
-      "name": "cursor: a token that is already plain passes through",
-      "input": {
-        "reader": "cursor-hex",
-        "raw": "x.eyJzdWIiOiJ1c2VyXzQyIn0.y"
+      "expected" : "x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+      "input" : {
+        "raw" : "x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+        "reader" : "cursor-hex"
       },
-      "expected": "x.eyJzdWIiOiJ1c2VyXzQyIn0.y"
+      "name" : "cursor: a token that is already plain passes through"
     },
     {
-      "name": "cursor: blank input",
-      "input": {
-        "reader": "cursor-hex",
-        "raw": "  "
+      "expected" : null,
+      "input" : {
+        "raw" : "  ",
+        "reader" : "cursor-hex"
       },
-      "expected": null
+      "name" : "cursor: blank input"
     },
     {
-      "name": "cursor: subject read off the JWT payload",
-      "input": {
-        "reader": "cursor-subject",
-        "raw": "x.eyJzdWIiOiJ1c2VyXzQyIn0.y"
+      "expected" : "user_42",
+      "input" : {
+        "raw" : "x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+        "reader" : "cursor-subject"
       },
-      "expected": "user_42"
+      "name" : "cursor: subject read off the JWT payload"
     },
     {
-      "name": "cursor: subject of a non-JWT",
-      "input": {
-        "reader": "cursor-subject",
-        "raw": "nope"
+      "expected" : null,
+      "input" : {
+        "raw" : "nope",
+        "reader" : "cursor-subject"
       },
-      "expected": null
+      "name" : "cursor: subject of a non-JWT"
     }
   ]
 }

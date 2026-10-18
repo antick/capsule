@@ -1,173 +1,173 @@
 {
-  "about": "framePadding(m, growth, style) — the shadow gutter around the frame, dropped on the side flush with the edge",
-  "cases": [
+  "about" : "framePadding(m, growth, style) — the shadow gutter around the frame, dropped on the side flush with the edge",
+  "cases" : [
     {
-      "name": "right edge, rail",
-      "input": {
-        "scale": 1,
-        "growth": "left",
-        "style": "rail"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 18,
+        "right" : 0,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 0,
-        "bottom": 18,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "left",
+        "scale" : 1,
+        "style" : "rail"
+      },
+      "name" : "right edge, rail"
     },
     {
-      "name": "right edge, capsule",
-      "input": {
-        "scale": 1,
-        "growth": "left",
-        "style": "capsule"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 18,
+        "right" : 4,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 4,
-        "bottom": 18,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "left",
+        "scale" : 1,
+        "style" : "capsule"
+      },
+      "name" : "right edge, capsule"
     },
     {
-      "name": "right edge, tray",
-      "input": {
-        "scale": 1,
-        "growth": "left",
-        "style": "tray"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 18,
+        "right" : 5,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 5,
-        "bottom": 18,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "left",
+        "scale" : 1,
+        "style" : "tray"
+      },
+      "name" : "right edge, tray"
     },
     {
-      "name": "left edge, rail",
-      "input": {
-        "scale": 1,
-        "growth": "right",
-        "style": "rail"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 0,
+        "right" : 18,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 18,
-        "bottom": 18,
-        "left": 0
-      }
+      "input" : {
+        "growth" : "right",
+        "scale" : 1,
+        "style" : "rail"
+      },
+      "name" : "left edge, rail"
     },
     {
-      "name": "left edge, capsule",
-      "input": {
-        "scale": 1,
-        "growth": "right",
-        "style": "capsule"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 4,
+        "right" : 18,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 18,
-        "bottom": 18,
-        "left": 4
-      }
+      "input" : {
+        "growth" : "right",
+        "scale" : 1,
+        "style" : "capsule"
+      },
+      "name" : "left edge, capsule"
     },
     {
-      "name": "left edge, tray",
-      "input": {
-        "scale": 1,
-        "growth": "right",
-        "style": "tray"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 5,
+        "right" : 18,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 18,
-        "bottom": 18,
-        "left": 5
-      }
+      "input" : {
+        "growth" : "right",
+        "scale" : 1,
+        "style" : "tray"
+      },
+      "name" : "left edge, tray"
     },
     {
-      "name": "bottom edge, rail",
-      "input": {
-        "scale": 1,
-        "growth": "up",
-        "style": "rail"
+      "expected" : {
+        "bottom" : 0,
+        "left" : 18,
+        "right" : 18,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 18,
-        "bottom": 0,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "up",
+        "scale" : 1,
+        "style" : "rail"
+      },
+      "name" : "bottom edge, rail"
     },
     {
-      "name": "bottom edge, capsule",
-      "input": {
-        "scale": 1,
-        "growth": "up",
-        "style": "capsule"
+      "expected" : {
+        "bottom" : 4,
+        "left" : 18,
+        "right" : 18,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 18,
-        "bottom": 4,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "up",
+        "scale" : 1,
+        "style" : "capsule"
+      },
+      "name" : "bottom edge, capsule"
     },
     {
-      "name": "bottom edge, tray",
-      "input": {
-        "scale": 1,
-        "growth": "up",
-        "style": "tray"
+      "expected" : {
+        "bottom" : 5,
+        "left" : 18,
+        "right" : 18,
+        "top" : 18
       },
-      "expected": {
-        "top": 18,
-        "right": 18,
-        "bottom": 5,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "up",
+        "scale" : 1,
+        "style" : "tray"
+      },
+      "name" : "bottom edge, tray"
     },
     {
-      "name": "top edge, rail",
-      "input": {
-        "scale": 1,
-        "growth": "down",
-        "style": "rail"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 18,
+        "right" : 18,
+        "top" : 0
       },
-      "expected": {
-        "top": 0,
-        "right": 18,
-        "bottom": 18,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "down",
+        "scale" : 1,
+        "style" : "rail"
+      },
+      "name" : "top edge, rail"
     },
     {
-      "name": "top edge, capsule",
-      "input": {
-        "scale": 1,
-        "growth": "down",
-        "style": "capsule"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 18,
+        "right" : 18,
+        "top" : 4
       },
-      "expected": {
-        "top": 4,
-        "right": 18,
-        "bottom": 18,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "down",
+        "scale" : 1,
+        "style" : "capsule"
+      },
+      "name" : "top edge, capsule"
     },
     {
-      "name": "top edge, tray",
-      "input": {
-        "scale": 1,
-        "growth": "down",
-        "style": "tray"
+      "expected" : {
+        "bottom" : 18,
+        "left" : 18,
+        "right" : 18,
+        "top" : 5
       },
-      "expected": {
-        "top": 5,
-        "right": 18,
-        "bottom": 18,
-        "left": 18
-      }
+      "input" : {
+        "growth" : "down",
+        "scale" : 1,
+        "style" : "tray"
+      },
+      "name" : "top edge, tray"
     }
   ]
 }

@@ -1,21 +1,21 @@
 {
-  "about": "toPercent(value) — reads a provider's utilization whether it arrives as a fraction or a percent",
-  "cases": [
+  "about" : "toPercent(value) — reads a provider's utilization whether it arrives as a fraction or a percent",
+  "cases" : [
     {
-      "name": "fraction becomes a percent",
-      "input": 0.73,
-      "expected": 73
+      "expected" : 73,
+      "input" : 0.73,
+      "name" : "fraction becomes a percent"
     },
     {
-      "name": "percent passes through",
-      "input": 21,
-      "expected": 21
+      "expected" : 21,
+      "input" : 21,
+      "name" : "percent passes through"
     },
     {
-      "name": "one means one percent",
-      "input": 1,
-      "expected": 1,
-      "note": "A bare 1 is ambiguous. It is read as one percent, not as a full fraction, so a nearly-unused provider is never shown as exhausted."
+      "expected" : 1,
+      "input" : 1,
+      "name" : "one means one percent",
+      "note" : "A bare 1 is ambiguous. It is read as one percent, not as a full fraction, so a nearly-unused provider is never shown as exhausted."
     }
   ]
 }

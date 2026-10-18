@@ -1,161 +1,169 @@
 {
-  "about": "mapCodexUsage(payload, now) — Codex rate-limit windows to a Capsule snapshot",
-  "timeZone": "UTC",
-  "frozenNow": "2026-08-27T11:22:00Z",
-  "cases": [
+  "about" : "mapCodexUsage(payload, now) — Codex rate-limit windows to a Capsule snapshot",
+  "cases" : [
     {
-      "name": "primary and secondary windows",
-      "input": {
-        "plan_type": "plus",
-        "rate_limit": {
-          "primary_window": {
-            "used_percent": 21,
-            "limit_window_seconds": 18000,
-            "reset_at": 1782770922
-          },
-          "secondary_window": {
-            "used_percent": 8,
-            "limit_window_seconds": 604800,
-            "reset_at": 1783357722
-          }
-        }
-      },
-      "expected": {
-        "providerId": "codex",
-        "displayName": "Codex",
-        "iconId": "codex",
-        "primaryPercent": 21,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "expected" : {
+        "buckets" : [
           {
-            "id": "primary",
-            "label": "5-hour window",
-            "percentUsed": 21,
-            "resetsAt": "2026-06-29T22:08:42.000Z",
-            "resetStyle": "relative"
+            "id" : "primary",
+            "label" : "5-hour window",
+            "percentUsed" : 21,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-06-29T22:08:42.000Z"
           },
           {
-            "id": "secondary",
-            "label": "Weekly",
-            "percentUsed": 8,
-            "resetsAt": "2026-07-06T17:08:42.000Z",
-            "resetStyle": "absolute"
+            "id" : "secondary",
+            "label" : "Weekly",
+            "percentUsed" : 8,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-07-06T17:08:42.000Z"
           }
-        ]
+        ],
+        "displayName" : "Codex",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "codex",
+        "primaryPercent" : 21,
+        "providerId" : "codex",
+        "status" : "ok"
       },
-      "note": "limit_window_seconds is what names the bucket: 18000s reads as the 5-hour window, 604800s as Weekly."
-    },
-    {
-      "name": "primary window only",
-      "input": {
-        "plan_type": "plus",
-        "rate_limit": {
-          "primary_window": {
-            "used_percent": 21,
-            "limit_window_seconds": 18000,
-            "reset_at": 1782770922
+      "input" : {
+        "plan_type" : "plus",
+        "rate_limit" : {
+          "primary_window" : {
+            "limit_window_seconds" : 18000,
+            "reset_at" : 1782770922,
+            "used_percent" : 21
+          },
+          "secondary_window" : {
+            "limit_window_seconds" : 604800,
+            "reset_at" : 1783357722,
+            "used_percent" : 8
           }
         }
       },
-      "expected": {
-        "providerId": "codex",
-        "displayName": "Codex",
-        "iconId": "codex",
-        "primaryPercent": 21,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "name" : "primary and secondary windows",
+      "note" : "limit_window_seconds is what names the bucket: 18000s reads as the 5-hour window, 604800s as Weekly."
+    },
+    {
+      "expected" : {
+        "buckets" : [
           {
-            "id": "primary",
-            "label": "5-hour window",
-            "percentUsed": 21,
-            "resetsAt": "2026-06-29T22:08:42.000Z",
-            "resetStyle": "relative"
+            "id" : "primary",
+            "label" : "5-hour window",
+            "percentUsed" : 21,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-06-29T22:08:42.000Z"
           }
-        ]
-      }
-    },
-    {
-      "name": "window with no percentage",
-      "input": {
-        "rate_limit": {
-          "primary_window": {
-            "limit_window_seconds": 18000,
-            "reset_at": 1782770922
-          }
-        }
+        ],
+        "displayName" : "Codex",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "codex",
+        "primaryPercent" : 21,
+        "providerId" : "codex",
+        "status" : "ok"
       },
-      "expected": {
-        "providerId": "codex",
-        "displayName": "Codex",
-        "iconId": "codex",
-        "primaryPercent": null,
-        "status": "error",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
-      },
-      "note": "A window that reports a reset but no percentage is a window with nothing to draw, not one at 0%."
-    },
-    {
-      "name": "no rate limit block",
-      "input": {
-        "plan_type": "free"
-      },
-      "expected": {
-        "providerId": "codex",
-        "displayName": "Codex",
-        "iconId": "codex",
-        "primaryPercent": null,
-        "status": "error",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
-      },
-      "note": "A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
-    },
-    {
-      "name": "empty payload",
-      "input": {},
-      "expected": {
-        "providerId": "codex",
-        "displayName": "Codex",
-        "iconId": "codex",
-        "primaryPercent": null,
-        "status": "error",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
-      },
-      "note": "A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
-    },
-    {
-      "name": "reset_at in epoch seconds is read as seconds not milliseconds",
-      "input": {
-        "rate_limit": {
-          "primary_window": {
-            "used_percent": 50,
-            "limit_window_seconds": 18000,
-            "reset_at": 1782770922
+      "input" : {
+        "plan_type" : "plus",
+        "rate_limit" : {
+          "primary_window" : {
+            "limit_window_seconds" : 18000,
+            "reset_at" : 1782770922,
+            "used_percent" : 21
           }
         }
       },
-      "expected": {
-        "providerId": "codex",
-        "displayName": "Codex",
-        "iconId": "codex",
-        "primaryPercent": 50,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "name" : "primary window only"
+    },
+    {
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Codex",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "codex",
+        "primaryPercent" : null,
+        "providerId" : "codex",
+        "status" : "error"
+      },
+      "input" : {
+        "rate_limit" : {
+          "primary_window" : {
+            "limit_window_seconds" : 18000,
+            "reset_at" : 1782770922
+          }
+        }
+      },
+      "name" : "window with no percentage",
+      "note" : "A window that reports a reset but no percentage is a window with nothing to draw, not one at 0%."
+    },
+    {
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Codex",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "codex",
+        "primaryPercent" : null,
+        "providerId" : "codex",
+        "status" : "error"
+      },
+      "input" : {
+        "plan_type" : "free"
+      },
+      "name" : "no rate limit block",
+      "note" : "A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
+    },
+    {
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Codex",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "codex",
+        "primaryPercent" : null,
+        "providerId" : "codex",
+        "status" : "error"
+      },
+      "input" : {
+
+      },
+      "name" : "empty payload",
+      "note" : "A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
+    },
+    {
+      "expected" : {
+        "buckets" : [
           {
-            "id": "primary",
-            "label": "5-hour window",
-            "percentUsed": 50,
-            "resetsAt": "2026-06-29T22:08:42.000Z",
-            "resetStyle": "relative"
+            "id" : "primary",
+            "label" : "5-hour window",
+            "percentUsed" : 50,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-06-29T22:08:42.000Z"
           }
-        ]
+        ],
+        "displayName" : "Codex",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "codex",
+        "primaryPercent" : 50,
+        "providerId" : "codex",
+        "status" : "ok"
       },
-      "note": "A seconds-vs-milliseconds slip here puts the reset tens of thousands of years out."
+      "input" : {
+        "rate_limit" : {
+          "primary_window" : {
+            "limit_window_seconds" : 18000,
+            "reset_at" : 1782770922,
+            "used_percent" : 50
+          }
+        }
+      },
+      "name" : "reset_at in epoch seconds is read as seconds not milliseconds",
+      "note" : "A seconds-vs-milliseconds slip here puts the reset tens of thousands of years out."
     }
-  ]
+  ],
+  "frozenNow" : "2026-08-27T11:22:00Z",
+  "timeZone" : "UTC"
 }

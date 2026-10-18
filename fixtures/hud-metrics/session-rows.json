@@ -1,53 +1,53 @@
 {
-  "about": "sessionRowsShown(count) — how many session rows a card draws, and how many it only counts",
-  "cases": [
+  "about" : "sessionRowsShown(count) — how many session rows a card draws, and how many it only counts",
+  "cases" : [
     {
-      "name": "0 sessions",
-      "input": 0,
-      "expected": {
-        "rows": 0,
-        "hidden": 0
-      }
+      "expected" : {
+        "hidden" : 0,
+        "rows" : 0
+      },
+      "input" : 0,
+      "name" : "0 sessions"
     },
     {
-      "name": "1 sessions",
-      "input": 1,
-      "expected": {
-        "rows": 1,
-        "hidden": 0
-      }
+      "expected" : {
+        "hidden" : 0,
+        "rows" : 1
+      },
+      "input" : 1,
+      "name" : "1 sessions"
     },
     {
-      "name": "3 sessions",
-      "input": 3,
-      "expected": {
-        "rows": 3,
-        "hidden": 0
-      }
+      "expected" : {
+        "hidden" : 0,
+        "rows" : 3
+      },
+      "input" : 3,
+      "name" : "3 sessions"
     },
     {
-      "name": "4 sessions",
-      "input": 4,
-      "expected": {
-        "rows": 4,
-        "hidden": 0
-      }
+      "expected" : {
+        "hidden" : 0,
+        "rows" : 4
+      },
+      "input" : 4,
+      "name" : "4 sessions"
     },
     {
-      "name": "5 sessions",
-      "input": 5,
-      "expected": {
-        "rows": 4,
-        "hidden": 1
-      }
+      "expected" : {
+        "hidden" : 1,
+        "rows" : 4
+      },
+      "input" : 5,
+      "name" : "5 sessions"
     },
     {
-      "name": "9 sessions",
-      "input": 9,
-      "expected": {
-        "rows": 4,
-        "hidden": 5
-      }
+      "expected" : {
+        "hidden" : 5,
+        "rows" : 4
+      },
+      "input" : 9,
+      "name" : "9 sessions"
     }
   ]
 }

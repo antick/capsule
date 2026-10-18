@@ -1,56 +1,56 @@
 {
-  "about": "formatBytes(bytes) — download sizes in the updates pane",
-  "cases": [
+  "about" : "formatBytes(bytes) — download sizes in the updates pane",
+  "cases" : [
     {
-      "name": "zero",
-      "input": 0,
-      "expected": "0 MB"
+      "expected" : "0 MB",
+      "input" : 0,
+      "name" : "zero"
     },
     {
-      "name": "bytes",
-      "input": 900,
-      "expected": "900 B"
+      "expected" : "900 B",
+      "input" : 900,
+      "name" : "bytes"
     },
     {
-      "name": "a round kilobyte count",
-      "input": 2048,
-      "expected": "2 KB"
+      "expected" : "2 KB",
+      "input" : 2048,
+      "name" : "a round kilobyte count"
     },
     {
-      "name": "kilobytes with a fraction",
-      "input": 1536,
-      "expected": "1.5 KB"
+      "expected" : "1.5 KB",
+      "input" : 1536,
+      "name" : "kilobytes with a fraction"
     },
     {
-      "name": "just under a megabyte",
-      "input": 1048575,
-      "expected": "1024 KB",
-      "note": "Reads '1024 KB' rather than '1 MB': kilobytes round up to the next unit's worth. Cosmetic, recorded as-is."
+      "expected" : "1024 KB",
+      "input" : 1048575,
+      "name" : "just under a megabyte",
+      "note" : "Reads '1024 KB' rather than '1 MB': kilobytes round up to the next unit's worth. Cosmetic, recorded as-is."
     },
     {
-      "name": "exactly a megabyte",
-      "input": 1048576,
-      "expected": "1 MB"
+      "expected" : "1 MB",
+      "input" : 1048576,
+      "name" : "exactly a megabyte"
     },
     {
-      "name": "megabytes with a decimal",
-      "input": 12939427.84,
-      "expected": "12.3 MB"
+      "expected" : "12.3 MB",
+      "input" : 12939427.84,
+      "name" : "megabytes with a decimal"
     },
     {
-      "name": "large megabytes drop the decimal",
-      "input": 134217728,
-      "expected": "128 MB"
+      "expected" : "128 MB",
+      "input" : 134217728,
+      "name" : "large megabytes drop the decimal"
     },
     {
-      "name": "gigabyte-sized",
-      "input": 2147483648,
-      "expected": "2 GB"
+      "expected" : "2 GB",
+      "input" : 2147483648,
+      "name" : "gigabyte-sized"
     },
     {
-      "name": "negative",
-      "input": -5,
-      "expected": "0 MB"
+      "expected" : "0 MB",
+      "input" : -5,
+      "name" : "negative"
     }
   ]
 }

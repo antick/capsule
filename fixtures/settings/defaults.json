@@ -1,34 +1,34 @@
 {
-  "about": "defaultSettings() — what a first launch starts from",
-  "cases": [
+  "about" : "defaultSettings() — what a first launch starts from",
+  "cases" : [
     {
-      "name": "defaults",
-      "input": null,
-      "expected": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
+      "expected" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : null,
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
           "claude",
           "codex",
           "grok"
         ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": null,
-        "schemaVersion": 7
-      }
+        "hideDelay" : "normal",
+        "hudScale" : 1,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 7,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
+      },
+      "input" : null,
+      "name" : "defaults"
     }
   ]
 }

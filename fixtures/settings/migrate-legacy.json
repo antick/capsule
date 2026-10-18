@@ -1,647 +1,647 @@
 {
-  "about": "settingsSchema.parse(raw) for files older than schema v7 — the Electron app's own migrations",
-  "note": "The native app does not run these migrations (design decision 9): a file older than v7 falls back to defaults and onboarding. These cases pin the Electron behaviour only.",
-  "cases": [
+  "about" : "settingsSchema.parse(raw) for files older than schema v7 — the Electron app's own migrations",
+  "cases" : [
     {
-      "name": "legacy provider ids map onto current ones, and demo turns off once",
-      "input": {
-        "placementPreset": "left-edge",
-        "enabledProviderIds": [
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
+            "claude",
+            "codex",
+            "grok"
+          ],
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "left-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
+        }
+      },
+      "input" : {
+        "customPosition" : null,
+        "demoMode" : true,
+        "enabledProviderIds" : [
           "claude",
           "chatgpt",
           "spark"
         ],
-        "demoMode": true,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "customPosition": null
+        "launchAtLogin" : false,
+        "placementPreset" : "left-edge",
+        "pollIntervalMs" : 60000
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "left-edge",
-          "enabledProviderIds": [
+      "name" : "legacy provider ids map onto current ones, and demo turns off once"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : true,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
-    },
-    {
-      "name": "an explicit demo toggle survives a versioned file",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : null,
+        "demoMode" : true,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
           "claude",
           "codex",
           "grok"
         ],
-        "demoMode": true,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": null,
-        "schemaVersion": 2
+        "hideDelay" : "normal",
+        "hudScale" : 1,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 2,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
+      "name" : "an explicit demo toggle survives a versioned file"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": true,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "bottom-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
-    },
-    {
-      "name": "a Dock-flank preset folds onto the bottom edge",
-      "input": {
-        "placementPreset": "dock-flank-right",
-        "enabledProviderIds": [
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : null,
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
           "claude",
           "codex",
           "grok"
         ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": null,
-        "schemaVersion": 2
+        "hideDelay" : "normal",
+        "hudScale" : 1,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "dock-flank-right",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 2,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "bottom-edge",
-          "enabledProviderIds": [
+      "name" : "a Dock-flank preset folds onto the bottom edge"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "left-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
-    },
-    {
-      "name": "a Stage Manager preset folds onto the left edge",
-      "input": {
-        "placementPreset": "stage-manager-top",
-        "enabledProviderIds": [
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : null,
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
           "claude",
           "codex",
           "grok"
         ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": null,
-        "schemaVersion": 2
+        "hideDelay" : "normal",
+        "hudScale" : 1,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "stage-manager-top",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 2,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "left-edge",
-          "enabledProviderIds": [
+      "name" : "a Stage Manager preset folds onto the left edge"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
-    },
-    {
-      "name": "a position from schema 2 is dropped",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
-          "claude",
-          "codex",
-          "grok"
-        ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": {
-          "x": 900,
-          "y": 120
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : {
+          "x" : 900,
+          "y" : 120
         },
-        "schemaVersion": 2
-      },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
-            "claude",
-            "codex",
-            "grok"
-          ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
-        }
-      }
-    },
-    {
-      "name": "a position from schema 5 is dropped",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
           "claude",
           "codex",
           "grok"
         ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": {
-          "x": 900,
-          "y": 120
-        },
-        "schemaVersion": 5
+        "hideDelay" : "normal",
+        "hudScale" : 1,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 2,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
+      "name" : "a position from schema 2 is dropped"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
-    },
-    {
-      "name": "a position from schema 6 is kept",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : {
+          "x" : 900,
+          "y" : 120
+        },
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
           "claude",
           "codex",
           "grok"
         ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": {
-          "x": 900,
-          "y": 120
-        },
-        "schemaVersion": 6
+        "hideDelay" : "normal",
+        "hudScale" : 1,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 5,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
-            "claude",
-            "codex",
-            "grok"
-          ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": {
-            "x": 900,
-            "y": 120
+      "name" : "a position from schema 5 is dropped"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : {
+            "x" : 900,
+            "y" : 120
           },
-          "schemaVersion": 7
-        }
-      }
-    },
-    {
-      "name": "a size from schema 5 is snapped",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
-          "claude",
-          "codex",
-          "grok"
-        ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 0.55,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": null,
-        "schemaVersion": 5
-      },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 0.7,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
-    },
-    {
-      "name": "a size from before the redraw is forgotten",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : {
+          "x" : 900,
+          "y" : 120
+        },
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
           "claude",
           "codex",
           "grok"
         ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1.25,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": null,
-        "schemaVersion": 4
+        "hideDelay" : "normal",
+        "hudScale" : 1,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 6,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
+      "name" : "a position from schema 6 is kept"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 0.7,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
-    },
-    {
-      "name": "a size from after the redraw is kept",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : null,
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
           "claude",
           "codex",
           "grok"
         ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1.2,
-        "hudTheme": "auto",
-        "dockStyle": "rail",
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": null,
-        "schemaVersion": 5
+        "hideDelay" : "normal",
+        "hudScale" : 0.55,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 5,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
+      "name" : "a size from schema 5 is snapped"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1.2,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : null,
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
+          "claude",
+          "codex",
+          "grok"
+        ],
+        "hideDelay" : "normal",
+        "hudScale" : 1.25,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 4,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
+      },
+      "name" : "a size from before the redraw is forgotten"
     },
     {
-      "name": "a file from before sizes existed gets the default",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
-          "claude"
-        ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "customPosition": null,
-        "schemaVersion": 2
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
+            "claude",
+            "codex",
+            "grok"
+          ],
+          "hideDelay" : "normal",
+          "hudScale" : 1.2,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
+        }
       },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : null,
+        "demoMode" : false,
+        "dockStyle" : "rail",
+        "enabledProviderIds" : [
+          "claude",
+          "codex",
+          "grok"
+        ],
+        "hideDelay" : "normal",
+        "hudScale" : 1.2,
+        "hudTheme" : "auto",
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 5,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
+      },
+      "name" : "a size from after the redraw is kept"
+    },
+    {
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
+      },
+      "input" : {
+        "customPosition" : null,
+        "demoMode" : false,
+        "enabledProviderIds" : [
+          "claude"
+        ],
+        "launchAtLogin" : false,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 2
+      },
+      "name" : "a file from before sizes existed gets the default"
     },
     {
-      "name": "theme and style default for older files",
-      "input": {
-        "placementPreset": "right-edge",
-        "enabledProviderIds": [
-          "claude",
-          "codex",
-          "grok"
-        ],
-        "demoMode": false,
-        "pollIntervalMs": 60000,
-        "launchAtLogin": false,
-        "hudScale": 1,
-        "cornerArc": false,
-        "autoHide": true,
-        "notificationPopups": true,
-        "autoUpdateCheck": true,
-        "autoUpdateDownload": false,
-        "hideDelay": "normal",
-        "customCorner": null,
-        "topEdgeNotch": true,
-        "usageDisplay": "used",
-        "customPosition": null,
-        "schemaVersion": 3
-      },
-      "expected": {
-        "accepted": {
-          "placementPreset": "right-edge",
-          "enabledProviderIds": [
+      "expected" : {
+        "accepted" : {
+          "autoHide" : true,
+          "autoUpdateCheck" : true,
+          "autoUpdateDownload" : false,
+          "cornerArc" : false,
+          "customCorner" : null,
+          "customPosition" : null,
+          "demoMode" : false,
+          "dockStyle" : "rail",
+          "enabledProviderIds" : [
             "claude",
             "codex",
             "grok"
           ],
-          "demoMode": false,
-          "pollIntervalMs": 60000,
-          "launchAtLogin": false,
-          "hudScale": 1,
-          "hudTheme": "auto",
-          "dockStyle": "rail",
-          "cornerArc": false,
-          "notificationPopups": true,
-          "autoUpdateCheck": true,
-          "autoUpdateDownload": false,
-          "autoHide": true,
-          "hideDelay": "normal",
-          "customCorner": null,
-          "topEdgeNotch": true,
-          "usageDisplay": "used",
-          "customPosition": null,
-          "schemaVersion": 7
+          "hideDelay" : "normal",
+          "hudScale" : 1,
+          "hudTheme" : "auto",
+          "launchAtLogin" : false,
+          "notificationPopups" : true,
+          "placementPreset" : "right-edge",
+          "pollIntervalMs" : 60000,
+          "schemaVersion" : 7,
+          "topEdgeNotch" : true,
+          "usageDisplay" : "used"
         }
-      }
+      },
+      "input" : {
+        "autoHide" : true,
+        "autoUpdateCheck" : true,
+        "autoUpdateDownload" : false,
+        "cornerArc" : false,
+        "customCorner" : null,
+        "customPosition" : null,
+        "demoMode" : false,
+        "enabledProviderIds" : [
+          "claude",
+          "codex",
+          "grok"
+        ],
+        "hideDelay" : "normal",
+        "hudScale" : 1,
+        "launchAtLogin" : false,
+        "notificationPopups" : true,
+        "placementPreset" : "right-edge",
+        "pollIntervalMs" : 60000,
+        "schemaVersion" : 3,
+        "topEdgeNotch" : true,
+        "usageDisplay" : "used"
+      },
+      "name" : "theme and style default for older files"
     }
-  ]
+  ],
+  "note" : "The native app does not run these migrations (design decision 9): a file older than v7 falls back to defaults and onboarding. These cases pin the Electron behaviour only."
 }

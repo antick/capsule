@@ -1,31 +1,31 @@
 {
-  "about": "dayKey(startOfDay(now, daysBack)) — local day names for token windows",
-  "timeZone": "UTC",
-  "cases": [
+  "about" : "dayKey(startOfDay(now, daysBack)) — local day names for token windows",
+  "cases" : [
     {
-      "name": "late evening still names today",
-      "input": {
-        "now": "2026-09-06T23:59:00Z",
-        "daysBack": 0
+      "expected" : "2026-09-06",
+      "input" : {
+        "daysBack" : 0,
+        "now" : "2026-09-06T23:59:00Z"
       },
-      "expected": "2026-09-06",
-      "note": "Guards against a UTC-vs-local slip rolling the key to the next day."
+      "name" : "late evening still names today",
+      "note" : "Guards against a UTC-vs-local slip rolling the key to the next day."
     },
     {
-      "name": "one whole day back",
-      "input": {
-        "now": "2026-09-06T23:59:00Z",
-        "daysBack": 1
+      "expected" : "2026-09-05",
+      "input" : {
+        "daysBack" : 1,
+        "now" : "2026-09-06T23:59:00Z"
       },
-      "expected": "2026-09-05"
+      "name" : "one whole day back"
     },
     {
-      "name": "twenty-nine days back crosses a month",
-      "input": {
-        "now": "2026-09-06T23:59:00Z",
-        "daysBack": 29
+      "expected" : "2026-08-08",
+      "input" : {
+        "daysBack" : 29,
+        "now" : "2026-09-06T23:59:00Z"
       },
-      "expected": "2026-08-08"
+      "name" : "twenty-nine days back crosses a month"
     }
-  ]
+  ],
+  "timeZone" : "UTC"
 }

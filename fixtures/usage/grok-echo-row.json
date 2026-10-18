@@ -1,51 +1,51 @@
 {
-  "about": "mapGrokCredits(payload, now) — a product row that only repeats the headline percent is dropped",
-  "timeZone": "UTC",
-  "frozenNow": "2026-08-29T05:30:00Z",
-  "cases": [
+  "about" : "mapGrokCredits(payload, now) — a product row that only repeats the headline percent is dropped",
+  "cases" : [
     {
-      "name": "echoing product row is dropped and a product with no percent is ignored",
-      "input": {
-        "config": {
-          "creditUsagePercent": 41,
-          "currentPeriod": {
-            "end": "2026-08-30T08:15:36Z"
+      "expected" : {
+        "buckets" : [
+          {
+            "id" : "weekly",
+            "label" : "Weekly credits",
+            "percentUsed" : 41,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-08-30T08:15:36.000Z"
+          }
+        ],
+        "displayName" : "Grok",
+        "fetchedAt" : "2026-08-29T05:30:00.000Z",
+        "iconId" : "grok",
+        "primaryPercent" : 41,
+        "providerId" : "grok",
+        "status" : "ok"
+      },
+      "input" : {
+        "config" : {
+          "creditUsagePercent" : 41,
+          "currentPeriod" : {
+            "end" : "2026-08-30T08:15:36Z"
           },
-          "onDemandCap": {
-            "val": 0
+          "onDemandCap" : {
+            "val" : 0
           },
-          "onDemandUsed": {
-            "val": 0
+          "onDemandUsed" : {
+            "val" : 0
           },
-          "productUsage": [
+          "productUsage" : [
             {
-              "product": "GrokBuild",
-              "usagePercent": 41
+              "product" : "GrokBuild",
+              "usagePercent" : 41
             },
             {
-              "product": "GrokChat"
+              "product" : "GrokChat"
             }
           ]
         }
       },
-      "expected": {
-        "providerId": "grok",
-        "displayName": "Grok",
-        "iconId": "grok",
-        "primaryPercent": 41,
-        "status": "ok",
-        "fetchedAt": "2026-08-29T05:30:00.000Z",
-        "buckets": [
-          {
-            "id": "weekly",
-            "label": "Weekly credits",
-            "percentUsed": 41,
-            "resetsAt": "2026-08-30T08:15:36.000Z",
-            "resetStyle": "absolute"
-          }
-        ]
-      },
-      "note": "Leaves one bucket: a second row showing the same number as the headline is noise."
+      "name" : "echoing product row is dropped and a product with no percent is ignored",
+      "note" : "Leaves one bucket: a second row showing the same number as the headline is noise."
     }
-  ]
+  ],
+  "frozenNow" : "2026-08-29T05:30:00Z",
+  "timeZone" : "UTC"
 }

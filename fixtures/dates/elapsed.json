@@ -1,50 +1,50 @@
 {
-  "about": "formatElapsed(since, now) — how long a session has been running",
-  "timeZone": "UTC",
-  "frozenNow": "2026-08-27T11:22:00Z",
-  "cases": [
+  "about" : "formatElapsed(since, now) — how long a session has been running",
+  "cases" : [
     {
-      "name": "this instant",
-      "input": {
-        "msBeforeNow": 0
+      "expected" : "just now",
+      "input" : {
+        "msBeforeNow" : 0
       },
-      "expected": "just now",
-      "note": "msBeforeNow is subtracted from frozenNow to get `since`."
+      "name" : "this instant",
+      "note" : "msBeforeNow is subtracted from frozenNow to get `since`."
     },
     {
-      "name": "just under the forty-five second rounding point",
-      "input": {
-        "msBeforeNow": 44000
+      "expected" : "just now",
+      "input" : {
+        "msBeforeNow" : 44000
       },
-      "expected": "just now"
+      "name" : "just under the forty-five second rounding point"
     },
     {
-      "name": "at the rounding point",
-      "input": {
-        "msBeforeNow": 45000
+      "expected" : "1 min",
+      "input" : {
+        "msBeforeNow" : 45000
       },
-      "expected": "1 min"
+      "name" : "at the rounding point"
     },
     {
-      "name": "whole minutes",
-      "input": {
-        "msBeforeNow": 180000
+      "expected" : "3 min",
+      "input" : {
+        "msBeforeNow" : 180000
       },
-      "expected": "3 min"
+      "name" : "whole minutes"
     },
     {
-      "name": "whole hours drop the minutes",
-      "input": {
-        "msBeforeNow": 7200000
+      "expected" : "2 hr",
+      "input" : {
+        "msBeforeNow" : 7200000
       },
-      "expected": "2 hr"
+      "name" : "whole hours drop the minutes"
     },
     {
-      "name": "hours and minutes together",
-      "input": {
-        "msBeforeNow": 7500000
+      "expected" : "2 hr 5 min",
+      "input" : {
+        "msBeforeNow" : 7500000
       },
-      "expected": "2 hr 5 min"
+      "name" : "hours and minutes together"
     }
-  ]
+  ],
+  "frozenNow" : "2026-08-27T11:22:00Z",
+  "timeZone" : "UTC"
 }

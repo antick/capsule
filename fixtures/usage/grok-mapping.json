@@ -1,127 +1,131 @@
 {
-  "about": "mapGrokCredits(payload, now) — Grok credit usage to a Capsule snapshot",
-  "timeZone": "UTC",
-  "frozenNow": "2026-08-27T11:22:00Z",
-  "cases": [
+  "about" : "mapGrokCredits(payload, now) — Grok credit usage to a Capsule snapshot",
+  "cases" : [
     {
-      "name": "weekly credits and a build product row",
-      "input": {
-        "config": {
-          "creditUsagePercent": 52,
-          "currentPeriod": {
-            "type": "USAGE_PERIOD_TYPE_WEEKLY",
-            "end": "2026-09-03T00:00:00Z"
+      "expected" : {
+        "buckets" : [
+          {
+            "id" : "weekly",
+            "label" : "Weekly credits",
+            "percentUsed" : 52,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T00:00:00.000Z"
           },
-          "productUsage": [
+          {
+            "id" : "product",
+            "label" : "Grok Build",
+            "percentUsed" : 18,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T00:00:00.000Z"
+          }
+        ],
+        "displayName" : "Grok",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "grok",
+        "primaryPercent" : 52,
+        "providerId" : "grok",
+        "status" : "ok"
+      },
+      "input" : {
+        "config" : {
+          "creditUsagePercent" : 52,
+          "currentPeriod" : {
+            "end" : "2026-09-03T00:00:00Z",
+            "type" : "USAGE_PERIOD_TYPE_WEEKLY"
+          },
+          "productUsage" : [
             {
-              "product": "PRODUCT_GROK_BUILD",
-              "usagePercent": 18
+              "product" : "PRODUCT_GROK_BUILD",
+              "usagePercent" : 18
             }
           ]
         }
       },
-      "expected": {
-        "providerId": "grok",
-        "displayName": "Grok",
-        "iconId": "grok",
-        "primaryPercent": 52,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "weekly",
-            "label": "Weekly credits",
-            "percentUsed": 52,
-            "resetsAt": "2026-09-03T00:00:00.000Z",
-            "resetStyle": "absolute"
-          },
-          {
-            "id": "product",
-            "label": "Grok Build",
-            "percentUsed": 18,
-            "resetsAt": "2026-09-03T00:00:00.000Z",
-            "resetStyle": "absolute"
-          }
-        ]
-      }
+      "name" : "weekly credits and a build product row"
     },
     {
-      "name": "no product rows",
-      "input": {
-        "config": {
-          "creditUsagePercent": 52,
-          "currentPeriod": {
-            "type": "USAGE_PERIOD_TYPE_WEEKLY",
-            "end": "2026-09-03T00:00:00Z"
+      "expected" : {
+        "buckets" : [
+          {
+            "id" : "weekly",
+            "label" : "Weekly credits",
+            "percentUsed" : 52,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T00:00:00.000Z"
+          }
+        ],
+        "displayName" : "Grok",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "grok",
+        "primaryPercent" : 52,
+        "providerId" : "grok",
+        "status" : "ok"
+      },
+      "input" : {
+        "config" : {
+          "creditUsagePercent" : 52,
+          "currentPeriod" : {
+            "end" : "2026-09-03T00:00:00Z",
+            "type" : "USAGE_PERIOD_TYPE_WEEKLY"
           }
         }
       },
-      "expected": {
-        "providerId": "grok",
-        "displayName": "Grok",
-        "iconId": "grok",
-        "primaryPercent": 52,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "weekly",
-            "label": "Weekly credits",
-            "percentUsed": 52,
-            "resetsAt": "2026-09-03T00:00:00.000Z",
-            "resetStyle": "absolute"
-          }
-        ]
-      }
+      "name" : "no product rows"
     },
     {
-      "name": "a product row with no headline credit percent",
-      "input": {
-        "config": {
-          "currentPeriod": {
-            "type": "USAGE_PERIOD_TYPE_WEEKLY",
-            "end": "2026-09-03T00:00:00Z"
+      "expected" : {
+        "buckets" : [
+          {
+            "id" : "product",
+            "label" : "Grok Build",
+            "percentUsed" : 18,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T00:00:00.000Z"
+          }
+        ],
+        "displayName" : "Grok",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "grok",
+        "primaryPercent" : 18,
+        "providerId" : "grok",
+        "status" : "ok"
+      },
+      "input" : {
+        "config" : {
+          "currentPeriod" : {
+            "end" : "2026-09-03T00:00:00Z",
+            "type" : "USAGE_PERIOD_TYPE_WEEKLY"
           },
-          "productUsage": [
+          "productUsage" : [
             {
-              "product": "PRODUCT_GROK_BUILD",
-              "usagePercent": 18
+              "product" : "PRODUCT_GROK_BUILD",
+              "usagePercent" : 18
             }
           ]
         }
       },
-      "expected": {
-        "providerId": "grok",
-        "displayName": "Grok",
-        "iconId": "grok",
-        "primaryPercent": 18,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "product",
-            "label": "Grok Build",
-            "percentUsed": 18,
-            "resetsAt": "2026-09-03T00:00:00.000Z",
-            "resetStyle": "absolute"
-          }
-        ]
-      },
-      "note": "No creditUsagePercent, so no \"Weekly credits\" row — but the product row is a real reading and becomes the headline."
+      "name" : "a product row with no headline credit percent",
+      "note" : "No creditUsagePercent, so no \"Weekly credits\" row — but the product row is a real reading and becomes the headline."
     },
     {
-      "name": "empty payload",
-      "input": {},
-      "expected": {
-        "providerId": "grok",
-        "displayName": "Grok",
-        "iconId": "grok",
-        "primaryPercent": null,
-        "status": "error",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Grok",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "grok",
+        "primaryPercent" : null,
+        "providerId" : "grok",
+        "status" : "error"
       },
-      "note": "No credit percent, so no \"Weekly credits\" row. A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
+      "input" : {
+
+      },
+      "name" : "empty payload",
+      "note" : "No credit percent, so no \"Weekly credits\" row. A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
     }
-  ]
+  ],
+  "frozenNow" : "2026-08-27T11:22:00Z",
+  "timeZone" : "UTC"
 }

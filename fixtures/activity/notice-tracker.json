@@ -1,688 +1,712 @@
 {
-  "about": "createNoticeTracker(startedAt) replayed over a sequence of steps — the notices after each one",
-  "cases": [
+  "about" : "createNoticeTracker(startedAt) replayed over a sequence of steps — the notices after each one",
+  "cases" : [
     {
-      "name": "history before launch is ignored, then each transition is shown once",
-      "input": {
-        "startedAt": "2026-09-06T12:00:00Z",
-        "steps": [
+      "expected" : [
+        [
+
+        ],
+        [
           {
-            "op": "update",
-            "activity": {
-              "codex": [
-                {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "old",
-                    "at": "2026-09-05T12:00:00Z"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "op": "update",
-            "activity": {
-              "codex": [
-                {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "new",
-                    "at": "2026-09-06T12:00:01.000Z"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "op": "update",
-            "activity": {
-              "codex": [
-                {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "new",
-                    "at": "2026-09-06T12:00:01.000Z"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "op": "dismiss",
-            "index": 0
-          },
-          {
-            "op": "update",
-            "activity": {
-              "codex": [
-                {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "new",
-                    "at": "2026-09-06T12:00:01.000Z"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "op": "update",
-            "activity": {
-              "codex": [
-                {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "waiting",
-                  "confirmed": true,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z"
-                }
-              ]
-            }
-          },
-          {
-            "op": "update",
-            "activity": {
-              "codex": [
-                {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": true,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z"
-                }
-              ]
-            }
-          },
-          {
-            "op": "update",
-            "activity": {}
+            "at" : "2026-09-06T12:00:01.000Z",
+            "id" : "codex.test:new",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "sessionId" : "codex.test",
+            "title" : "Example task"
           }
+        ],
+        [
+          {
+            "at" : "2026-09-06T12:00:01.000Z",
+            "id" : "codex.test:new",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "sessionId" : "codex.test",
+            "title" : "Example task"
+          }
+        ],
+        [
+
+        ],
+        [
+
+        ],
+        [
+          {
+            "at" : "2026-09-06T12:00:01.000Z",
+            "id" : "codex.test:waiting:2026-09-06T12:00:01.000Z",
+            "kind" : "waiting",
+            "providerId" : "codex",
+            "sessionId" : "codex.test",
+            "title" : "Example task"
+          }
+        ],
+        [
+
+        ],
+        [
+
         ]
-      },
-      "expected": [
-        [],
-        [
-          {
-            "id": "codex.test:new",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T12:00:01.000Z"
-          }
-        ],
-        [
-          {
-            "id": "codex.test:new",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T12:00:01.000Z"
-          }
-        ],
-        [],
-        [],
-        [
-          {
-            "id": "codex.test:waiting:2026-09-06T12:00:01.000Z",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "waiting",
-            "at": "2026-09-06T12:00:01.000Z"
-          }
-        ],
-        [],
-        []
       ],
-      "note": "dismiss takes an index into the current notices rather than an id, so the step needs nothing the replay has not produced yet."
-    },
-    {
-      "name": "concurrent providers stay distinct, and inferred waiting is refused",
-      "input": {
-        "startedAt": "2026-09-06T12:00:00Z",
-        "steps": [
+      "input" : {
+        "startedAt" : "2026-09-06T12:00:00Z",
+        "steps" : [
           {
-            "op": "update",
-            "activity": {
-              "codex": [
+            "activity" : {
+              "codex" : [
                 {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "turn",
-                    "at": "2026-09-06T12:00:01.000Z"
-                  }
-                }
-              ],
-              "grok": [
-                {
-                  "id": "grok.test",
-                  "providerId": "grok",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "turn",
-                    "at": "2026-09-06T12:00:01.000Z"
-                  }
-                }
-              ],
-              "claude": [
-                {
-                  "id": "claude.test",
-                  "providerId": "claude",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "waiting",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z"
+                  "completion" : {
+                    "at" : "2026-09-05T12:00:00Z",
+                    "id" : "old"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
-            }
+            },
+            "op" : "update"
+          },
+          {
+            "activity" : {
+              "codex" : [
+                {
+                  "completion" : {
+                    "at" : "2026-09-06T12:00:01.000Z",
+                    "id" : "new"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "op" : "update"
+          },
+          {
+            "activity" : {
+              "codex" : [
+                {
+                  "completion" : {
+                    "at" : "2026-09-06T12:00:01.000Z",
+                    "id" : "new"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "op" : "update"
+          },
+          {
+            "index" : 0,
+            "op" : "dismiss"
+          },
+          {
+            "activity" : {
+              "codex" : [
+                {
+                  "completion" : {
+                    "at" : "2026-09-06T12:00:01.000Z",
+                    "id" : "new"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "op" : "update"
+          },
+          {
+            "activity" : {
+              "codex" : [
+                {
+                  "confirmed" : true,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "waiting",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "op" : "update"
+          },
+          {
+            "activity" : {
+              "codex" : [
+                {
+                  "confirmed" : true,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "op" : "update"
+          },
+          {
+            "activity" : {
+
+            },
+            "op" : "update"
           }
         ]
       },
-      "expected": [
+      "name" : "history before launch is ignored, then each transition is shown once",
+      "note" : "dismiss takes an index into the current notices rather than an id, so the step needs nothing the replay has not produced yet."
+    },
+    {
+      "expected" : [
         [
           {
-            "id": "codex.test:turn",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T12:00:01.000Z"
+            "at" : "2026-09-06T12:00:01.000Z",
+            "id" : "codex.test:turn",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "sessionId" : "codex.test",
+            "title" : "Example task"
           },
           {
-            "id": "grok.test:turn",
-            "sessionId": "grok.test",
-            "providerId": "grok",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T12:00:01.000Z"
+            "at" : "2026-09-06T12:00:01.000Z",
+            "id" : "grok.test:turn",
+            "kind" : "completed",
+            "providerId" : "grok",
+            "sessionId" : "grok.test",
+            "title" : "Example task"
           }
         ]
-      ]
-    },
-    {
-      "name": "a completion found long after it happened is not shown",
-      "input": {
-        "startedAt": "2026-09-06T12:00:00Z",
-        "steps": [
+      ],
+      "input" : {
+        "startedAt" : "2026-09-06T12:00:00Z",
+        "steps" : [
           {
-            "op": "update",
-            "activity": {
-              "codex": [
+            "activity" : {
+              "claude" : [
                 {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "old",
-                    "at": "2026-09-06T13:00:00Z"
-                  }
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "claude.test",
+                  "name" : "Example task",
+                  "providerId" : "claude",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "waiting",
+                  "waitingFor" : null
+                }
+              ],
+              "codex" : [
+                {
+                  "completion" : {
+                    "at" : "2026-09-06T12:00:01.000Z",
+                    "id" : "turn"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
+                }
+              ],
+              "grok" : [
+                {
+                  "completion" : {
+                    "at" : "2026-09-06T12:00:01.000Z",
+                    "id" : "turn"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "grok.test",
+                  "name" : "Example task",
+                  "providerId" : "grok",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
             },
-            "now": "2026-09-06T14:00:00Z"
+            "op" : "update"
           }
         ]
       },
-      "expected": [
-        []
-      ]
+      "name" : "concurrent providers stay distinct, and inferred waiting is refused"
     },
     {
-      "name": "a completion from the future is not shown",
-      "input": {
-        "startedAt": "2026-09-06T12:00:00Z",
-        "steps": [
+      "expected" : [
+        [
+
+        ]
+      ],
+      "input" : {
+        "startedAt" : "2026-09-06T12:00:00Z",
+        "steps" : [
           {
-            "op": "update",
-            "activity": {
-              "codex": [
+            "activity" : {
+              "codex" : [
                 {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "ahead",
-                    "at": "2026-09-06T13:00:00Z"
-                  }
+                  "completion" : {
+                    "at" : "2026-09-06T13:00:00Z",
+                    "id" : "old"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
             },
-            "now": "2026-09-06T12:59:00Z"
+            "now" : "2026-09-06T14:00:00Z",
+            "op" : "update"
           }
         ]
       },
-      "expected": [
-        []
-      ]
+      "name" : "a completion found long after it happened is not shown"
     },
     {
-      "name": "reading keeps history and does not replay the badge",
-      "input": {
-        "startedAt": "2026-09-06T13:00:00Z",
-        "steps": [
+      "expected" : [
+        [
+
+        ]
+      ],
+      "input" : {
+        "startedAt" : "2026-09-06T12:00:00Z",
+        "steps" : [
           {
-            "op": "update",
-            "activity": {
-              "codex": [
+            "activity" : {
+              "codex" : [
                 {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "turn",
-                    "at": "2026-09-06T13:00:00Z"
-                  }
+                  "completion" : {
+                    "at" : "2026-09-06T13:00:00Z",
+                    "id" : "ahead"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
             },
-            "now": "2026-09-06T13:00:00Z"
+            "now" : "2026-09-06T12:59:00Z",
+            "op" : "update"
+          }
+        ]
+      },
+      "name" : "a completion from the future is not shown"
+    },
+    {
+      "expected" : [
+        [
+          {
+            "at" : "2026-09-06T13:00:00Z",
+            "id" : "codex.test:turn",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "sessionId" : "codex.test",
+            "title" : "Example task"
+          }
+        ],
+        [
+          {
+            "at" : "2026-09-06T13:00:00Z",
+            "id" : "codex.test:turn",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "read" : true,
+            "sessionId" : "codex.test",
+            "title" : "Example task"
+          }
+        ],
+        [
+          {
+            "at" : "2026-09-06T13:00:00Z",
+            "id" : "codex.test:turn",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "read" : true,
+            "sessionId" : "codex.test",
+            "title" : "Example task"
+          }
+        ],
+        [
+
+        ],
+        [
+
+        ]
+      ],
+      "input" : {
+        "startedAt" : "2026-09-06T13:00:00Z",
+        "steps" : [
+          {
+            "activity" : {
+              "codex" : [
+                {
+                  "completion" : {
+                    "at" : "2026-09-06T13:00:00Z",
+                    "id" : "turn"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "now" : "2026-09-06T13:00:00Z",
+            "op" : "update"
           },
           {
-            "op": "markRead",
-            "indexes": [
+            "indexes" : [
               0
-            ]
+            ],
+            "op" : "markRead"
           },
           {
-            "op": "update",
-            "activity": {
-              "codex": [
+            "activity" : {
+              "codex" : [
                 {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "turn",
-                    "at": "2026-09-06T13:00:00Z"
-                  }
+                  "completion" : {
+                    "at" : "2026-09-06T13:00:00Z",
+                    "id" : "turn"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
             },
-            "now": "2026-09-06T13:00:00Z"
+            "now" : "2026-09-06T13:00:00Z",
+            "op" : "update"
           },
           {
-            "op": "dismiss",
-            "index": 0
+            "index" : 0,
+            "op" : "dismiss"
           },
           {
-            "op": "update",
-            "activity": {
-              "codex": [
+            "activity" : {
+              "codex" : [
                 {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "turn",
-                    "at": "2026-09-06T13:00:00Z"
-                  }
+                  "completion" : {
+                    "at" : "2026-09-06T13:00:00Z",
+                    "id" : "turn"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
             },
-            "now": "2026-09-06T13:00:00Z"
+            "now" : "2026-09-06T13:00:00Z",
+            "op" : "update"
           }
         ]
       },
-      "expected": [
-        [
-          {
-            "id": "codex.test:turn",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T13:00:00Z"
-          }
-        ],
-        [
-          {
-            "id": "codex.test:turn",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T13:00:00Z",
-            "read": true
-          }
-        ],
-        [
-          {
-            "id": "codex.test:turn",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T13:00:00Z",
-            "read": true
-          }
-        ],
-        [],
-        []
-      ]
+      "name" : "reading keeps history and does not replay the badge"
     },
     {
-      "name": "a completion is marked read once its task resumes",
-      "input": {
-        "startedAt": "2026-09-06T13:00:00Z",
-        "steps": [
-          {
-            "op": "update",
-            "activity": {
-              "codex": [
-                {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "turn",
-                    "at": "2026-09-06T13:00:00Z"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "op": "update",
-            "activity": {
-              "codex": [
-                {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T13:00:05Z"
-                }
-              ]
-            }
-          }
-        ]
-      },
-      "expected": [
+      "expected" : [
         [
           {
-            "id": "codex.test:turn",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T13:00:00Z"
+            "at" : "2026-09-06T13:00:00Z",
+            "id" : "codex.test:turn",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "sessionId" : "codex.test",
+            "title" : "Example task"
           }
         ],
         [
           {
-            "id": "codex.test:turn",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "Example task",
-            "kind": "completed",
-            "at": "2026-09-06T13:00:00Z",
-            "read": true
+            "at" : "2026-09-06T13:00:00Z",
+            "id" : "codex.test:turn",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "read" : true,
+            "sessionId" : "codex.test",
+            "title" : "Example task"
           }
         ]
-      ]
-    },
-    {
-      "name": "a waiting notice clears when the wait ends",
-      "input": {
-        "startedAt": "2026-09-06T12:00:00Z",
-        "steps": [
+      ],
+      "input" : {
+        "startedAt" : "2026-09-06T13:00:00Z",
+        "steps" : [
           {
-            "op": "update",
-            "activity": {
-              "claude": [
+            "activity" : {
+              "codex" : [
                 {
-                  "id": "claude.test",
-                  "providerId": "claude",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "waiting",
-                  "confirmed": true,
-                  "waitingFor": "approval",
-                  "since": "2026-09-06T12:00:01.000Z"
+                  "completion" : {
+                    "at" : "2026-09-06T13:00:00Z",
+                    "id" : "turn"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
-            }
+            },
+            "op" : "update"
           },
           {
-            "op": "update",
-            "activity": {
-              "claude": [
+            "activity" : {
+              "codex" : [
                 {
-                  "id": "claude.test",
-                  "providerId": "claude",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": true,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:01:00.000Z"
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "Example task",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T13:00:05Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
-            }
+            },
+            "op" : "update"
           }
         ]
       },
-      "expected": [
+      "name" : "a completion is marked read once its task resumes"
+    },
+    {
+      "expected" : [
         [
           {
-            "id": "claude.test:waiting:2026-09-06T12:00:01.000Z",
-            "sessionId": "claude.test",
-            "providerId": "claude",
-            "title": "Example task",
-            "kind": "waiting",
-            "at": "2026-09-06T12:00:01.000Z",
-            "summary": "approval"
+            "at" : "2026-09-06T12:00:01.000Z",
+            "id" : "claude.test:waiting:2026-09-06T12:00:01.000Z",
+            "kind" : "waiting",
+            "providerId" : "claude",
+            "sessionId" : "claude.test",
+            "summary" : "approval",
+            "title" : "Example task"
           }
         ],
-        []
-      ]
-    },
-    {
-      "name": "a new wait on the same session is a new notice",
-      "input": {
-        "startedAt": "2026-09-06T12:00:00Z",
-        "steps": [
+        [
+
+        ]
+      ],
+      "input" : {
+        "startedAt" : "2026-09-06T12:00:00Z",
+        "steps" : [
           {
-            "op": "update",
-            "activity": {
-              "claude": [
+            "activity" : {
+              "claude" : [
                 {
-                  "id": "claude.test",
-                  "providerId": "claude",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "waiting",
-                  "confirmed": true,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z"
+                  "confirmed" : true,
+                  "detail" : "Local",
+                  "id" : "claude.test",
+                  "name" : "Example task",
+                  "providerId" : "claude",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "waiting",
+                  "waitingFor" : "approval"
                 }
               ]
-            }
+            },
+            "op" : "update"
           },
           {
-            "op": "update",
-            "activity": {
-              "claude": [
+            "activity" : {
+              "claude" : [
                 {
-                  "id": "claude.test",
-                  "providerId": "claude",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": true,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:01:00.000Z"
+                  "confirmed" : true,
+                  "detail" : "Local",
+                  "id" : "claude.test",
+                  "name" : "Example task",
+                  "providerId" : "claude",
+                  "since" : "2026-09-06T12:01:00.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
                 }
               ]
-            }
-          },
-          {
-            "op": "update",
-            "activity": {
-              "claude": [
-                {
-                  "id": "claude.test",
-                  "providerId": "claude",
-                  "name": "Example task",
-                  "detail": "Local",
-                  "state": "waiting",
-                  "confirmed": true,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:02:00.000Z"
-                }
-              ]
-            }
+            },
+            "op" : "update"
           }
         ]
       },
-      "expected": [
+      "name" : "a waiting notice clears when the wait ends"
+    },
+    {
+      "expected" : [
         [
           {
-            "id": "claude.test:waiting:2026-09-06T12:00:01.000Z",
-            "sessionId": "claude.test",
-            "providerId": "claude",
-            "title": "Example task",
-            "kind": "waiting",
-            "at": "2026-09-06T12:00:01.000Z"
+            "at" : "2026-09-06T12:00:01.000Z",
+            "id" : "claude.test:waiting:2026-09-06T12:00:01.000Z",
+            "kind" : "waiting",
+            "providerId" : "claude",
+            "sessionId" : "claude.test",
+            "title" : "Example task"
           }
         ],
-        [],
+        [
+
+        ],
         [
           {
-            "id": "claude.test:waiting:2026-09-06T12:02:00.000Z",
-            "sessionId": "claude.test",
-            "providerId": "claude",
-            "title": "Example task",
-            "kind": "waiting",
-            "at": "2026-09-06T12:02:00.000Z"
+            "at" : "2026-09-06T12:02:00.000Z",
+            "id" : "claude.test:waiting:2026-09-06T12:02:00.000Z",
+            "kind" : "waiting",
+            "providerId" : "claude",
+            "sessionId" : "claude.test",
+            "title" : "Example task"
           }
         ]
-      ]
-    },
-    {
-      "name": "a long session name is cut in the notice",
-      "input": {
-        "startedAt": "2026-09-06T12:00:00Z",
-        "steps": [
+      ],
+      "input" : {
+        "startedAt" : "2026-09-06T12:00:00Z",
+        "steps" : [
           {
-            "op": "update",
-            "activity": {
-              "codex": [
+            "activity" : {
+              "claude" : [
                 {
-                  "id": "codex.test",
-                  "providerId": "codex",
-                  "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-                  "detail": "Local",
-                  "state": "busy",
-                  "confirmed": false,
-                  "waitingFor": null,
-                  "since": "2026-09-06T12:00:01.000Z",
-                  "completion": {
-                    "id": "t",
-                    "at": "2026-09-06T12:00:01.000Z"
-                  }
+                  "confirmed" : true,
+                  "detail" : "Local",
+                  "id" : "claude.test",
+                  "name" : "Example task",
+                  "providerId" : "claude",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "waiting",
+                  "waitingFor" : null
                 }
               ]
-            }
+            },
+            "op" : "update"
+          },
+          {
+            "activity" : {
+              "claude" : [
+                {
+                  "confirmed" : true,
+                  "detail" : "Local",
+                  "id" : "claude.test",
+                  "name" : "Example task",
+                  "providerId" : "claude",
+                  "since" : "2026-09-06T12:01:00.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "op" : "update"
+          },
+          {
+            "activity" : {
+              "claude" : [
+                {
+                  "confirmed" : true,
+                  "detail" : "Local",
+                  "id" : "claude.test",
+                  "name" : "Example task",
+                  "providerId" : "claude",
+                  "since" : "2026-09-06T12:02:00.000Z",
+                  "state" : "waiting",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "op" : "update"
           }
         ]
       },
-      "expected": [
+      "name" : "a new wait on the same session is a new notice"
+    },
+    {
+      "expected" : [
         [
           {
-            "id": "codex.test:t",
-            "sessionId": "codex.test",
-            "providerId": "codex",
-            "title": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
-            "kind": "completed",
-            "at": "2026-09-06T12:00:01.000Z"
+            "at" : "2026-09-06T12:00:01.000Z",
+            "id" : "codex.test:t",
+            "kind" : "completed",
+            "providerId" : "codex",
+            "sessionId" : "codex.test",
+            "title" : "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
           }
         ]
-      ]
+      ],
+      "input" : {
+        "startedAt" : "2026-09-06T12:00:00Z",
+        "steps" : [
+          {
+            "activity" : {
+              "codex" : [
+                {
+                  "completion" : {
+                    "at" : "2026-09-06T12:00:01.000Z",
+                    "id" : "t"
+                  },
+                  "confirmed" : false,
+                  "detail" : "Local",
+                  "id" : "codex.test",
+                  "name" : "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                  "providerId" : "codex",
+                  "since" : "2026-09-06T12:00:01.000Z",
+                  "state" : "busy",
+                  "waitingFor" : null
+                }
+              ]
+            },
+            "op" : "update"
+          }
+        ]
+      },
+      "name" : "a long session name is cut in the notice"
     }
   ]
 }

@@ -1,20 +1,47 @@
 {
-  "about": "readCodexSessions(host) — Codex sessions from the thread index, a scan of recent rollouts, or the desktop catalogue",
-  "timeZone": "UTC",
-  "cases": [
+  "about" : "readCodexSessions(host) — Codex sessions from the thread index, a scan of recent rollouts, or the desktop catalogue",
+  "cases" : [
     {
-      "name": "a freshly written indexed rollout is an unconfirmed hint",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/a.jsonl": "2026-09-06T12:59:57.000Z"
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+          {
+            "confirmed" : false,
+            "detail" : "Recent activity · status unconfirmed",
+            "id" : "codex.t1",
+            "name" : "Fix uploads",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:59:57.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.codex/sessions/2026/09/06/a.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "processes": {},
-        "queries": {
-          "/home/.codex/state_5.sqlite": [
+        "files" : {
+
+        },
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/06/a.jsonl" : "2026-09-06T12:59:57.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/state_5.sqlite" : [
             [
               "t1",
               "Fix uploads",
@@ -22,47 +49,51 @@
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "codex.t1",
-            "providerId": "codex",
-            "name": "Fix uploads",
-            "detail": "Recent activity · status unconfirmed",
-            "state": "busy",
-            "confirmed": false,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:57.000Z"
-          }
-        ],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": [
-          "/home/.codex/sessions/2026/09/06/a.jsonl"
-        ]
-      }
+      "name" : "a freshly written indexed rollout is an unconfirmed hint"
     },
     {
-      "name": "an indexed rollout's own events confirm what it is doing",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.codex/sessions/2026/09/06/a.jsonl": "{\"timestamp\":\"2026-09-06T12:59:58.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_started\"}}"
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+          {
+            "confirmed" : true,
+            "detail" : "Working · local task event",
+            "id" : "codex.t1",
+            "name" : "Fix uploads",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:59:58.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.codex/sessions/2026/09/06/a.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "dirs": {},
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/a.jsonl": "2026-09-06T12:59:57.000Z"
+        "files" : {
+          "/home/.codex/sessions/2026/09/06/a.jsonl" : "{\"timestamp\":\"2026-09-06T12:59:58.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_started\"}}"
         },
-        "processes": {},
-        "queries": {
-          "/home/.codex/state_5.sqlite": [
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/06/a.jsonl" : "2026-09-06T12:59:57.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/state_5.sqlite" : [
             [
               "t1",
               "Fix uploads",
@@ -70,47 +101,51 @@
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "codex.t1",
-            "providerId": "codex",
-            "name": "Fix uploads",
-            "detail": "Working · local task event",
-            "state": "busy",
-            "confirmed": true,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:58.000Z"
-          }
-        ],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": [
-          "/home/.codex/sessions/2026/09/06/a.jsonl"
-        ]
-      }
+      "name" : "an indexed rollout's own events confirm what it is doing"
     },
     {
-      "name": "a stale rollout with recent confirmed evidence is kept",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.codex/sessions/2026/09/06/b.jsonl": "{\"timestamp\":\"2026-09-06T12:59:00.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_started\"}}"
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+          {
+            "confirmed" : true,
+            "detail" : "Working · local task event",
+            "id" : "codex.t1",
+            "name" : "Long task",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:59:00.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.codex/sessions/2026/09/06/b.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "dirs": {},
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/b.jsonl": "2026-09-06T12:59:00.000Z"
+        "files" : {
+          "/home/.codex/sessions/2026/09/06/b.jsonl" : "{\"timestamp\":\"2026-09-06T12:59:00.000Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"task_started\"}}"
         },
-        "processes": {},
-        "queries": {
-          "/home/.codex/state_5.sqlite": [
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/06/b.jsonl" : "2026-09-06T12:59:00.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/state_5.sqlite" : [
             [
               "t1",
               "Long task",
@@ -118,46 +153,43 @@
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "codex.t1",
-            "providerId": "codex",
-            "name": "Long task",
-            "detail": "Working · local task event",
-            "state": "busy",
-            "confirmed": true,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:00.000Z"
-          }
-        ],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": [
-          "/home/.codex/sessions/2026/09/06/b.jsonl"
-        ]
-      },
-      "note": "Stale by write time, but explicit task events inside the active-evidence window still count."
+      "name" : "a stale rollout with recent confirmed evidence is kept",
+      "note" : "Stale by write time, but explicit task events inside the active-evidence window still count."
     },
     {
-      "name": "a stale rollout without evidence is dropped",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/c.jsonl": "2026-09-06T12:50:00.000Z"
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+
+        ],
+        "tails" : [
+          "/home/.codex/sessions/2026/09/06/c.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "processes": {},
-        "queries": {
-          "/home/.codex/state_5.sqlite": [
+        "files" : {
+
+        },
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/06/c.jsonl" : "2026-09-06T12:50:00.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/state_5.sqlite" : [
             [
               "t1",
               "Old task",
@@ -165,36 +197,51 @@
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": [
-          "/home/.codex/sessions/2026/09/06/c.jsonl"
-        ]
-      }
+      "name" : "a stale rollout without evidence is dropped"
     },
     {
-      "name": "a stale rollout waiting on input is kept, marked unconfirmed",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.codex/sessions/2026/09/06/d.jsonl": "{\"timestamp\":\"2026-09-06T12:50:00.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"function_call\",\"name\":\"request_user_input\",\"call_id\":\"c1\"}}"
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+          {
+            "confirmed" : false,
+            "detail" : "Status unconfirmed",
+            "id" : "codex.t1",
+            "name" : "Waits",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:50:00.000Z",
+            "state" : "waiting",
+            "waitingFor" : "Waiting for your input"
+          }
+        ],
+        "tails" : [
+          "/home/.codex/sessions/2026/09/06/d.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "dirs": {},
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/d.jsonl": "2026-09-06T12:50:00.000Z"
+        "files" : {
+          "/home/.codex/sessions/2026/09/06/d.jsonl" : "{\"timestamp\":\"2026-09-06T12:50:00.000Z\",\"type\":\"response_item\",\"payload\":{\"type\":\"function_call\",\"name\":\"request_user_input\",\"call_id\":\"c1\"}}"
         },
-        "processes": {},
-        "queries": {
-          "/home/.codex/state_5.sqlite": [
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/06/d.jsonl" : "2026-09-06T12:50:00.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/state_5.sqlite" : [
             [
               "t1",
               "Waits",
@@ -202,45 +249,42 @@
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "codex.t1",
-            "providerId": "codex",
-            "name": "Waits",
-            "detail": "Status unconfirmed",
-            "state": "waiting",
-            "confirmed": false,
-            "waitingFor": "Waiting for your input",
-            "since": "2026-09-06T12:50:00.000Z"
-          }
-        ],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": [
-          "/home/.codex/sessions/2026/09/06/d.jsonl"
-        ]
-      }
+      "name" : "a stale rollout waiting on input is kept, marked unconfirmed"
     },
     {
-      "name": "without tail reads, a stale rollout is not considered at all",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/e.jsonl": "2026-09-06T12:59:00.000Z"
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+
+        ],
+        "tails" : [
+
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "processes": {},
-        "queries": {
-          "/home/.codex/state_5.sqlite": [
+        "files" : {
+
+        },
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/06/e.jsonl" : "2026-09-06T12:59:00.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/state_5.sqlite" : [
             [
               "t1",
               "Old",
@@ -248,34 +292,64 @@
             ]
           ]
         },
-        "readTail": false
+        "readTail" : false
       },
-      "expected": {
-        "sessions": [],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": []
-      }
+      "name" : "without tail reads, a stale rollout is not considered at all"
     },
     {
-      "name": "an untitled thread is called Codex, and the same thread keeps its newest file",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/f1.jsonl": "2026-09-06T12:59:54.000Z",
-          "/home/.codex/sessions/2026/09/06/f2.jsonl": "2026-09-06T12:59:58.000Z",
-          "/home/.codex/sessions/2026/09/06/g.jsonl": "2026-09-06T12:59:59.000Z"
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+          {
+            "confirmed" : false,
+            "detail" : "Recent activity · status unconfirmed",
+            "id" : "codex.t1",
+            "name" : "Codex",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:59:58.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          },
+          {
+            "confirmed" : false,
+            "detail" : "Recent activity · status unconfirmed",
+            "id" : "codex.t2",
+            "name" : "Second",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:59:59.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.codex/sessions/2026/09/06/f2.jsonl",
+          "/home/.codex/sessions/2026/09/06/g.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "processes": {},
-        "queries": {
-          "/home/.codex/state_5.sqlite": [
+        "files" : {
+
+        },
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/06/f1.jsonl" : "2026-09-06T12:59:54.000Z",
+          "/home/.codex/sessions/2026/09/06/f2.jsonl" : "2026-09-06T12:59:58.000Z",
+          "/home/.codex/sessions/2026/09/06/g.jsonl" : "2026-09-06T12:59:59.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/state_5.sqlite" : [
             [
               "t1",
               "",
@@ -293,56 +367,51 @@
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "codex.t1",
-            "providerId": "codex",
-            "name": "Codex",
-            "detail": "Recent activity · status unconfirmed",
-            "state": "busy",
-            "confirmed": false,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:58.000Z"
-          },
-          {
-            "id": "codex.t2",
-            "providerId": "codex",
-            "name": "Second",
-            "detail": "Recent activity · status unconfirmed",
-            "state": "busy",
-            "confirmed": false,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:59.000Z"
-          }
-        ],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": [
-          "/home/.codex/sessions/2026/09/06/f2.jsonl",
-          "/home/.codex/sessions/2026/09/06/g.jsonl"
-        ]
-      }
+      "name" : "an untitled thread is called Codex, and the same thread keeps its newest file"
     },
     {
-      "name": "a home-relative rollout path is expanded",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/h.jsonl": "2026-09-06T12:59:59.000Z"
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+          {
+            "confirmed" : false,
+            "detail" : "Recent activity · status unconfirmed",
+            "id" : "codex.t1",
+            "name" : "Home",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:59:59.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.codex/sessions/2026/09/06/h.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "processes": {},
-        "queries": {
-          "/home/.codex/state_5.sqlite": [
+        "files" : {
+
+        },
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/06/h.jsonl" : "2026-09-06T12:59:59.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/state_5.sqlite" : [
             [
               "t1",
               "Home",
@@ -350,200 +419,221 @@
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "codex.t1",
-            "providerId": "codex",
-            "name": "Home",
-            "detail": "Recent activity · status unconfirmed",
-            "state": "busy",
-            "confirmed": false,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:59.000Z"
-          }
-        ],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": [
-          "/home/.codex/sessions/2026/09/06/h.jsonl"
-        ]
-      }
+      "name" : "a home-relative rollout path is expanded"
     },
     {
-      "name": "an empty index falls back to the newest rollout on disk",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {
-          "/home/.codex/sessions": [
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          }
+        ],
+        "sessions" : [
+          {
+            "confirmed" : false,
+            "detail" : "Recent activity · status unconfirmed",
+            "id" : "codex.r2.jsonl",
+            "name" : "Codex",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:59:58.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.codex/sessions/2026/09/06/r2.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+          "/home/.codex/sessions" : [
             "2025",
             "2026",
             ".DS_Store"
           ],
-          "/home/.codex/sessions/2026": [
+          "/home/.codex/sessions/2026" : [
             "08",
             "09"
           ],
-          "/home/.codex/sessions/2026/09": [
+          "/home/.codex/sessions/2026/09" : [
             "05",
             "06"
           ],
-          "/home/.codex/sessions/2026/09/06": [
+          "/home/.codex/sessions/2026/09/05" : [
+            "old.jsonl"
+          ],
+          "/home/.codex/sessions/2026/09/06" : [
             "r1.jsonl",
             "r2.jsonl",
             "notes.md"
-          ],
-          "/home/.codex/sessions/2026/09/05": [
-            "old.jsonl"
           ]
         },
-        "modified": {
-          "/home/.codex/sessions/2026/09/06/r1.jsonl": "2026-09-06T12:59:56.000Z",
-          "/home/.codex/sessions/2026/09/06/r2.jsonl": "2026-09-06T12:59:58.000Z",
-          "/home/.codex/sessions/2026/09/05/old.jsonl": "2026-09-05T12:00:00.000Z"
+        "files" : {
+
         },
-        "processes": {},
-        "queries": {},
-        "readTail": true
+        "home" : "/home",
+        "modified" : {
+          "/home/.codex/sessions/2026/09/05/old.jsonl" : "2026-09-05T12:00:00.000Z",
+          "/home/.codex/sessions/2026/09/06/r1.jsonl" : "2026-09-06T12:59:56.000Z",
+          "/home/.codex/sessions/2026/09/06/r2.jsonl" : "2026-09-06T12:59:58.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "codex.r2.jsonl",
-            "providerId": "codex",
-            "name": "Codex",
-            "detail": "Recent activity · status unconfirmed",
-            "state": "busy",
-            "confirmed": false,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:58.000Z"
-          }
-        ],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          }
-        ],
-        "tails": [
-          "/home/.codex/sessions/2026/09/06/r2.jsonl"
-        ]
-      }
+      "name" : "an empty index falls back to the newest rollout on disk"
     },
     {
-      "name": "nothing on disk falls back to the desktop catalogue",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {},
-        "processes": {},
-        "queries": {
-          "/home/.codex/sqlite/codex-dev.db": [
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          },
+          {
+            "db" : "/home/.codex/sqlite/codex-dev.db",
+            "sql" : "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1"
+          }
+        ],
+        "sessions" : [
+          {
+            "confirmed" : false,
+            "detail" : "Recent activity · status unconfirmed",
+            "id" : "codex.desktop",
+            "name" : "Desktop thread",
+            "providerId" : "codex",
+            "since" : "2026-09-06T12:59:57.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
+        },
+        "files" : {
+
+        },
+        "home" : "/home",
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/sqlite/codex-dev.db" : [
             [
               "1788699597",
               "Desktop thread"
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "codex.desktop",
-            "providerId": "codex",
-            "name": "Desktop thread",
-            "detail": "Recent activity · status unconfirmed",
-            "state": "busy",
-            "confirmed": false,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:57.000Z"
-          }
-        ],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          },
-          {
-            "db": "/home/.codex/sqlite/codex-dev.db",
-            "sql": "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1"
-          }
-        ],
-        "tails": []
-      },
-      "note": "The catalogue counts seconds since the epoch, with a fraction — not the milliseconds the thread index uses."
+      "name" : "nothing on disk falls back to the desktop catalogue",
+      "note" : "The catalogue counts seconds since the epoch, with a fraction — not the milliseconds the thread index uses."
     },
     {
-      "name": "a stale desktop catalogue entry is nothing",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {},
-        "processes": {},
-        "queries": {
-          "/home/.codex/sqlite/codex-dev.db": [
+      "expected" : {
+        "queries" : [
+          {
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+          },
+          {
+            "db" : "/home/.codex/sqlite/codex-dev.db",
+            "sql" : "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1"
+          }
+        ],
+        "sessions" : [
+
+        ],
+        "tails" : [
+
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
+        },
+        "files" : {
+
+        },
+        "home" : "/home",
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+          "/home/.codex/sqlite/codex-dev.db" : [
             [
               "1788699540",
               "Old"
             ]
           ]
         },
-        "readTail": true
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [],
-        "queries": [
-          {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
-          },
-          {
-            "db": "/home/.codex/sqlite/codex-dev.db",
-            "sql": "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1"
-          }
-        ],
-        "tails": []
-      }
+      "name" : "a stale desktop catalogue entry is nothing"
     },
     {
-      "name": "no Codex at all",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {},
-        "processes": {},
-        "queries": {},
-        "readTail": true
-      },
-      "expected": {
-        "sessions": [],
-        "queries": [
+      "expected" : {
+        "queries" : [
           {
-            "db": "/home/.codex/state_5.sqlite",
-            "sql": "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
+            "db" : "/home/.codex/state_5.sqlite",
+            "sql" : "SELECT id, title, rollout_path FROM threads WHERE archived = 0 AND source NOT LIKE '{\"subagent\"%' ORDER BY updated_at_ms DESC LIMIT 100"
           },
           {
-            "db": "/home/.codex/sqlite/codex-dev.db",
-            "sql": "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1"
+            "db" : "/home/.codex/sqlite/codex-dev.db",
+            "sql" : "SELECT source_updated_at, display_title FROM local_thread_catalog ORDER BY source_updated_at DESC LIMIT 1"
           }
         ],
-        "tails": []
-      }
+        "sessions" : [
+
+        ],
+        "tails" : [
+
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
+        },
+        "files" : {
+
+        },
+        "home" : "/home",
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
+      },
+      "name" : "no Codex at all"
     }
-  ]
+  ],
+  "timeZone" : "UTC"
 }

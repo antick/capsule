@@ -1,197 +1,197 @@
 {
-  "about": "zoomHoldBounds(target, current, cardGrowth) — a window big enough for both sizes during a resize, anchored where the frame is",
-  "cases": [
+  "about" : "zoomHoldBounds(target, current, cardGrowth) — a window big enough for both sizes during a resize, anchored where the frame is",
+  "cases" : [
     {
-      "name": "left, growing",
-      "input": {
-        "target": {
-          "x": 100,
-          "y": 200,
-          "width": 400,
-          "height": 300
-        },
-        "current": {
-          "x": 120,
-          "y": 220,
-          "width": 320,
-          "height": 260
-        },
-        "cardGrowth": "left"
+      "expected" : {
+        "height" : 300,
+        "width" : 400,
+        "x" : 100,
+        "y" : 200
       },
-      "expected": {
-        "x": 100,
-        "y": 200,
-        "width": 400,
-        "height": 300
-      }
+      "input" : {
+        "cardGrowth" : "left",
+        "current" : {
+          "height" : 260,
+          "width" : 320,
+          "x" : 120,
+          "y" : 220
+        },
+        "target" : {
+          "height" : 300,
+          "width" : 400,
+          "x" : 100,
+          "y" : 200
+        }
+      },
+      "name" : "left, growing"
     },
     {
-      "name": "left, shrinking",
-      "input": {
-        "target": {
-          "x": 100,
-          "y": 200,
-          "width": 320,
-          "height": 260
-        },
-        "current": {
-          "x": 90,
-          "y": 190,
-          "width": 400,
-          "height": 300
-        },
-        "cardGrowth": "left"
+      "expected" : {
+        "height" : 300,
+        "width" : 400,
+        "x" : 20,
+        "y" : 200
       },
-      "expected": {
-        "x": 20,
-        "y": 200,
-        "width": 400,
-        "height": 300
-      }
+      "input" : {
+        "cardGrowth" : "left",
+        "current" : {
+          "height" : 300,
+          "width" : 400,
+          "x" : 90,
+          "y" : 190
+        },
+        "target" : {
+          "height" : 260,
+          "width" : 320,
+          "x" : 100,
+          "y" : 200
+        }
+      },
+      "name" : "left, shrinking"
     },
     {
-      "name": "right, growing",
-      "input": {
-        "target": {
-          "x": 100,
-          "y": 200,
-          "width": 400,
-          "height": 300
-        },
-        "current": {
-          "x": 120,
-          "y": 220,
-          "width": 320,
-          "height": 260
-        },
-        "cardGrowth": "right"
+      "expected" : {
+        "height" : 300,
+        "width" : 400,
+        "x" : 100,
+        "y" : 200
       },
-      "expected": {
-        "x": 100,
-        "y": 200,
-        "width": 400,
-        "height": 300
-      }
+      "input" : {
+        "cardGrowth" : "right",
+        "current" : {
+          "height" : 260,
+          "width" : 320,
+          "x" : 120,
+          "y" : 220
+        },
+        "target" : {
+          "height" : 300,
+          "width" : 400,
+          "x" : 100,
+          "y" : 200
+        }
+      },
+      "name" : "right, growing"
     },
     {
-      "name": "right, shrinking",
-      "input": {
-        "target": {
-          "x": 100,
-          "y": 200,
-          "width": 320,
-          "height": 260
-        },
-        "current": {
-          "x": 90,
-          "y": 190,
-          "width": 400,
-          "height": 300
-        },
-        "cardGrowth": "right"
+      "expected" : {
+        "height" : 300,
+        "width" : 400,
+        "x" : 100,
+        "y" : 200
       },
-      "expected": {
-        "x": 100,
-        "y": 200,
-        "width": 400,
-        "height": 300
-      }
+      "input" : {
+        "cardGrowth" : "right",
+        "current" : {
+          "height" : 300,
+          "width" : 400,
+          "x" : 90,
+          "y" : 190
+        },
+        "target" : {
+          "height" : 260,
+          "width" : 320,
+          "x" : 100,
+          "y" : 200
+        }
+      },
+      "name" : "right, shrinking"
     },
     {
-      "name": "up, growing",
-      "input": {
-        "target": {
-          "x": 100,
-          "y": 200,
-          "width": 400,
-          "height": 300
-        },
-        "current": {
-          "x": 120,
-          "y": 220,
-          "width": 320,
-          "height": 260
-        },
-        "cardGrowth": "up"
+      "expected" : {
+        "height" : 300,
+        "width" : 400,
+        "x" : 100,
+        "y" : 200
       },
-      "expected": {
-        "x": 100,
-        "y": 200,
-        "width": 400,
-        "height": 300
-      }
+      "input" : {
+        "cardGrowth" : "up",
+        "current" : {
+          "height" : 260,
+          "width" : 320,
+          "x" : 120,
+          "y" : 220
+        },
+        "target" : {
+          "height" : 300,
+          "width" : 400,
+          "x" : 100,
+          "y" : 200
+        }
+      },
+      "name" : "up, growing"
     },
     {
-      "name": "up, shrinking",
-      "input": {
-        "target": {
-          "x": 100,
-          "y": 200,
-          "width": 320,
-          "height": 260
-        },
-        "current": {
-          "x": 90,
-          "y": 190,
-          "width": 400,
-          "height": 300
-        },
-        "cardGrowth": "up"
+      "expected" : {
+        "height" : 300,
+        "width" : 400,
+        "x" : 100,
+        "y" : 160
       },
-      "expected": {
-        "x": 100,
-        "y": 160,
-        "width": 400,
-        "height": 300
-      }
+      "input" : {
+        "cardGrowth" : "up",
+        "current" : {
+          "height" : 300,
+          "width" : 400,
+          "x" : 90,
+          "y" : 190
+        },
+        "target" : {
+          "height" : 260,
+          "width" : 320,
+          "x" : 100,
+          "y" : 200
+        }
+      },
+      "name" : "up, shrinking"
     },
     {
-      "name": "down, growing",
-      "input": {
-        "target": {
-          "x": 100,
-          "y": 200,
-          "width": 400,
-          "height": 300
-        },
-        "current": {
-          "x": 120,
-          "y": 220,
-          "width": 320,
-          "height": 260
-        },
-        "cardGrowth": "down"
+      "expected" : {
+        "height" : 300,
+        "width" : 400,
+        "x" : 100,
+        "y" : 200
       },
-      "expected": {
-        "x": 100,
-        "y": 200,
-        "width": 400,
-        "height": 300
-      }
+      "input" : {
+        "cardGrowth" : "down",
+        "current" : {
+          "height" : 260,
+          "width" : 320,
+          "x" : 120,
+          "y" : 220
+        },
+        "target" : {
+          "height" : 300,
+          "width" : 400,
+          "x" : 100,
+          "y" : 200
+        }
+      },
+      "name" : "down, growing"
     },
     {
-      "name": "down, shrinking",
-      "input": {
-        "target": {
-          "x": 100,
-          "y": 200,
-          "width": 320,
-          "height": 260
-        },
-        "current": {
-          "x": 90,
-          "y": 190,
-          "width": 400,
-          "height": 300
-        },
-        "cardGrowth": "down"
+      "expected" : {
+        "height" : 300,
+        "width" : 400,
+        "x" : 100,
+        "y" : 200
       },
-      "expected": {
-        "x": 100,
-        "y": 200,
-        "width": 400,
-        "height": 300
-      }
+      "input" : {
+        "cardGrowth" : "down",
+        "current" : {
+          "height" : 300,
+          "width" : 400,
+          "x" : 90,
+          "y" : 190
+        },
+        "target" : {
+          "height" : 260,
+          "width" : 320,
+          "x" : 100,
+          "y" : 200
+        }
+      },
+      "name" : "down, shrinking"
     }
   ]
 }

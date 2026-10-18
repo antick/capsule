@@ -1,107 +1,107 @@
 {
-  "about": "claudeRowTokens(row) — tokens billed for one Claude Code transcript row",
-  "cases": [
+  "about" : "claudeRowTokens(row) — tokens billed for one Claude Code transcript row",
+  "cases" : [
     {
-      "name": "every kind of token counts",
-      "input": {
-        "timestamp": "2026-09-06T12:00:00.000Z",
-        "message": {
-          "usage": {
-            "input_tokens": 10,
-            "cache_read_input_tokens": 100,
-            "cache_creation_input_tokens": 5,
-            "output_tokens": 20
+      "expected" : {
+        "at" : "2026-09-06T12:00:00.000Z",
+        "tokens" : 135
+      },
+      "input" : {
+        "message" : {
+          "usage" : {
+            "cache_creation_input_tokens" : 5,
+            "cache_read_input_tokens" : 100,
+            "input_tokens" : 10,
+            "output_tokens" : 20
           }
-        }
+        },
+        "timestamp" : "2026-09-06T12:00:00.000Z"
       },
-      "expected": {
-        "at": "2026-09-06T12:00:00.000Z",
-        "tokens": 135
-      }
+      "name" : "every kind of token counts"
     },
     {
-      "name": "a row without usage",
-      "input": {
-        "timestamp": "2026-09-06T12:00:00.000Z",
-        "type": "user"
+      "expected" : null,
+      "input" : {
+        "timestamp" : "2026-09-06T12:00:00.000Z",
+        "type" : "user"
       },
-      "expected": null
+      "name" : "a row without usage"
     },
     {
-      "name": "not an object",
-      "input": "nope",
-      "expected": null
+      "expected" : null,
+      "input" : "nope",
+      "name" : "not an object"
     },
     {
-      "name": "zero tokens is no row",
-      "input": {
-        "timestamp": "2026-09-06T12:00:00.000Z",
-        "message": {
-          "usage": {
-            "input_tokens": 0,
-            "output_tokens": 0
+      "expected" : null,
+      "input" : {
+        "message" : {
+          "usage" : {
+            "input_tokens" : 0,
+            "output_tokens" : 0
           }
-        }
+        },
+        "timestamp" : "2026-09-06T12:00:00.000Z"
       },
-      "expected": null
+      "name" : "zero tokens is no row"
     },
     {
-      "name": "a non-numeric count is ignored",
-      "input": {
-        "timestamp": "2026-09-06T12:00:00.000Z",
-        "message": {
-          "usage": {
-            "input_tokens": "12",
-            "output_tokens": 3
-          }
-        }
+      "expected" : {
+        "at" : "2026-09-06T12:00:00.000Z",
+        "tokens" : 3
       },
-      "expected": {
-        "at": "2026-09-06T12:00:00.000Z",
-        "tokens": 3
-      }
+      "input" : {
+        "message" : {
+          "usage" : {
+            "input_tokens" : "12",
+            "output_tokens" : 3
+          }
+        },
+        "timestamp" : "2026-09-06T12:00:00.000Z"
+      },
+      "name" : "a non-numeric count is ignored"
     },
     {
-      "name": "a timestamp in epoch seconds",
-      "input": {
-        "timestamp": 1788696000,
-        "message": {
-          "usage": {
-            "output_tokens": 7
-          }
-        }
+      "expected" : {
+        "at" : "2026-09-06T12:00:00.000Z",
+        "tokens" : 7
       },
-      "expected": {
-        "at": "2026-09-06T12:00:00.000Z",
-        "tokens": 7
-      }
+      "input" : {
+        "message" : {
+          "usage" : {
+            "output_tokens" : 7
+          }
+        },
+        "timestamp" : 1788696000
+      },
+      "name" : "a timestamp in epoch seconds"
     },
     {
-      "name": "a timestamp in epoch milliseconds",
-      "input": {
-        "timestamp": 1788696000000,
-        "message": {
-          "usage": {
-            "output_tokens": 7
-          }
-        }
+      "expected" : {
+        "at" : "2026-09-06T12:00:00.000Z",
+        "tokens" : 7
       },
-      "expected": {
-        "at": "2026-09-06T12:00:00.000Z",
-        "tokens": 7
-      }
+      "input" : {
+        "message" : {
+          "usage" : {
+            "output_tokens" : 7
+          }
+        },
+        "timestamp" : 1788696000000
+      },
+      "name" : "a timestamp in epoch milliseconds"
     },
     {
-      "name": "an unreadable timestamp",
-      "input": {
-        "timestamp": "soon",
-        "message": {
-          "usage": {
-            "output_tokens": 7
+      "expected" : null,
+      "input" : {
+        "message" : {
+          "usage" : {
+            "output_tokens" : 7
           }
-        }
+        },
+        "timestamp" : "soon"
       },
-      "expected": null
+      "name" : "an unreadable timestamp"
     }
   ]
 }

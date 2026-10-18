@@ -1,300 +1,300 @@
 {
-  "about": "virtualNotch, joinedNotchRailLength and railEndSpread — the dock drawn as, or joined to, a display's notch",
-  "cases": [
+  "about" : "virtualNotch, joinedNotchRailLength and railEndSpread — the dock drawn as, or joined to, a display's notch",
+  "cases" : [
     {
-      "name": "virtual, scale 0.7, menu bar 0",
-      "input": {
-        "scale": 0.7,
-        "kind": "virtual",
-        "menuBarHeight": 0
+      "expected" : {
+        "height" : 22,
+        "width" : 140
       },
-      "expected": {
-        "width": 140,
-        "height": 22
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 0,
+        "scale" : 0.7
       },
-      "note": "No menu bar to measure: falls back to the dock's own depth."
+      "name" : "virtual, scale 0.7, menu bar 0",
+      "note" : "No menu bar to measure: falls back to the dock's own depth."
     },
     {
-      "name": "virtual, scale 0.7, menu bar 24",
-      "input": {
-        "scale": 0.7,
-        "kind": "virtual",
-        "menuBarHeight": 24
+      "expected" : {
+        "height" : 24,
+        "width" : 140
       },
-      "expected": {
-        "width": 140,
-        "height": 24
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 24,
+        "scale" : 0.7
+      },
+      "name" : "virtual, scale 0.7, menu bar 24"
     },
     {
-      "name": "virtual, scale 0.7, menu bar 24.5",
-      "input": {
-        "scale": 0.7,
-        "kind": "virtual",
-        "menuBarHeight": 24.5
+      "expected" : {
+        "height" : 25,
+        "width" : 140
       },
-      "expected": {
-        "width": 140,
-        "height": 25
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 24.5,
+        "scale" : 0.7
+      },
+      "name" : "virtual, scale 0.7, menu bar 24.5"
     },
     {
-      "name": "virtual, scale 0.7, menu bar 37",
-      "input": {
-        "scale": 0.7,
-        "kind": "virtual",
-        "menuBarHeight": 37
+      "expected" : {
+        "height" : 37,
+        "width" : 140
       },
-      "expected": {
-        "width": 140,
-        "height": 37
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 37,
+        "scale" : 0.7
+      },
+      "name" : "virtual, scale 0.7, menu bar 37"
     },
     {
-      "name": "virtual, scale 1, menu bar 0",
-      "input": {
-        "scale": 1,
-        "kind": "virtual",
-        "menuBarHeight": 0
+      "expected" : {
+        "height" : 32,
+        "width" : 200
       },
-      "expected": {
-        "width": 200,
-        "height": 32
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 0,
+        "scale" : 1
       },
-      "note": "No menu bar to measure: falls back to the dock's own depth."
+      "name" : "virtual, scale 1, menu bar 0",
+      "note" : "No menu bar to measure: falls back to the dock's own depth."
     },
     {
-      "name": "virtual, scale 1, menu bar 24",
-      "input": {
-        "scale": 1,
-        "kind": "virtual",
-        "menuBarHeight": 24
+      "expected" : {
+        "height" : 24,
+        "width" : 200
       },
-      "expected": {
-        "width": 200,
-        "height": 24
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 24,
+        "scale" : 1
+      },
+      "name" : "virtual, scale 1, menu bar 24"
     },
     {
-      "name": "virtual, scale 1, menu bar 24.5",
-      "input": {
-        "scale": 1,
-        "kind": "virtual",
-        "menuBarHeight": 24.5
+      "expected" : {
+        "height" : 25,
+        "width" : 200
       },
-      "expected": {
-        "width": 200,
-        "height": 25
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 24.5,
+        "scale" : 1
+      },
+      "name" : "virtual, scale 1, menu bar 24.5"
     },
     {
-      "name": "virtual, scale 1, menu bar 37",
-      "input": {
-        "scale": 1,
-        "kind": "virtual",
-        "menuBarHeight": 37
+      "expected" : {
+        "height" : 37,
+        "width" : 200
       },
-      "expected": {
-        "width": 200,
-        "height": 37
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 37,
+        "scale" : 1
+      },
+      "name" : "virtual, scale 1, menu bar 37"
     },
     {
-      "name": "virtual, scale 1.3, menu bar 0",
-      "input": {
-        "scale": 1.3,
-        "kind": "virtual",
-        "menuBarHeight": 0
+      "expected" : {
+        "height" : 42,
+        "width" : 260
       },
-      "expected": {
-        "width": 260,
-        "height": 42
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 0,
+        "scale" : 1.3
       },
-      "note": "No menu bar to measure: falls back to the dock's own depth."
+      "name" : "virtual, scale 1.3, menu bar 0",
+      "note" : "No menu bar to measure: falls back to the dock's own depth."
     },
     {
-      "name": "virtual, scale 1.3, menu bar 24",
-      "input": {
-        "scale": 1.3,
-        "kind": "virtual",
-        "menuBarHeight": 24
+      "expected" : {
+        "height" : 24,
+        "width" : 260
       },
-      "expected": {
-        "width": 260,
-        "height": 24
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 24,
+        "scale" : 1.3
+      },
+      "name" : "virtual, scale 1.3, menu bar 24"
     },
     {
-      "name": "virtual, scale 1.3, menu bar 24.5",
-      "input": {
-        "scale": 1.3,
-        "kind": "virtual",
-        "menuBarHeight": 24.5
+      "expected" : {
+        "height" : 25,
+        "width" : 260
       },
-      "expected": {
-        "width": 260,
-        "height": 25
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 24.5,
+        "scale" : 1.3
+      },
+      "name" : "virtual, scale 1.3, menu bar 24.5"
     },
     {
-      "name": "virtual, scale 1.3, menu bar 37",
-      "input": {
-        "scale": 1.3,
-        "kind": "virtual",
-        "menuBarHeight": 37
+      "expected" : {
+        "height" : 37,
+        "width" : 260
       },
-      "expected": {
-        "width": 260,
-        "height": 37
-      }
+      "input" : {
+        "kind" : "virtual",
+        "menuBarHeight" : 37,
+        "scale" : 1.3
+      },
+      "name" : "virtual, scale 1.3, menu bar 37"
     },
     {
-      "name": "joined to a MacBook notch, scale 0.7, 1 meters",
-      "input": {
-        "scale": 0.7,
-        "kind": "joined",
-        "count": 1,
-        "notch": {
-          "width": 185,
-          "height": 32
-        }
+      "expected" : 207,
+      "input" : {
+        "count" : 1,
+        "kind" : "joined",
+        "notch" : {
+          "height" : 32,
+          "width" : 185
+        },
+        "scale" : 0.7
       },
-      "expected": 207
+      "name" : "joined to a MacBook notch, scale 0.7, 1 meters"
     },
     {
-      "name": "joined to a MacBook notch, scale 0.7, 2 meters",
-      "input": {
-        "scale": 0.7,
-        "kind": "joined",
-        "count": 2,
-        "notch": {
-          "width": 185,
-          "height": 32
-        }
+      "expected" : 207,
+      "input" : {
+        "count" : 2,
+        "kind" : "joined",
+        "notch" : {
+          "height" : 32,
+          "width" : 185
+        },
+        "scale" : 0.7
       },
-      "expected": 207
+      "name" : "joined to a MacBook notch, scale 0.7, 2 meters"
     },
     {
-      "name": "joined to a MacBook notch, scale 0.7, 3 meters",
-      "input": {
-        "scale": 0.7,
-        "kind": "joined",
-        "count": 3,
-        "notch": {
-          "width": 185,
-          "height": 32
-        }
+      "expected" : 207,
+      "input" : {
+        "count" : 3,
+        "kind" : "joined",
+        "notch" : {
+          "height" : 32,
+          "width" : 185
+        },
+        "scale" : 0.7
       },
-      "expected": 207
+      "name" : "joined to a MacBook notch, scale 0.7, 3 meters"
     },
     {
-      "name": "joined to a MacBook notch, scale 0.7, 4 meters",
-      "input": {
-        "scale": 0.7,
-        "kind": "joined",
-        "count": 4,
-        "notch": {
-          "width": 185,
-          "height": 32
-        }
+      "expected" : 207,
+      "input" : {
+        "count" : 4,
+        "kind" : "joined",
+        "notch" : {
+          "height" : 32,
+          "width" : 185
+        },
+        "scale" : 0.7
       },
-      "expected": 207
+      "name" : "joined to a MacBook notch, scale 0.7, 4 meters"
     },
     {
-      "name": "joined to a MacBook notch, scale 1, 1 meters",
-      "input": {
-        "scale": 1,
-        "kind": "joined",
-        "count": 1,
-        "notch": {
-          "width": 185,
-          "height": 32
-        }
+      "expected" : 217,
+      "input" : {
+        "count" : 1,
+        "kind" : "joined",
+        "notch" : {
+          "height" : 32,
+          "width" : 185
+        },
+        "scale" : 1
       },
-      "expected": 217
+      "name" : "joined to a MacBook notch, scale 1, 1 meters"
     },
     {
-      "name": "joined to a MacBook notch, scale 1, 2 meters",
-      "input": {
-        "scale": 1,
-        "kind": "joined",
-        "count": 2,
-        "notch": {
-          "width": 185,
-          "height": 32
-        }
+      "expected" : 217,
+      "input" : {
+        "count" : 2,
+        "kind" : "joined",
+        "notch" : {
+          "height" : 32,
+          "width" : 185
+        },
+        "scale" : 1
       },
-      "expected": 217
+      "name" : "joined to a MacBook notch, scale 1, 2 meters"
     },
     {
-      "name": "joined to a MacBook notch, scale 1, 3 meters",
-      "input": {
-        "scale": 1,
-        "kind": "joined",
-        "count": 3,
-        "notch": {
-          "width": 185,
-          "height": 32
-        }
+      "expected" : 217,
+      "input" : {
+        "count" : 3,
+        "kind" : "joined",
+        "notch" : {
+          "height" : 32,
+          "width" : 185
+        },
+        "scale" : 1
       },
-      "expected": 217
+      "name" : "joined to a MacBook notch, scale 1, 3 meters"
     },
     {
-      "name": "joined to a MacBook notch, scale 1, 4 meters",
-      "input": {
-        "scale": 1,
-        "kind": "joined",
-        "count": 4,
-        "notch": {
-          "width": 185,
-          "height": 32
-        }
+      "expected" : 217,
+      "input" : {
+        "count" : 4,
+        "kind" : "joined",
+        "notch" : {
+          "height" : 32,
+          "width" : 185
+        },
+        "scale" : 1
       },
-      "expected": 217
+      "name" : "joined to a MacBook notch, scale 1, 4 meters"
     },
     {
-      "name": "end spread, exactly as long as the meters need",
-      "input": {
-        "scale": 1,
-        "kind": "spread",
-        "count": 3,
-        "compact": true,
-        "railLength": null
+      "expected" : 0,
+      "input" : {
+        "compact" : true,
+        "count" : 3,
+        "kind" : "spread",
+        "railLength" : null,
+        "scale" : 1
       },
-      "expected": 0
+      "name" : "end spread, exactly as long as the meters need"
     },
     {
-      "name": "end spread, stretched past the meters",
-      "input": {
-        "scale": 1,
-        "kind": "spread",
-        "count": 1,
-        "compact": true,
-        "railLength": 260
+      "expected" : 103,
+      "input" : {
+        "compact" : true,
+        "count" : 1,
+        "kind" : "spread",
+        "railLength" : 260,
+        "scale" : 1
       },
-      "expected": 103
+      "name" : "end spread, stretched past the meters"
     },
     {
-      "name": "end spread, stretched, full size",
-      "input": {
-        "scale": 1,
-        "kind": "spread",
-        "count": 2,
-        "compact": false,
-        "railLength": 400
+      "expected" : 128,
+      "input" : {
+        "compact" : false,
+        "count" : 2,
+        "kind" : "spread",
+        "railLength" : 400,
+        "scale" : 1
       },
-      "expected": 128
+      "name" : "end spread, stretched, full size"
     },
     {
-      "name": "end spread, shorter than the meters need",
-      "input": {
-        "scale": 1,
-        "kind": "spread",
-        "count": 3,
-        "compact": false,
-        "railLength": 50
+      "expected" : 0,
+      "input" : {
+        "compact" : false,
+        "count" : 3,
+        "kind" : "spread",
+        "railLength" : 50,
+        "scale" : 1
       },
-      "expected": 0
+      "name" : "end spread, shorter than the meters need"
     }
   ]
 }

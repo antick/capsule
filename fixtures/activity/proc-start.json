@@ -1,35 +1,35 @@
 {
-  "about": "parseProcStart(text) — the ctime string Claude Code records for a process start, read as UTC",
-  "cases": [
+  "about" : "parseProcStart(text) — the ctime string Claude Code records for a process start, read as UTC",
+  "cases" : [
     {
-      "name": "a space-padded single-digit day",
-      "input": "Sat Sep  5 15:30:55 2026",
-      "expected": "2026-09-05T15:30:55.000Z"
+      "expected" : "2026-09-05T15:30:55.000Z",
+      "input" : "Sat Sep  5 15:30:55 2026",
+      "name" : "a space-padded single-digit day"
     },
     {
-      "name": "a two-digit day",
-      "input": "Fri Aug 28 05:15:20 2026",
-      "expected": "2026-08-28T05:15:20.000Z"
+      "expected" : "2026-08-28T05:15:20.000Z",
+      "input" : "Fri Aug 28 05:15:20 2026",
+      "name" : "a two-digit day"
     },
     {
-      "name": "surrounding whitespace",
-      "input": "  Thu Jan  1 00:00:00 2026\n",
-      "expected": "2026-01-01T00:00:00.000Z"
+      "expected" : "2026-01-01T00:00:00.000Z",
+      "input" : "  Thu Jan  1 00:00:00 2026\n",
+      "name" : "surrounding whitespace"
     },
     {
-      "name": "not a ctime string",
-      "input": "yesterday",
-      "expected": null
+      "expected" : null,
+      "input" : "yesterday",
+      "name" : "not a ctime string"
     },
     {
-      "name": "too many fields",
-      "input": "Sat Sep 5 15:30:55 2026 UTC",
-      "expected": null
+      "expected" : null,
+      "input" : "Sat Sep 5 15:30:55 2026 UTC",
+      "name" : "too many fields"
     },
     {
-      "name": "empty",
-      "input": "",
-      "expected": null
+      "expected" : null,
+      "input" : "",
+      "name" : "empty"
     }
   ]
 }

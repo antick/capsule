@@ -1,312 +1,380 @@
 {
-  "about": "readGrokSessions(host) — Grok sessions from the active-session registry and recent event files",
-  "timeZone": "UTC",
-  "cases": [
+  "about" : "readGrokSessions(host) — Grok sessions from the active-session registry and recent event files",
+  "cases" : [
     {
-      "name": "a registered live session",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.grok/active_sessions.json": "[{\"session_id\":\"g1\",\"pid\":201,\"cwd\":\"/Users/dev/proj\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"}]"
-        },
-        "dirs": {},
-        "modified": {},
-        "processes": {
-          "201": "2026-09-06T12:30:00.000Z"
-        },
-        "queries": {},
-        "readTail": true
-      },
-      "expected": {
-        "sessions": [
+      "expected" : {
+        "queries" : [
+
+        ],
+        "sessions" : [
           {
-            "id": "grok.g1",
-            "providerId": "grok",
-            "name": "proj",
-            "detail": "Status unconfirmed",
-            "state": "idle",
-            "confirmed": false,
-            "waitingFor": null,
-            "since": "2026-09-06T12:30:00.000Z"
+            "confirmed" : false,
+            "detail" : "Status unconfirmed",
+            "id" : "grok.g1",
+            "name" : "proj",
+            "providerId" : "grok",
+            "since" : "2026-09-06T12:30:00.000Z",
+            "state" : "idle",
+            "waitingFor" : null
           }
         ],
-        "queries": [],
-        "tails": []
-      }
+        "tails" : [
+
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
+        },
+        "files" : {
+          "/home/.grok/active_sessions.json" : "[{\"session_id\":\"g1\",\"pid\":201,\"cwd\":\"/Users/dev/proj\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"}]"
+        },
+        "home" : "/home",
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+          "201" : "2026-09-06T12:30:00.000Z"
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
+      },
+      "name" : "a registered live session"
     },
     {
-      "name": "a registered session's events and title",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.grok/active_sessions.json": "[{\"session_id\":\"g2\",\"pid\":202,\"cwd\":\"/Users/dev/proj\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"}]",
-          "/home/.grok/sessions/proj/g2/events.jsonl": "{\"type\":\"phase_changed\",\"ts\":\"2026-09-06T12:59:59.000Z\",\"phase\":\"streaming_text\"}",
-          "/home/.grok/sessions/proj/g2/summary.json": "{\"generated_title\":\"Repair uploads\"}"
-        },
-        "dirs": {
-          "/home/.grok/sessions": [
+      "expected" : {
+        "queries" : [
+
+        ],
+        "sessions" : [
+          {
+            "confirmed" : true,
+            "detail" : "Working · local task event",
+            "id" : "grok.g2",
+            "name" : "Repair uploads",
+            "providerId" : "grok",
+            "since" : "2026-09-06T12:59:59.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.grok/sessions/proj/g2/events.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+          "/home/.grok/sessions" : [
             "proj"
           ],
-          "/home/.grok/sessions/proj": [
+          "/home/.grok/sessions/proj" : [
             "g2"
           ]
         },
-        "modified": {
-          "/home/.grok/sessions/proj/g2/events.jsonl": "2026-09-06T12:59:59.000Z"
+        "files" : {
+          "/home/.grok/active_sessions.json" : "[{\"session_id\":\"g2\",\"pid\":202,\"cwd\":\"/Users/dev/proj\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"}]",
+          "/home/.grok/sessions/proj/g2/events.jsonl" : "{\"type\":\"phase_changed\",\"ts\":\"2026-09-06T12:59:59.000Z\",\"phase\":\"streaming_text\"}",
+          "/home/.grok/sessions/proj/g2/summary.json" : "{\"generated_title\":\"Repair uploads\"}"
         },
-        "processes": {
-          "202": "2026-09-06T12:30:00.000Z"
+        "home" : "/home",
+        "modified" : {
+          "/home/.grok/sessions/proj/g2/events.jsonl" : "2026-09-06T12:59:59.000Z"
         },
-        "queries": {},
-        "readTail": true
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+          "202" : "2026-09-06T12:30:00.000Z"
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "grok.g2",
-            "providerId": "grok",
-            "name": "Repair uploads",
-            "detail": "Working · local task event",
-            "state": "busy",
-            "confirmed": true,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:59.000Z"
-          }
-        ],
-        "queries": [],
-        "tails": [
-          "/home/.grok/sessions/proj/g2/events.jsonl"
-        ]
-      }
+      "name" : "a registered session's events and title"
     },
     {
-      "name": "recent event files are found without the registry",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.grok/sessions/proj/fresh/events.jsonl": "{\"type\":\"phase_changed\",\"ts\":\"2026-09-06T12:59:59.000Z\",\"phase\":\"streaming_reasoning\"}"
-        },
-        "dirs": {
-          "/home/.grok/sessions": [
+      "expected" : {
+        "queries" : [
+
+        ],
+        "sessions" : [
+          {
+            "confirmed" : true,
+            "detail" : "Working · local task event",
+            "id" : "grok.fresh",
+            "name" : "proj",
+            "providerId" : "grok",
+            "since" : "2026-09-06T12:59:59.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.grok/sessions/proj/fresh/events.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+          "/home/.grok/sessions" : [
             "proj"
           ],
-          "/home/.grok/sessions/proj": [
+          "/home/.grok/sessions/proj" : [
             "fresh",
             "bad id!"
           ]
         },
-        "modified": {
-          "/home/.grok/sessions/proj/fresh/events.jsonl": "2026-09-06T12:59:59.000Z"
+        "files" : {
+          "/home/.grok/sessions/proj/fresh/events.jsonl" : "{\"type\":\"phase_changed\",\"ts\":\"2026-09-06T12:59:59.000Z\",\"phase\":\"streaming_reasoning\"}"
         },
-        "processes": {},
-        "queries": {},
-        "readTail": true
+        "home" : "/home",
+        "modified" : {
+          "/home/.grok/sessions/proj/fresh/events.jsonl" : "2026-09-06T12:59:59.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "grok.fresh",
-            "providerId": "grok",
-            "name": "proj",
-            "detail": "Working · local task event",
-            "state": "busy",
-            "confirmed": true,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:59.000Z"
-          }
-        ],
-        "queries": [],
-        "tails": [
-          "/home/.grok/sessions/proj/fresh/events.jsonl"
-        ]
-      },
-      "note": "Current CLI versions do not keep the registry up to date, so the event files are the evidence."
+      "name" : "recent event files are found without the registry",
+      "note" : "Current CLI versions do not keep the registry up to date, so the event files are the evidence."
     },
     {
-      "name": "an old event file without the registry is not a session",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {
-          "/home/.grok/sessions": [
+      "expected" : {
+        "queries" : [
+
+        ],
+        "sessions" : [
+
+        ],
+        "tails" : [
+
+        ]
+      },
+      "input" : {
+        "dirs" : {
+          "/home/.grok/sessions" : [
             "proj"
           ],
-          "/home/.grok/sessions/proj": [
+          "/home/.grok/sessions/proj" : [
             "stale"
           ]
         },
-        "modified": {
-          "/home/.grok/sessions/proj/stale/events.jsonl": "2026-09-06T12:50:00.000Z"
+        "files" : {
+
         },
-        "processes": {},
-        "queries": {},
-        "readTail": true
+        "home" : "/home",
+        "modified" : {
+          "/home/.grok/sessions/proj/stale/events.jsonl" : "2026-09-06T12:50:00.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [],
-        "queries": [],
-        "tails": []
-      }
+      "name" : "an old event file without the registry is not a session"
     },
     {
-      "name": "dead, malformed and reused registry entries are skipped",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.grok/active_sessions.json": "[{\"session_id\":\"dead\",\"pid\":301,\"cwd\":\"/a\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"},{\"session_id\":\"bad/id\",\"pid\":302,\"cwd\":\"/a\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"},{\"session_id\":\"nopid\",\"pid\":-1,\"cwd\":\"/a\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"},{\"session_id\":\"reused\",\"pid\":304,\"cwd\":\"/a\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"},{\"session_id\":\"baddate\",\"pid\":305,\"cwd\":\"/a\",\"opened_at\":\"soon\"},\"junk\",{\"session_id\":\"good\",\"pid\":306,\"cwd\":\"/Users/dev/kept\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"}]"
-        },
-        "dirs": {},
-        "modified": {},
-        "processes": {
-          "302": "2026-09-06T12:30:00.000Z",
-          "303": "2026-09-06T12:30:00.000Z",
-          "304": "2026-09-06T12:59:59.000Z",
-          "305": "2026-09-06T12:30:00.000Z",
-          "306": null
-        },
-        "queries": {},
-        "readTail": true
-      },
-      "expected": {
-        "sessions": [
+      "expected" : {
+        "queries" : [
+
+        ],
+        "sessions" : [
           {
-            "id": "grok.good",
-            "providerId": "grok",
-            "name": "kept",
-            "detail": "Status unconfirmed",
-            "state": "idle",
-            "confirmed": false,
-            "waitingFor": null,
-            "since": "2026-09-06T12:30:00.000Z"
+            "confirmed" : false,
+            "detail" : "Status unconfirmed",
+            "id" : "grok.good",
+            "name" : "kept",
+            "providerId" : "grok",
+            "since" : "2026-09-06T12:30:00.000Z",
+            "state" : "idle",
+            "waitingFor" : null
           }
         ],
-        "queries": [],
-        "tails": []
-      }
-    },
-    {
-      "name": "an unreadable registry is treated as empty",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.grok/active_sessions.json": "{oops"
-        },
-        "dirs": {},
-        "modified": {},
-        "processes": {},
-        "queries": {},
-        "readTail": true
+        "tails" : [
+
+        ]
       },
-      "expected": {
-        "sessions": [],
-        "queries": [],
-        "tails": []
-      }
+      "input" : {
+        "dirs" : {
+
+        },
+        "files" : {
+          "/home/.grok/active_sessions.json" : "[{\"session_id\":\"dead\",\"pid\":301,\"cwd\":\"/a\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"},{\"session_id\":\"bad/id\",\"pid\":302,\"cwd\":\"/a\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"},{\"session_id\":\"nopid\",\"pid\":-1,\"cwd\":\"/a\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"},{\"session_id\":\"reused\",\"pid\":304,\"cwd\":\"/a\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"},{\"session_id\":\"baddate\",\"pid\":305,\"cwd\":\"/a\",\"opened_at\":\"soon\"},\"junk\",{\"session_id\":\"good\",\"pid\":306,\"cwd\":\"/Users/dev/kept\",\"opened_at\":\"2026-09-06T12:30:00.000Z\"}]"
+        },
+        "home" : "/home",
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+          "302" : "2026-09-06T12:30:00.000Z",
+          "303" : "2026-09-06T12:30:00.000Z",
+          "304" : "2026-09-06T12:59:59.000Z",
+          "305" : "2026-09-06T12:30:00.000Z",
+          "306" : null
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
+      },
+      "name" : "dead, malformed and reused registry entries are skipped"
     },
     {
-      "name": "a half-written title does not hide the session",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.grok/sessions/proj/g3/events.jsonl": "{\"type\":\"turn_started\",\"ts\":\"2026-09-06T12:59:59.000Z\"}",
-          "/home/.grok/sessions/proj/g3/summary.json": "{\"generated_title\": \"Par"
+      "expected" : {
+        "queries" : [
+
+        ],
+        "sessions" : [
+
+        ],
+        "tails" : [
+
+        ]
+      },
+      "input" : {
+        "dirs" : {
+
         },
-        "dirs": {
-          "/home/.grok/sessions": [
+        "files" : {
+          "/home/.grok/active_sessions.json" : "{oops"
+        },
+        "home" : "/home",
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
+      },
+      "name" : "an unreadable registry is treated as empty"
+    },
+    {
+      "expected" : {
+        "queries" : [
+
+        ],
+        "sessions" : [
+          {
+            "confirmed" : true,
+            "detail" : "Working · local task event",
+            "id" : "grok.g3",
+            "name" : "proj",
+            "providerId" : "grok",
+            "since" : "2026-09-06T12:59:59.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.grok/sessions/proj/g3/events.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+          "/home/.grok/sessions" : [
             "proj"
           ],
-          "/home/.grok/sessions/proj": [
+          "/home/.grok/sessions/proj" : [
             "g3"
           ]
         },
-        "modified": {
-          "/home/.grok/sessions/proj/g3/events.jsonl": "2026-09-06T12:59:59.500Z"
+        "files" : {
+          "/home/.grok/sessions/proj/g3/events.jsonl" : "{\"type\":\"turn_started\",\"ts\":\"2026-09-06T12:59:59.000Z\"}",
+          "/home/.grok/sessions/proj/g3/summary.json" : "{\"generated_title\": \"Par"
         },
-        "processes": {},
-        "queries": {},
-        "readTail": true
+        "home" : "/home",
+        "modified" : {
+          "/home/.grok/sessions/proj/g3/events.jsonl" : "2026-09-06T12:59:59.500Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "grok.g3",
-            "providerId": "grok",
-            "name": "proj",
-            "detail": "Working · local task event",
-            "state": "busy",
-            "confirmed": true,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:59.000Z"
-          }
-        ],
-        "queries": [],
-        "tails": [
-          "/home/.grok/sessions/proj/g3/events.jsonl"
-        ]
-      }
+      "name" : "a half-written title does not hide the session"
     },
     {
-      "name": "several sessions come back newest first",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {
-          "/home/.grok/sessions/p/a1/events.jsonl": "{\"type\":\"turn_started\",\"ts\":\"2026-09-06T12:59:51.000Z\"}",
-          "/home/.grok/sessions/p/a2/events.jsonl": "{\"type\":\"turn_started\",\"ts\":\"2026-09-06T12:59:59.000Z\"}"
-        },
-        "dirs": {
-          "/home/.grok/sessions": [
+      "expected" : {
+        "queries" : [
+
+        ],
+        "sessions" : [
+          {
+            "confirmed" : true,
+            "detail" : "Working · local task event",
+            "id" : "grok.a2",
+            "name" : "p",
+            "providerId" : "grok",
+            "since" : "2026-09-06T12:59:59.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          },
+          {
+            "confirmed" : true,
+            "detail" : "Working · local task event",
+            "id" : "grok.a1",
+            "name" : "p",
+            "providerId" : "grok",
+            "since" : "2026-09-06T12:59:51.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "tails" : [
+          "/home/.grok/sessions/p/a2/events.jsonl",
+          "/home/.grok/sessions/p/a1/events.jsonl"
+        ]
+      },
+      "input" : {
+        "dirs" : {
+          "/home/.grok/sessions" : [
             "p"
           ],
-          "/home/.grok/sessions/p": [
+          "/home/.grok/sessions/p" : [
             "a1",
             "a2"
           ]
         },
-        "modified": {
-          "/home/.grok/sessions/p/a1/events.jsonl": "2026-09-06T12:59:51.000Z",
-          "/home/.grok/sessions/p/a2/events.jsonl": "2026-09-06T12:59:59.000Z"
+        "files" : {
+          "/home/.grok/sessions/p/a1/events.jsonl" : "{\"type\":\"turn_started\",\"ts\":\"2026-09-06T12:59:51.000Z\"}",
+          "/home/.grok/sessions/p/a2/events.jsonl" : "{\"type\":\"turn_started\",\"ts\":\"2026-09-06T12:59:59.000Z\"}"
         },
-        "processes": {},
-        "queries": {},
-        "readTail": true
+        "home" : "/home",
+        "modified" : {
+          "/home/.grok/sessions/p/a1/events.jsonl" : "2026-09-06T12:59:51.000Z",
+          "/home/.grok/sessions/p/a2/events.jsonl" : "2026-09-06T12:59:59.000Z"
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true
       },
-      "expected": {
-        "sessions": [
-          {
-            "id": "grok.a2",
-            "providerId": "grok",
-            "name": "p",
-            "detail": "Working · local task event",
-            "state": "busy",
-            "confirmed": true,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:59.000Z"
-          },
-          {
-            "id": "grok.a1",
-            "providerId": "grok",
-            "name": "p",
-            "detail": "Working · local task event",
-            "state": "busy",
-            "confirmed": true,
-            "waitingFor": null,
-            "since": "2026-09-06T12:59:51.000Z"
-          }
-        ],
-        "queries": [],
-        "tails": [
-          "/home/.grok/sessions/p/a2/events.jsonl",
-          "/home/.grok/sessions/p/a1/events.jsonl"
-        ]
-      }
+      "name" : "several sessions come back newest first"
     }
-  ]
+  ],
+  "timeZone" : "UTC"
 }

@@ -1,65 +1,65 @@
 {
-  "about": "edgeForPreset, layoutForPreset, presetForEdge and the preset copy — what each placement means",
-  "cases": [
+  "about" : "edgeForPreset, layoutForPreset, presetForEdge and the preset copy — what each placement means",
+  "cases" : [
     {
-      "name": "right-edge",
-      "input": "right-edge",
-      "expected": {
-        "edge": "right",
-        "layout": {
-          "orientation": "vertical",
-          "cardGrowth": "left",
-          "notch": false
+      "expected" : {
+        "edge" : "right",
+        "hint" : "Slides up and down the right side of the screen.",
+        "label" : "Right edge",
+        "layout" : {
+          "cardGrowth" : "left",
+          "notch" : false,
+          "orientation" : "vertical"
         },
-        "presetForEdge": "right-edge",
-        "label": "Right edge",
-        "hint": "Slides up and down the right side of the screen."
-      }
+        "presetForEdge" : "right-edge"
+      },
+      "input" : "right-edge",
+      "name" : "right-edge"
     },
     {
-      "name": "left-edge",
-      "input": "left-edge",
-      "expected": {
-        "edge": "left",
-        "layout": {
-          "orientation": "vertical",
-          "cardGrowth": "right",
-          "notch": false
+      "expected" : {
+        "edge" : "left",
+        "hint" : "Slides up and down the left side of the screen.",
+        "label" : "Left edge",
+        "layout" : {
+          "cardGrowth" : "right",
+          "notch" : false,
+          "orientation" : "vertical"
         },
-        "presetForEdge": "left-edge",
-        "label": "Left edge",
-        "hint": "Slides up and down the left side of the screen."
-      }
+        "presetForEdge" : "left-edge"
+      },
+      "input" : "left-edge",
+      "name" : "left-edge"
     },
     {
-      "name": "top-edge",
-      "input": "top-edge",
-      "expected": {
-        "edge": "top",
-        "layout": {
-          "orientation": "horizontal",
-          "cardGrowth": "down",
-          "notch": true
+      "expected" : {
+        "edge" : "top",
+        "hint" : "Hangs from the menu bar like the MacBook notch.",
+        "label" : "Top, as a notch",
+        "layout" : {
+          "cardGrowth" : "down",
+          "notch" : true,
+          "orientation" : "horizontal"
         },
-        "presetForEdge": "top-edge",
-        "label": "Top, as a notch",
-        "hint": "Hangs from the menu bar like the MacBook notch."
-      }
+        "presetForEdge" : "top-edge"
+      },
+      "input" : "top-edge",
+      "name" : "top-edge"
     },
     {
-      "name": "bottom-edge",
-      "input": "bottom-edge",
-      "expected": {
-        "edge": "bottom",
-        "layout": {
-          "orientation": "horizontal",
-          "cardGrowth": "up",
-          "notch": false
+      "expected" : {
+        "edge" : "bottom",
+        "hint" : "Sits level with the macOS Dock so you can park it alongside.",
+        "label" : "Bottom, beside the Dock",
+        "layout" : {
+          "cardGrowth" : "up",
+          "notch" : false,
+          "orientation" : "horizontal"
         },
-        "presetForEdge": "bottom-edge",
-        "label": "Bottom, beside the Dock",
-        "hint": "Sits level with the macOS Dock so you can park it alongside."
-      }
+        "presetForEdge" : "bottom-edge"
+      },
+      "input" : "bottom-edge",
+      "name" : "bottom-edge"
     }
   ]
 }

@@ -1,723 +1,723 @@
 {
-  "about": "cardHeightFor(m, { buckets, sessions, tokens }) and its named forms — the card's height before anything is laid out",
-  "cases": [
+  "about" : "cardHeightFor(m, { buckets, sessions, tokens }) and its named forms — the card's height before anything is laid out",
+  "cases" : [
     {
-      "name": "scale 0.7, 0 buckets, 0 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 0,
-        "sessions": 0,
-        "tokens": false
+      "expected" : 49,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 0.7,
+        "sessions" : 0,
+        "tokens" : false
       },
-      "expected": 49
+      "name" : "scale 0.7, 0 buckets, 0 sessions"
     },
     {
-      "name": "scale 0.7, 0 buckets, 0 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 0,
-        "sessions": 0,
-        "tokens": true
+      "expected" : 97,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 0.7,
+        "sessions" : 0,
+        "tokens" : true
       },
-      "expected": 97
+      "name" : "scale 0.7, 0 buckets, 0 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 0 buckets, 1 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 0,
-        "sessions": 1,
-        "tokens": false
+      "expected" : 90,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 0.7,
+        "sessions" : 1,
+        "tokens" : false
       },
-      "expected": 90
+      "name" : "scale 0.7, 0 buckets, 1 sessions"
     },
     {
-      "name": "scale 0.7, 0 buckets, 1 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 0,
-        "sessions": 1,
-        "tokens": true
+      "expected" : 138,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 0.7,
+        "sessions" : 1,
+        "tokens" : true
       },
-      "expected": 138
+      "name" : "scale 0.7, 0 buckets, 1 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 0 buckets, 4 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 0,
-        "sessions": 4,
-        "tokens": false
+      "expected" : 189,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 0.7,
+        "sessions" : 4,
+        "tokens" : false
       },
-      "expected": 189
+      "name" : "scale 0.7, 0 buckets, 4 sessions"
     },
     {
-      "name": "scale 0.7, 0 buckets, 4 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 0,
-        "sessions": 4,
-        "tokens": true
+      "expected" : 237,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 0.7,
+        "sessions" : 4,
+        "tokens" : true
       },
-      "expected": 237
+      "name" : "scale 0.7, 0 buckets, 4 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 0 buckets, 6 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 0,
-        "sessions": 6,
-        "tokens": false
+      "expected" : 207,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 0.7,
+        "sessions" : 6,
+        "tokens" : false
       },
-      "expected": 207
+      "name" : "scale 0.7, 0 buckets, 6 sessions"
     },
     {
-      "name": "scale 0.7, 0 buckets, 6 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 0,
-        "sessions": 6,
-        "tokens": true
+      "expected" : 255,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 0.7,
+        "sessions" : 6,
+        "tokens" : true
       },
-      "expected": 255
+      "name" : "scale 0.7, 0 buckets, 6 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 1 buckets, 0 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 1,
-        "sessions": 0,
-        "tokens": false
+      "expected" : 72,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 0.7,
+        "sessions" : 0,
+        "tokens" : false
       },
-      "expected": 72
+      "name" : "scale 0.7, 1 buckets, 0 sessions"
     },
     {
-      "name": "scale 0.7, 1 buckets, 0 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 1,
-        "sessions": 0,
-        "tokens": true
+      "expected" : 120,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 0.7,
+        "sessions" : 0,
+        "tokens" : true
       },
-      "expected": 120
+      "name" : "scale 0.7, 1 buckets, 0 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 1 buckets, 1 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 1,
-        "sessions": 1,
-        "tokens": false
+      "expected" : 113,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 0.7,
+        "sessions" : 1,
+        "tokens" : false
       },
-      "expected": 113
+      "name" : "scale 0.7, 1 buckets, 1 sessions"
     },
     {
-      "name": "scale 0.7, 1 buckets, 1 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 1,
-        "sessions": 1,
-        "tokens": true
+      "expected" : 161,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 0.7,
+        "sessions" : 1,
+        "tokens" : true
       },
-      "expected": 161
+      "name" : "scale 0.7, 1 buckets, 1 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 1 buckets, 4 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 1,
-        "sessions": 4,
-        "tokens": false
+      "expected" : 212,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 0.7,
+        "sessions" : 4,
+        "tokens" : false
       },
-      "expected": 212
+      "name" : "scale 0.7, 1 buckets, 4 sessions"
     },
     {
-      "name": "scale 0.7, 1 buckets, 4 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 1,
-        "sessions": 4,
-        "tokens": true
+      "expected" : 260,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 0.7,
+        "sessions" : 4,
+        "tokens" : true
       },
-      "expected": 260
+      "name" : "scale 0.7, 1 buckets, 4 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 1 buckets, 6 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 1,
-        "sessions": 6,
-        "tokens": false
+      "expected" : 230,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 0.7,
+        "sessions" : 6,
+        "tokens" : false
       },
-      "expected": 230
+      "name" : "scale 0.7, 1 buckets, 6 sessions"
     },
     {
-      "name": "scale 0.7, 1 buckets, 6 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 1,
-        "sessions": 6,
-        "tokens": true
+      "expected" : 278,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 0.7,
+        "sessions" : 6,
+        "tokens" : true
       },
-      "expected": 278
+      "name" : "scale 0.7, 1 buckets, 6 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 2 buckets, 0 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 2,
-        "sessions": 0,
-        "tokens": false
+      "expected" : 113,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 0.7,
+        "sessions" : 0,
+        "tokens" : false
       },
-      "expected": 113
+      "name" : "scale 0.7, 2 buckets, 0 sessions"
     },
     {
-      "name": "scale 0.7, 2 buckets, 0 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 2,
-        "sessions": 0,
-        "tokens": true
+      "expected" : 161,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 0.7,
+        "sessions" : 0,
+        "tokens" : true
       },
-      "expected": 161
+      "name" : "scale 0.7, 2 buckets, 0 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 2 buckets, 1 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 2,
-        "sessions": 1,
-        "tokens": false
+      "expected" : 154,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 0.7,
+        "sessions" : 1,
+        "tokens" : false
       },
-      "expected": 154
+      "name" : "scale 0.7, 2 buckets, 1 sessions"
     },
     {
-      "name": "scale 0.7, 2 buckets, 1 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 2,
-        "sessions": 1,
-        "tokens": true
+      "expected" : 202,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 0.7,
+        "sessions" : 1,
+        "tokens" : true
       },
-      "expected": 202
+      "name" : "scale 0.7, 2 buckets, 1 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 2 buckets, 4 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 2,
-        "sessions": 4,
-        "tokens": false
+      "expected" : 253,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 0.7,
+        "sessions" : 4,
+        "tokens" : false
       },
-      "expected": 253
+      "name" : "scale 0.7, 2 buckets, 4 sessions"
     },
     {
-      "name": "scale 0.7, 2 buckets, 4 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 2,
-        "sessions": 4,
-        "tokens": true
+      "expected" : 301,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 0.7,
+        "sessions" : 4,
+        "tokens" : true
       },
-      "expected": 301
+      "name" : "scale 0.7, 2 buckets, 4 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 2 buckets, 6 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 2,
-        "sessions": 6,
-        "tokens": false
+      "expected" : 271,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 0.7,
+        "sessions" : 6,
+        "tokens" : false
       },
-      "expected": 271
+      "name" : "scale 0.7, 2 buckets, 6 sessions"
     },
     {
-      "name": "scale 0.7, 2 buckets, 6 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 2,
-        "sessions": 6,
-        "tokens": true
+      "expected" : 319,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 0.7,
+        "sessions" : 6,
+        "tokens" : true
       },
-      "expected": 319
+      "name" : "scale 0.7, 2 buckets, 6 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 3 buckets, 0 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 3,
-        "sessions": 0,
-        "tokens": false
+      "expected" : 154,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 0.7,
+        "sessions" : 0,
+        "tokens" : false
       },
-      "expected": 154
+      "name" : "scale 0.7, 3 buckets, 0 sessions"
     },
     {
-      "name": "scale 0.7, 3 buckets, 0 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 3,
-        "sessions": 0,
-        "tokens": true
+      "expected" : 202,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 0.7,
+        "sessions" : 0,
+        "tokens" : true
       },
-      "expected": 202
+      "name" : "scale 0.7, 3 buckets, 0 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 3 buckets, 1 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 3,
-        "sessions": 1,
-        "tokens": false
+      "expected" : 195,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 0.7,
+        "sessions" : 1,
+        "tokens" : false
       },
-      "expected": 195
+      "name" : "scale 0.7, 3 buckets, 1 sessions"
     },
     {
-      "name": "scale 0.7, 3 buckets, 1 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 3,
-        "sessions": 1,
-        "tokens": true
+      "expected" : 243,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 0.7,
+        "sessions" : 1,
+        "tokens" : true
       },
-      "expected": 243
+      "name" : "scale 0.7, 3 buckets, 1 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 3 buckets, 4 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 3,
-        "sessions": 4,
-        "tokens": false
+      "expected" : 294,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 0.7,
+        "sessions" : 4,
+        "tokens" : false
       },
-      "expected": 294
+      "name" : "scale 0.7, 3 buckets, 4 sessions"
     },
     {
-      "name": "scale 0.7, 3 buckets, 4 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 3,
-        "sessions": 4,
-        "tokens": true
+      "expected" : 342,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 0.7,
+        "sessions" : 4,
+        "tokens" : true
       },
-      "expected": 342
+      "name" : "scale 0.7, 3 buckets, 4 sessions, tokens"
     },
     {
-      "name": "scale 0.7, 3 buckets, 6 sessions",
-      "input": {
-        "scale": 0.7,
-        "buckets": 3,
-        "sessions": 6,
-        "tokens": false
+      "expected" : 312,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 0.7,
+        "sessions" : 6,
+        "tokens" : false
       },
-      "expected": 312
+      "name" : "scale 0.7, 3 buckets, 6 sessions"
     },
     {
-      "name": "scale 0.7, 3 buckets, 6 sessions, tokens",
-      "input": {
-        "scale": 0.7,
-        "buckets": 3,
-        "sessions": 6,
-        "tokens": true
+      "expected" : 360,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 0.7,
+        "sessions" : 6,
+        "tokens" : true
       },
-      "expected": 360
+      "name" : "scale 0.7, 3 buckets, 6 sessions, tokens"
     },
     {
-      "name": "scale 1, 0 buckets, 0 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 0,
-        "sessions": 0,
-        "tokens": false
+      "expected" : 69,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 1,
+        "sessions" : 0,
+        "tokens" : false
       },
-      "expected": 69
+      "name" : "scale 1, 0 buckets, 0 sessions"
     },
     {
-      "name": "scale 1, 0 buckets, 0 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 0,
-        "sessions": 0,
-        "tokens": true
+      "expected" : 134,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 1,
+        "sessions" : 0,
+        "tokens" : true
       },
-      "expected": 134
+      "name" : "scale 1, 0 buckets, 0 sessions, tokens"
     },
     {
-      "name": "scale 1, 0 buckets, 1 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 0,
-        "sessions": 1,
-        "tokens": false
+      "expected" : 125,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 1,
+        "sessions" : 1,
+        "tokens" : false
       },
-      "expected": 125
+      "name" : "scale 1, 0 buckets, 1 sessions"
     },
     {
-      "name": "scale 1, 0 buckets, 1 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 0,
-        "sessions": 1,
-        "tokens": true
+      "expected" : 190,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 1,
+        "sessions" : 1,
+        "tokens" : true
       },
-      "expected": 190
+      "name" : "scale 1, 0 buckets, 1 sessions, tokens"
     },
     {
-      "name": "scale 1, 0 buckets, 4 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 0,
-        "sessions": 4,
-        "tokens": false
+      "expected" : 260,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 1,
+        "sessions" : 4,
+        "tokens" : false
       },
-      "expected": 260
+      "name" : "scale 1, 0 buckets, 4 sessions"
     },
     {
-      "name": "scale 1, 0 buckets, 4 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 0,
-        "sessions": 4,
-        "tokens": true
+      "expected" : 325,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 1,
+        "sessions" : 4,
+        "tokens" : true
       },
-      "expected": 325
+      "name" : "scale 1, 0 buckets, 4 sessions, tokens"
     },
     {
-      "name": "scale 1, 0 buckets, 6 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 0,
-        "sessions": 6,
-        "tokens": false
+      "expected" : 285,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 1,
+        "sessions" : 6,
+        "tokens" : false
       },
-      "expected": 285
+      "name" : "scale 1, 0 buckets, 6 sessions"
     },
     {
-      "name": "scale 1, 0 buckets, 6 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 0,
-        "sessions": 6,
-        "tokens": true
+      "expected" : 350,
+      "input" : {
+        "buckets" : 0,
+        "scale" : 1,
+        "sessions" : 6,
+        "tokens" : true
       },
-      "expected": 350
+      "name" : "scale 1, 0 buckets, 6 sessions, tokens"
     },
     {
-      "name": "scale 1, 1 buckets, 0 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 1,
-        "sessions": 0,
-        "tokens": false
+      "expected" : 100,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 1,
+        "sessions" : 0,
+        "tokens" : false
       },
-      "expected": 100
+      "name" : "scale 1, 1 buckets, 0 sessions"
     },
     {
-      "name": "scale 1, 1 buckets, 0 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 1,
-        "sessions": 0,
-        "tokens": true
+      "expected" : 165,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 1,
+        "sessions" : 0,
+        "tokens" : true
       },
-      "expected": 165
+      "name" : "scale 1, 1 buckets, 0 sessions, tokens"
     },
     {
-      "name": "scale 1, 1 buckets, 1 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 1,
-        "sessions": 1,
-        "tokens": false
+      "expected" : 156,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 1,
+        "sessions" : 1,
+        "tokens" : false
       },
-      "expected": 156
+      "name" : "scale 1, 1 buckets, 1 sessions"
     },
     {
-      "name": "scale 1, 1 buckets, 1 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 1,
-        "sessions": 1,
-        "tokens": true
+      "expected" : 221,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 1,
+        "sessions" : 1,
+        "tokens" : true
       },
-      "expected": 221
+      "name" : "scale 1, 1 buckets, 1 sessions, tokens"
     },
     {
-      "name": "scale 1, 1 buckets, 4 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 1,
-        "sessions": 4,
-        "tokens": false
+      "expected" : 291,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 1,
+        "sessions" : 4,
+        "tokens" : false
       },
-      "expected": 291
+      "name" : "scale 1, 1 buckets, 4 sessions"
     },
     {
-      "name": "scale 1, 1 buckets, 4 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 1,
-        "sessions": 4,
-        "tokens": true
+      "expected" : 356,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 1,
+        "sessions" : 4,
+        "tokens" : true
       },
-      "expected": 356
+      "name" : "scale 1, 1 buckets, 4 sessions, tokens"
     },
     {
-      "name": "scale 1, 1 buckets, 6 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 1,
-        "sessions": 6,
-        "tokens": false
+      "expected" : 316,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 1,
+        "sessions" : 6,
+        "tokens" : false
       },
-      "expected": 316
+      "name" : "scale 1, 1 buckets, 6 sessions"
     },
     {
-      "name": "scale 1, 1 buckets, 6 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 1,
-        "sessions": 6,
-        "tokens": true
+      "expected" : 381,
+      "input" : {
+        "buckets" : 1,
+        "scale" : 1,
+        "sessions" : 6,
+        "tokens" : true
       },
-      "expected": 381
+      "name" : "scale 1, 1 buckets, 6 sessions, tokens"
     },
     {
-      "name": "scale 1, 2 buckets, 0 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 2,
-        "sessions": 0,
-        "tokens": false
+      "expected" : 156,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 1,
+        "sessions" : 0,
+        "tokens" : false
       },
-      "expected": 156
+      "name" : "scale 1, 2 buckets, 0 sessions"
     },
     {
-      "name": "scale 1, 2 buckets, 0 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 2,
-        "sessions": 0,
-        "tokens": true
+      "expected" : 221,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 1,
+        "sessions" : 0,
+        "tokens" : true
       },
-      "expected": 221
+      "name" : "scale 1, 2 buckets, 0 sessions, tokens"
     },
     {
-      "name": "scale 1, 2 buckets, 1 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 2,
-        "sessions": 1,
-        "tokens": false
+      "expected" : 212,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 1,
+        "sessions" : 1,
+        "tokens" : false
       },
-      "expected": 212
+      "name" : "scale 1, 2 buckets, 1 sessions"
     },
     {
-      "name": "scale 1, 2 buckets, 1 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 2,
-        "sessions": 1,
-        "tokens": true
+      "expected" : 277,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 1,
+        "sessions" : 1,
+        "tokens" : true
       },
-      "expected": 277
+      "name" : "scale 1, 2 buckets, 1 sessions, tokens"
     },
     {
-      "name": "scale 1, 2 buckets, 4 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 2,
-        "sessions": 4,
-        "tokens": false
+      "expected" : 347,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 1,
+        "sessions" : 4,
+        "tokens" : false
       },
-      "expected": 347
+      "name" : "scale 1, 2 buckets, 4 sessions"
     },
     {
-      "name": "scale 1, 2 buckets, 4 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 2,
-        "sessions": 4,
-        "tokens": true
+      "expected" : 412,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 1,
+        "sessions" : 4,
+        "tokens" : true
       },
-      "expected": 412
+      "name" : "scale 1, 2 buckets, 4 sessions, tokens"
     },
     {
-      "name": "scale 1, 2 buckets, 6 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 2,
-        "sessions": 6,
-        "tokens": false
+      "expected" : 372,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 1,
+        "sessions" : 6,
+        "tokens" : false
       },
-      "expected": 372
+      "name" : "scale 1, 2 buckets, 6 sessions"
     },
     {
-      "name": "scale 1, 2 buckets, 6 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 2,
-        "sessions": 6,
-        "tokens": true
+      "expected" : 437,
+      "input" : {
+        "buckets" : 2,
+        "scale" : 1,
+        "sessions" : 6,
+        "tokens" : true
       },
-      "expected": 437
+      "name" : "scale 1, 2 buckets, 6 sessions, tokens"
     },
     {
-      "name": "scale 1, 3 buckets, 0 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 3,
-        "sessions": 0,
-        "tokens": false
+      "expected" : 212,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 1,
+        "sessions" : 0,
+        "tokens" : false
       },
-      "expected": 212
+      "name" : "scale 1, 3 buckets, 0 sessions"
     },
     {
-      "name": "scale 1, 3 buckets, 0 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 3,
-        "sessions": 0,
-        "tokens": true
+      "expected" : 277,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 1,
+        "sessions" : 0,
+        "tokens" : true
       },
-      "expected": 277
+      "name" : "scale 1, 3 buckets, 0 sessions, tokens"
     },
     {
-      "name": "scale 1, 3 buckets, 1 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 3,
-        "sessions": 1,
-        "tokens": false
+      "expected" : 268,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 1,
+        "sessions" : 1,
+        "tokens" : false
       },
-      "expected": 268
+      "name" : "scale 1, 3 buckets, 1 sessions"
     },
     {
-      "name": "scale 1, 3 buckets, 1 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 3,
-        "sessions": 1,
-        "tokens": true
+      "expected" : 333,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 1,
+        "sessions" : 1,
+        "tokens" : true
       },
-      "expected": 333
+      "name" : "scale 1, 3 buckets, 1 sessions, tokens"
     },
     {
-      "name": "scale 1, 3 buckets, 4 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 3,
-        "sessions": 4,
-        "tokens": false
+      "expected" : 403,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 1,
+        "sessions" : 4,
+        "tokens" : false
       },
-      "expected": 403
+      "name" : "scale 1, 3 buckets, 4 sessions"
     },
     {
-      "name": "scale 1, 3 buckets, 4 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 3,
-        "sessions": 4,
-        "tokens": true
+      "expected" : 468,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 1,
+        "sessions" : 4,
+        "tokens" : true
       },
-      "expected": 468
+      "name" : "scale 1, 3 buckets, 4 sessions, tokens"
     },
     {
-      "name": "scale 1, 3 buckets, 6 sessions",
-      "input": {
-        "scale": 1,
-        "buckets": 3,
-        "sessions": 6,
-        "tokens": false
+      "expected" : 428,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 1,
+        "sessions" : 6,
+        "tokens" : false
       },
-      "expected": 428
+      "name" : "scale 1, 3 buckets, 6 sessions"
     },
     {
-      "name": "scale 1, 3 buckets, 6 sessions, tokens",
-      "input": {
-        "scale": 1,
-        "buckets": 3,
-        "sessions": 6,
-        "tokens": true
+      "expected" : 493,
+      "input" : {
+        "buckets" : 3,
+        "scale" : 1,
+        "sessions" : 6,
+        "tokens" : true
       },
-      "expected": 493
+      "name" : "scale 1, 3 buckets, 6 sessions, tokens"
     },
     {
-      "name": "scale 0.7, reserve",
-      "input": {
-        "scale": 0.7,
-        "named": "reserve"
+      "expected" : 360,
+      "input" : {
+        "named" : "reserve",
+        "scale" : 0.7
       },
-      "expected": 360,
-      "note": "The tallest card any provider can produce; the window is sized for it once."
+      "name" : "scale 0.7, reserve",
+      "note" : "The tallest card any provider can produce; the window is sized for it once."
     },
     {
-      "name": "scale 0.7, message",
-      "input": {
-        "scale": 0.7,
-        "named": "message"
+      "expected" : 49,
+      "input" : {
+        "named" : "message",
+        "scale" : 0.7
       },
-      "expected": 49
+      "name" : "scale 0.7, message"
     },
     {
-      "name": "scale 0.7, two buckets by count",
-      "input": {
-        "scale": 0.7,
-        "named": "buckets",
-        "buckets": 2
+      "expected" : 113,
+      "input" : {
+        "buckets" : 2,
+        "named" : "buckets",
+        "scale" : 0.7
       },
-      "expected": 113
+      "name" : "scale 0.7, two buckets by count"
     },
     {
-      "name": "scale 1, reserve",
-      "input": {
-        "scale": 1,
-        "named": "reserve"
+      "expected" : 493,
+      "input" : {
+        "named" : "reserve",
+        "scale" : 1
       },
-      "expected": 493,
-      "note": "The tallest card any provider can produce; the window is sized for it once."
+      "name" : "scale 1, reserve",
+      "note" : "The tallest card any provider can produce; the window is sized for it once."
     },
     {
-      "name": "scale 1, message",
-      "input": {
-        "scale": 1,
-        "named": "message"
+      "expected" : 69,
+      "input" : {
+        "named" : "message",
+        "scale" : 1
       },
-      "expected": 69
+      "name" : "scale 1, message"
     },
     {
-      "name": "scale 1, two buckets by count",
-      "input": {
-        "scale": 1,
-        "named": "buckets",
-        "buckets": 2
+      "expected" : 156,
+      "input" : {
+        "buckets" : 2,
+        "named" : "buckets",
+        "scale" : 1
       },
-      "expected": 156
+      "name" : "scale 1, two buckets by count"
     },
     {
-      "name": "scale 1.3, reserve",
-      "input": {
-        "scale": 1.3,
-        "named": "reserve"
+      "expected" : 656,
+      "input" : {
+        "named" : "reserve",
+        "scale" : 1.3
       },
-      "expected": 656,
-      "note": "The tallest card any provider can produce; the window is sized for it once."
+      "name" : "scale 1.3, reserve",
+      "note" : "The tallest card any provider can produce; the window is sized for it once."
     },
     {
-      "name": "scale 1.3, message",
-      "input": {
-        "scale": 1.3,
-        "named": "message"
+      "expected" : 90,
+      "input" : {
+        "named" : "message",
+        "scale" : 1.3
       },
-      "expected": 90
+      "name" : "scale 1.3, message"
     },
     {
-      "name": "scale 1.3, two buckets by count",
-      "input": {
-        "scale": 1.3,
-        "named": "buckets",
-        "buckets": 2
+      "expected" : 207,
+      "input" : {
+        "buckets" : 2,
+        "named" : "buckets",
+        "scale" : 1.3
       },
-      "expected": 207
+      "name" : "scale 1.3, two buckets by count"
     }
   ]
 }

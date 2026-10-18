@@ -1,169 +1,171 @@
 {
-  "about": "codexRowTokens(row, state) over a file's rows in order — Codex's running totals turned into deltas",
-  "note": "Each case is the rows of one file. The carried total starts at zero for every file, as the scanner does.",
-  "cases": [
+  "about" : "codexRowTokens(row, state) over a file's rows in order — Codex's running totals turned into deltas",
+  "cases" : [
     {
-      "name": "running totals become deltas, and a drop starts a new thread",
-      "input": [
+      "expected" : [
         {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "token_count",
-            "info": {
-              "total_token_usage": {
-                "input_tokens": 100,
-                "output_tokens": 0
-              }
-            }
-          }
+          "at" : "2026-09-06T12:00:00.000Z",
+          "tokens" : 100
         },
         {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "token_count",
-            "info": {
-              "total_token_usage": {
-                "input_tokens": 250,
-                "output_tokens": 0
-              }
-            }
-          }
-        },
-        {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "token_count",
-            "info": {
-              "total_token_usage": {
-                "input_tokens": 250,
-                "output_tokens": 0
-              }
-            }
-          }
-        },
-        {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "token_count",
-            "info": {
-              "total_token_usage": {
-                "input_tokens": 40,
-                "output_tokens": 0
-              }
-            }
-          }
-        },
-        {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "other"
-          }
-        }
-      ],
-      "expected": [
-        {
-          "at": "2026-09-06T12:00:00.000Z",
-          "tokens": 100
-        },
-        {
-          "at": "2026-09-06T12:00:00.000Z",
-          "tokens": 150
+          "at" : "2026-09-06T12:00:00.000Z",
+          "tokens" : 150
         },
         null,
         {
-          "at": "2026-09-06T12:00:00.000Z",
-          "tokens": 40
+          "at" : "2026-09-06T12:00:00.000Z",
+          "tokens" : 40
         },
         null
-      ]
-    },
-    {
-      "name": "input and output both count",
-      "input": [
-        {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "token_count",
-            "info": {
-              "total_token_usage": {
-                "input_tokens": 30,
-                "output_tokens": 12
-              }
-            }
-          }
-        }
       ],
-      "expected": [
+      "input" : [
         {
-          "at": "2026-09-06T12:00:00.000Z",
-          "tokens": 42
-        }
-      ]
-    },
-    {
-      "name": "a row without totals is skipped and does not reset the count",
-      "input": [
-        {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "token_count",
-            "info": {
-              "total_token_usage": {
-                "input_tokens": 100,
-                "output_tokens": 0
+          "payload" : {
+            "info" : {
+              "total_token_usage" : {
+                "input_tokens" : 100,
+                "output_tokens" : 0
               }
-            }
-          }
+            },
+            "type" : "token_count"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
         },
         {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "token_count",
-            "info": {}
-          }
+          "payload" : {
+            "info" : {
+              "total_token_usage" : {
+                "input_tokens" : 250,
+                "output_tokens" : 0
+              }
+            },
+            "type" : "token_count"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
         },
         {
-          "timestamp": "2026-09-06T12:00:00.000Z",
-          "payload": {
-            "type": "token_count",
-            "info": {
-              "total_token_usage": {
-                "input_tokens": 160,
-                "output_tokens": 0
+          "payload" : {
+            "info" : {
+              "total_token_usage" : {
+                "input_tokens" : 250,
+                "output_tokens" : 0
               }
-            }
-          }
+            },
+            "type" : "token_count"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
+        },
+        {
+          "payload" : {
+            "info" : {
+              "total_token_usage" : {
+                "input_tokens" : 40,
+                "output_tokens" : 0
+              }
+            },
+            "type" : "token_count"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
+        },
+        {
+          "payload" : {
+            "type" : "other"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
         }
       ],
-      "expected": [
+      "name" : "running totals become deltas, and a drop starts a new thread"
+    },
+    {
+      "expected" : [
         {
-          "at": "2026-09-06T12:00:00.000Z",
-          "tokens": 100
+          "at" : "2026-09-06T12:00:00.000Z",
+          "tokens" : 42
+        }
+      ],
+      "input" : [
+        {
+          "payload" : {
+            "info" : {
+              "total_token_usage" : {
+                "input_tokens" : 30,
+                "output_tokens" : 12
+              }
+            },
+            "type" : "token_count"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
+        }
+      ],
+      "name" : "input and output both count"
+    },
+    {
+      "expected" : [
+        {
+          "at" : "2026-09-06T12:00:00.000Z",
+          "tokens" : 100
         },
         null,
         {
-          "at": "2026-09-06T12:00:00.000Z",
-          "tokens": 60
+          "at" : "2026-09-06T12:00:00.000Z",
+          "tokens" : 60
         }
-      ]
+      ],
+      "input" : [
+        {
+          "payload" : {
+            "info" : {
+              "total_token_usage" : {
+                "input_tokens" : 100,
+                "output_tokens" : 0
+              }
+            },
+            "type" : "token_count"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
+        },
+        {
+          "payload" : {
+            "info" : {
+
+            },
+            "type" : "token_count"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
+        },
+        {
+          "payload" : {
+            "info" : {
+              "total_token_usage" : {
+                "input_tokens" : 160,
+                "output_tokens" : 0
+              }
+            },
+            "type" : "token_count"
+          },
+          "timestamp" : "2026-09-06T12:00:00.000Z"
+        }
+      ],
+      "name" : "a row without totals is skipped and does not reset the count"
     },
     {
-      "name": "a row without a time is skipped",
-      "input": [
+      "expected" : [
+        null
+      ],
+      "input" : [
         {
-          "payload": {
-            "type": "token_count",
-            "info": {
-              "total_token_usage": {
-                "input_tokens": 5
+          "payload" : {
+            "info" : {
+              "total_token_usage" : {
+                "input_tokens" : 5
               }
-            }
+            },
+            "type" : "token_count"
           }
         }
       ],
-      "expected": [
-        null
-      ]
+      "name" : "a row without a time is skipped"
     }
-  ]
+  ],
+  "note" : "Each case is the rows of one file. The carried total starts at zero for every file, as the scanner does."
 }

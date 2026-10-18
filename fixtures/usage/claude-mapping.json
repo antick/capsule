@@ -1,454 +1,462 @@
 {
-  "about": "mapClaudeUsage(payload, now) — Anthropic's usage response to a Capsule snapshot",
-  "timeZone": "UTC",
-  "frozenNow": "2026-08-27T11:22:00Z",
-  "cases": [
+  "about" : "mapClaudeUsage(payload, now) — Anthropic's usage response to a Capsule snapshot",
+  "cases" : [
     {
-      "name": "five_hour becomes Current session and seven_day becomes All models",
-      "input": {
-        "five_hour": {
-          "utilization": 73,
-          "resets_at": "2026-08-27T12:13:00.000Z"
-        },
-        "seven_day": {
-          "utilization": 7,
-          "resets_at": "2026-09-03T00:00:00.000Z"
-        }
-      },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 73,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "expected" : {
+        "buckets" : [
           {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 73,
-            "resetsAt": "2026-08-27T12:13:00.000Z",
-            "resetStyle": "relative"
+            "id" : "current-session",
+            "label" : "Current session",
+            "percentUsed" : 73,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T12:13:00.000Z"
           },
           {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 7,
-            "resetsAt": "2026-09-03T00:00:00.000Z",
-            "resetStyle": "absolute"
+            "id" : "all-models",
+            "label" : "All models",
+            "percentUsed" : 7,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T00:00:00.000Z"
           }
-        ]
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 73,
+        "providerId" : "claude",
+        "status" : "ok"
       },
-      "note": "The headline percent is the session window, not the weekly one."
-    },
-    {
-      "name": "fractional utilization is read as a percent",
-      "input": {
-        "five_hour": {
-          "utilization": 0.73
-        }
-      },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 73,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 73,
-            "resetsAt": "2026-08-27T11:22:00.000Z",
-            "resetStyle": "relative"
-          }
-        ]
-      },
-      "note": "The payload has no seven_day window, so there is no \"All models\" row to draw."
-    },
-    {
-      "name": "only a session window",
-      "input": {
-        "five_hour": {
-          "utilization": 44,
-          "resets_at": "2026-08-27T13:00:00.000Z"
-        }
-      },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 44,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 44,
-            "resetsAt": "2026-08-27T13:00:00.000Z",
-            "resetStyle": "relative"
-          }
-        ]
-      },
-      "note": "An absent seven_day window produces no bucket at all — not one at 0% resetting \"now\"."
-    },
-    {
-      "name": "only a weekly window",
-      "input": {
-        "seven_day": {
-          "utilization": 7,
-          "resets_at": "2026-09-03T00:00:00.000Z"
-        }
-      },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 7,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 7,
-            "resetsAt": "2026-09-03T00:00:00.000Z",
-            "resetStyle": "absolute"
-          }
-        ]
-      },
-      "note": "With no session window, the weekly one is the headline — losing the session window must not lose the reading."
-    },
-    {
-      "name": "empty payload",
-      "input": {},
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": null,
-        "status": "error",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
-      },
-      "note": "A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
-    },
-    {
-      "name": "null utilization",
-      "input": {
-        "five_hour": {
-          "utilization": null,
-          "resets_at": null
+      "input" : {
+        "five_hour" : {
+          "resets_at" : "2026-08-27T12:13:00.000Z",
+          "utilization" : 73
         },
-        "seven_day": null
-      },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": null,
-        "status": "error",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
-      },
-      "note": "A window that is present but carries no utilization is still nothing known: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading instead."
-    },
-    {
-      "name": "utilization over one hundred is clamped",
-      "input": {
-        "five_hour": {
-          "utilization": 112,
-          "resets_at": "2026-08-27T12:13:00.000Z"
+        "seven_day" : {
+          "resets_at" : "2026-09-03T00:00:00.000Z",
+          "utilization" : 7
         }
       },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 100,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "name" : "five_hour becomes Current session and seven_day becomes All models",
+      "note" : "The headline percent is the session window, not the weekly one."
+    },
+    {
+      "expected" : {
+        "buckets" : [
           {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 100,
-            "resetsAt": "2026-08-27T12:13:00.000Z",
-            "resetStyle": "relative"
+            "id" : "current-session",
+            "label" : "Current session",
+            "percentUsed" : 73,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T11:22:00.000Z"
           }
-        ]
-      }
-    },
-    {
-      "name": "exhausted session",
-      "input": {
-        "five_hour": {
-          "utilization": 100,
-          "resets_at": "2026-08-27T12:13:00.000Z"
-        },
-        "seven_day": {
-          "utilization": 96,
-          "resets_at": "2026-09-03T00:00:00.000Z"
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 73,
+        "providerId" : "claude",
+        "status" : "ok"
+      },
+      "input" : {
+        "five_hour" : {
+          "utilization" : 0.73
         }
       },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 100,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "name" : "fractional utilization is read as a percent",
+      "note" : "The payload has no seven_day window, so there is no \"All models\" row to draw."
+    },
+    {
+      "expected" : {
+        "buckets" : [
           {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 100,
-            "resetsAt": "2026-08-27T12:13:00.000Z",
-            "resetStyle": "relative"
+            "id" : "current-session",
+            "label" : "Current session",
+            "percentUsed" : 44,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T13:00:00.000Z"
+          }
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 44,
+        "providerId" : "claude",
+        "status" : "ok"
+      },
+      "input" : {
+        "five_hour" : {
+          "resets_at" : "2026-08-27T13:00:00.000Z",
+          "utilization" : 44
+        }
+      },
+      "name" : "only a session window",
+      "note" : "An absent seven_day window produces no bucket at all — not one at 0% resetting \"now\"."
+    },
+    {
+      "expected" : {
+        "buckets" : [
+          {
+            "id" : "all-models",
+            "label" : "All models",
+            "percentUsed" : 7,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T00:00:00.000Z"
+          }
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 7,
+        "providerId" : "claude",
+        "status" : "ok"
+      },
+      "input" : {
+        "seven_day" : {
+          "resets_at" : "2026-09-03T00:00:00.000Z",
+          "utilization" : 7
+        }
+      },
+      "name" : "only a weekly window",
+      "note" : "With no session window, the weekly one is the headline — losing the session window must not lose the reading."
+    },
+    {
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : null,
+        "providerId" : "claude",
+        "status" : "error"
+      },
+      "input" : {
+
+      },
+      "name" : "empty payload",
+      "note" : "A 200 carrying nothing usable: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading and marks it stale rather than publishing a confident 0%."
+    },
+    {
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : null,
+        "providerId" : "claude",
+        "status" : "error"
+      },
+      "input" : {
+        "five_hour" : {
+          "resets_at" : null,
+          "utilization" : null
+        },
+        "seven_day" : null
+      },
+      "name" : "null utilization",
+      "note" : "A window that is present but carries no utilization is still nothing known: no bucket, a null primary percent, and status \"error\", so mergeSnapshot keeps the last good reading instead."
+    },
+    {
+      "expected" : {
+        "buckets" : [
+          {
+            "id" : "current-session",
+            "label" : "Current session",
+            "percentUsed" : 100,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T12:13:00.000Z"
+          }
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 100,
+        "providerId" : "claude",
+        "status" : "ok"
+      },
+      "input" : {
+        "five_hour" : {
+          "resets_at" : "2026-08-27T12:13:00.000Z",
+          "utilization" : 112
+        }
+      },
+      "name" : "utilization over one hundred is clamped"
+    },
+    {
+      "expected" : {
+        "buckets" : [
+          {
+            "id" : "current-session",
+            "label" : "Current session",
+            "percentUsed" : 100,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T12:13:00.000Z"
           },
           {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 96,
-            "resetsAt": "2026-09-03T00:00:00.000Z",
-            "resetStyle": "absolute"
+            "id" : "all-models",
+            "label" : "All models",
+            "percentUsed" : 96,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T00:00:00.000Z"
           }
-        ]
-      }
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 100,
+        "providerId" : "claude",
+        "status" : "ok"
+      },
+      "input" : {
+        "five_hour" : {
+          "resets_at" : "2026-08-27T12:13:00.000Z",
+          "utilization" : 100
+        },
+        "seven_day" : {
+          "resets_at" : "2026-09-03T00:00:00.000Z",
+          "utilization" : 96
+        }
+      },
+      "name" : "exhausted session"
     },
     {
-      "name": "the listed limits become rows, a model's own weekly limit among them",
-      "input": {
-        "five_hour": {
-          "utilization": 1,
-          "resets_at": "2026-08-27T12:00:00Z"
-        },
-        "seven_day": {
-          "utilization": 10,
-          "resets_at": "2026-09-03T13:00:00Z"
-        },
-        "limits": [
+      "expected" : {
+        "buckets" : [
           {
-            "kind": "session",
-            "group": "session",
-            "percent": 1,
-            "severity": "normal",
-            "resets_at": "2026-08-27T12:00:00Z",
-            "is_active": false,
-            "scope": null
+            "id" : "current-session",
+            "label" : "Current session",
+            "percentUsed" : 1,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T12:00:00Z"
           },
           {
-            "kind": "weekly_all",
-            "group": "weekly",
-            "percent": 10,
-            "severity": "normal",
-            "resets_at": "2026-09-03T13:00:00Z",
-            "is_active": false,
-            "scope": null
+            "id" : "all-models",
+            "label" : "All models",
+            "percentUsed" : 10,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T13:00:00Z"
           },
           {
-            "kind": "weekly_scoped",
-            "group": "weekly",
-            "percent": 0,
-            "severity": "normal",
-            "resets_at": "2026-09-03T13:00:00Z",
-            "is_active": false,
-            "scope": {
-              "model": {
-                "id": null,
-                "display_name": "Fable"
+            "id" : "weekly-fable",
+            "label" : "Fable",
+            "percentUsed" : 0,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T13:00:00Z"
+          }
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 1,
+        "providerId" : "claude",
+        "status" : "ok"
+      },
+      "input" : {
+        "five_hour" : {
+          "resets_at" : "2026-08-27T12:00:00Z",
+          "utilization" : 1
+        },
+        "limits" : [
+          {
+            "group" : "session",
+            "is_active" : false,
+            "kind" : "session",
+            "percent" : 1,
+            "resets_at" : "2026-08-27T12:00:00Z",
+            "scope" : null,
+            "severity" : "normal"
+          },
+          {
+            "group" : "weekly",
+            "is_active" : false,
+            "kind" : "weekly_all",
+            "percent" : 10,
+            "resets_at" : "2026-09-03T13:00:00Z",
+            "scope" : null,
+            "severity" : "normal"
+          },
+          {
+            "group" : "weekly",
+            "is_active" : false,
+            "kind" : "weekly_scoped",
+            "percent" : 0,
+            "resets_at" : "2026-09-03T13:00:00Z",
+            "scope" : {
+              "model" : {
+                "display_name" : "Fable",
+                "id" : null
               },
-              "surface": null
-            }
+              "surface" : null
+            },
+            "severity" : "normal"
           }
-        ]
+        ],
+        "seven_day" : {
+          "resets_at" : "2026-09-03T13:00:00Z",
+          "utilization" : 10
+        }
       },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 1,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
-          {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 1,
-            "resetsAt": "2026-08-27T12:00:00Z",
-            "resetStyle": "relative"
-          },
-          {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 10,
-            "resetsAt": "2026-09-03T13:00:00Z",
-            "resetStyle": "absolute"
-          },
-          {
-            "id": "weekly-fable",
-            "label": "Fable",
-            "percentUsed": 0,
-            "resetsAt": "2026-09-03T13:00:00Z",
-            "resetStyle": "absolute"
-          }
-        ]
-      },
-      "note": "Anthropic lists every limit the account has. A week scoped to one model shows under that model's name, alongside the session and the all-models week."
+      "name" : "the listed limits become rows, a model's own weekly limit among them",
+      "note" : "Anthropic lists every limit the account has. A week scoped to one model shows under that model's name, alongside the session and the all-models week."
     },
     {
-      "name": "unknown kinds and unnamed scopes are skipped, and the rows stop at the card's budget",
-      "input": {
-        "five_hour": {
-          "utilization": 1,
-          "resets_at": "2026-08-27T12:00:00Z"
-        },
-        "seven_day": {
-          "utilization": 10,
-          "resets_at": "2026-09-03T13:00:00Z"
-        },
-        "limits": [
+      "expected" : {
+        "buckets" : [
           {
-            "kind": "session",
-            "group": "session",
-            "percent": 1,
-            "severity": "normal",
-            "resets_at": "2026-08-27T12:00:00Z",
-            "is_active": false,
-            "scope": null
+            "id" : "current-session",
+            "label" : "Current session",
+            "percentUsed" : 1,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T12:00:00Z"
           },
           {
-            "kind": "mystery",
-            "group": "weekly",
-            "percent": 50,
-            "severity": "normal",
-            "resets_at": "2026-09-03T13:00:00Z",
-            "is_active": false,
-            "scope": null
+            "id" : "all-models",
+            "label" : "All models",
+            "percentUsed" : 10,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T13:00:00Z"
           },
           {
-            "kind": "weekly_scoped",
-            "group": "weekly",
-            "percent": 30,
-            "severity": "normal",
-            "resets_at": "2026-09-03T13:00:00Z",
-            "is_active": false,
-            "scope": null
-          },
-          {
-            "kind": "weekly_all",
-            "group": "weekly",
-            "percent": 10,
-            "severity": "normal",
-            "resets_at": "2026-09-03T13:00:00Z",
-            "is_active": false,
-            "scope": null
-          },
-          {
-            "kind": "weekly_scoped",
-            "group": "weekly",
-            "percent": 5,
-            "severity": "normal",
-            "resets_at": "2026-09-03T13:00:00Z",
-            "is_active": false,
-            "scope": {
-              "model": {
-                "id": null,
-                "display_name": "Opus"
-              },
-              "surface": null
-            }
-          },
-          {
-            "kind": "weekly_scoped",
-            "group": "weekly",
-            "percent": 7,
-            "severity": "normal",
-            "resets_at": "2026-09-03T13:00:00Z",
-            "is_active": false,
-            "scope": {
-              "model": {
-                "id": null,
-                "display_name": "Sonnet"
-              },
-              "surface": null
-            }
+            "id" : "weekly-opus",
+            "label" : "Opus",
+            "percentUsed" : 5,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T13:00:00Z"
           }
-        ]
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 1,
+        "providerId" : "claude",
+        "status" : "ok"
       },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 1,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "input" : {
+        "five_hour" : {
+          "resets_at" : "2026-08-27T12:00:00Z",
+          "utilization" : 1
+        },
+        "limits" : [
           {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 1,
-            "resetsAt": "2026-08-27T12:00:00Z",
-            "resetStyle": "relative"
+            "group" : "session",
+            "is_active" : false,
+            "kind" : "session",
+            "percent" : 1,
+            "resets_at" : "2026-08-27T12:00:00Z",
+            "scope" : null,
+            "severity" : "normal"
           },
           {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 10,
-            "resetsAt": "2026-09-03T13:00:00Z",
-            "resetStyle": "absolute"
+            "group" : "weekly",
+            "is_active" : false,
+            "kind" : "mystery",
+            "percent" : 50,
+            "resets_at" : "2026-09-03T13:00:00Z",
+            "scope" : null,
+            "severity" : "normal"
           },
           {
-            "id": "weekly-opus",
-            "label": "Opus",
-            "percentUsed": 5,
-            "resetsAt": "2026-09-03T13:00:00Z",
-            "resetStyle": "absolute"
+            "group" : "weekly",
+            "is_active" : false,
+            "kind" : "weekly_scoped",
+            "percent" : 30,
+            "resets_at" : "2026-09-03T13:00:00Z",
+            "scope" : null,
+            "severity" : "normal"
+          },
+          {
+            "group" : "weekly",
+            "is_active" : false,
+            "kind" : "weekly_all",
+            "percent" : 10,
+            "resets_at" : "2026-09-03T13:00:00Z",
+            "scope" : null,
+            "severity" : "normal"
+          },
+          {
+            "group" : "weekly",
+            "is_active" : false,
+            "kind" : "weekly_scoped",
+            "percent" : 5,
+            "resets_at" : "2026-09-03T13:00:00Z",
+            "scope" : {
+              "model" : {
+                "display_name" : "Opus",
+                "id" : null
+              },
+              "surface" : null
+            },
+            "severity" : "normal"
+          },
+          {
+            "group" : "weekly",
+            "is_active" : false,
+            "kind" : "weekly_scoped",
+            "percent" : 7,
+            "resets_at" : "2026-09-03T13:00:00Z",
+            "scope" : {
+              "model" : {
+                "display_name" : "Sonnet",
+                "id" : null
+              },
+              "surface" : null
+            },
+            "severity" : "normal"
           }
-        ]
+        ],
+        "seven_day" : {
+          "resets_at" : "2026-09-03T13:00:00Z",
+          "utilization" : 10
+        }
       },
-      "note": "A kind this build does not know, or a scoped limit with no model named, is left out rather than drawn with a made-up label. The card has room for three rows."
+      "name" : "unknown kinds and unnamed scopes are skipped, and the rows stop at the card's budget",
+      "note" : "A kind this build does not know, or a scoped limit with no model named, is left out rather than drawn with a made-up label. The card has room for three rows."
     },
     {
-      "name": "an empty list of limits falls back to the windows",
-      "input": {
-        "five_hour": {
-          "utilization": 1,
-          "resets_at": "2026-08-27T12:00:00Z"
-        },
-        "seven_day": {
-          "utilization": 10,
-          "resets_at": "2026-09-03T13:00:00Z"
-        },
-        "limits": []
-      },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 1,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "expected" : {
+        "buckets" : [
           {
-            "id": "current-session",
-            "label": "Current session",
-            "percentUsed": 1,
-            "resetsAt": "2026-08-27T12:00:00Z",
-            "resetStyle": "relative"
+            "id" : "current-session",
+            "label" : "Current session",
+            "percentUsed" : 1,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T12:00:00Z"
           },
           {
-            "id": "all-models",
-            "label": "All models",
-            "percentUsed": 10,
-            "resetsAt": "2026-09-03T13:00:00Z",
-            "resetStyle": "absolute"
+            "id" : "all-models",
+            "label" : "All models",
+            "percentUsed" : 10,
+            "resetStyle" : "absolute",
+            "resetsAt" : "2026-09-03T13:00:00Z"
           }
-        ]
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 1,
+        "providerId" : "claude",
+        "status" : "ok"
       },
-      "note": "A response with no usable limits still reads the two windows."
+      "input" : {
+        "five_hour" : {
+          "resets_at" : "2026-08-27T12:00:00Z",
+          "utilization" : 1
+        },
+        "limits" : [
+
+        ],
+        "seven_day" : {
+          "resets_at" : "2026-09-03T13:00:00Z",
+          "utilization" : 10
+        }
+      },
+      "name" : "an empty list of limits falls back to the windows",
+      "note" : "A response with no usable limits still reads the two windows."
     }
-  ]
+  ],
+  "frozenNow" : "2026-08-27T11:22:00Z",
+  "timeZone" : "UTC"
 }

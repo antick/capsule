@@ -1,39 +1,39 @@
 {
-  "about": "initialUpdateState(version, canInstall) — the state before anything has been asked",
-  "cases": [
+  "about" : "initialUpdateState(version, canInstall) — the state before anything has been asked",
+  "cases" : [
     {
-      "name": "installable build",
-      "input": {
-        "version": "0.1.0",
-        "canInstall": true
+      "expected" : {
+        "availableVersion" : null,
+        "canInstall" : true,
+        "checkedAt" : null,
+        "currentVersion" : "0.1.0",
+        "error" : null,
+        "phase" : "idle",
+        "progress" : null,
+        "releaseNotes" : null
       },
-      "expected": {
-        "phase": "idle",
-        "currentVersion": "0.1.0",
-        "availableVersion": null,
-        "releaseNotes": null,
-        "checkedAt": null,
-        "progress": null,
-        "error": null,
-        "canInstall": true
-      }
+      "input" : {
+        "canInstall" : true,
+        "version" : "0.1.0"
+      },
+      "name" : "installable build"
     },
     {
-      "name": "build that cannot replace itself",
-      "input": {
-        "version": "0.1.0",
-        "canInstall": false
+      "expected" : {
+        "availableVersion" : null,
+        "canInstall" : false,
+        "checkedAt" : null,
+        "currentVersion" : "0.1.0",
+        "error" : null,
+        "phase" : "unsupported",
+        "progress" : null,
+        "releaseNotes" : null
       },
-      "expected": {
-        "phase": "unsupported",
-        "currentVersion": "0.1.0",
-        "availableVersion": null,
-        "releaseNotes": null,
-        "checkedAt": null,
-        "progress": null,
-        "error": null,
-        "canInstall": false
-      }
+      "input" : {
+        "canInstall" : false,
+        "version" : "0.1.0"
+      },
+      "name" : "build that cannot replace itself"
     }
   ]
 }

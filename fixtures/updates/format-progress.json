@@ -1,35 +1,35 @@
 {
-  "about": "formatProgress(progress) — one line of two sizes while a download runs",
-  "cases": [
+  "about" : "formatProgress(progress) — one line of two sizes while a download runs",
+  "cases" : [
     {
-      "name": "halfway",
-      "input": {
-        "fraction": 0.5,
-        "transferredBytes": 10485760,
-        "totalBytes": 20971520,
-        "bytesPerSecond": 0
+      "expected" : "10 MB of 20 MB",
+      "input" : {
+        "bytesPerSecond" : 0,
+        "fraction" : 0.5,
+        "totalBytes" : 20971520,
+        "transferredBytes" : 10485760
       },
-      "expected": "10 MB of 20 MB"
+      "name" : "halfway"
     },
     {
-      "name": "just started",
-      "input": {
-        "fraction": 0,
-        "transferredBytes": 0,
-        "totalBytes": 101082726.4,
-        "bytesPerSecond": 0
+      "expected" : "0 MB of 96.4 MB",
+      "input" : {
+        "bytesPerSecond" : 0,
+        "fraction" : 0,
+        "totalBytes" : 101082726.4,
+        "transferredBytes" : 0
       },
-      "expected": "0 MB of 96.4 MB"
+      "name" : "just started"
     },
     {
-      "name": "small download",
-      "input": {
-        "fraction": 0.9,
-        "transferredBytes": 900,
-        "totalBytes": 1000,
-        "bytesPerSecond": 10
+      "expected" : "900 B of 1000 B",
+      "input" : {
+        "bytesPerSecond" : 10,
+        "fraction" : 0.9,
+        "totalBytes" : 1000,
+        "transferredBytes" : 900
       },
-      "expected": "900 B of 1000 B"
+      "name" : "small download"
     }
   ]
 }

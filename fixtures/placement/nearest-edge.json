@@ -1,201 +1,201 @@
 {
-  "about": "nearestEdgeForPoint(point, bounds) — which edge a dropped dock re-docks to",
-  "cases": [
+  "about" : "nearestEdgeForPoint(point, bounds) — which edge a dropped dock re-docks to",
+  "cases" : [
     {
-      "name": "left of a wide screen",
-      "input": {
-        "point": {
-          "x": 100,
-          "y": 450
+      "expected" : "left",
+      "input" : {
+        "bounds" : {
+          "height" : 900,
+          "width" : 1440,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
+        "point" : {
+          "x" : 100,
+          "y" : 450
         }
       },
-      "expected": "left"
+      "name" : "left of a wide screen"
     },
     {
-      "name": "right of a wide screen",
-      "input": {
-        "point": {
-          "x": 1300,
-          "y": 450
+      "expected" : "right",
+      "input" : {
+        "bounds" : {
+          "height" : 900,
+          "width" : 1440,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
+        "point" : {
+          "x" : 1300,
+          "y" : 450
         }
       },
-      "expected": "right"
+      "name" : "right of a wide screen"
     },
     {
-      "name": "top of a wide screen",
-      "input": {
-        "point": {
-          "x": 720,
-          "y": 60
+      "expected" : "top",
+      "input" : {
+        "bounds" : {
+          "height" : 900,
+          "width" : 1440,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
+        "point" : {
+          "x" : 720,
+          "y" : 60
         }
       },
-      "expected": "top"
+      "name" : "top of a wide screen"
     },
     {
-      "name": "bottom of a wide screen",
-      "input": {
-        "point": {
-          "x": 720,
-          "y": 860
+      "expected" : "bottom",
+      "input" : {
+        "bounds" : {
+          "height" : 900,
+          "width" : 1440,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
+        "point" : {
+          "x" : 720,
+          "y" : 860
         }
       },
-      "expected": "bottom"
+      "name" : "bottom of a wide screen"
     },
     {
-      "name": "proportional distance favours the side on a wide screen",
-      "input": {
-        "point": {
-          "x": 200,
-          "y": 200
+      "expected" : "left",
+      "input" : {
+        "bounds" : {
+          "height" : 900,
+          "width" : 1440,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
+        "point" : {
+          "x" : 200,
+          "y" : 200
         }
       },
-      "expected": "left",
-      "note": "200px from the left is 14% of the width but 200px from the top is 22% of the height, so left wins."
+      "name" : "proportional distance favours the side on a wide screen",
+      "note" : "200px from the left is 14% of the width but 200px from the top is 22% of the height, so left wins."
     },
     {
-      "name": "dead centre ties every edge",
-      "input": {
-        "point": {
-          "x": 720,
-          "y": 450
+      "expected" : "left",
+      "input" : {
+        "bounds" : {
+          "height" : 900,
+          "width" : 1440,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
+        "point" : {
+          "x" : 720,
+          "y" : 450
         }
       },
-      "expected": "left",
-      "note": "Ties break in the order left, right, top, bottom. A port must sort stably in that order or a centred drop re-docks somewhere else."
+      "name" : "dead centre ties every edge",
+      "note" : "Ties break in the order left, right, top, bottom. A port must sort stably in that order or a centred drop re-docks somewhere else."
     },
     {
-      "name": "on the diagonal of a square screen",
-      "input": {
-        "point": {
-          "x": 100,
-          "y": 100
+      "expected" : "left",
+      "input" : {
+        "bounds" : {
+          "height" : 1000,
+          "width" : 1000,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1000,
-          "height": 1000
+        "point" : {
+          "x" : 100,
+          "y" : 100
         }
       },
-      "expected": "left",
-      "note": "Left and top tie exactly; the tie-break decides."
+      "name" : "on the diagonal of a square screen",
+      "note" : "Left and top tie exactly; the tie-break decides."
     },
     {
-      "name": "just off the diagonal toward the top",
-      "input": {
-        "point": {
-          "x": 101,
-          "y": 100
+      "expected" : "top",
+      "input" : {
+        "bounds" : {
+          "height" : 1000,
+          "width" : 1000,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1000,
-          "height": 1000
+        "point" : {
+          "x" : 101,
+          "y" : 100
         }
       },
-      "expected": "top"
+      "name" : "just off the diagonal toward the top"
     },
     {
-      "name": "outside the screen to the right",
-      "input": {
-        "point": {
-          "x": 1600,
-          "y": 450
+      "expected" : "right",
+      "input" : {
+        "bounds" : {
+          "height" : 900,
+          "width" : 1440,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 1440,
-          "height": 900
+        "point" : {
+          "x" : 1600,
+          "y" : 450
         }
       },
-      "expected": "right",
-      "note": "Affinity goes negative past an edge; that edge still wins."
+      "name" : "outside the screen to the right",
+      "note" : "Affinity goes negative past an edge; that edge still wins."
     },
     {
-      "name": "on an offset second display",
-      "input": {
-        "point": {
-          "x": 3900,
-          "y": 600
+      "expected" : "right",
+      "input" : {
+        "bounds" : {
+          "height" : 1440,
+          "width" : 2560,
+          "x" : 1440,
+          "y" : -120
         },
-        "bounds": {
-          "x": 1440,
-          "y": -120,
-          "width": 2560,
-          "height": 1440
+        "point" : {
+          "x" : 3900,
+          "y" : 600
         }
       },
-      "expected": "right"
+      "name" : "on an offset second display"
     },
     {
-      "name": "near the top of an offset second display",
-      "input": {
-        "point": {
-          "x": 2700,
-          "y": -100
+      "expected" : "top",
+      "input" : {
+        "bounds" : {
+          "height" : 1440,
+          "width" : 2560,
+          "x" : 1440,
+          "y" : -120
         },
-        "bounds": {
-          "x": 1440,
-          "y": -120,
-          "width": 2560,
-          "height": 1440
+        "point" : {
+          "x" : 2700,
+          "y" : -100
         }
       },
-      "expected": "top"
+      "name" : "near the top of an offset second display"
     },
     {
-      "name": "zero-size bounds do not divide by zero",
-      "input": {
-        "point": {
-          "x": 5,
-          "y": 5
+      "expected" : "right",
+      "input" : {
+        "bounds" : {
+          "height" : 0,
+          "width" : 0,
+          "x" : 0,
+          "y" : 0
         },
-        "bounds": {
-          "x": 0,
-          "y": 0,
-          "width": 0,
-          "height": 0
+        "point" : {
+          "x" : 5,
+          "y" : 5
         }
       },
-      "expected": "right"
+      "name" : "zero-size bounds do not divide by zero"
     }
   ]
 }

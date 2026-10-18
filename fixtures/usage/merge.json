@@ -1,145 +1,163 @@
 {
-  "about": "mergeSnapshot(previous, next) — what the dock keeps showing when a read fails",
-  "timeZone": "UTC",
-  "frozenNow": "2026-08-27T11:22:00Z",
-  "cases": [
+  "about" : "mergeSnapshot(previous, next) — what the dock keeps showing when a read fails",
+  "cases" : [
     {
-      "name": "a failed read keeps the last good numbers and marks them stale",
-      "input": {
-        "previous": {
-          "providerId": "claude",
-          "displayName": "Claude",
-          "iconId": "claude",
-          "primaryPercent": 73,
-          "status": "ok",
-          "fetchedAt": "2026-08-27T11:00:00.000Z",
-          "buckets": [
-            {
-              "id": "session",
-              "label": "Current session",
-              "percentUsed": 73,
-              "resetsAt": "2026-08-27T12:13:00.000Z",
-              "resetStyle": "relative"
-            }
-          ]
-        },
-        "next": {
-          "providerId": "claude",
-          "displayName": "Claude",
-          "iconId": "claude",
-          "primaryPercent": null,
-          "status": "error",
-          "fetchedAt": "2026-08-27T11:22:00.000Z",
-          "buckets": []
-        }
-      },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 73,
-        "status": "stale",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": [
+      "expected" : {
+        "buckets" : [
           {
-            "id": "session",
-            "label": "Current session",
-            "percentUsed": 73,
-            "resetsAt": "2026-08-27T12:13:00.000Z",
-            "resetStyle": "relative"
+            "id" : "session",
+            "label" : "Current session",
+            "percentUsed" : 73,
+            "resetStyle" : "relative",
+            "resetsAt" : "2026-08-27T12:13:00.000Z"
           }
         ],
-        "staleSince": "2026-08-27T11:00:00.000Z"
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 73,
+        "providerId" : "claude",
+        "staleSince" : "2026-08-27T11:00:00.000Z",
+        "status" : "stale"
       },
-      "note": "A blank meter is worse than a slightly old number, so the previous reading survives with status stale."
-    },
-    {
-      "name": "a good read replaces the previous one outright",
-      "input": {
-        "previous": {
-          "providerId": "claude",
-          "displayName": "Claude",
-          "iconId": "claude",
-          "primaryPercent": 73,
-          "status": "ok",
-          "fetchedAt": "2026-08-27T11:00:00.000Z",
-          "buckets": []
+      "input" : {
+        "next" : {
+          "buckets" : [
+
+          ],
+          "displayName" : "Claude",
+          "fetchedAt" : "2026-08-27T11:22:00.000Z",
+          "iconId" : "claude",
+          "primaryPercent" : null,
+          "providerId" : "claude",
+          "status" : "error"
         },
-        "next": {
-          "providerId": "claude",
-          "displayName": "Claude",
-          "iconId": "claude",
-          "primaryPercent": 80,
-          "status": "ok",
-          "fetchedAt": "2026-08-27T11:22:00.000Z",
-          "buckets": []
+        "previous" : {
+          "buckets" : [
+            {
+              "id" : "session",
+              "label" : "Current session",
+              "percentUsed" : 73,
+              "resetStyle" : "relative",
+              "resetsAt" : "2026-08-27T12:13:00.000Z"
+            }
+          ],
+          "displayName" : "Claude",
+          "fetchedAt" : "2026-08-27T11:00:00.000Z",
+          "iconId" : "claude",
+          "primaryPercent" : 73,
+          "providerId" : "claude",
+          "status" : "ok"
         }
       },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": 80,
-        "status": "ok",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
-      }
+      "name" : "a failed read keeps the last good numbers and marks them stale",
+      "note" : "A blank meter is worse than a slightly old number, so the previous reading survives with status stale."
     },
     {
-      "name": "losing credentials is reported, not papered over with a stale number",
-      "input": {
-        "previous": {
-          "providerId": "claude",
-          "displayName": "Claude",
-          "iconId": "claude",
-          "primaryPercent": 73,
-          "status": "ok",
-          "fetchedAt": "2026-08-27T11:00:00.000Z",
-          "buckets": []
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : 80,
+        "providerId" : "claude",
+        "status" : "ok"
+      },
+      "input" : {
+        "next" : {
+          "buckets" : [
+
+          ],
+          "displayName" : "Claude",
+          "fetchedAt" : "2026-08-27T11:22:00.000Z",
+          "iconId" : "claude",
+          "primaryPercent" : 80,
+          "providerId" : "claude",
+          "status" : "ok"
         },
-        "next": {
-          "providerId": "claude",
-          "displayName": "Claude",
-          "iconId": "claude",
-          "primaryPercent": null,
-          "status": "unauthenticated",
-          "fetchedAt": "2026-08-27T11:22:00.000Z",
-          "buckets": []
+        "previous" : {
+          "buckets" : [
+
+          ],
+          "displayName" : "Claude",
+          "fetchedAt" : "2026-08-27T11:00:00.000Z",
+          "iconId" : "claude",
+          "primaryPercent" : 73,
+          "providerId" : "claude",
+          "status" : "ok"
         }
       },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": null,
-        "status": "unauthenticated",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
-      }
+      "name" : "a good read replaces the previous one outright"
     },
     {
-      "name": "nothing previous to fall back on",
-      "input": {
-        "previous": null,
-        "next": {
-          "providerId": "claude",
-          "displayName": "Claude",
-          "iconId": "claude",
-          "primaryPercent": null,
-          "status": "error",
-          "fetchedAt": "2026-08-27T11:22:00.000Z",
-          "buckets": []
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : null,
+        "providerId" : "claude",
+        "status" : "unauthenticated"
+      },
+      "input" : {
+        "next" : {
+          "buckets" : [
+
+          ],
+          "displayName" : "Claude",
+          "fetchedAt" : "2026-08-27T11:22:00.000Z",
+          "iconId" : "claude",
+          "primaryPercent" : null,
+          "providerId" : "claude",
+          "status" : "unauthenticated"
+        },
+        "previous" : {
+          "buckets" : [
+
+          ],
+          "displayName" : "Claude",
+          "fetchedAt" : "2026-08-27T11:00:00.000Z",
+          "iconId" : "claude",
+          "primaryPercent" : 73,
+          "providerId" : "claude",
+          "status" : "ok"
         }
       },
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": null,
-        "status": "error",
-        "fetchedAt": "2026-08-27T11:22:00.000Z",
-        "buckets": []
-      }
+      "name" : "losing credentials is reported, not papered over with a stale number"
+    },
+    {
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : null,
+        "providerId" : "claude",
+        "status" : "error"
+      },
+      "input" : {
+        "next" : {
+          "buckets" : [
+
+          ],
+          "displayName" : "Claude",
+          "fetchedAt" : "2026-08-27T11:22:00.000Z",
+          "iconId" : "claude",
+          "primaryPercent" : null,
+          "providerId" : "claude",
+          "status" : "error"
+        },
+        "previous" : null
+      },
+      "name" : "nothing previous to fall back on"
     }
-  ]
+  ],
+  "frozenNow" : "2026-08-27T11:22:00Z",
+  "timeZone" : "UTC"
 }

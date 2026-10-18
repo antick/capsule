@@ -1,29 +1,29 @@
 {
-  "about": "claudeUsageFromCache(raw) — the usage Claude Code already cached in ~/.claude.json, used when a live read is refused",
-  "cases": [
+  "about" : "claudeUsageFromCache(raw) — the usage Claude Code already cached in ~/.claude.json, used when a live read is refused",
+  "cases" : [
     {
-      "name": "nested cachedUsageUtilization.utilization",
-      "input": "{\"cachedUsageUtilization\":{\"utilization\":{\"five_hour\":{\"utilization\":73,\"resets_at\":\"2026-08-27T12:13:00Z\"},\"seven_day\":{\"utilization\":7,\"resets_at\":\"2026-09-03T00:00:00Z\"}}}}",
-      "expected": {
-        "five_hour": {
-          "utilization": 73,
-          "resets_at": "2026-08-27T12:13:00Z"
+      "expected" : {
+        "five_hour" : {
+          "resets_at" : "2026-08-27T12:13:00Z",
+          "utilization" : 73
         },
-        "seven_day": {
-          "utilization": 7,
-          "resets_at": "2026-09-03T00:00:00Z"
+        "seven_day" : {
+          "resets_at" : "2026-09-03T00:00:00Z",
+          "utilization" : 7
         }
-      }
+      },
+      "input" : "{\"cachedUsageUtilization\":{\"utilization\":{\"five_hour\":{\"utilization\":73,\"resets_at\":\"2026-08-27T12:13:00Z\"},\"seven_day\":{\"utilization\":7,\"resets_at\":\"2026-09-03T00:00:00Z\"}}}}",
+      "name" : "nested cachedUsageUtilization.utilization"
     },
     {
-      "name": "no cache present",
-      "input": "{}",
-      "expected": null
+      "expected" : null,
+      "input" : "{}",
+      "name" : "no cache present"
     },
     {
-      "name": "unparseable file",
-      "input": "garbage",
-      "expected": null
+      "expected" : null,
+      "input" : "garbage",
+      "name" : "unparseable file"
     }
   ]
 }

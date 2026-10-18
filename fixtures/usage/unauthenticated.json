@@ -1,60 +1,68 @@
 {
-  "about": "unauthenticatedSnapshot(providerId, now) — what a provider with no credentials reports",
-  "timeZone": "UTC",
-  "frozenNow": "2026-08-27T11:22:00Z",
-  "cases": [
+  "about" : "unauthenticatedSnapshot(providerId, now) — what a provider with no credentials reports",
+  "cases" : [
     {
-      "name": "claude",
-      "input": "claude",
-      "expected": {
-        "providerId": "claude",
-        "displayName": "Claude",
-        "iconId": "claude",
-        "primaryPercent": null,
-        "buckets": [],
-        "status": "unauthenticated",
-        "fetchedAt": "2026-08-27T11:22:00.000Z"
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Claude",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "claude",
+        "primaryPercent" : null,
+        "providerId" : "claude",
+        "status" : "unauthenticated"
       },
-      "note": "primaryPercent must be absent, never 0: a provider that was never asked is not a provider at zero usage."
+      "input" : "claude",
+      "name" : "claude",
+      "note" : "primaryPercent must be absent, never 0: a provider that was never asked is not a provider at zero usage."
     },
     {
-      "name": "codex",
-      "input": "codex",
-      "expected": {
-        "providerId": "codex",
-        "displayName": "Codex",
-        "iconId": "codex",
-        "primaryPercent": null,
-        "buckets": [],
-        "status": "unauthenticated",
-        "fetchedAt": "2026-08-27T11:22:00.000Z"
-      }
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Codex",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "codex",
+        "primaryPercent" : null,
+        "providerId" : "codex",
+        "status" : "unauthenticated"
+      },
+      "input" : "codex",
+      "name" : "codex"
     },
     {
-      "name": "grok",
-      "input": "grok",
-      "expected": {
-        "providerId": "grok",
-        "displayName": "Grok",
-        "iconId": "grok",
-        "primaryPercent": null,
-        "buckets": [],
-        "status": "unauthenticated",
-        "fetchedAt": "2026-08-27T11:22:00.000Z"
-      }
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Grok",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "grok",
+        "primaryPercent" : null,
+        "providerId" : "grok",
+        "status" : "unauthenticated"
+      },
+      "input" : "grok",
+      "name" : "grok"
     },
     {
-      "name": "cursor",
-      "input": "cursor",
-      "expected": {
-        "providerId": "cursor",
-        "displayName": "Cursor",
-        "iconId": "cursor",
-        "primaryPercent": null,
-        "buckets": [],
-        "status": "unauthenticated",
-        "fetchedAt": "2026-08-27T11:22:00.000Z"
-      }
+      "expected" : {
+        "buckets" : [
+
+        ],
+        "displayName" : "Cursor",
+        "fetchedAt" : "2026-08-27T11:22:00.000Z",
+        "iconId" : "cursor",
+        "primaryPercent" : null,
+        "providerId" : "cursor",
+        "status" : "unauthenticated"
+      },
+      "input" : "cursor",
+      "name" : "cursor"
     }
-  ]
+  ],
+  "frozenNow" : "2026-08-27T11:22:00Z",
+  "timeZone" : "UTC"
 }

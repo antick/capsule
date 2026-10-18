@@ -1,35 +1,35 @@
 {
-  "about": "retryAfterMs(header, now) — reads a Retry-After header in either of its two legal forms",
-  "timeZone": "UTC",
-  "frozenNow": "2026-08-27T11:22:00Z",
-  "cases": [
+  "about" : "retryAfterMs(header, now) — reads a Retry-After header in either of its two legal forms",
+  "cases" : [
     {
-      "name": "delta seconds",
-      "input": {
-        "header": "30"
+      "expected" : 30000,
+      "input" : {
+        "header" : "30"
       },
-      "expected": 30000
+      "name" : "delta seconds"
     },
     {
-      "name": "HTTP date",
-      "input": {
-        "header": "Thu, 27 Aug 2026 11:23:00 GMT"
+      "expected" : 60000,
+      "input" : {
+        "header" : "Thu, 27 Aug 2026 11:23:00 GMT"
       },
-      "expected": 60000
+      "name" : "HTTP date"
     },
     {
-      "name": "unparseable value is no hint at all",
-      "input": {
-        "header": "soon"
+      "expected" : null,
+      "input" : {
+        "header" : "soon"
       },
-      "expected": null
+      "name" : "unparseable value is no hint at all"
     },
     {
-      "name": "absent header",
-      "input": {
-        "header": null
+      "expected" : null,
+      "input" : {
+        "header" : null
       },
-      "expected": null
+      "name" : "absent header"
     }
-  ]
+  ],
+  "frozenNow" : "2026-08-27T11:22:00Z",
+  "timeZone" : "UTC"
 }

@@ -1,533 +1,533 @@
 {
-  "about": "meterBlockSize, meterStrideSize, railLengthForCount and joinOffsetForIndex for every meter — the rail's own geometry",
-  "cases": [
+  "about" : "meterBlockSize, meterStrideSize, railLengthForCount and joinOffsetForIndex for every meter — the rail's own geometry",
+  "cases" : [
     {
-      "name": "scale 0.7, full, 0 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": false,
-        "count": 0
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 46,
-        "railLength": 54,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           21.5
-        ]
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 46,
+        "railLength" : 54
       },
-      "note": "No meters still lays out one: an empty rail is never zero-length."
+      "input" : {
+        "compact" : false,
+        "count" : 0,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, full, 0 meters",
+      "note" : "No meters still lays out one: an empty rail is never zero-length."
     },
     {
-      "name": "scale 0.7, full, 1 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": false,
-        "count": 1
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 46,
-        "railLength": 54,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           21.5
-        ]
-      }
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 46,
+        "railLength" : 54
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 1,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, full, 1 meters"
     },
     {
-      "name": "scale 0.7, full, 2 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": false,
-        "count": 2
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 46,
-        "railLength": 100,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           21.5,
           67.5
-        ]
-      }
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 46,
+        "railLength" : 100
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 2,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, full, 2 meters"
     },
     {
-      "name": "scale 0.7, full, 3 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": false,
-        "count": 3
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 46,
-        "railLength": 146,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           21.5,
           67.5,
           113.5
-        ]
-      }
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 46,
+        "railLength" : 146
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 3,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, full, 3 meters"
     },
     {
-      "name": "scale 0.7, full, 5 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": false,
-        "count": 5
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 46,
-        "railLength": 238,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           21.5,
           67.5,
           113.5,
           159.5,
           205.5
-        ]
-      }
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 46,
+        "railLength" : 238
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 5,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, full, 5 meters"
     },
     {
-      "name": "scale 0.7, compact, 0 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": true,
-        "count": 0
-      },
-      "expected": {
-        "meterBlock": 27,
-        "meterStride": 35,
-        "railLength": 39,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           19.5
-        ]
+        ],
+        "meterBlock" : 27,
+        "meterStride" : 35,
+        "railLength" : 39
       },
-      "note": "No meters still lays out one: an empty rail is never zero-length."
+      "input" : {
+        "compact" : true,
+        "count" : 0,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, compact, 0 meters",
+      "note" : "No meters still lays out one: an empty rail is never zero-length."
     },
     {
-      "name": "scale 0.7, compact, 1 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": true,
-        "count": 1
-      },
-      "expected": {
-        "meterBlock": 27,
-        "meterStride": 35,
-        "railLength": 39,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           19.5
-        ]
-      }
+        ],
+        "meterBlock" : 27,
+        "meterStride" : 35,
+        "railLength" : 39
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 1,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, compact, 1 meters"
     },
     {
-      "name": "scale 0.7, compact, 2 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": true,
-        "count": 2
-      },
-      "expected": {
-        "meterBlock": 27,
-        "meterStride": 35,
-        "railLength": 74,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           19.5,
           54.5
-        ]
-      }
+        ],
+        "meterBlock" : 27,
+        "meterStride" : 35,
+        "railLength" : 74
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 2,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, compact, 2 meters"
     },
     {
-      "name": "scale 0.7, compact, 3 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": true,
-        "count": 3
-      },
-      "expected": {
-        "meterBlock": 27,
-        "meterStride": 35,
-        "railLength": 109,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           19.5,
           54.5,
           89.5
-        ]
-      }
+        ],
+        "meterBlock" : 27,
+        "meterStride" : 35,
+        "railLength" : 109
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 3,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, compact, 3 meters"
     },
     {
-      "name": "scale 0.7, compact, 5 meters",
-      "input": {
-        "scale": 0.7,
-        "compact": true,
-        "count": 5
-      },
-      "expected": {
-        "meterBlock": 27,
-        "meterStride": 35,
-        "railLength": 179,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           19.5,
           54.5,
           89.5,
           124.5,
           159.5
-        ]
-      }
+        ],
+        "meterBlock" : 27,
+        "meterStride" : 35,
+        "railLength" : 179
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 5,
+        "scale" : 0.7
+      },
+      "name" : "scale 0.7, compact, 5 meters"
     },
     {
-      "name": "scale 1, full, 0 meters",
-      "input": {
-        "scale": 1,
-        "compact": false,
-        "count": 0
-      },
-      "expected": {
-        "meterBlock": 54,
-        "meterStride": 66,
-        "railLength": 78,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           31
-        ]
+        ],
+        "meterBlock" : 54,
+        "meterStride" : 66,
+        "railLength" : 78
       },
-      "note": "No meters still lays out one: an empty rail is never zero-length."
+      "input" : {
+        "compact" : false,
+        "count" : 0,
+        "scale" : 1
+      },
+      "name" : "scale 1, full, 0 meters",
+      "note" : "No meters still lays out one: an empty rail is never zero-length."
     },
     {
-      "name": "scale 1, full, 1 meters",
-      "input": {
-        "scale": 1,
-        "compact": false,
-        "count": 1
-      },
-      "expected": {
-        "meterBlock": 54,
-        "meterStride": 66,
-        "railLength": 78,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           31
-        ]
-      }
+        ],
+        "meterBlock" : 54,
+        "meterStride" : 66,
+        "railLength" : 78
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 1,
+        "scale" : 1
+      },
+      "name" : "scale 1, full, 1 meters"
     },
     {
-      "name": "scale 1, full, 2 meters",
-      "input": {
-        "scale": 1,
-        "compact": false,
-        "count": 2
-      },
-      "expected": {
-        "meterBlock": 54,
-        "meterStride": 66,
-        "railLength": 144,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           31,
           97
-        ]
-      }
+        ],
+        "meterBlock" : 54,
+        "meterStride" : 66,
+        "railLength" : 144
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 2,
+        "scale" : 1
+      },
+      "name" : "scale 1, full, 2 meters"
     },
     {
-      "name": "scale 1, full, 3 meters",
-      "input": {
-        "scale": 1,
-        "compact": false,
-        "count": 3
-      },
-      "expected": {
-        "meterBlock": 54,
-        "meterStride": 66,
-        "railLength": 210,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           31,
           97,
           163
-        ]
-      }
+        ],
+        "meterBlock" : 54,
+        "meterStride" : 66,
+        "railLength" : 210
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 3,
+        "scale" : 1
+      },
+      "name" : "scale 1, full, 3 meters"
     },
     {
-      "name": "scale 1, full, 5 meters",
-      "input": {
-        "scale": 1,
-        "compact": false,
-        "count": 5
-      },
-      "expected": {
-        "meterBlock": 54,
-        "meterStride": 66,
-        "railLength": 342,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           31,
           97,
           163,
           229,
           295
-        ]
-      }
+        ],
+        "meterBlock" : 54,
+        "meterStride" : 66,
+        "railLength" : 342
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 5,
+        "scale" : 1
+      },
+      "name" : "scale 1, full, 5 meters"
     },
     {
-      "name": "scale 1, compact, 0 meters",
-      "input": {
-        "scale": 1,
-        "compact": true,
-        "count": 0
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 50,
-        "railLength": 54,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           27
-        ]
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 50,
+        "railLength" : 54
       },
-      "note": "No meters still lays out one: an empty rail is never zero-length."
+      "input" : {
+        "compact" : true,
+        "count" : 0,
+        "scale" : 1
+      },
+      "name" : "scale 1, compact, 0 meters",
+      "note" : "No meters still lays out one: an empty rail is never zero-length."
     },
     {
-      "name": "scale 1, compact, 1 meters",
-      "input": {
-        "scale": 1,
-        "compact": true,
-        "count": 1
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 50,
-        "railLength": 54,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           27
-        ]
-      }
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 50,
+        "railLength" : 54
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 1,
+        "scale" : 1
+      },
+      "name" : "scale 1, compact, 1 meters"
     },
     {
-      "name": "scale 1, compact, 2 meters",
-      "input": {
-        "scale": 1,
-        "compact": true,
-        "count": 2
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 50,
-        "railLength": 104,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           27,
           77
-        ]
-      }
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 50,
+        "railLength" : 104
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 2,
+        "scale" : 1
+      },
+      "name" : "scale 1, compact, 2 meters"
     },
     {
-      "name": "scale 1, compact, 3 meters",
-      "input": {
-        "scale": 1,
-        "compact": true,
-        "count": 3
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 50,
-        "railLength": 154,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           27,
           77,
           127
-        ]
-      }
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 50,
+        "railLength" : 154
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 3,
+        "scale" : 1
+      },
+      "name" : "scale 1, compact, 3 meters"
     },
     {
-      "name": "scale 1, compact, 5 meters",
-      "input": {
-        "scale": 1,
-        "compact": true,
-        "count": 5
-      },
-      "expected": {
-        "meterBlock": 38,
-        "meterStride": 50,
-        "railLength": 254,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           27,
           77,
           127,
           177,
           227
-        ]
-      }
+        ],
+        "meterBlock" : 38,
+        "meterStride" : 50,
+        "railLength" : 254
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 5,
+        "scale" : 1
+      },
+      "name" : "scale 1, compact, 5 meters"
     },
     {
-      "name": "scale 1.3, full, 0 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": false,
-        "count": 0
-      },
-      "expected": {
-        "meterBlock": 70,
-        "meterStride": 86,
-        "railLength": 102,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           40.5
-        ]
+        ],
+        "meterBlock" : 70,
+        "meterStride" : 86,
+        "railLength" : 102
       },
-      "note": "No meters still lays out one: an empty rail is never zero-length."
+      "input" : {
+        "compact" : false,
+        "count" : 0,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, full, 0 meters",
+      "note" : "No meters still lays out one: an empty rail is never zero-length."
     },
     {
-      "name": "scale 1.3, full, 1 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": false,
-        "count": 1
-      },
-      "expected": {
-        "meterBlock": 70,
-        "meterStride": 86,
-        "railLength": 102,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           40.5
-        ]
-      }
+        ],
+        "meterBlock" : 70,
+        "meterStride" : 86,
+        "railLength" : 102
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 1,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, full, 1 meters"
     },
     {
-      "name": "scale 1.3, full, 2 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": false,
-        "count": 2
-      },
-      "expected": {
-        "meterBlock": 70,
-        "meterStride": 86,
-        "railLength": 188,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           40.5,
           126.5
-        ]
-      }
+        ],
+        "meterBlock" : 70,
+        "meterStride" : 86,
+        "railLength" : 188
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 2,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, full, 2 meters"
     },
     {
-      "name": "scale 1.3, full, 3 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": false,
-        "count": 3
-      },
-      "expected": {
-        "meterBlock": 70,
-        "meterStride": 86,
-        "railLength": 274,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           40.5,
           126.5,
           212.5
-        ]
-      }
+        ],
+        "meterBlock" : 70,
+        "meterStride" : 86,
+        "railLength" : 274
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 3,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, full, 3 meters"
     },
     {
-      "name": "scale 1.3, full, 5 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": false,
-        "count": 5
-      },
-      "expected": {
-        "meterBlock": 70,
-        "meterStride": 86,
-        "railLength": 446,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           40.5,
           126.5,
           212.5,
           298.5,
           384.5
-        ]
-      }
+        ],
+        "meterBlock" : 70,
+        "meterStride" : 86,
+        "railLength" : 446
+      },
+      "input" : {
+        "compact" : false,
+        "count" : 5,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, full, 5 meters"
     },
     {
-      "name": "scale 1.3, compact, 0 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": true,
-        "count": 0
-      },
-      "expected": {
-        "meterBlock": 49,
-        "meterStride": 65,
-        "railLength": 69,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           34.5
-        ]
+        ],
+        "meterBlock" : 49,
+        "meterStride" : 65,
+        "railLength" : 69
       },
-      "note": "No meters still lays out one: an empty rail is never zero-length."
+      "input" : {
+        "compact" : true,
+        "count" : 0,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, compact, 0 meters",
+      "note" : "No meters still lays out one: an empty rail is never zero-length."
     },
     {
-      "name": "scale 1.3, compact, 1 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": true,
-        "count": 1
-      },
-      "expected": {
-        "meterBlock": 49,
-        "meterStride": 65,
-        "railLength": 69,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           34.5
-        ]
-      }
+        ],
+        "meterBlock" : 49,
+        "meterStride" : 65,
+        "railLength" : 69
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 1,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, compact, 1 meters"
     },
     {
-      "name": "scale 1.3, compact, 2 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": true,
-        "count": 2
-      },
-      "expected": {
-        "meterBlock": 49,
-        "meterStride": 65,
-        "railLength": 134,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           34.5,
           99.5
-        ]
-      }
+        ],
+        "meterBlock" : 49,
+        "meterStride" : 65,
+        "railLength" : 134
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 2,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, compact, 2 meters"
     },
     {
-      "name": "scale 1.3, compact, 3 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": true,
-        "count": 3
-      },
-      "expected": {
-        "meterBlock": 49,
-        "meterStride": 65,
-        "railLength": 199,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           34.5,
           99.5,
           164.5
-        ]
-      }
+        ],
+        "meterBlock" : 49,
+        "meterStride" : 65,
+        "railLength" : 199
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 3,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, compact, 3 meters"
     },
     {
-      "name": "scale 1.3, compact, 5 meters",
-      "input": {
-        "scale": 1.3,
-        "compact": true,
-        "count": 5
-      },
-      "expected": {
-        "meterBlock": 49,
-        "meterStride": 65,
-        "railLength": 329,
-        "joinOffsets": [
+      "expected" : {
+        "joinOffsets" : [
           34.5,
           99.5,
           164.5,
           229.5,
           294.5
-        ]
-      }
+        ],
+        "meterBlock" : 49,
+        "meterStride" : 65,
+        "railLength" : 329
+      },
+      "input" : {
+        "compact" : true,
+        "count" : 5,
+        "scale" : 1.3
+      },
+      "name" : "scale 1.3, compact, 5 meters"
     }
   ]
 }

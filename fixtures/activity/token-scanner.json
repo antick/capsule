@@ -1,368 +1,410 @@
 {
-  "about": "createTokenScanner(...) over successive rescans — tokens per provider, published only when they change, with the cache pruned and saved",
-  "timeZone": "UTC",
-  "cases": [
+  "about" : "createTokenScanner(...) over successive rescans — tokens per provider, published only when they change, with the cache pruned and saved",
+  "cases" : [
     {
-      "name": "reports each enabled provider, then only changes",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {},
-        "processes": {},
-        "queries": {},
-        "readTail": true,
-        "enabled": [
-          "claude",
-          "codex"
-        ],
-        "logs": [
-          {
-            "path": "/home/.claude/projects/p/a.jsonl",
-            "size": 1,
-            "modifiedMs": 1788699600000,
-            "lines": [
-              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":100,\"output_tokens\":0}}}"
-            ]
-          },
-          {
-            "path": "/home/.codex/sessions/2026/09/06/r.jsonl",
-            "size": 1,
-            "modifiedMs": 1788699600000,
-            "lines": [
-              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"payload\":{\"type\":\"token_count\",\"info\":{\"total_token_usage\":{\"input_tokens\":40}}}}"
-            ]
-          }
-        ],
-        "steps": [
-          {
-            "op": "rescan"
-          },
-          {
-            "op": "rescan"
-          },
-          {
-            "op": "addLog",
-            "log": {
-              "path": "/home/.claude/projects/p/b.jsonl",
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "lines": [
-                "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":5,\"output_tokens\":0}}}"
-              ]
-            }
-          },
-          {
-            "op": "rescan"
-          }
-        ]
-      },
-      "expected": [
+      "expected" : [
         {
-          "op": "rescan",
-          "published": {
-            "claude": {
-              "providerId": "claude",
-              "todayTokens": 100,
-              "monthTokens": 100,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+          "op" : "rescan",
+          "published" : {
+            "claude" : {
+              "monthTokens" : 100,
+              "providerId" : "claude",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 100
             },
-            "codex": {
-              "providerId": "codex",
-              "todayTokens": 40,
-              "monthTokens": 40,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+            "codex" : {
+              "monthTokens" : 40,
+              "providerId" : "codex",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 40
             }
           },
-          "tokens": {
-            "claude": {
-              "providerId": "claude",
-              "todayTokens": 100,
-              "monthTokens": 100,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
-            },
-            "codex": {
-              "providerId": "codex",
-              "todayTokens": 40,
-              "monthTokens": 40,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
-            }
-          },
-          "read": [
+          "read" : [
             "/home/.claude/projects/p/a.jsonl",
             "/home/.codex/sessions/2026/09/06/r.jsonl"
           ],
-          "saved": {
-            "/home/.claude/projects/p/a.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 100
-              }
+          "saved" : {
+            "/home/.claude/projects/p/a.jsonl" : {
+              "days" : {
+                "2026-09-06" : 100
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
             },
-            "/home/.codex/sessions/2026/09/06/r.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 40
-              }
+            "/home/.codex/sessions/2026/09/06/r.jsonl" : {
+              "days" : {
+                "2026-09-06" : 40
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
+            }
+          },
+          "tokens" : {
+            "claude" : {
+              "monthTokens" : 100,
+              "providerId" : "claude",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 100
+            },
+            "codex" : {
+              "monthTokens" : 40,
+              "providerId" : "codex",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 40
             }
           }
         },
         {
-          "op": "rescan",
-          "published": null,
-          "tokens": {
-            "claude": {
-              "providerId": "claude",
-              "todayTokens": 100,
-              "monthTokens": 100,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+          "op" : "rescan",
+          "published" : null,
+          "read" : [
+
+          ],
+          "saved" : {
+            "/home/.claude/projects/p/a.jsonl" : {
+              "days" : {
+                "2026-09-06" : 100
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
             },
-            "codex": {
-              "providerId": "codex",
-              "todayTokens": 40,
-              "monthTokens": 40,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+            "/home/.codex/sessions/2026/09/06/r.jsonl" : {
+              "days" : {
+                "2026-09-06" : 40
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
             }
           },
-          "read": [],
-          "saved": {
-            "/home/.claude/projects/p/a.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 100
-              }
+          "tokens" : {
+            "claude" : {
+              "monthTokens" : 100,
+              "providerId" : "claude",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 100
             },
-            "/home/.codex/sessions/2026/09/06/r.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 40
-              }
+            "codex" : {
+              "monthTokens" : 40,
+              "providerId" : "codex",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 40
             }
           }
         },
         {
-          "op": "addLog",
-          "published": null,
-          "tokens": {
-            "claude": {
-              "providerId": "claude",
-              "todayTokens": 100,
-              "monthTokens": 100,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+          "op" : "addLog",
+          "published" : null,
+          "read" : [
+
+          ],
+          "saved" : {
+            "/home/.claude/projects/p/a.jsonl" : {
+              "days" : {
+                "2026-09-06" : 100
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
             },
-            "codex": {
-              "providerId": "codex",
-              "todayTokens": 40,
-              "monthTokens": 40,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+            "/home/.codex/sessions/2026/09/06/r.jsonl" : {
+              "days" : {
+                "2026-09-06" : 40
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
             }
           },
-          "read": [],
-          "saved": {
-            "/home/.claude/projects/p/a.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 100
-              }
+          "tokens" : {
+            "claude" : {
+              "monthTokens" : 100,
+              "providerId" : "claude",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 100
             },
-            "/home/.codex/sessions/2026/09/06/r.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 40
-              }
+            "codex" : {
+              "monthTokens" : 40,
+              "providerId" : "codex",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 40
             }
           }
         },
         {
-          "op": "rescan",
-          "published": {
-            "claude": {
-              "providerId": "claude",
-              "todayTokens": 105,
-              "monthTokens": 105,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+          "op" : "rescan",
+          "published" : {
+            "claude" : {
+              "monthTokens" : 105,
+              "providerId" : "claude",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 105
             },
-            "codex": {
-              "providerId": "codex",
-              "todayTokens": 40,
-              "monthTokens": 40,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+            "codex" : {
+              "monthTokens" : 40,
+              "providerId" : "codex",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 40
             }
           },
-          "tokens": {
-            "claude": {
-              "providerId": "claude",
-              "todayTokens": 105,
-              "monthTokens": 105,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
-            },
-            "codex": {
-              "providerId": "codex",
-              "todayTokens": 40,
-              "monthTokens": 40,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
-            }
-          },
-          "read": [
+          "read" : [
             "/home/.claude/projects/p/b.jsonl"
           ],
-          "saved": {
-            "/home/.claude/projects/p/a.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 100
-              }
+          "saved" : {
+            "/home/.claude/projects/p/a.jsonl" : {
+              "days" : {
+                "2026-09-06" : 100
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
             },
-            "/home/.codex/sessions/2026/09/06/r.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 40
-              }
+            "/home/.claude/projects/p/b.jsonl" : {
+              "days" : {
+                "2026-09-06" : 5
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
             },
-            "/home/.claude/projects/p/b.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 5
-              }
+            "/home/.codex/sessions/2026/09/06/r.jsonl" : {
+              "days" : {
+                "2026-09-06" : 40
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
+            }
+          },
+          "tokens" : {
+            "claude" : {
+              "monthTokens" : 105,
+              "providerId" : "claude",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 105
+            },
+            "codex" : {
+              "monthTokens" : 40,
+              "providerId" : "codex",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 40
             }
           }
         }
-      ]
-    },
-    {
-      "name": "a switched-off provider is left out, and a vanished file is forgotten",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {},
-        "processes": {},
-        "queries": {},
-        "readTail": true,
-        "enabled": [
-          "claude"
-        ],
-        "cache": {
-          "/home/.claude/projects/gone.jsonl": {
-            "size": 1,
-            "modifiedMs": 1,
-            "days": {
-              "2026-09-06": 999
-            }
-          }
+      ],
+      "input" : {
+        "dirs" : {
+
         },
-        "logs": [
+        "enabled" : [
+          "claude",
+          "codex"
+        ],
+        "files" : {
+
+        },
+        "home" : "/home",
+        "logs" : [
           {
-            "path": "/home/.claude/projects/p/a.jsonl",
-            "size": 1,
-            "modifiedMs": 1788699600000,
-            "lines": [
-              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":10,\"output_tokens\":0}}}"
-            ]
+            "lines" : [
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":100,\"output_tokens\":0}}}"
+            ],
+            "modifiedMs" : 1788699600000,
+            "path" : "/home/.claude/projects/p/a.jsonl",
+            "size" : 1
           },
           {
-            "path": "/home/.codex/sessions/2026/09/06/r.jsonl",
-            "size": 1,
-            "modifiedMs": 1788699600000,
-            "lines": [
+            "lines" : [
               "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"payload\":{\"type\":\"token_count\",\"info\":{\"total_token_usage\":{\"input_tokens\":40}}}}"
-            ]
+            ],
+            "modifiedMs" : 1788699600000,
+            "path" : "/home/.codex/sessions/2026/09/06/r.jsonl",
+            "size" : 1
           }
         ],
-        "steps": [
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true,
+        "steps" : [
           {
-            "op": "rescan"
+            "op" : "rescan"
+          },
+          {
+            "op" : "rescan"
+          },
+          {
+            "log" : {
+              "lines" : [
+                "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":5,\"output_tokens\":0}}}"
+              ],
+              "modifiedMs" : 1788699600000,
+              "path" : "/home/.claude/projects/p/b.jsonl",
+              "size" : 1
+            },
+            "op" : "addLog"
+          },
+          {
+            "op" : "rescan"
           }
         ]
       },
-      "expected": [
+      "name" : "reports each enabled provider, then only changes"
+    },
+    {
+      "expected" : [
         {
-          "op": "rescan",
-          "published": {
-            "claude": {
-              "providerId": "claude",
-              "todayTokens": 10,
-              "monthTokens": 10,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
+          "op" : "rescan",
+          "published" : {
+            "claude" : {
+              "monthTokens" : 10,
+              "providerId" : "claude",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 10
             }
           },
-          "tokens": {
-            "claude": {
-              "providerId": "claude",
-              "todayTokens": 10,
-              "monthTokens": 10,
-              "scannedAt": "2026-09-06T13:00:00.000Z"
-            }
-          },
-          "read": [
+          "read" : [
             "/home/.claude/projects/p/a.jsonl"
           ],
-          "saved": {
-            "/home/.claude/projects/p/a.jsonl": {
-              "size": 1,
-              "modifiedMs": 1788699600000,
-              "days": {
-                "2026-09-06": 10
-              }
+          "saved" : {
+            "/home/.claude/projects/p/a.jsonl" : {
+              "days" : {
+                "2026-09-06" : 10
+              },
+              "modifiedMs" : 1788699600000,
+              "size" : 1
+            }
+          },
+          "tokens" : {
+            "claude" : {
+              "monthTokens" : 10,
+              "providerId" : "claude",
+              "scannedAt" : "2026-09-06T13:00:00.000Z",
+              "todayTokens" : 10
             }
           }
         }
-      ]
-    },
-    {
-      "name": "nothing in the window is no reading",
-      "input": {
-        "home": "/home",
-        "now": "2026-09-06T13:00:00.000Z",
-        "files": {},
-        "dirs": {},
-        "modified": {},
-        "processes": {},
-        "queries": {},
-        "readTail": true,
-        "enabled": [
+      ],
+      "input" : {
+        "cache" : {
+          "/home/.claude/projects/gone.jsonl" : {
+            "days" : {
+              "2026-09-06" : 999
+            },
+            "modifiedMs" : 1,
+            "size" : 1
+          }
+        },
+        "dirs" : {
+
+        },
+        "enabled" : [
           "claude"
         ],
-        "logs": [
+        "files" : {
+
+        },
+        "home" : "/home",
+        "logs" : [
           {
-            "path": "/home/.claude/projects/p/a.jsonl",
-            "size": 1,
-            "modifiedMs": 1784811600000,
-            "lines": []
+            "lines" : [
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"message\":{\"usage\":{\"input_tokens\":10,\"output_tokens\":0}}}"
+            ],
+            "modifiedMs" : 1788699600000,
+            "path" : "/home/.claude/projects/p/a.jsonl",
+            "size" : 1
+          },
+          {
+            "lines" : [
+              "{\"timestamp\":\"2026-09-06T13:00:00.000Z\",\"payload\":{\"type\":\"token_count\",\"info\":{\"total_token_usage\":{\"input_tokens\":40}}}}"
+            ],
+            "modifiedMs" : 1788699600000,
+            "path" : "/home/.codex/sessions/2026/09/06/r.jsonl",
+            "size" : 1
           }
         ],
-        "steps": [
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true,
+        "steps" : [
           {
-            "op": "rescan"
+            "op" : "rescan"
           }
         ]
       },
-      "expected": [
+      "name" : "a switched-off provider is left out, and a vanished file is forgotten"
+    },
+    {
+      "expected" : [
         {
-          "op": "rescan",
-          "published": null,
-          "tokens": {},
-          "read": [],
-          "saved": {
-            "/home/.claude/projects/p/a.jsonl": {
-              "size": 1,
-              "modifiedMs": 1784811600000,
-              "days": {}
+          "op" : "rescan",
+          "published" : null,
+          "read" : [
+
+          ],
+          "saved" : {
+            "/home/.claude/projects/p/a.jsonl" : {
+              "days" : {
+
+              },
+              "modifiedMs" : 1784811600000,
+              "size" : 1
             }
+          },
+          "tokens" : {
+
           }
         }
-      ]
+      ],
+      "input" : {
+        "dirs" : {
+
+        },
+        "enabled" : [
+          "claude"
+        ],
+        "files" : {
+
+        },
+        "home" : "/home",
+        "logs" : [
+          {
+            "lines" : [
+
+            ],
+            "modifiedMs" : 1784811600000,
+            "path" : "/home/.claude/projects/p/a.jsonl",
+            "size" : 1
+          }
+        ],
+        "modified" : {
+
+        },
+        "now" : "2026-09-06T13:00:00.000Z",
+        "processes" : {
+
+        },
+        "queries" : {
+
+        },
+        "readTail" : true,
+        "steps" : [
+          {
+            "op" : "rescan"
+          }
+        ]
+      },
+      "name" : "nothing in the window is no reading"
     }
-  ]
+  ],
+  "timeZone" : "UTC"
 }

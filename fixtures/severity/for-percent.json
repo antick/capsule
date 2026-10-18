@@ -1,56 +1,56 @@
 {
-  "about": "severityForPercent(percent) — which band a usage percent falls in",
-  "cases": [
+  "about" : "severityForPercent(percent) — which band a usage percent falls in",
+  "cases" : [
     {
-      "name": "low",
-      "input": 21,
-      "expected": "low"
+      "expected" : "low",
+      "input" : 21,
+      "name" : "low"
     },
     {
-      "name": "mid",
-      "input": 52,
-      "expected": "mid"
+      "expected" : "mid",
+      "input" : 52,
+      "name" : "mid"
     },
     {
-      "name": "high",
-      "input": 73,
-      "expected": "high"
+      "expected" : "high",
+      "input" : 73,
+      "name" : "high"
     },
     {
-      "name": "critical",
-      "input": 95,
-      "expected": "critical"
+      "expected" : "critical",
+      "input" : 95,
+      "name" : "critical"
     },
     {
-      "name": "top of low",
-      "input": 39,
-      "expected": "low",
-      "note": "Band edges are inclusive; these six cases pin both sides of each edge."
+      "expected" : "low",
+      "input" : 39,
+      "name" : "top of low",
+      "note" : "Band edges are inclusive; these six cases pin both sides of each edge."
     },
     {
-      "name": "bottom of mid",
-      "input": 40,
-      "expected": "mid"
+      "expected" : "mid",
+      "input" : 40,
+      "name" : "bottom of mid"
     },
     {
-      "name": "top of mid",
-      "input": 69,
-      "expected": "mid"
+      "expected" : "mid",
+      "input" : 69,
+      "name" : "top of mid"
     },
     {
-      "name": "bottom of high",
-      "input": 70,
-      "expected": "high"
+      "expected" : "high",
+      "input" : 70,
+      "name" : "bottom of high"
     },
     {
-      "name": "top of high",
-      "input": 89,
-      "expected": "high"
+      "expected" : "high",
+      "input" : 89,
+      "name" : "top of high"
     },
     {
-      "name": "bottom of critical",
-      "input": 90,
-      "expected": "critical"
+      "expected" : "critical",
+      "input" : 90,
+      "name" : "bottom of critical"
     }
   ]
 }

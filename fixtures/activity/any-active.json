@@ -1,98 +1,102 @@
 {
-  "about": "anyAgentActive(activity) — whether any provider has an agent doing something",
-  "cases": [
+  "about" : "anyAgentActive(activity) — whether any provider has an agent doing something",
+  "cases" : [
     {
-      "name": "nothing",
-      "input": {},
-      "expected": false
+      "expected" : false,
+      "input" : {
+
+      },
+      "name" : "nothing"
     },
     {
-      "name": "only idle sessions",
-      "input": {
-        "claude": [
+      "expected" : false,
+      "input" : {
+        "claude" : [
           {
-            "id": "a",
-            "providerId": "claude",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "idle",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "idle",
+            "waitingFor" : null
           }
         ]
       },
-      "expected": false
+      "name" : "only idle sessions"
     },
     {
-      "name": "a busy session on one provider",
-      "input": {
-        "claude": [
+      "expected" : true,
+      "input" : {
+        "claude" : [
           {
-            "id": "a",
-            "providerId": "claude",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "idle",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "idle",
+            "waitingFor" : null
           }
         ],
-        "codex": [
+        "codex" : [
           {
-            "id": "b",
-            "providerId": "codex",
-            "name": "b",
-            "detail": "Terminal · repo",
-            "state": "busy",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
+            "detail" : "Terminal · repo",
+            "id" : "b",
+            "name" : "b",
+            "providerId" : "codex",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "busy",
+            "waitingFor" : null
           }
         ]
       },
-      "expected": true
+      "name" : "a busy session on one provider"
     },
     {
-      "name": "a waiting session",
-      "input": {
-        "grok": [
+      "expected" : true,
+      "input" : {
+        "grok" : [
           {
-            "id": "a",
-            "providerId": "grok",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "waiting",
-            "waitingFor": "permission",
-            "since": "2026-08-27T11:00:00.000Z"
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "grok",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "waiting",
+            "waitingFor" : "permission"
           }
         ]
       },
-      "expected": true
+      "name" : "a waiting session"
     },
     {
-      "name": "an empty list for a provider",
-      "input": {
-        "claude": []
+      "expected" : false,
+      "input" : {
+        "claude" : [
+
+        ]
       },
-      "expected": false
+      "name" : "an empty list for a provider"
     },
     {
-      "name": "an unconfirmed busy hint",
-      "input": {
-        "claude": [
+      "expected" : true,
+      "input" : {
+        "claude" : [
           {
-            "id": "a",
-            "providerId": "claude",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "busy",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z",
-            "confirmed": false
+            "confirmed" : false,
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "busy",
+            "waitingFor" : null
           }
         ]
       },
-      "expected": true,
-      "note": "Counts a hint as activity, unlike summarizeActivity. This drives the monitor's polling cadence (isBusy), not what a ring shows, so a hint makes it look again sooner rather than lighting anything."
+      "name" : "an unconfirmed busy hint",
+      "note" : "Counts a hint as activity, unlike summarizeActivity. This drives the monitor's polling cadence (isBusy), not what a ring shows, so a hint makes it look again sooner rather than lighting anything."
     }
   ]
 }

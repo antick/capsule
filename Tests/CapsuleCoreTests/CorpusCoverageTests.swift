@@ -1,3 +1,4 @@
+import Foundation
 import CapsuleFixtures
 import Testing
 
@@ -138,5 +139,18 @@ struct CorpusCoverageTests {
   func corpusFound() throws {
     #expect(Fixtures.root != nil)
     #expect(try !Fixtures.allPaths().isEmpty)
+  }
+}
+
+@Suite("Corpus layout")
+struct CorpusLayoutTests {
+  /// One layout for every file, so a re-recording diffs as its values only.
+  /// `CAPSULE_CANONICALIZE_FIXTURES=1` rewrites the corpus into it.
+  @Test func everyFileIsInTheCorpusLayout() throws {
+    let rewrite = ProcessInfo.processInfo.environment["CAPSULE_CANONICALIZE_FIXTURES"] == "1"
+    for path in try Fixtures.allPaths() {
+      if rewrite { try FixtureWriter.canonicalize(path) }
+      #expect(try FixtureWriter.isCanonical(path), "\(path) is not in the corpus layout")
+    }
   }
 }

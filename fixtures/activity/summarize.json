@@ -1,232 +1,234 @@
 {
-  "about": "summarizeActivity(sessions) — the one state a ring shows for every live session",
-  "cases": [
+  "about" : "summarizeActivity(sessions) — the one state a ring shows for every live session",
+  "cases" : [
     {
-      "name": "nothing running",
-      "input": [],
-      "expected": null
-    },
-    {
-      "name": "no list at all",
-      "input": null,
-      "expected": null
-    },
-    {
-      "name": "waiting outranks busy",
-      "input": [
-        {
-          "id": "a",
-          "providerId": "claude",
-          "name": "a",
-          "detail": "Terminal · repo",
-          "state": "busy",
-          "waitingFor": null,
-          "since": "2026-08-27T11:00:00.000Z"
-        },
-        {
-          "id": "b",
-          "providerId": "claude",
-          "name": "b",
-          "detail": "Terminal · repo",
-          "state": "waiting",
-          "waitingFor": "permission",
-          "since": "2026-08-27T11:00:00.000Z"
-        }
+      "expected" : null,
+      "input" : [
+
       ],
-      "expected": {
-        "state": "waiting",
-        "sessions": [
+      "name" : "nothing running"
+    },
+    {
+      "expected" : null,
+      "input" : null,
+      "name" : "no list at all"
+    },
+    {
+      "expected" : {
+        "sessions" : [
           {
-            "id": "a",
-            "providerId": "claude",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "busy",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "busy",
+            "waitingFor" : null
           },
           {
-            "id": "b",
-            "providerId": "claude",
-            "name": "b",
-            "detail": "Terminal · repo",
-            "state": "waiting",
-            "waitingFor": "permission",
-            "since": "2026-08-27T11:00:00.000Z"
+            "detail" : "Terminal · repo",
+            "id" : "b",
+            "name" : "b",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "waiting",
+            "waitingFor" : "permission"
           }
-        ]
-      }
-    },
-    {
-      "name": "busy outranks idle",
-      "input": [
-        {
-          "id": "a",
-          "providerId": "claude",
-          "name": "a",
-          "detail": "Terminal · repo",
-          "state": "busy",
-          "waitingFor": null,
-          "since": "2026-08-27T11:00:00.000Z"
-        },
-        {
-          "id": "b",
-          "providerId": "claude",
-          "name": "b",
-          "detail": "Terminal · repo",
-          "state": "idle",
-          "waitingFor": null,
-          "since": "2026-08-27T11:00:00.000Z"
-        }
-      ],
-      "expected": {
-        "state": "working",
-        "sessions": [
-          {
-            "id": "a",
-            "providerId": "claude",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "busy",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
-          },
-          {
-            "id": "b",
-            "providerId": "claude",
-            "name": "b",
-            "detail": "Terminal · repo",
-            "state": "idle",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
-          }
-        ]
-      }
-    },
-    {
-      "name": "only idle",
-      "input": [
-        {
-          "id": "a",
-          "providerId": "claude",
-          "name": "a",
-          "detail": "Terminal · repo",
-          "state": "idle",
-          "waitingFor": null,
-          "since": "2026-08-27T11:00:00.000Z"
-        }
-      ],
-      "expected": {
-        "state": "idle",
-        "sessions": [
-          {
-            "id": "a",
-            "providerId": "claude",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "idle",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
-          }
-        ]
-      }
-    },
-    {
-      "name": "an unconfirmed busy hint does not read as working",
-      "input": [
-        {
-          "id": "a",
-          "providerId": "claude",
-          "name": "a",
-          "detail": "Terminal · repo",
-          "state": "busy",
-          "waitingFor": null,
-          "since": "2026-08-27T11:00:00.000Z",
-          "confirmed": false
-        },
-        {
-          "id": "b",
-          "providerId": "claude",
-          "name": "b",
-          "detail": "Terminal · repo",
-          "state": "idle",
-          "waitingFor": null,
-          "since": "2026-08-27T11:00:00.000Z"
-        }
-      ],
-      "expected": {
-        "state": "idle",
-        "sessions": [
-          {
-            "id": "a",
-            "providerId": "claude",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "busy",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z",
-            "confirmed": false
-          },
-          {
-            "id": "b",
-            "providerId": "claude",
-            "name": "b",
-            "detail": "Terminal · repo",
-            "state": "idle",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
-          }
-        ]
+        ],
+        "state" : "waiting"
       },
-      "note": "A recent log write is a hint, not proof; it must not light the ring."
-    },
-    {
-      "name": "an unconfirmed waiting hint does not read as waiting",
-      "input": [
+      "input" : [
         {
-          "id": "a",
-          "providerId": "claude",
-          "name": "a",
-          "detail": "Terminal · repo",
-          "state": "waiting",
-          "waitingFor": "permission",
-          "since": "2026-08-27T11:00:00.000Z",
-          "confirmed": false
+          "detail" : "Terminal · repo",
+          "id" : "a",
+          "name" : "a",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "busy",
+          "waitingFor" : null
         },
         {
-          "id": "b",
-          "providerId": "claude",
-          "name": "b",
-          "detail": "Terminal · repo",
-          "state": "busy",
-          "waitingFor": null,
-          "since": "2026-08-27T11:00:00.000Z"
+          "detail" : "Terminal · repo",
+          "id" : "b",
+          "name" : "b",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "waiting",
+          "waitingFor" : "permission"
         }
       ],
-      "expected": {
-        "state": "working",
-        "sessions": [
+      "name" : "waiting outranks busy"
+    },
+    {
+      "expected" : {
+        "sessions" : [
           {
-            "id": "a",
-            "providerId": "claude",
-            "name": "a",
-            "detail": "Terminal · repo",
-            "state": "waiting",
-            "waitingFor": "permission",
-            "since": "2026-08-27T11:00:00.000Z",
-            "confirmed": false
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "busy",
+            "waitingFor" : null
           },
           {
-            "id": "b",
-            "providerId": "claude",
-            "name": "b",
-            "detail": "Terminal · repo",
-            "state": "busy",
-            "waitingFor": null,
-            "since": "2026-08-27T11:00:00.000Z"
+            "detail" : "Terminal · repo",
+            "id" : "b",
+            "name" : "b",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "idle",
+            "waitingFor" : null
           }
-        ]
-      }
+        ],
+        "state" : "working"
+      },
+      "input" : [
+        {
+          "detail" : "Terminal · repo",
+          "id" : "a",
+          "name" : "a",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "busy",
+          "waitingFor" : null
+        },
+        {
+          "detail" : "Terminal · repo",
+          "id" : "b",
+          "name" : "b",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "idle",
+          "waitingFor" : null
+        }
+      ],
+      "name" : "busy outranks idle"
+    },
+    {
+      "expected" : {
+        "sessions" : [
+          {
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "idle",
+            "waitingFor" : null
+          }
+        ],
+        "state" : "idle"
+      },
+      "input" : [
+        {
+          "detail" : "Terminal · repo",
+          "id" : "a",
+          "name" : "a",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "idle",
+          "waitingFor" : null
+        }
+      ],
+      "name" : "only idle"
+    },
+    {
+      "expected" : {
+        "sessions" : [
+          {
+            "confirmed" : false,
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          },
+          {
+            "detail" : "Terminal · repo",
+            "id" : "b",
+            "name" : "b",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "idle",
+            "waitingFor" : null
+          }
+        ],
+        "state" : "idle"
+      },
+      "input" : [
+        {
+          "confirmed" : false,
+          "detail" : "Terminal · repo",
+          "id" : "a",
+          "name" : "a",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "busy",
+          "waitingFor" : null
+        },
+        {
+          "detail" : "Terminal · repo",
+          "id" : "b",
+          "name" : "b",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "idle",
+          "waitingFor" : null
+        }
+      ],
+      "name" : "an unconfirmed busy hint does not read as working",
+      "note" : "A recent log write is a hint, not proof; it must not light the ring."
+    },
+    {
+      "expected" : {
+        "sessions" : [
+          {
+            "confirmed" : false,
+            "detail" : "Terminal · repo",
+            "id" : "a",
+            "name" : "a",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "waiting",
+            "waitingFor" : "permission"
+          },
+          {
+            "detail" : "Terminal · repo",
+            "id" : "b",
+            "name" : "b",
+            "providerId" : "claude",
+            "since" : "2026-08-27T11:00:00.000Z",
+            "state" : "busy",
+            "waitingFor" : null
+          }
+        ],
+        "state" : "working"
+      },
+      "input" : [
+        {
+          "confirmed" : false,
+          "detail" : "Terminal · repo",
+          "id" : "a",
+          "name" : "a",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "waiting",
+          "waitingFor" : "permission"
+        },
+        {
+          "detail" : "Terminal · repo",
+          "id" : "b",
+          "name" : "b",
+          "providerId" : "claude",
+          "since" : "2026-08-27T11:00:00.000Z",
+          "state" : "busy",
+          "waitingFor" : null
+        }
+      ],
+      "name" : "an unconfirmed waiting hint does not read as waiting"
     }
   ]
 }
