@@ -23,5 +23,16 @@ jobs:
       - run: swift --version
       - run: swift build
       - run: scripts/test-all.sh
+
+      # A crashed test process leaves its report here; print the crashing
+      # thread so the failure can be read from the log.
+      - name: Show test crash reports
+        if: failure()
+        run: |
+          for report in ~/Library/Logs/DiagnosticReports/CapsulePackageTests*; do
+            [ -e "$report" ] || continue
+            echo "== $report"
+            head -c 20000 "$report"
+          done
       - run: scripts/test-scripts.sh
       - run: scripts/bundle-macos.sh release
