@@ -32,6 +32,12 @@ public enum UsageEndpoints {
   }
 
   public enum Cursor {
+    /// The included usage for the current period — weekly on the newer
+    /// plans — as the editor's dashboard shows it: total, Cursor's own
+    /// models, and other models.
+    public static let periodUsageURL = "https://cursor.com/api/dashboard/get-current-period-usage"
+    public static let dashboardOrigin = "https://cursor.com"
+    public static let dashboardReferer = "https://cursor.com/dashboard"
     public static let usageURL = "https://cursor.com/api/usage-summary"
     public static let legacyURL = "https://cursor.com/api/usage"
     public static let sessionCookie = "WorkosCursorSessionToken"

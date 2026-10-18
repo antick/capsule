@@ -6,9 +6,56 @@ public struct ClaudeWindow: Sendable, Codable, Equatable {
   @Lenient public var resets_at: String?
 }
 
+/// One of the limits Anthropic lists for the account: the session, the
+/// all-models week, and any week scoped to a single model.
+public struct ClaudeLimit: Sendable, Codable, Equatable {
+  public struct Scope: Sendable, Codable, Equatable {
+    public struct Model: Sendable, Codable, Equatable {
+      @Lenient public var display_name: String?
+    }
+    @Lenient public var model: Model?
+  }
+  @Lenient public var kind: String?
+  @Lenient public var percent: Double?
+  @Lenient public var resets_at: String?
+  @Lenient public var scope: Scope?
+}
+
 public struct ClaudeUsagePayload: Sendable, Codable, Equatable {
   @Lenient public var five_hour: ClaudeWindow?
   @Lenient public var seven_day: ClaudeWindow?
+  @LossyArray public var limits: [ClaudeLimit]?
+
+  public init(five_hour: ClaudeWindow? = nil, seven_day: ClaudeWindow? = nil, limits: [ClaudeLimit]? = nil) {
+    self.five_hour = five_hour
+    self.seven_day = seven_day
+    self.limits = limits
+  }
+}
+
+/// Every limit the account has, in Anthropic's order, as rows: the session,
+/// all models for the week, then each model's own weekly limit by its name.
+/// Kinds this build does not know are left out rather than guessed at, and
+/// the card's row budget caps how many show.
+private func limitBuckets(_ limits: [ClaudeLimit]?) -> [UsageBucket] {
+  var rows: [UsageBucket] = []
+  for limit in limits ?? [] {
+    guard let percent = limit.percent, percent.isFinite, let resetsAt = limit.resets_at else { continue }
+    let row: (id: String, label: String, style: ResetStyle)
+    switch limit.kind {
+    case "session": row = ("current-session", Copy.currentSession, .relative)
+    case "weekly_all": row = ("all-models", Copy.allModels, .absolute)
+    case "weekly_scoped":
+      guard let model = limit.scope?.model?.display_name, !model.isEmpty else { continue }
+      row = ("weekly-\(model.lowercased())", model, .absolute)
+    default: continue
+    }
+    guard !rows.contains(where: { $0.id == row.id }) else { continue }
+    rows.append(
+      UsageBucket(id: row.id, label: row.label, percentUsed: clampPercent(percent), resetsAt: resetsAt, resetStyle: row.style)
+    )
+  }
+  return Array(rows.prefix(HudLimits.maxCardBuckets))
 }
 
 /// One window, or nothing. No utilization is not zero utilization: a window
@@ -37,16 +84,22 @@ public func mapClaudeUsage(
   _ payload: ClaudeUsagePayload,
   fetchedAt: Date
 ) -> UsageSnapshot {
-  let buckets = [
-    windowBucket(
-      payload.five_hour, id: "current-session", label: Copy.currentSession,
-      resetStyle: .relative, fetchedAt: fetchedAt
-    ),
-    windowBucket(
-      payload.seven_day, id: "all-models", label: Copy.allModels,
-      resetStyle: .absolute, fetchedAt: fetchedAt
-    ),
-  ].compactMap { $0 }
+  // The list of limits when Anthropic sends one, so a model's own weekly
+  // limit shows too; otherwise the two windows every response has carried.
+  let listed = limitBuckets(payload.limits)
+  let buckets =
+    !listed.isEmpty
+    ? listed
+    : [
+      windowBucket(
+        payload.five_hour, id: "current-session", label: Copy.currentSession,
+        resetStyle: .relative, fetchedAt: fetchedAt
+      ),
+      windowBucket(
+        payload.seven_day, id: "all-models", label: Copy.allModels,
+        resetStyle: .absolute, fetchedAt: fetchedAt
+      ),
+    ].compactMap { $0 }
 
   return UsageSnapshot(
     providerId: .claude,

@@ -97,6 +97,9 @@ public enum Copy {
   public static let grokOnDemand = "On-demand"
   public static let grokBuild = "Grok Build"
   public static let cursorPlan = "Plan usage"
+  public static let cursorTotal = "Total usage"
+  public static let cursorModels = "Cursor models"
+  public static let cursorOtherModels = "Other models"
 }
 
 /// How long to wait after a rate-limited read. Milliseconds, matching the

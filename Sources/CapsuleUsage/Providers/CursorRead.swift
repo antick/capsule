@@ -33,6 +33,28 @@ public struct CursorUsageProvider: UsageProvider {
     guard let token = cursorTokenFromHex(rows.first?.first), let user = jwtSubject(token) else {
       return unauthenticatedSnapshot(id, fetchedAt: now)
     }
+    // The current period first: on the newer plans that is where the usage
+    // is, and the monthly summary reads zero. Anything short of a usable
+    // answer, other than a refusal, falls back to the summary.
+    let cookie = "\(UsageEndpoints.Cursor.sessionCookie)=\(user)%3A%3A\(token)"
+    if let period = try? await host.send(
+      HTTPRequest(
+        method: "POST", url: UsageEndpoints.Cursor.periodUsageURL,
+        headers: usageHeaders([
+          "Content-Type": "application/json", "Cookie": cookie,
+          "Origin": UsageEndpoints.Cursor.dashboardOrigin, "Referer": UsageEndpoints.Cursor.dashboardReferer,
+        ]),
+        body: "{}"
+      )
+    ) {
+      if period.status == 401 || period.status == 403 { return unauthenticatedSnapshot(id, fetchedAt: now) }
+      if period.status == 429 { throw rateLimited(period, now: now) }
+      if period.ok, let payload = try? decode(CursorPeriodUsage.self, period, id),
+        let snapshot = mapCursorPeriod(payload, fetchedAt: now)
+      {
+        return snapshot
+      }
+    }
     let response = try await summary(host, token: token, user: user)
     if response.status == 401 || response.status == 403 { return unauthenticatedSnapshot(id, fetchedAt: now) }
     if response.status == 429 { throw rateLimited(response, now: now) }

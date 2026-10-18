@@ -2112,6 +2112,19 @@
         },
         "requests": [
           {
+            "method": "POST",
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin": "https://cursor.com",
+              "referer": "https://cursor.com/dashboard",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "{}"
+          },
+          {
             "method": "GET",
             "url": "https://cursor.com/api/usage-summary",
             "headers": {
@@ -2121,7 +2134,8 @@
             }
           }
         ]
-      }
+      },
+      "note": "The weekly period is asked first and, with nothing scripted for it here, falls back to the summary."
     },
     {
       "name": "cursor: no token in the state store",
@@ -2255,6 +2269,19 @@
         },
         "requests": [
           {
+            "method": "POST",
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin": "https://cursor.com",
+              "referer": "https://cursor.com/dashboard",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "{}"
+          },
+          {
             "method": "GET",
             "url": "https://cursor.com/api/usage-summary",
             "headers": {
@@ -2273,7 +2300,8 @@
             }
           }
         ]
-      }
+      },
+      "note": "The weekly period is asked first and, with nothing scripted for it here, falls back to the summary."
     },
     {
       "name": "cursor: rejected is not connected",
@@ -2315,6 +2343,19 @@
         },
         "requests": [
           {
+            "method": "POST",
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin": "https://cursor.com",
+              "referer": "https://cursor.com/dashboard",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "{}"
+          },
+          {
             "method": "GET",
             "url": "https://cursor.com/api/usage-summary",
             "headers": {
@@ -2324,7 +2365,8 @@
             }
           }
         ]
-      }
+      },
+      "note": "The weekly period is asked first and, with nothing scripted for it here, falls back to the summary."
     },
     {
       "name": "cursor: rate limited does not try the legacy endpoint",
@@ -2364,6 +2406,19 @@
         },
         "requests": [
           {
+            "method": "POST",
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin": "https://cursor.com",
+              "referer": "https://cursor.com/dashboard",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "{}"
+          },
+          {
             "method": "GET",
             "url": "https://cursor.com/api/usage-summary",
             "headers": {
@@ -2373,7 +2428,294 @@
             }
           }
         ]
-      }
+      },
+      "note": "The weekly period is asked first and, with nothing scripted for it here, falls back to the summary."
+    },
+    {
+      "name": "cursor: the weekly period reads total, Cursor models and other models",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e65794a7a645749694f694a3163325679587a5179496e302e79\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "method": "POST",
+            "status": 200,
+            "body": {
+              "billingCycleEnd": 1788566400000,
+              "planUsage": {
+                "totalPercentUsed": 18.08,
+                "autoPercentUsed": 18.08,
+                "apiPercentUsed": 0
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "cursor",
+            "displayName": "Cursor",
+            "iconId": "cursor",
+            "primaryPercent": 18.08,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "total",
+                "label": "Total usage",
+                "percentUsed": 18.08,
+                "resetsAt": "2026-09-05T00:00:00.000Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "cursor-models",
+                "label": "Cursor models",
+                "percentUsed": 18.08,
+                "resetsAt": "2026-09-05T00:00:00.000Z",
+                "resetStyle": "relative"
+              },
+              {
+                "id": "other-models",
+                "label": "Other models",
+                "percentUsed": 0,
+                "resetsAt": "2026-09-05T00:00:00.000Z",
+                "resetStyle": "relative"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin": "https://cursor.com",
+              "referer": "https://cursor.com/dashboard",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "{}"
+          }
+        ]
+      },
+      "note": "Newer plans meter included usage per week. The dashboard's period shows it in three rows; the monthly summary reads zero for them."
+    },
+    {
+      "name": "cursor: a period with no readings falls back to the summary",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e65794a7a645749694f694a3163325679587a5179496e302e79\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "method": "POST",
+            "status": 200,
+            "body": {}
+          },
+          {
+            "url": "https://cursor.com/api/usage-summary",
+            "status": 200,
+            "body": {
+              "billingCycleEnd": "2026-09-01T00:00:00Z",
+              "individualUsage": {
+                "plan": {
+                  "totalPercentUsed": 42.4
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "cursor",
+            "displayName": "Cursor",
+            "iconId": "cursor",
+            "primaryPercent": 42.4,
+            "status": "ok",
+            "fetchedAt": "2026-08-27T11:22:00.000Z",
+            "buckets": [
+              {
+                "id": "plan",
+                "label": "Plan usage",
+                "percentUsed": 42.4,
+                "resetsAt": "2026-09-01T00:00:00.000Z",
+                "resetStyle": "absolute"
+              }
+            ]
+          }
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin": "https://cursor.com",
+              "referer": "https://cursor.com/dashboard",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "{}"
+          },
+          {
+            "method": "GET",
+            "url": "https://cursor.com/api/usage-summary",
+            "headers": {
+              "accept": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            }
+          }
+        ]
+      },
+      "note": "An account without the period's readings is read from the monthly summary, as before."
+    },
+    {
+      "name": "cursor: a rejected period is not connected",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e65794a7a645749694f694a3163325679587a5179496e302e79\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "method": "POST",
+            "status": 401
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "snapshot": {
+            "providerId": "cursor",
+            "displayName": "Cursor",
+            "iconId": "cursor",
+            "primaryPercent": null,
+            "buckets": [],
+            "status": "unauthenticated",
+            "fetchedAt": "2026-08-27T11:22:00.000Z"
+          }
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin": "https://cursor.com",
+              "referer": "https://cursor.com/dashboard",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "{}"
+          }
+        ]
+      },
+      "note": "A rejected session is the same answer from either endpoint, so the summary is not asked."
+    },
+    {
+      "name": "cursor: a rate-limited period backs off",
+      "input": {
+        "provider": "cursor",
+        "home": "/home",
+        "files": {},
+        "secrets": {},
+        "commands": [
+          {
+            "file": "sqlite3",
+            "args": [
+              "-readonly",
+              "/home/Library/Application Support/Cursor/User/globalStorage/state.vscdb",
+              "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
+            ],
+            "output": "782e65794a7a645749694f694a3163325679587a5179496e302e79\n"
+          }
+        ],
+        "env": {},
+        "responses": [
+          {
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "method": "POST",
+            "status": 429,
+            "headers": {
+              "Retry-After": "120"
+            }
+          }
+        ]
+      },
+      "expected": {
+        "outcome": {
+          "rateLimited": {
+            "retryAfterMs": 120000,
+            "fallback": null
+          }
+        },
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://cursor.com/api/dashboard/get-current-period-usage",
+            "headers": {
+              "accept": "application/json",
+              "content-type": "application/json",
+              "cookie": "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin": "https://cursor.com",
+              "referer": "https://cursor.com/dashboard",
+              "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "body": "{}"
+          }
+        ]
+      },
+      "note": "Told to wait, the reader waits rather than knocking on the summary instead."
     },
     {
       "name": "claude: a field of the wrong type is ignored, not fatal",

@@ -10,6 +10,17 @@ All notable changes to Capsule are documented in this file.
 - The menu bar uses a matching monochrome mark. Settings, updates, About, and the running app share the same native artwork, including when launched without a bundle.
 - Added a repeatable icon asset generator using the shared drawing.
 
+## Every limit on the card
+
+### Fixed
+
+- Cursor showed 0% on plans that meter included usage per week: the app read only the monthly summary, which stays at zero for them. It now reads the current period the way Cursor's own dashboard does, and shows all three rows — total usage, Cursor's own models, and other models — with the monthly summary as the fallback.
+
+### Added
+
+- Claude's card shows every limit Anthropic lists for the account, including a weekly limit scoped to one model, under that model's name. Responses without the list keep the session and all-models windows.
+- Local builds are signed with the Developer ID found in the keychain, so every build has the same identity and Little Snitch rules and keychain approvals survive rebuilds. Builds fall back to ad hoc signing where there is none.
+
 ## JSON kept out of the card
 
 ### Fixed
