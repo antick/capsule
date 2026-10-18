@@ -31,9 +31,13 @@ jobs:
         run: |
           helper="$(dirname "$(xcrun -f swift)")/../libexec/swift/pm/swiftpm-testing-helper"
           bundle=".build/arm64-apple-macosx/debug/CapsulePackageTests.xctest/Contents/MacOS/CapsulePackageTests"
+          frameworks="$(xcrun --show-sdk-platform-path)/Developer/Library/Frameworks"
+          libraries="$(xcrun --show-sdk-platform-path)/Developer/usr/lib"
           for target in CapsuleShellTests CapsuleSnapshotTests; do
             echo "== $target"
-            lldb --batch -o run -k "thread backtrace all" -- "$helper" --test-bundle-path "$bundle" \
+            lldb --batch \
+              -o "settings set target.env-vars DYLD_FRAMEWORK_PATH=$frameworks DYLD_LIBRARY_PATH=$libraries" \
+              -o run -k "thread backtrace all" -- "$helper" --test-bundle-path "$bundle" \
               --no-parallel --filter "$target" "$bundle" --testing-library swift-testing 2>&1 | tail -150 || true
           done
       - run: scripts/test-scripts.sh
