@@ -219,7 +219,7 @@ public final class Engine {
 
   /// The native app's own schema v7 settings, or the defaults. Settings
   /// carried over from the Electron app arrive with the cutover (task 4.6).
-  public static func loadSettings(_ store: JSONStore) -> CapsuleSettings {
+  public nonisolated static func loadSettings(_ store: JSONStore) -> CapsuleSettings {
     let url = store.directory.appendingPathComponent(AppIdentity.settingsFile)
     guard let data = FileManager.default.contents(atPath: url.path), let settings = CapsuleSettings.read(data: data)
     else { return .defaults }
@@ -227,7 +227,7 @@ public final class Engine {
   }
 
   /// Writes settings down, atomically, in the shape they are read back in.
-  public static func saveSettings(_ settings: CapsuleSettings, to store: JSONStore) {
+  public nonisolated static func saveSettings(_ settings: CapsuleSettings, to store: JSONStore) {
     guard let data = settings.documentData else { return }
     try? FileManager.default.createDirectory(at: store.directory, withIntermediateDirectories: true)
     try? data.write(to: store.directory.appendingPathComponent(AppIdentity.settingsFile), options: .atomic)

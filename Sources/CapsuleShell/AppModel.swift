@@ -27,6 +27,8 @@ public final class AppModel: MenuHandlers {
 
   public init(store: JSONStore = .applicationSupport(AppIdentity.supportDirectory), events: ShellEvents = .mac) {
     self.store = store
+    // Take over from the Electron app before reading anything, once.
+    firstRun = CarryOver.run(store) == .fresh
     var loaded = Engine.loadSettings(store)
     // The system is the truth about the login item; the setting follows it.
     if LoginItem.enabled != loaded.launchAtLogin { loaded.launchAtLogin = LoginItem.enabled }
@@ -43,6 +45,8 @@ public final class AppModel: MenuHandlers {
   }
 
   private let autoCheckBox: LockedFlag
+  /// No settings to adopt from anywhere: show where to start.
+  private let firstRun: Bool
 
   private func wire() {
     engine.onChange = { [weak self] state in self?.stateChanged(state) }
@@ -83,6 +87,7 @@ public final class AppModel: MenuHandlers {
     dock.show()
     engine.start()
     updater.syncSchedule()
+    if firstRun { openSettings(.onboarding) }
   }
 
   public func stop() {

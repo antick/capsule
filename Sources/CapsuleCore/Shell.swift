@@ -1,17 +1,27 @@
 import Foundation
 
-/// Who the native app is, and where it keeps its files. Phase 2 builds under
-/// its own identifier so it installs beside the shipping Electron app; the
-/// cutover reverts it to `com.antick.capsule`.
+/// Who the app is, and where it keeps its files: the same identifier and
+/// folder the Electron app used, so the native app takes its place.
 public enum AppIdentity {
   public static let name = "Capsule"
-  public static let bundleIdentifier = "com.antick.capsule.native"
-  /// Folder under Application Support. Named after the identifier, so the
-  /// native build never reads or overwrites the Electron app's files.
-  public static let supportDirectory = bundleIdentifier
+  public static let bundleIdentifier = "com.antick.capsule"
+  /// Folder under Application Support, the Electron app's own. The native
+  /// app's files are named differently from that app's, so both can sit
+  /// there while settings are carried over.
+  public static let supportDirectory = name
   /// Schema v7 settings, the same shape the Electron app writes.
   public static let settingsFile = "config.json"
   public static let logSubsystem = bundleIdentifier
+}
+
+/// The Electron app's files, read once to carry its settings over.
+public enum ElectronFiles {
+  /// `electron-store`'s `capsule-settings`: `{ settings, backoff }`.
+  public static let settings = "capsule-settings.json"
+  /// `electron-store`'s `capsule-readings`: `{ snapshots, tokenCache }`.
+  public static let readings = "capsule-readings.json"
+  /// Written once the carry-over has run, so it never runs twice.
+  public static let carriedOver = "carried-over.json"
 }
 
 /// How the shell schedules the logic modules. The only place these live.

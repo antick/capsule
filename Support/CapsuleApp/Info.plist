@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.antick.capsule.native</string>
+	<string>com.antick.capsule</string>
 	<key>CFBundleName</key>
 	<string>Capsule</string>
 	<key>CFBundleDisplayName</key>
