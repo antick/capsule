@@ -100,6 +100,9 @@ struct InteractionTests {
     dock.view.mouseUp(with: event(.leftMouseUp, at: point))
     #expect(dock.behavior.pinned == .grok)
     #expect(refreshed == [.grok])
+    // A click — and the pin it makes — never takes focus from the app in use.
+    #expect(!dock.panel.isKeyWindow)
+    #expect(!dock.panel.isMainWindow)
   }
 
   @Test func draggingToTheTopReDocksThereAndSaysWhere() throws {
@@ -118,6 +121,7 @@ struct InteractionTests {
     }
     #expect(dock.behavior.dragging)
     #expect(dock.view.look.spec.growth == .down)
+    #expect(!dock.panel.isKeyWindow)
     dock.view.mouseUp(with: event(.leftMouseUp, at: target))
     #expect(!dock.behavior.dragging)
     #expect(dropped?.0 == .topEdge)
@@ -137,5 +141,18 @@ struct InteractionTests {
     dock.pointerMoved(onScreen(CGPoint(x: latch.midX, y: latch.midY)))
     #expect(!dock.behavior.peek)
     #expect(!dock.panel.ignoresMouseEvents)
+  }
+
+  @Test func everyMeterIsALabelledButtonForVoiceOver() throws {
+    let meters = dock.view.meters
+    #expect(meters.count == 3)
+    for meter in meters {
+      #expect(meter.isAccessibilityElement())
+      #expect(meter.accessibilityRole() == .button)
+      let label = try #require(meter.accessibilityLabel())
+      #expect(label.hasPrefix(ProviderLabels.label(meter.providerId)))
+      #expect(label.hasSuffix("%"))
+    }
+    #expect(meters.first?.accessibilityLabel() == "Claude 73%")
   }
 }

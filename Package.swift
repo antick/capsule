@@ -80,7 +80,7 @@ let package = Package(
     // `.build/snapshots`, for eyes and for the reference comparison.
     .testTarget(
       name: "CapsuleSnapshotTests",
-      dependencies: ["CapsuleDock", "CapsuleCore", "CapsuleHUD", "CapsuleShell"]
+      dependencies: ["CapsuleDock", "CapsuleCore", "CapsuleHUD", "CapsuleShell", "CapsuleSettingsUI"]
     ),
     .testTarget(
       name: "CapsuleShellTests",

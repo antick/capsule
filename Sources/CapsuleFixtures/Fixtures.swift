@@ -33,7 +33,7 @@ public enum FixtureError: Error, CustomStringConvertible {
   public var description: String {
     switch self {
     case .corpusNotFound:
-      return "fixtures root not found: no pnpm-workspace.yaml above this file"
+      return "fixtures root not found: no Package.swift above this file"
     case .missing(let path):
       return "fixture not found: \(path).json"
     case .noCases(let path):
@@ -55,7 +55,7 @@ public enum Fixtures {
   public static let root: URL? = {
     var dir = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     for _ in 0..<10 {
-      let marker = dir.appendingPathComponent("pnpm-workspace.yaml")
+      let marker = dir.appendingPathComponent("Package.swift")
       if FileManager.default.fileExists(atPath: marker.path) {
         return dir.appendingPathComponent("fixtures")
       }

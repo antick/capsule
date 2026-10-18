@@ -1,7 +1,8 @@
 name: Release
 
-# Tagging is the release. `pnpm release:tag` writes the tag from the version in
-# apps/desktop/package.json, so the tag and the built app can never disagree.
+# Tagging is the release. `scripts/tag-release.sh` writes the tag from the
+# version in Support/CapsuleApp/Info.plist, so the tag and the built app can
+# never disagree.
 on:
   push:
     tags:
@@ -13,83 +14,61 @@ permissions:
 
 jobs:
   macos:
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
+      - uses: maxim-lobanov/setup-xcode@v1
         with:
-          version: 11.25.0
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
+          xcode-version: latest-stable
 
       # A release that fails its own checks is worse than a late one.
-      - run: pnpm check
-      - run: pnpm typecheck
-      - run: pnpm test
+      - run: swift test
+      - run: scripts/test-scripts.sh
+      - run: scripts/release-notes.sh --check
 
-      # Signing is optional, and every variable below is only exported when the
-      # secret behind it actually exists. An empty CSC_LINK is not "no
-      # certificate" to electron-builder — it is a certificate path pointing at
-      # nothing, which fails the build outright.
-      - name: Prepare macOS signing
+      # Signing and notarising are optional, and each is only set up when the
+      # secrets behind it exist; without them the release is unsigned.
+      - name: Prepare signing and notarising
         env:
           MAC_CERTIFICATE: ${{ secrets.MAC_CERTIFICATE }}
           MAC_CERTIFICATE_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: |
           set -euo pipefail
-
           if [ -n "$MAC_CERTIFICATE" ]; then
+            keychain="$RUNNER_TEMP/signing.keychain-db"
+            password=$(uuidgen)
+            security create-keychain -p "$password" "$keychain"
+            security set-keychain-settings -lut 21600 "$keychain"
+            security unlock-keychain -p "$password" "$keychain"
             # Tolerate a certificate encoded with or without line wrapping.
-            {
-              printf 'CSC_LINK=%s\n' "$(printf '%s' "$MAC_CERTIFICATE" | tr -d '\n\r')"
-              printf 'CSC_KEY_PASSWORD=%s\n' "$MAC_CERTIFICATE_PASSWORD"
-            } >> "$GITHUB_ENV"
+            printf '%s' "$MAC_CERTIFICATE" | tr -d '\n\r' | base64 --decode > "$RUNNER_TEMP/cert.p12"
+            security import "$RUNNER_TEMP/cert.p12" -k "$keychain" -P "$MAC_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+            security set-key-partition-list -S apple-tool:,apple: -s -k "$password" "$keychain"
+            security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+            identity=$(security find-identity -v -p codesigning "$keychain" | awk -F'"' '/Developer ID Application/ { print $2; exit }')
+            echo "CAPSULE_SIGN_IDENTITY=$identity" >> "$GITHUB_ENV"
             echo "Developer ID certificate found: the app will be signed."
           else
-            echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> "$GITHUB_ENV"
-            echo "::warning title=Unsigned release::No MAC_CERTIFICATE secret, so this build is unsigned and cannot update itself in place. Capsule will point users at the release page instead."
+            echo "::warning title=Unsigned release::No MAC_CERTIFICATE secret, so this build is unsigned. Capsule will point users at the release page for updates."
           fi
-
-          # Two ways to notarise. An Apple ID with an app-specific password is
-          # the shorter road; an App Store Connect API key survives password
-          # changes. electron-builder prefers the Apple ID when both are set.
-          if [ -n "$APPLE_ID" ] && [ -n "$APPLE_APP_SPECIFIC_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
-            {
-              printf 'APPLE_ID=%s\n' "$APPLE_ID"
-              printf 'APPLE_APP_SPECIFIC_PASSWORD=%s\n' "$APPLE_APP_SPECIFIC_PASSWORD"
-              printf 'APPLE_TEAM_ID=%s\n' "$APPLE_TEAM_ID"
-            } >> "$GITHUB_ENV"
-            echo "Notarising with an Apple ID app-specific password."
-          elif [ -n "$APPLE_API_KEY_P8" ] && [ -n "$APPLE_API_KEY_ID" ] && [ -n "$APPLE_API_ISSUER" ]; then
-            # APPLE_API_KEY is a path to the .p8, not its contents, so the
-            # secret carries the file base64-encoded and it is written out here.
-            key_path="$RUNNER_TEMP/apple-api-key.p8"
-            printf '%s' "$APPLE_API_KEY_P8" | base64 --decode > "$key_path"
-            chmod 600 "$key_path"
-            {
-              printf 'APPLE_API_KEY=%s\n' "$key_path"
-              printf 'APPLE_API_KEY_ID=%s\n' "$APPLE_API_KEY_ID"
-              printf 'APPLE_API_ISSUER=%s\n' "$APPLE_API_ISSUER"
-            } >> "$GITHUB_ENV"
-            echo "Notarising with an App Store Connect API key."
+          if [ -n "$MAC_CERTIFICATE" ] && [ -n "$APPLE_ID" ] && [ -n "$APPLE_APP_SPECIFIC_PASSWORD" ] && [ -n "$APPLE_TEAM_ID" ]; then
+            xcrun notarytool store-credentials capsule-notary --apple-id "$APPLE_ID" \
+              --password "$APPLE_APP_SPECIFIC_PASSWORD" --team-id "$APPLE_TEAM_ID"
+            echo "NOTARY_PROFILE=capsule-notary" >> "$GITHUB_ENV"
           else
             echo "::warning title=Not notarised::No notarisation credentials, so macOS will warn on first launch."
           fi
 
-      - name: Build and publish the macOS app
-        working-directory: apps/desktop
+      - name: Build and publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm release
+        run: |
+          set -euo pipefail
+          artifacts=$(scripts/package-macos.sh)
+          scripts/release-notes.sh > "$RUNNER_TEMP/notes.md"
+          version=$(scripts/version.sh)
+          gh release create "v$version" $artifacts --title "Capsule $version" --notes-file "$RUNNER_TEMP/notes.md"

@@ -2,7 +2,9 @@ import AppKit
 import CapsuleCore
 import CapsuleDock
 import CapsuleHUD
+import CapsuleSettingsUI
 import Foundation
+import SwiftUI
 import Testing
 
 /// Renders the real dock view offscreen and writes each state to a PNG, so a
@@ -135,6 +137,38 @@ struct SnapshotTests {
         _ = try render("right-edge-\(label)-\(theme.id.rawValue)", look: base, card: card)
       }
       _ = try render("right-edge-latch-\(theme.id.rawValue)", look: base, card: .closed, peek: true)
+    }
+  }
+}
+
+/// The settings window's pages, rendered the way the window draws them.
+@MainActor
+@Suite("Settings snapshots", .serialized)
+struct SettingsSnapshotTests {
+  @Test func everyPage() throws {
+    for appearance in [NSAppearance.Name.aqua, .darkAqua] {
+      for page in SettingsPage.allCases {
+        let model = SettingsModel(settings: .defaults, update: .initial(version: "0.1.0", canInstall: false))
+        model.snapshots = Demo.snapshots
+        model.page = page
+        model.appearance = appearance == .darkAqua ? .dark : .light
+        let host = NSHostingView(rootView: SettingsRoot(model: model))
+        let window = NSWindow(
+          contentRect: NSRect(x: -20_000, y: -20_000, width: 940, height: 1400), styleMask: [.titled],
+          backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        window.appearance = NSAppearance(named: appearance)
+        window.contentView = host
+        host.layoutSubtreeIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.4))
+        let rep = try #require(host.bitmapImageRepForCachingDisplay(in: host.bounds))
+        host.cacheDisplay(in: host.bounds, to: rep)
+        let data = try #require(rep.representation(using: .png, properties: [:]))
+        let name = "settings-\(page.rawValue)-\(appearance == .darkAqua ? "dark" : "light").png"
+        try FileManager.default.createDirectory(at: SnapshotTests.output, withIntermediateDirectories: true)
+        try data.write(to: SnapshotTests.output.appendingPathComponent(name))
+        window.close()
+      }
     }
   }
 }

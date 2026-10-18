@@ -1,4 +1,0 @@
-{
-  "extends": "@capsule/tsconfig/react.json",
-  "include": ["src"]
-}

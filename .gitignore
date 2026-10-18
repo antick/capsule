@@ -1,26 +1,17 @@
-node_modules
-.pnpm-store
-dist
-out
-.turbo
-*.log
 .DS_Store
-coverage
-playwright-report
-test-results
-.vite
-*.tsbuildinfo
+*.log
 .idea
 .vscode
 .env
 .env.*
 !.env.example
-routeTree.gen.ts
-release
-apps/desktop/build/release-notes.md
 
 # Swift
 .build/
 .swiftpm/
 DerivedData/
 *.xcuserstate
+
+# The final Electron release's built DMGs and zips, kept locally for Intel
+# Macs. Not part of the Swift app.
+apps/desktop/release/

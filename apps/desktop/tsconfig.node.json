@@ -1,8 +1,0 @@
-{
-  "extends": "@capsule/tsconfig/node.json",
-  "compilerOptions": {
-    "types": ["node"],
-    "moduleResolution": "bundler"
-  },
-  "include": ["electron.vite.config.ts", "src/main", "src/preload/index.ts"]
-}

@@ -21,9 +21,13 @@ cp Support/CapsuleApp/Info.plist "$app/Contents/Info.plist"
 mkdir -p "$app/Contents/Resources"
 cp Support/CapsuleApp/Resources/* "$app/Contents/Resources/"
 
-# One version for both apps: the workspace's.
-version=$(plutil -extract version raw -o - package.json)
-/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $version" "$app/Contents/Info.plist"
-
-codesign --force --sign - "$app" >&2
+# Signed with a Developer ID when one is named, so macOS lets the build
+# replace itself and network filters recognise it across builds; ad hoc
+# otherwise, which is enough to run it here.
+identity=${CAPSULE_SIGN_IDENTITY:--}
+if [ "$identity" = "-" ]; then
+  codesign --force --sign - "$app" >&2
+else
+  codesign --force --options runtime --timestamp --sign "$identity" "$app" >&2
+fi
 echo "$app"

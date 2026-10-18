@@ -1,9 +1,8 @@
 import Foundation
 
-// The field list and authored sizes were copied mechanically from
-// `SCALED_KEYS` and `HUD_BASE` in packages/config. While both exist, change
-// them together: `hud-metrics/metrics` in the fixture corpus fails this suite
-// the moment the two disagree.
+// The field list and authored sizes came from the Electron app's
+// `HUD_BASE`. `hud-metrics/metrics` in the fixture corpus pins every one, so
+// a size changed here changes the fixture with it, in the same commit.
 
 /// Every pixel size the dock draws with at one scale. Authored once at scale
 /// 1 — the size it ships at — so the whole HUD grows and shrinks as a unit.
