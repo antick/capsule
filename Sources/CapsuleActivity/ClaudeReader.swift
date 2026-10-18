@@ -30,7 +30,45 @@ public func readClaudeSessions(_ host: ActivityHost) async -> [AgentSession] {
         joinPath(host.homeDir, ActivityTuning.claudeProjectsDir + [jsSafeIdDashed(cwd), "\(id).jsonl"])
       )
     }
-    found.append(applyLocalEvents(record.session, transcript))
+    found.append(reconcile(record.session, applyLocalEvents(record.session, transcript)))
   }
   return newestFirst(found)
+}
+
+/// Whichever said it last wins: Claude Code's own status in its record, or
+/// the transcript. The record can lag a moment behind a reply that just
+/// finished, so a newer transcript event stands. But a transcript cannot tell
+/// "still working" from "interrupted and left" — its last message is a
+/// request or a tool call either way — so when the record's status is the
+/// newer word, it stands. Trusting the transcript regardless showed sessions
+/// idle for weeks as working all along.
+func reconcile(_ record: AgentSession, _ local: AgentSession) -> AgentSession {
+  guard record.confirmed == true else { return local }
+  if let heard = looseDate(local.since), let stated = looseDate(record.since), heard > stated {
+    return local
+  }
+  var session = local
+  switch record.state {
+  case .idle:
+    session.state = .idle
+    session.since = record.since
+    session.detail = record.detail
+    session.waitingFor = nil
+  case .busy:
+    // A question asked in the transcript is the one thing more precise than
+    // "busy"; anything else keeps the record's word.
+    if local.state != .waiting {
+      session.state = .busy
+      if local.state != .busy {
+        session.since = record.since
+        session.detail = record.detail
+      }
+    }
+  case .waiting:
+    session.state = .waiting
+    session.waitingFor = record.waitingFor ?? local.waitingFor ?? Copy.localWaiting
+    if local.state != .waiting { session.since = record.since }
+  }
+  session.confirmed = true
+  return session
 }

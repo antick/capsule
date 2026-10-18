@@ -14,6 +14,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Fixed
 
+- Claude sessions idle for hours or weeks showed as working. The reader replayed each transcript over Claude Code's own status, and a transcript cannot tell a turn still running from one interrupted and left. Now whichever spoke last wins: Claude Code's status, or a transcript event newer than it.
 - Cursor showed 0% on plans that meter included usage per week: the app read only the monthly summary, which stays at zero for them. It now reads the current period the way Cursor's own dashboard does, and shows all three rows — total usage, Cursor's own models, and other models — with the monthly summary as the fallback.
 
 ### Added
