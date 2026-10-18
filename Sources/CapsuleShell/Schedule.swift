@@ -1,5 +1,6 @@
 import CapsuleActivity
 import CapsuleCore
+import CapsuleSystem
 import CapsuleUsage
 import Foundation
 
@@ -106,7 +107,12 @@ public final class ShellSchedule {
       events.onUnlock { Task { await usage.online() } },
       events.onOnline { Task { await usage.online() } },
       events.every(ActivityTuning.pollMs / 1000) { Task { await activity.rescan() } },
-      events.every(TokenTuning.scanIntervalMs / 1000) { Task { await tokens.rescan() } },
+      events.every(TokenTuning.scanIntervalMs / 1000) {
+        Task {
+          await tokens.rescan()
+          releaseFreedMemory()
+        }
+      },
     ]
     if let watch = events.watch(watchedDirectory, { Task { await activity.rescan() } }) {
       subscriptions.append(watch)
@@ -116,7 +122,10 @@ public final class ShellSchedule {
       onStarted?()
     }
     Task { await activity.rescan() }
-    Task { await tokens.rescan() }
+    Task {
+      await tokens.rescan()
+      releaseFreedMemory()
+    }
   }
 
   /// Re-times the poller's tick without re-reading anything.
