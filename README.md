@@ -159,3 +159,10 @@ openspec          Product specs and design history
 
 Capsule uses Electron, React, TanStack Router, Tailwind CSS, Biome, pnpm
 workspaces, and Turborepo.
+
+## License
+
+Capsule is free software under the
+[GNU General Public License v3.0 or later](LICENSE). You can use, study,
+change, and share it. If you share a changed version, you must release its
+source code under the same license.
