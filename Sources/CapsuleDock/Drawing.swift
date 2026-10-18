@@ -18,7 +18,13 @@ extension ThemeColor {
 
 /// Whether motion should be cut short, as the system asks.
 @MainActor
-var reduceMotion: Bool { NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
+var reduceMotion: Bool {
+  reduceMotionOverride ?? NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+}
+
+/// Stands in for the system setting, so tests can run with Reduce Motion on.
+@MainActor
+var reduceMotionOverride: Bool?
 
 /// A spring as Core Animation runs it, at unit mass.
 @MainActor

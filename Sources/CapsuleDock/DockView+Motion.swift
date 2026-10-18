@@ -8,7 +8,9 @@ extension DockView {
   func startLink() {
     guard link == nil else { return }
     if reduceMotion {
-      settle()
+      // Snap, never settle: settling recomputes the targets, which starts
+      // the link again, which would snap again — without end.
+      snap()
       return
     }
     let next = displayLink(target: self, selector: #selector(step(_:)))

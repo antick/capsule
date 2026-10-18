@@ -123,6 +123,12 @@ public final class DockView: FlippedView {
   /// placement change that should not animate.
   public func settle() {
     refresh()
+    snap()
+  }
+
+  /// Puts every spring where it is heading and draws that frame, without
+  /// recomputing the targets: what Reduce Motion asks for in place of motion.
+  func snap() {
     openness.value = targets.openness
     join.value = targets.joinOffset
     along.value = targets.cardAlong

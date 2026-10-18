@@ -12,6 +12,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Fixed
 
+- With Reduce Motion turned on, the app crashed at launch: snapping the dock instead of animating it re-entered itself without end. Found by CI, whose machines run with Reduce Motion on.
 - Grok now backs off when rate-limited, honouring `Retry-After`, like the other providers; before, a 429 failed as a plain error and Grok was asked again every poll.
 - Changing a setting no longer re-reads every provider: only switching providers on or off does. Each step of the size slider and every dock drag used to send a full round of usage requests.
 - Waking, unlocking and the network returning now share one read a minute instead of each starting a round.
