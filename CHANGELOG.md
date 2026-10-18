@@ -18,6 +18,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Added
 
+- The card is wider, 280 points at the default size instead of 232, so session names, statuses and reset times fit.
 - Claude's card shows every limit Anthropic lists for the account, including a weekly limit scoped to one model, under that model's name. Responses without the list keep the session and all-models windows.
 - Local builds are signed with the Developer ID found in the keychain, so every build has the same identity and Little Snitch rules and keychain approvals survive rebuilds. Builds fall back to ad hoc signing where there is none.
 

@@ -4,14 +4,14 @@ import CapsuleHUD
 import Foundation
 import Testing
 
-struct LatchExpected: Decodable, Equatable {
+struct LatchExpected: Codable, Equatable {
   let resting: Rect
   let latch: Rect
   let hotZone: Rect
   let stowShift: PathPoint
 }
 
-struct MorphExpected: Decodable {
+struct MorphExpected: Codable {
   let rail: Rect
   let path: [RecordedCommand]
   let clip: [RecordedCommand]
@@ -30,8 +30,10 @@ struct SilhouetteTests {
     let file: FixtureFile<DockInput, BlobLayout> = try Fixtures.load(
       "hud-paths/blob-layout"
     )
-    for testCase in file.cases {
-      #expect(draw(testCase.input).layout == testCase.expected, "\(testCase.name)")
+    let actual = file.cases.map { draw($0.input).layout }
+    if FixtureWriter.recording { return try FixtureWriter.record("hud-paths/blob-layout", actual) }
+    for (testCase, value) in zip(file.cases, actual) {
+      #expect(value == testCase.expected, "\(testCase.name)")
     }
   }
 
@@ -40,13 +42,13 @@ struct SilhouetteTests {
     let file: FixtureFile<DockInput, [RecordedCommand]> = try Fixtures.load(
       "hud-paths/rail-path"
     )
-    for testCase in file.cases {
+    let actual = file.cases.map { testCase in
       let (m, style, layout) = draw(testCase.input)
-      let actual = railPath(
-        m, testCase.input.growth, layout,
-        notch: testCase.input.notch ?? false, style: style
-      )
-      #expect(actual == commands(testCase.expected), "\(testCase.name)")
+      return railPath(m, testCase.input.growth, layout, notch: testCase.input.notch ?? false, style: style)
+    }
+    if FixtureWriter.recording { return try FixtureWriter.record("hud-paths/rail-path", actual.map(recorded)) }
+    for (testCase, value) in zip(file.cases, actual) {
+      #expect(value == commands(testCase.expected), "\(testCase.name)")
     }
   }
 
@@ -55,10 +57,13 @@ struct SilhouetteTests {
     let file: FixtureFile<DockInput, [RecordedCommand]> = try Fixtures.load(
       "hud-paths/bubble-path"
     )
-    for testCase in file.cases {
+    let actual = file.cases.map { testCase in
       let (m, _, layout) = draw(testCase.input)
-      let actual = bubblePath(m, testCase.input.growth, layout)
-      #expect(actual == commands(testCase.expected), "\(testCase.name)")
+      return bubblePath(m, testCase.input.growth, layout)
+    }
+    if FixtureWriter.recording { return try FixtureWriter.record("hud-paths/bubble-path", actual.map(recorded)) }
+    for (testCase, value) in zip(file.cases, actual) {
+      #expect(value == commands(testCase.expected), "\(testCase.name)")
     }
   }
 
@@ -81,16 +86,18 @@ struct SilhouetteTests {
     let file: FixtureFile<DockInput, HitRegions> = try Fixtures.load(
       "hud-paths/hit-regions"
     )
-    for testCase in file.cases {
+    let actual = file.cases.map { testCase in
       let input = testCase.input
       let (m, style, layout) = draw(input)
-      let actual = hitRegions(
+      return hitRegions(
         layout, padding: framePadding(m, input.growth, style: style),
         open: input.state == "open",
-        latchZone: input.state == "latched"
-          ? latchHotZone(m, input.growth, layout) : nil
+        latchZone: input.state == "latched" ? latchHotZone(m, input.growth, layout) : nil
       )
-      #expect(actual == testCase.expected, "\(testCase.name)")
+    }
+    if FixtureWriter.recording { return try FixtureWriter.record("hud-paths/hit-regions", actual) }
+    for (testCase, value) in zip(file.cases, actual) {
+      #expect(value == testCase.expected, "\(testCase.name)")
     }
   }
 
@@ -99,16 +106,19 @@ struct SilhouetteTests {
     let file: FixtureFile<DockInput, LatchExpected> = try Fixtures.load(
       "hud-paths/latch"
     )
-    for testCase in file.cases {
+    let actual = file.cases.map { testCase in
       let input = testCase.input
       let (m, _, layout) = draw(input)
-      let actual = LatchExpected(
+      return LatchExpected(
         resting: restingRail(m, layout, joined: input.joined),
         latch: latchRect(m, input.growth, layout, joined: input.joined),
         hotZone: latchHotZone(m, input.growth, layout, joined: input.joined),
         stowShift: stowShift(m, input.growth)
       )
-      #expect(actual == testCase.expected, "\(testCase.name)")
+    }
+    if FixtureWriter.recording { return try FixtureWriter.record("hud-paths/latch", actual) }
+    for (testCase, value) in zip(file.cases, actual) {
+      #expect(value == testCase.expected, "\(testCase.name)")
     }
   }
 
@@ -117,14 +127,22 @@ struct SilhouetteTests {
     let file: FixtureFile<DockInput, MorphExpected> = try Fixtures.load(
       "hud-paths/rail-morph"
     )
-    for testCase in file.cases {
+    let morphs = file.cases.map { testCase in
       let input = testCase.input
       let (m, style, layout) = draw(input)
-      let actual = railMorph(
+      return railMorph(
         m, input.growth, layout, openness: input.openness ?? 1,
         notch: input.notch ?? false, style: style,
         resting: input.joined.map { restingRail(m, layout, joined: $0) }
       )
+    }
+    if FixtureWriter.recording {
+      return try FixtureWriter.record(
+        "hud-paths/rail-morph",
+        morphs.map { MorphExpected(rail: $0.rail, path: recorded($0.path), clip: recorded($0.clip)) }
+      )
+    }
+    for (testCase, actual) in zip(file.cases, morphs) {
       #expect(actual.rail == testCase.expected.rail, "\(testCase.name): rail")
       #expect(actual.path == commands(testCase.expected.path), "\(testCase.name): path")
       #expect(actual.clip == commands(testCase.expected.clip), "\(testCase.name): clip")

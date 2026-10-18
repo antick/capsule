@@ -6,19 +6,19 @@
         "hotZone" : {
           "height" : 64,
           "width" : 23,
-          "x" : 289,
+          "x" : 337,
           "y" : 46
         },
         "latch" : {
           "height" : 64,
           "width" : 5,
-          "x" : 307,
+          "x" : 355,
           "y" : 46
         },
         "resting" : {
           "height" : 64,
           "width" : 5,
-          "x" : 307,
+          "x" : 355,
           "y" : 46
         },
         "stowShift" : {
@@ -41,19 +41,19 @@
         "hotZone" : {
           "height" : 64,
           "width" : 23,
-          "x" : 289,
+          "x" : 337,
           "y" : 99
         },
         "latch" : {
           "height" : 64,
           "width" : 5,
-          "x" : 307,
+          "x" : 355,
           "y" : 99
         },
         "resting" : {
           "height" : 64,
           "width" : 5,
-          "x" : 307,
+          "x" : 355,
           "y" : 99
         },
         "stowShift" : {
@@ -88,7 +88,7 @@
         "resting" : {
           "height" : 64,
           "width" : 5,
-          "x" : 307,
+          "x" : 355,
           "y" : 46
         },
         "stowShift" : {
@@ -123,7 +123,7 @@
         "resting" : {
           "height" : 64,
           "width" : 5,
-          "x" : 307,
+          "x" : 355,
           "y" : 99
         },
         "stowShift" : {
@@ -146,20 +146,20 @@
         "hotZone" : {
           "height" : 23,
           "width" : 64,
-          "x" : 84,
+          "x" : 108,
           "y" : 213
         },
         "latch" : {
           "height" : 5,
           "width" : 64,
-          "x" : 84,
+          "x" : 108,
           "y" : 231
         },
         "resting" : {
           "height" : 64,
           "width" : 5,
           "x" : 231,
-          "y" : 84
+          "y" : 108
         },
         "stowShift" : {
           "x" : 0,
@@ -181,20 +181,20 @@
         "hotZone" : {
           "height" : 23,
           "width" : 64,
-          "x" : 99,
+          "x" : 108,
           "y" : 213
         },
         "latch" : {
           "height" : 5,
           "width" : 64,
-          "x" : 99,
+          "x" : 108,
           "y" : 231
         },
         "resting" : {
           "height" : 64,
           "width" : 5,
           "x" : 231,
-          "y" : 99
+          "y" : 108
         },
         "stowShift" : {
           "x" : 0,
@@ -216,20 +216,20 @@
         "hotZone" : {
           "height" : 23,
           "width" : 64,
-          "x" : 84,
+          "x" : 108,
           "y" : 0
         },
         "latch" : {
           "height" : 5,
           "width" : 64,
-          "x" : 84,
+          "x" : 108,
           "y" : 0
         },
         "resting" : {
           "height" : 64,
           "width" : 5,
           "x" : 231,
-          "y" : 84
+          "y" : 108
         },
         "stowShift" : {
           "x" : 0,
@@ -251,20 +251,20 @@
         "hotZone" : {
           "height" : 23,
           "width" : 64,
-          "x" : 99,
+          "x" : 108,
           "y" : 0
         },
         "latch" : {
           "height" : 5,
           "width" : 64,
-          "x" : 99,
+          "x" : 108,
           "y" : 0
         },
         "resting" : {
           "height" : 64,
           "width" : 5,
           "x" : 231,
-          "y" : 99
+          "y" : 108
         },
         "stowShift" : {
           "x" : 0,
@@ -286,20 +286,20 @@
         "hotZone" : {
           "height" : 50,
           "width" : 185,
-          "x" : 38.5,
+          "x" : 47.5,
           "y" : 0
         },
         "latch" : {
           "height" : 32,
           "width" : 185,
-          "x" : 38.5,
+          "x" : 47.5,
           "y" : 0
         },
         "resting" : {
           "height" : 185,
           "width" : 32,
           "x" : 204,
-          "y" : 38.5
+          "y" : 47.5
         },
         "stowShift" : {
           "x" : 0,
@@ -326,20 +326,20 @@
         "hotZone" : {
           "height" : 50,
           "width" : 78,
-          "x" : 77,
+          "x" : 101,
           "y" : 0
         },
         "latch" : {
           "height" : 32,
           "width" : 78,
-          "x" : 77,
+          "x" : 101,
           "y" : 0
         },
         "resting" : {
           "height" : 78,
           "width" : 32,
           "x" : 204,
-          "y" : 77
+          "y" : 101
         },
         "stowShift" : {
           "x" : 0,
@@ -365,19 +365,19 @@
         "hotZone" : {
           "height" : 45,
           "width" : 17,
-          "x" : 201,
+          "x" : 235,
           "y" : 68.5
         },
         "latch" : {
           "height" : 45,
           "width" : 4,
-          "x" : 214,
+          "x" : 248,
           "y" : 68.5
         },
         "resting" : {
           "height" : 45,
           "width" : 4,
-          "x" : 214,
+          "x" : 248,
           "y" : 68.5
         },
         "stowShift" : {

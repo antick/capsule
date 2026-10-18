@@ -46,8 +46,10 @@ struct MetricsTests {
     let file: FixtureFile<Double, HudMetrics> = try Fixtures.load(
       "hud-metrics/metrics"
     )
-    for testCase in file.cases {
-      #expect(hudMetrics(testCase.input) == testCase.expected, "\(testCase.name)")
+    let actual = file.cases.map { hudMetrics($0.input) }
+    if FixtureWriter.recording { return try FixtureWriter.record("hud-metrics/metrics", actual) }
+    for (testCase, value) in zip(file.cases, actual) {
+      #expect(value == testCase.expected, "\(testCase.name)")
     }
   }
 

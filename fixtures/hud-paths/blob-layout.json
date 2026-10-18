@@ -6,7 +6,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -15,34 +15,34 @@
           "rail" : {
             "height" : 78,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 39
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 156,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 70
         },
         "rail" : {
           "height" : 78,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 39
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 70
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -59,7 +59,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -68,34 +68,34 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 26
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 262,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 57
         },
         "rail" : {
           "height" : 210,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 26
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 57
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -112,7 +112,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 106
           },
@@ -121,34 +121,34 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 26
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 106
         },
         "height" : 262,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 189
         },
         "rail" : {
           "height" : 210,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 26
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 189
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -165,7 +165,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -174,34 +174,34 @@
           "rail" : {
             "height" : 78,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 39
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 156,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 70
         },
         "rail" : {
           "height" : 78,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 39
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 70
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -218,7 +218,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -227,34 +227,34 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 0
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 210,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 31
         },
         "rail" : {
           "height" : 210,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 0
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 31
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -271,7 +271,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 54
           },
@@ -280,34 +280,34 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 0
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 54
         },
         "height" : 210,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 163
         },
         "rail" : {
           "height" : 210,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 0
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 163
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -324,7 +324,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -333,34 +333,34 @@
           "rail" : {
             "height" : 78,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 39
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 156,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 70
         },
         "rail" : {
           "height" : 78,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 39
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 70
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -377,7 +377,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -386,34 +386,34 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 0
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 210,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 31
         },
         "rail" : {
           "height" : 210,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 0
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 31
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -430,7 +430,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 54
           },
@@ -439,34 +439,34 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 0
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 54
         },
         "height" : 210,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 163
         },
         "rail" : {
           "height" : 210,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 0
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 163
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -483,7 +483,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -492,15 +492,15 @@
           "rail" : {
             "height" : 78,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 39
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 0
         },
@@ -519,7 +519,7 @@
           "x" : 58,
           "y" : 70
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -536,7 +536,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -545,15 +545,15 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 26
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 0
         },
@@ -572,7 +572,7 @@
           "x" : 58,
           "y" : 57
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -589,7 +589,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 106
           },
@@ -598,15 +598,15 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 26
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 106
         },
@@ -625,7 +625,7 @@
           "x" : 58,
           "y" : 189
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -642,7 +642,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -651,15 +651,15 @@
           "rail" : {
             "height" : 78,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 39
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 0
         },
@@ -678,7 +678,7 @@
           "x" : 58,
           "y" : 70
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -695,7 +695,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -704,15 +704,15 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 0
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 0
         },
@@ -731,7 +731,7 @@
           "x" : 58,
           "y" : 31
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -748,7 +748,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 54
           },
@@ -757,15 +757,15 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 0
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 54
         },
@@ -784,7 +784,7 @@
           "x" : 58,
           "y" : 163
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -801,7 +801,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -810,15 +810,15 @@
           "rail" : {
             "height" : 78,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 39
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 0
         },
@@ -837,7 +837,7 @@
           "x" : 58,
           "y" : 70
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -854,7 +854,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -863,15 +863,15 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 0
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 0
         },
@@ -890,7 +890,7 @@
           "x" : 58,
           "y" : 31
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -907,7 +907,7 @@
         "canonical" : {
           "card" : {
             "height" : 156,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 54
           },
@@ -916,15 +916,15 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 0
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 80,
           "y" : 54
         },
@@ -943,7 +943,7 @@
           "x" : 58,
           "y" : 163
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 2,
@@ -959,44 +959,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 108,
+          "height" : 280,
+          "joinY" : 132,
           "rail" : {
             "height" : 78,
             "width" : 58,
             "x" : 178,
-            "y" : 77
+            "y" : 101
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 78,
-          "x" : 77,
+          "x" : 101,
           "y" : 178
         },
         "tip" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 178
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1012,44 +1012,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 262,
-          "joinY" : 57,
+          "height" : 280,
+          "joinY" : 66,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 26
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 57,
+          "x" : 66,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 26,
+          "x" : 35,
           "y" : 178
         },
         "tip" : {
-          "x" : 57,
+          "x" : 66,
           "y" : 178
         },
-        "width" : 262
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1065,44 +1065,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
-            "y" : 30
+            "y" : 0
           },
-          "height" : 262,
-          "joinY" : 189,
+          "height" : 280,
+          "joinY" : 198,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 26
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
-          "x" : 30,
+          "width" : 280,
+          "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 189,
+          "x" : 198,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 26,
+          "x" : 35,
           "y" : 178
         },
         "tip" : {
-          "x" : 189,
+          "x" : 198,
           "y" : 178
         },
-        "width" : 262
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1118,44 +1118,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 108,
+          "height" : 280,
+          "joinY" : 132,
           "rail" : {
             "height" : 78,
             "width" : 58,
             "x" : 178,
-            "y" : 77
+            "y" : 101
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 78,
-          "x" : 77,
+          "x" : 101,
           "y" : 178
         },
         "tip" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 178
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1171,44 +1171,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 42,
+          "height" : 280,
+          "joinY" : 66,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 11
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 42,
+          "x" : 66,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 11,
+          "x" : 35,
           "y" : 178
         },
         "tip" : {
-          "x" : 42,
+          "x" : 66,
           "y" : 178
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1224,44 +1224,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 174,
+          "height" : 280,
+          "joinY" : 198,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 11
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 174,
+          "x" : 198,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 11,
+          "x" : 35,
           "y" : 178
         },
         "tip" : {
-          "x" : 174,
+          "x" : 198,
           "y" : 178
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1277,44 +1277,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 108,
+          "height" : 280,
+          "joinY" : 132,
           "rail" : {
             "height" : 78,
             "width" : 58,
             "x" : 178,
-            "y" : 77
+            "y" : 101
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 78,
-          "x" : 77,
+          "x" : 101,
           "y" : 178
         },
         "tip" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 178
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1330,44 +1330,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 42,
+          "height" : 280,
+          "joinY" : 66,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 11
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 42,
+          "x" : 66,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 11,
+          "x" : 35,
           "y" : 178
         },
         "tip" : {
-          "x" : 42,
+          "x" : 66,
           "y" : 178
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1383,44 +1383,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 174,
+          "height" : 280,
+          "joinY" : 198,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 11
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 236,
         "join" : {
-          "x" : 174,
+          "x" : 198,
           "y" : 178
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 11,
+          "x" : 35,
           "y" : 178
         },
         "tip" : {
-          "x" : 174,
+          "x" : 198,
           "y" : 178
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1436,44 +1436,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 108,
+          "height" : 280,
+          "joinY" : 132,
           "rail" : {
             "height" : 78,
             "width" : 58,
             "x" : 178,
-            "y" : 77
+            "y" : 101
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 78,
-          "x" : 77,
+          "x" : 101,
           "y" : 0
         },
         "tip" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 58
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1489,44 +1489,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 262,
-          "joinY" : 57,
+          "height" : 280,
+          "joinY" : 66,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 26
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 57,
+          "x" : 66,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 26,
+          "x" : 35,
           "y" : 0
         },
         "tip" : {
-          "x" : 57,
+          "x" : 66,
           "y" : 58
         },
-        "width" : 262
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1542,44 +1542,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
-            "y" : 30
+            "y" : 0
           },
-          "height" : 262,
-          "joinY" : 189,
+          "height" : 280,
+          "joinY" : 198,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 26
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
-          "x" : 30,
+          "width" : 280,
+          "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 189,
+          "x" : 198,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 26,
+          "x" : 35,
           "y" : 0
         },
         "tip" : {
-          "x" : 189,
+          "x" : 198,
           "y" : 58
         },
-        "width" : 262
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1595,44 +1595,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 108,
+          "height" : 280,
+          "joinY" : 132,
           "rail" : {
             "height" : 78,
             "width" : 58,
             "x" : 178,
-            "y" : 77
+            "y" : 101
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 78,
-          "x" : 77,
+          "x" : 101,
           "y" : 0
         },
         "tip" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 58
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1648,44 +1648,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 42,
+          "height" : 280,
+          "joinY" : 66,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 11
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 42,
+          "x" : 66,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 11,
+          "x" : 35,
           "y" : 0
         },
         "tip" : {
-          "x" : 42,
+          "x" : 66,
           "y" : 58
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1701,44 +1701,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 174,
+          "height" : 280,
+          "joinY" : 198,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 11
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 174,
+          "x" : 198,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 11,
+          "x" : 35,
           "y" : 0
         },
         "tip" : {
-          "x" : 174,
+          "x" : 198,
           "y" : 58
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1754,44 +1754,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 108,
+          "height" : 280,
+          "joinY" : 132,
           "rail" : {
             "height" : 78,
             "width" : 58,
             "x" : 178,
-            "y" : 77
+            "y" : 101
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 78,
-          "x" : 77,
+          "x" : 101,
           "y" : 0
         },
         "tip" : {
-          "x" : 108,
+          "x" : 132,
           "y" : 58
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1807,44 +1807,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 42,
+          "height" : 280,
+          "joinY" : 66,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 11
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 42,
+          "x" : 66,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 11,
+          "x" : 35,
           "y" : 0
         },
         "tip" : {
-          "x" : 42,
+          "x" : 66,
           "y" : 58
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1860,44 +1860,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 232,
+            "height" : 280,
             "width" : 156,
             "x" : 0,
             "y" : 0
           },
-          "height" : 232,
-          "joinY" : 174,
+          "height" : 280,
+          "joinY" : 198,
           "rail" : {
             "height" : 210,
             "width" : 58,
             "x" : 178,
-            "y" : 11
+            "y" : 35
           },
           "tipX" : 178,
           "width" : 236
         },
         "card" : {
           "height" : 156,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 80
         },
         "height" : 236,
         "join" : {
-          "x" : 174,
+          "x" : 198,
           "y" : 58
         },
         "rail" : {
           "height" : 58,
           "width" : 210,
-          "x" : 11,
+          "x" : 35,
           "y" : 0
         },
         "tip" : {
-          "x" : 174,
+          "x" : 198,
           "y" : 58
         },
-        "width" : 232
+        "width" : 280
       },
       "input" : {
         "buckets" : 2,
@@ -1914,7 +1914,7 @@
         "canonical" : {
           "card" : {
             "height" : 154,
-            "width" : 162,
+            "width" : 196,
             "x" : 0,
             "y" : 8.5
           },
@@ -1923,34 +1923,34 @@
           "rail" : {
             "height" : 146,
             "width" : 41,
-            "x" : 177,
+            "x" : 211,
             "y" : 18
           },
-          "tipX" : 177,
-          "width" : 218
+          "tipX" : 211,
+          "width" : 252
         },
         "card" : {
           "height" : 154,
-          "width" : 162,
+          "width" : 196,
           "x" : 0,
           "y" : 8.5
         },
         "height" : 182,
         "join" : {
-          "x" : 177,
+          "x" : 211,
           "y" : 85.5
         },
         "rail" : {
           "height" : 146,
           "width" : 41,
-          "x" : 177,
+          "x" : 211,
           "y" : 18
         },
         "tip" : {
-          "x" : 177,
+          "x" : 211,
           "y" : 85.5
         },
-        "width" : 218
+        "width" : 252
       },
       "input" : {
         "buckets" : 3,
@@ -1966,44 +1966,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 162,
+            "height" : 196,
             "width" : 154,
             "x" : 0,
-            "y" : 4.5
+            "y" : 0
           },
-          "height" : 182,
-          "joinY" : 85.5,
+          "height" : 196,
+          "joinY" : 92.5,
           "rail" : {
             "height" : 146,
             "width" : 41,
             "x" : 169,
-            "y" : 18
+            "y" : 25
           },
           "tipX" : 169,
           "width" : 210
         },
         "card" : {
           "height" : 154,
-          "width" : 162,
-          "x" : 4.5,
+          "width" : 196,
+          "x" : 0,
           "y" : 56
         },
         "height" : 210,
         "join" : {
-          "x" : 85.5,
+          "x" : 92.5,
           "y" : 41
         },
         "rail" : {
           "height" : 41,
           "width" : 146,
-          "x" : 18,
+          "x" : 25,
           "y" : 0
         },
         "tip" : {
-          "x" : 85.5,
+          "x" : 92.5,
           "y" : 41
         },
-        "width" : 182
+        "width" : 196
       },
       "input" : {
         "buckets" : 3,
@@ -2020,7 +2020,7 @@
         "canonical" : {
           "card" : {
             "height" : 282,
-            "width" : 302,
+            "width" : 364,
             "x" : 0,
             "y" : 19.5
           },
@@ -2029,34 +2029,34 @@
           "rail" : {
             "height" : 274,
             "width" : 75,
-            "x" : 331,
+            "x" : 393,
             "y" : 34
           },
-          "tipX" : 331,
-          "width" : 406
+          "tipX" : 393,
+          "width" : 468
         },
         "card" : {
           "height" : 282,
-          "width" : 302,
+          "width" : 364,
           "x" : 0,
           "y" : 19.5
         },
         "height" : 342,
         "join" : {
-          "x" : 331,
+          "x" : 393,
           "y" : 160.5
         },
         "rail" : {
           "height" : 274,
           "width" : 75,
-          "x" : 331,
+          "x" : 393,
           "y" : 34
         },
         "tip" : {
-          "x" : 331,
+          "x" : 393,
           "y" : 160.5
         },
-        "width" : 406
+        "width" : 468
       },
       "input" : {
         "buckets" : 3,
@@ -2072,44 +2072,44 @@
       "expected" : {
         "canonical" : {
           "card" : {
-            "height" : 302,
+            "height" : 364,
             "width" : 282,
             "x" : 0,
-            "y" : 9.5
+            "y" : 0
           },
-          "height" : 342,
-          "joinY" : 160.5,
+          "height" : 364,
+          "joinY" : 171.5,
           "rail" : {
             "height" : 274,
             "width" : 75,
             "x" : 311,
-            "y" : 34
+            "y" : 45
           },
           "tipX" : 311,
           "width" : 386
         },
         "card" : {
           "height" : 282,
-          "width" : 302,
-          "x" : 9.5,
+          "width" : 364,
+          "x" : 0,
           "y" : 104
         },
         "height" : 386,
         "join" : {
-          "x" : 160.5,
+          "x" : 171.5,
           "y" : 75
         },
         "rail" : {
           "height" : 75,
           "width" : 274,
-          "x" : 34,
+          "x" : 45,
           "y" : 0
         },
         "tip" : {
-          "x" : 160.5,
+          "x" : 171.5,
           "y" : 75
         },
-        "width" : 342
+        "width" : 364
       },
       "input" : {
         "buckets" : 3,
@@ -2126,7 +2126,7 @@
         "canonical" : {
           "card" : {
             "height" : 212,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 0
           },
@@ -2135,34 +2135,34 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 26
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 212,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 0
         },
         "height" : 262,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 57
         },
         "rail" : {
           "height" : 210,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 26
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 57
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 3,
@@ -2181,7 +2181,7 @@
         "canonical" : {
           "card" : {
             "height" : 100,
-            "width" : 232,
+            "width" : 280,
             "x" : 0,
             "y" : 73
           },
@@ -2190,34 +2190,34 @@
           "rail" : {
             "height" : 210,
             "width" : 58,
-            "x" : 254,
+            "x" : 302,
             "y" : 26
           },
-          "tipX" : 254,
-          "width" : 312
+          "tipX" : 302,
+          "width" : 360
         },
         "card" : {
           "height" : 100,
-          "width" : 232,
+          "width" : 280,
           "x" : 0,
           "y" : 73
         },
         "height" : 262,
         "join" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 123
         },
         "rail" : {
           "height" : 210,
           "width" : 58,
-          "x" : 254,
+          "x" : 302,
           "y" : 26
         },
         "tip" : {
-          "x" : 254,
+          "x" : 302,
           "y" : 123
         },
-        "width" : 312
+        "width" : 360
       },
       "input" : {
         "buckets" : 1,

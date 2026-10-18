@@ -82,7 +82,7 @@ extension HudMetrics {
     (\.percentBlock, 12),
     (\.percentFontSize, 11),
     (\.itemGap, 12),
-    (\.cardWidth, 232),
+    (\.cardWidth, 280),
     (\.cardRadius, 16),
     (\.cardPaddingX, 14),
     (\.cardPaddingTop, 12),

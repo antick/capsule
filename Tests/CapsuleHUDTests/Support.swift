@@ -43,8 +43,10 @@ func draw(_ dock: DockInput) -> (m: HudMetrics, style: DockStyle, layout: BlobLa
 
 /// The corpus's path format: `{ op, x, y }`, `{ op: "A", r, sweep, x, y }`,
 /// `{ op: "C", c1: [x, y], c2: [x, y], x, y }`, `{ op: "Z" }`.
-struct RecordedCommand: Decodable {
+struct RecordedCommand: Codable {
   let command: PathCommand
+
+  init(_ command: PathCommand) { self.command = command }
 
   private enum Keys: String, CodingKey { case op, x, y, r, sweep, c1, c2 }
 
@@ -79,6 +81,41 @@ struct RecordedCommand: Decodable {
       )
     }
   }
+}
+
+extension RecordedCommand {
+  func encode(to encoder: Encoder) throws {
+    var c = encoder.container(keyedBy: Keys.self)
+    func end(_ point: PathPoint) throws {
+      try c.encode(point.x, forKey: .x)
+      try c.encode(point.y, forKey: .y)
+    }
+    switch command {
+    case .move(let to):
+      try c.encode("M", forKey: .op)
+      try end(to)
+    case .line(let to):
+      try c.encode("L", forKey: .op)
+      try end(to)
+    case .arc(let radius, let sweep, let to):
+      try c.encode("A", forKey: .op)
+      try c.encode(radius, forKey: .r)
+      try c.encode(sweep, forKey: .sweep)
+      try end(to)
+    case .curve(let c1, let c2, let to):
+      try c.encode("C", forKey: .op)
+      try c.encode([c1.x, c1.y], forKey: .c1)
+      try c.encode([c2.x, c2.y], forKey: .c2)
+      try end(to)
+    case .close:
+      try c.encode("Z", forKey: .op)
+    }
+  }
+}
+
+/// Path commands in the corpus's format, for writing back.
+func recorded(_ commands: [PathCommand]) -> [RecordedCommand] {
+  commands.map(RecordedCommand.init)
 }
 
 func commands(_ recorded: [RecordedCommand]) -> [PathCommand] {

@@ -114,9 +114,14 @@ ported.
 Most `expected` values are hand-written. The provider mappings, the stub
 worlds and much of the geometry were **recorded** from the TypeScript
 implementation, because a full mapped snapshot is too large to transcribe.
-With that implementation retired, a case is now changed by hand, in a commit
-that says why — the same way a recorded case was re-recorded before: never in
-CI, and only after the Swift behaviour it pins has been decided.
+With that implementation retired, recorded expectations are written back from
+the Swift suite: run it with `CAPSULE_WRITE_FIXTURES=1`, and each test that
+records (the HUD metrics and the dock outlines, so far) rewrites its file's
+`expected` values through `FixtureWriter`. Every file is kept in one layout —
+sorted keys, two-space indent — so the diff shows only the values that
+changed; `CorpusLayoutTests` fails on a file in any other layout. A
+re-recording belongs in a commit a person has read, never in CI, and only
+after the behaviour it pins has been decided.
 
 ## What is here
 

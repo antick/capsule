@@ -21,12 +21,34 @@ public enum FixtureWriter {
     else { throw FixtureError.noCases(path) }
     for (index, value) in expected.enumerated() {
       guard case .object(var item) = cases[index] else { continue }
-      item["expected"] = try JSONDecoder().decode(AnyJSON.self, from: JSONEncoder().encode(value))
+      let fresh = try JSONDecoder().decode(AnyJSON.self, from: JSONEncoder().encode(value))
+      item["expected"] = keepingNulls(fresh, from: item["expected"] ?? .null)
       cases[index] = .object(item)
     }
     top["cases"] = .array(cases)
     file = .object(top)
     try write(file, to: path)
+  }
+
+  /// Swift leaves a `nil` field out where the corpus writes `null`. A field
+  /// the old expectation held as `null` stays, so recording changes values,
+  /// not shape.
+  static func keepingNulls(_ fresh: AnyJSON, from old: AnyJSON) -> AnyJSON {
+    switch (fresh, old) {
+    case (.object(var fields), .object(let before)):
+      for (key, value) in before {
+        if let current = fields[key] {
+          fields[key] = keepingNulls(current, from: value)
+        } else if value == .null {
+          fields[key] = .null
+        }
+      }
+      return .object(fields)
+    case (.array(let items), .array(let before)) where items.count == before.count:
+      return .array(zip(items, before).map { keepingNulls($0, from: $1) })
+    default:
+      return fresh
+    }
   }
 
   /// Rewrites a file in the corpus's layout without changing what it says.
