@@ -2,6 +2,12 @@
 
 All notable changes to Capsule are documented in this file.
 
+## GPL license
+
+### Added
+
+- Capsule is now licensed under the GNU General Public License v3.0 or later. Added the `LICENSE` file, a License section in the README, and `"license": "GPL-3.0-or-later"` in every workspace `package.json`.
+
 ## Public-repo privacy sweep
 
 ### Changed

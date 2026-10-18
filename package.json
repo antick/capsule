@@ -1,6 +1,7 @@
 {
   "name": "capsule",
   "private": true,
+  "license": "GPL-3.0-or-later",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
     "dev": "turbo run dev --filter=@capsule/desktop",
