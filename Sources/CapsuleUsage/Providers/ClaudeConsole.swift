@@ -44,15 +44,26 @@ public func claudeSubscriptionCredit(_ credits: ClaudeConsoleCredits, now: Date)
     percentUsed: max(0, min(100, (total - left) / total * 100)), resetsAt: grant.expires_at)
 }
 
-/// Reads the grant with the Console session the user pasted, at most hourly.
+/// Reads the grant with the Console session the user pasted, at most hourly
+/// once it has an answer. A new session is read at once, and a failed read
+/// is tried again on the next poll rather than held for the hour.
 actor ClaudeConsoleMemo {
+  private var session: String?
   private var at: Date?
   private var kept: UsageExtra?
 
   func value(_ host: UsageHost, now: Date) async -> UsageExtra? {
-    guard let session = await host.storedKey(.claudeConsole) else { return nil }
-    if let at, now.timeIntervalSince(at) < UsageEndpoints.Cursor.spendRefreshSeconds, at <= now { return kept }
-    at = now
+    guard let session = await host.storedKey(.claudeConsole) else {
+      self.session = nil
+      kept = nil
+      return nil
+    }
+    if session != self.session {
+      self.session = session
+      at = nil
+      kept = nil
+    }
+    if let at, now.timeIntervalSince(at) < UsageEndpoints.ClaudeConsole.refreshSeconds, at <= now { return kept }
     let rules = UsageEndpoints.ClaudeConsole.self
     let headers = usageHeaders(["Cookie": "\(rules.cookieName)=\(session)"])
     guard
@@ -71,6 +82,7 @@ actor ClaudeConsoleMemo {
         let extra = claudeSubscriptionCredit(credits, now: now)
       else { continue }
       kept = extra
+      at = now
       return extra
     }
     return kept

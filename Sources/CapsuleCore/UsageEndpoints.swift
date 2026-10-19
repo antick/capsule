@@ -118,6 +118,8 @@ extension UsageEndpoints {
     public static let organizationsPath = "/api/organizations"
     public static let cookieName = "sessionKey"
     public static let subscriptionProgram = "subscription_api_credit"
+    /// The grant changes monthly; once read, an hour is plenty.
+    public static let refreshSeconds = 3_600.0
   }
 }
 
