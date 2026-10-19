@@ -35,6 +35,11 @@ All notable changes to Capsule are documented in this file.
 ### Fixed
 
 - The menu-bar panel opens as a small window under the menu bar's right end when a menu-bar manager has hidden Capsule's item, instead of opening out of sight.
+- Reset notices and confetti fire when a window's reset time moves on, even if the new window is already in use by the next read.
+- A newly pasted Claude Console session is read at once; a failed read is retried on the next poll.
+- Usage history is recorded only when readings change and saved in the background, so the dock and panel stay smooth; charts thin long histories.
+- With figures in the menu bar or the dock always shown, adaptive refresh keeps the numbers at most five minutes old.
+- The key file is written atomically, so a read never meets a half-written file. `capsule --refresh` respects the app's rate-limit backoff.
 - Token counts no longer double-count Claude messages written more than once while streaming, or a Codex subagent's replay of its parent's history.
 
 ### Removed
