@@ -66,6 +66,7 @@ public final class AppModel: MenuHandlers {
     }
     let behavior = dock.behavior
     behavior.onRefresh = { [weak self] id in self?.engine.refreshProvider(id) }
+    behavior.onInteract = { [weak self] in self?.engine.noteInteraction() }
     behavior.onKeepOpenChange = { [weak self] next in self?.setKeepOpen(next) }
     behavior.notices.onRead = { [weak self] ids in self?.engine.markRead(ids) }
     dock.view.onDismissNotice = { [weak self] id in self?.engine.dismiss(id) }
@@ -115,6 +116,7 @@ public final class AppModel: MenuHandlers {
     menus = Menus(handlers: self)
     let status = StatusItemController(settings: settings)
     status.commands = { [weak self] in self?.menus?.contextMenu() ?? NSMenu() }
+    status.onPanelOpened = { [weak self] in self?.engine.noteInteraction() }
     statusItem = status
     settingsModel.appearance = systemAppearance
     pushToDock()
@@ -227,6 +229,7 @@ public final class AppModel: MenuHandlers {
   }
 
   public func openSettings(_ page: SettingsPage) {
+    engine.noteInteraction()
     settingsModel.appearance = systemAppearance
     settingsModel.snapshots = engine.state.snapshots
     settingsWindow.show(page)

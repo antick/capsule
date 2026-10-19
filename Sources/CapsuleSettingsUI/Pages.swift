@@ -249,6 +249,11 @@ struct GeneralPage: View {
           .labelsHidden().fixedSize()
         }
         Divider()
+        SettingRow(label: Copy.adaptiveRefresh, hint: Copy.adaptiveRefreshHint) {
+          Toggle("", isOn: binding(\.adaptiveRefresh)).labelsHidden().toggleStyle(.switch)
+            .accessibilityLabel(Copy.adaptiveRefresh)
+        }
+        Divider()
         SettingRow(label: Copy.usageDisplay, hint: Copy.usageDisplayHint) {
           Picker(Copy.usageDisplay, selection: binding(\.usageDisplay)) {
             Text(Copy.usageDisplayUsed).tag(UsageDisplay.used)

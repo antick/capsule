@@ -111,6 +111,35 @@ public final class Engine {
     ] + added
   }
 
+  /// When the user last looked at Capsule, in uptime milliseconds.
+  private nonisolated static let lookedAt = OSAllocatedUnfairLock<Double?>(initialState: nil)
+
+  private nonisolated static func uptimeMs() -> Double { ProcessInfo.processInfo.systemUptime * 1000 }
+
+  /// The wait between reads: adaptive, or the fixed busy/idle rule.
+  private nonisolated static func delay(_ settings: CapsuleSettings, busy: Bool) -> Double {
+    let interval = Double(settings.pollIntervalMs)
+    guard settings.adaptiveRefresh else { return busy ? interval : PollerTuning.idleIntervalMs }
+    let info = ProcessInfo.processInfo
+    let constrained = info.isLowPowerModeEnabled || info.thermalState == .serious || info.thermalState == .critical
+    let since = lookedAt.withLock { $0 }.map { uptimeMs() - $0 }
+    return AdaptiveRefresh.delayMs(sinceInteractionMs: since, busy: busy, constrained: constrained, intervalMs: interval)
+  }
+
+  /// The user looked at Capsule: reads speed up, and readings older than
+  /// the quick pace are read again now.
+  public func noteInteraction() {
+    let before = Engine.lookedAt.withLock { previous -> Double? in
+      defer { previous = Engine.uptimeMs() }
+      return previous
+    }
+    guard settings.adaptiveRefresh,
+      before.map({ Engine.uptimeMs() - $0 > AdaptiveRefresh.recentWindowMs }) ?? true
+    else { return }
+    let poller = poller
+    Task { await poller.tick() }
+  }
+
   private static func makePoller(
     settings: CapsuleSettings, store: JSONStore, current: OSAllocatedUnfairLock<CapsuleSettings>,
     latest: OSAllocatedUnfairLock<ShellState>, busy: OSAllocatedUnfairLock<Bool>,
@@ -124,7 +153,8 @@ public final class Engine {
         latest.withLock { $0.snapshots = snapshots }
         publish()
       },
-      isBusy: { busy.withLock { $0 } }
+      isBusy: { busy.withLock { $0 } },
+      delayMs: { Engine.delay(current.withLock { $0 }, busy: busy.withLock { $0 }) }
     )
   }
 

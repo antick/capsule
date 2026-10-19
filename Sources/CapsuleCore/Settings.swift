@@ -93,6 +93,8 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   @LossyList public var alertThresholds: [Int] = []
   /// A notification when a window resets, and confetti for a weekly one.
   @DefaultOn public var celebrateResets: Bool = true
+  /// Pace reads by what the user and the Mac are doing, not a fixed clock.
+  @DefaultOn public var adaptiveRefresh: Bool = true
   public var schemaVersion: Int
 
   /// What a first launch starts from.
@@ -130,6 +132,7 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     quotaAlerts: true,
     alertThresholds: [],
     celebrateResets: true,
+    adaptiveRefresh: true,
     schemaVersion: SettingsDefaults.schemaVersion
   )
 }
@@ -234,6 +237,7 @@ extension CapsuleSettings {
       alertThresholds: (fields["alertThresholds"]?.asArray ?? []).compactMap { $0.asDouble.map { Int($0) } }
         .filter { $0 > 0 && $0 < 100 },
       celebrateResets: flag("celebrateResets", defaults.celebrateResets),
+      adaptiveRefresh: flag("adaptiveRefresh", defaults.adaptiveRefresh),
       schemaVersion: SettingsDefaults.schemaVersion
     )
   }

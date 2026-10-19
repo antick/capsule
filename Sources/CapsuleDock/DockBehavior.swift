@@ -31,6 +31,8 @@ public final class DockBehavior {
   public var onKeepOpenChange: ((Bool) -> Void)?
   /// The user asked for a provider to be read again.
   public var onRefresh: ((MeterId) -> Void)?
+  /// The user reached for the dock: hovered or clicked a meter.
+  public var onInteract: (() -> Void)?
 
   public private(set) var hovered: MeterId?
   public private(set) var pinned: MeterId?
@@ -146,6 +148,7 @@ public final class DockBehavior {
 
   public func meterEntered(_ id: MeterId) {
     if dragging || didDrag { return }
+    onInteract?()
     clearTimers()
     notices.close()
     if Motion.hoverOpenDelayMs <= 0 {

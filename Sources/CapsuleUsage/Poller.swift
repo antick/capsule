@@ -27,6 +27,8 @@ public actor UsagePoller {
   private let onChange: @Sendable ([UsageSnapshot]) -> Void
   private let isBusy: @Sendable () -> Bool
   private let idleIntervalMs: Double
+  /// When given, the wait between reads, in place of the busy/idle rule.
+  private let delayMs: (@Sendable () -> Double)?
 
   public private(set) var snapshots: [UsageSnapshot] = []
   /// Resolves to whether a follow-up refresh is needed.
@@ -43,8 +45,10 @@ public actor UsagePoller {
     settings: @escaping @Sendable () -> CapsuleSettings,
     onChange: @escaping @Sendable ([UsageSnapshot]) -> Void,
     isBusy: @escaping @Sendable () -> Bool = { true },
-    idleIntervalMs: Double = PollerTuning.idleIntervalMs
+    idleIntervalMs: Double = PollerTuning.idleIntervalMs,
+    delayMs: (@Sendable () -> Double)? = nil
   ) {
+    self.delayMs = delayMs
     self.providers = providers
     self.host = host
     self.settings = settings
@@ -247,8 +251,12 @@ public actor UsagePoller {
   /// interval has passed.
   public func tick() async {
     let waited = lastAttempt.map { nowMs - $0 } ?? .infinity
-    guard shouldRefresh(busy: isBusy(), sinceLastAttemptMs: waited, idleIntervalMs: idleIntervalMs) else {
-      return
+    if let delayMs {
+      guard waited >= delayMs() else { return }
+    } else {
+      guard shouldRefresh(busy: isBusy(), sinceLastAttemptMs: waited, idleIntervalMs: idleIntervalMs) else {
+        return
+      }
     }
     await refresh()
   }
