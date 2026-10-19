@@ -104,7 +104,13 @@ public struct ClaudeUsageProvider: UsageProvider {
           )
         )
         if response.ok {
-          return mapClaudeUsage(try decode(ClaudeUsagePayload.self, response, id), fetchedAt: now)
+          var snapshot = mapClaudeUsage(try decode(ClaudeUsagePayload.self, response, id), fetchedAt: now)
+          // The Console's API credit belongs to the account behind the
+          // pasted session, shown on the default sign-in's card.
+          if configDir == nil, let credit = await claudeConsoleMemo.value(host, now: now) {
+            snapshot.extras = (snapshot.extras ?? []) + [credit]
+          }
+          return snapshot
         }
         if response.status == 429 {
           refused = rateLimited(response, now: now)

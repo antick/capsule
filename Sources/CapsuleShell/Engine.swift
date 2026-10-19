@@ -103,7 +103,10 @@ public final class Engine {
       default: return nil
       }
     }
-    return [ClaudeUsageProvider(), CodexUsageProvider(), GrokUsageProvider(), CursorUsageProvider()] + added
+    return [
+      ClaudeUsageProvider(), CodexUsageProvider(), GrokUsageProvider(), CursorUsageProvider(),
+      AntigravityUsageProvider(), DevinUsageProvider(), OpenRouterUsageProvider(), DeepSeekUsageProvider(),
+    ] + added
   }
 
   private static func makePoller(

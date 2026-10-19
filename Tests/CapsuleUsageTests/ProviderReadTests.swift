@@ -111,6 +111,10 @@ func provider(_ id: ProviderId) -> UsageProvider {
   case .codex: return CodexUsageProvider()
   case .grok: return GrokUsageProvider()
   case .cursor: return CursorUsageProvider()
+  case .antigravity: return AntigravityUsageProvider()
+  case .devin: return DevinUsageProvider()
+  case .openrouter: return OpenRouterUsageProvider()
+  case .deepseek: return DeepSeekUsageProvider()
   }
 }
 

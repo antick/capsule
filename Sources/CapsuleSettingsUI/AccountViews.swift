@@ -171,3 +171,45 @@ struct AddAccountSection: View {
     path = AccountPaths.display(url.path, home: model.homeDir)
   }
 }
+
+/// Keys and sessions for providers with no login on this Mac. A saved key is
+/// never shown again; it can only be replaced or cleared.
+struct ApiKeysSection: View {
+  @ObservedObject var model: SettingsModel
+  @State private var drafts: [StoredKey: String] = [:]
+
+  var body: some View {
+    SettingsSection(title: Copy.apiKeys, hint: Copy.apiKeysHint) {
+      ForEach(StoredKey.allCases, id: \.self) { key in
+        let saved = model.savedKeys.contains(key)
+        VStack(alignment: .leading, spacing: 6) {
+          HStack(spacing: 8) {
+            Text(Copy.label(key)).font(.system(size: 13, weight: .medium))
+            StatusPill(tone: saved ? .good : .neutral, text: saved ? Copy.keySaved : Copy.keyNotSet)
+            Spacer(minLength: 0)
+          }
+          Text(Copy.hint(key)).font(.system(size: 12)).foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+          HStack(spacing: 8) {
+            SecureField(Copy.pasteKey, text: Binding(get: { drafts[key] ?? "" }, set: { drafts[key] = $0 }))
+              .textFieldStyle(.roundedBorder).accessibilityLabel(Copy.label(key))
+              .onSubmit { save(key) }
+            Button(Copy.saveKey) { save(key) }.disabled(jsTrim(drafts[key] ?? "").isEmpty)
+            if saved {
+              Button(Copy.clearKey) { model.onSaveKey(key, nil) }.accessibilityLabel("\(Copy.clearKey) \(Copy.label(key))")
+            }
+          }
+        }
+        .padding(.vertical, 4)
+        if key != StoredKey.allCases.last { Divider() }
+      }
+    }
+  }
+
+  private func save(_ key: StoredKey) {
+    let value = jsTrim(drafts[key] ?? "")
+    guard !value.isEmpty else { return }
+    model.onSaveKey(key, value)
+    drafts[key] = ""
+  }
+}

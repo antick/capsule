@@ -85,6 +85,21 @@ public final class AppModel: MenuHandlers {
     settingsModel.onOpenRelease = { [weak self] in self?.updater.openReleasePage() }
     settingsModel.onInstallUpdate = { [weak self] in self?.installUpdate() }
     settingsModel.homeDir = userHome
+    let keys = KeyFile(directory: store.directory)
+    settingsModel.savedKeys = Set(StoredKey.allCases.filter(keys.has))
+    settingsModel.onSaveKey = { [weak self] key, value in
+      keys.set(key, value)
+      self?.settingsModel.savedKeys = Set(StoredKey.allCases.filter(keys.has))
+      // Read the provider the key is for straight away.
+      let provider: ProviderId
+      switch key {
+      case .openrouter: provider = .openrouter
+      case .deepseek: provider = .deepseek
+      case .devin: provider = .devin
+      case .claudeConsole: provider = .claude
+      }
+      self?.engine.refreshProvider(MeterId(provider))
+    }
     settingsModel.onScanAccounts = { [weak self] in self?.scanAccounts() }
     settingsModel.onCheckAccount = { [weak self] provider, path in
       checkAccountFolder(provider, path: path, existing: self?.settings.accounts ?? [])

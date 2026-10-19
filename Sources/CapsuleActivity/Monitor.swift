@@ -33,7 +33,7 @@ public actor ActivityMonitor {
     case .claude: return await readClaudeSessions(host)
     case .codex: return await readCodexSessions(host)
     case .grok: return await readGrokSessions(host)
-    case .cursor: return []
+    case .cursor, .antigravity, .devin, .openrouter, .deepseek: return []
     }
   }
 

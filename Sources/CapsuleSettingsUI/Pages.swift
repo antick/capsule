@@ -84,6 +84,7 @@ struct ProvidersPage: View {
         }
       }
       AddAccountSection(model: model)
+      ApiKeysSection(model: model)
       MetricsSection(model: model)
     }
     .onAppear { model.onScanAccounts() }

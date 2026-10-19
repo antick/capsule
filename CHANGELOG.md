@@ -14,6 +14,9 @@ All notable changes to Capsule are documented in this file.
 - Codex credits on its card, with what they are worth.
 - More Cursor detail: the Grok Bot pool, premium requests on request-based plans, on-demand spend against its limit, and credit left (grants plus any Stripe credit). Pace follows Cursor's real billing period, weekly or monthly.
 - Estimated spend at list price, today and over the last 30 days, beside the token counts for Claude, Codex and Grok, from their local logs. Prices come from LiteLLM's public table, refreshed daily, with a bundled fallback; "≥" marks a total that includes a model with no known price. Cursor's spend comes from its own usage history.
+- New providers, off until switched on: Antigravity (Gemini and Claude/GPT pools, from the running app or its saved login), Devin (daily and weekly quotas and overage balance, from Devin's own app login), OpenRouter (balance, key limit, spend) and DeepSeek (balance).
+- API keys and sessions in Settings → Providers, for providers with no login on this Mac, kept in an owner-only file in Capsule's folder and never shown again once saved.
+- The monthly API credit a Claude Max plan includes, on the Claude card, from a pasted Console session.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
 
 ### Fixed

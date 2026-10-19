@@ -6,12 +6,19 @@ public struct HTTPRequest: Sendable, Equatable {
   public var url: String
   public var headers: [String: String]
   public var body: String?
+  /// Trust a self-signed certificate. Only ever honoured for loopback, where
+  /// a local app's own server lives.
+  public var loopbackSelfSigned: Bool
 
-  public init(method: String = "GET", url: String, headers: [String: String], body: String? = nil) {
+  public init(
+    method: String = "GET", url: String, headers: [String: String], body: String? = nil,
+    loopbackSelfSigned: Bool = false
+  ) {
     self.method = method
     self.url = url
     self.headers = headers
     self.body = body
+    self.loopbackSelfSigned = loopbackSelfSigned
   }
 }
 
@@ -47,6 +54,10 @@ public protocol UsageHost: Sendable {
   func query(_ database: String, _ sql: String) async -> [[String]]
   /// The same, but nil when the store could not be read at all.
   func queryIfReadable(_ database: String, _ sql: String) async -> [[String]]?
+  func storedKey(_ key: StoredKey) async -> String?
+  func processes() async -> [RunningProcess]
+  func listeningPorts(_ pid: Int) async -> [Int]
+  func readSecret(_ service: String, account: String) async -> String?
   func environment(_ name: String) -> String?
 }
 
@@ -60,8 +71,26 @@ public protocol UsageProvider: Sendable {
   func fetchSnapshot(_ host: UsageHost, now: Date) async throws -> UsageSnapshot
 }
 
+/// A running process: its id and its command line.
+public struct RunningProcess: Sendable, Equatable {
+  public var pid: Int
+  public var command: String
+
+  public init(pid: Int, command: String) {
+    self.pid = pid
+    self.command = command
+  }
+}
+
 extension UsageHost {
   public func queryIfReadable(_ database: String, _ sql: String) async -> [[String]]? { await query(database, sql) }
+  /// A key the user saved in Settings.
+  public func storedKey(_ key: StoredKey) async -> String? { nil }
+  public func processes() async -> [RunningProcess] { [] }
+  /// The TCP ports a process listens on, on loopback.
+  public func listeningPorts(_ pid: Int) async -> [Int] { [] }
+  /// A generic-password item by service and account.
+  public func readSecret(_ service: String, account: String) async -> String? { nil }
 }
 
 extension UsageProvider {
@@ -85,6 +114,12 @@ func credentialPath(_ host: UsageHost, env: String, _ segments: [String]) -> Str
     return joinPath(override, [segments.last ?? "auth.json"])
   }
   return joinPath(host.homeDir, segments)
+}
+
+/// A request body as JSON text, for values that must be escaped.
+func jsonBody(_ object: [String: Any]) -> String {
+  guard let data = try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]) else { return "{}" }
+  return String(decoding: data, as: UTF8.self)
 }
 
 func decode<Payload: Decodable>(_ type: Payload.Type, _ response: HTTPResponse, _ provider: ProviderId) throws

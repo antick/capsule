@@ -8,8 +8,12 @@ public var userHome: String { FileManager.default.homeDirectoryForCurrentUser.pa
 /// The usage readers' view of this Mac.
 public struct MacUsageHost: UsageHost {
   private let session: URLSession
+  /// For a local app's own server on loopback, whose certificate is its own.
+  private let loopback: URLSession
+  private let keys: KeyFile?
 
-  public init() {
+  public init(keys: KeyFile? = nil) {
+    self.keys = keys
     let configuration = URLSessionConfiguration.ephemeral
     // Each request carries exactly the headers its provider sets: no cookies
     // a response left behind, and no cached answers.
@@ -20,6 +24,7 @@ public struct MacUsageHost: UsageHost {
     configuration.timeoutIntervalForRequest = PollerTuning.requestTimeoutSeconds
     configuration.timeoutIntervalForResource = PollerTuning.responseTimeoutSeconds
     session = URLSession(configuration: configuration)
+    loopback = URLSession(configuration: configuration, delegate: LoopbackTrust(), delegateQueue: nil)
   }
 
   public var homeDir: String { userHome }
@@ -30,7 +35,8 @@ public struct MacUsageHost: UsageHost {
     outgoing.httpMethod = request.method
     for (name, value) in request.headers { outgoing.setValue(value, forHTTPHeaderField: name) }
     outgoing.httpBody = request.body.map { Data($0.utf8) }
-    let (data, response) = try await session.data(for: outgoing)
+    let local = request.loopbackSelfSigned && LoopbackTrust.hosts.contains(url.host ?? "")
+    let (data, response) = try await (local ? loopback : session).data(for: outgoing)
     guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
     let headers = Dictionary(
       http.allHeaderFields.compactMap { key, value in
@@ -46,6 +52,14 @@ public struct MacUsageHost: UsageHost {
   public func query(_ database: String, _ sql: String) async -> [[String]] { sqliteRows(database, sql) }
   public func queryIfReadable(_ database: String, _ sql: String) async -> [[String]]? { sqliteQuery(database, sql) }
   public func environment(_ name: String) -> String? { ProcessInfo.processInfo.environment[name] }
+  public func storedKey(_ key: StoredKey) async -> String? { keys?.value(key) }
+  public func processes() async -> [RunningProcess] {
+    await runningProcesses().map { RunningProcess(pid: $0.pid, command: $0.command) }
+  }
+  public func listeningPorts(_ pid: Int) async -> [Int] { await CapsuleSystem.listeningPorts(of: pid) }
+  public func readSecret(_ service: String, account: String) async -> String? {
+    await keychainPassword(service: service, account: account)
+  }
 }
 
 /// The activity readers' and token scanner's view of this Mac.
@@ -90,8 +104,10 @@ public struct MacPollerHost: PollerHost {
   public let usage: UsageHost
   private let store: JSONStore
 
-  public init(usage: UsageHost = MacUsageHost(), store: JSONStore) {
-    self.usage = usage
+  /// Reads with the keys saved beside the rest of the app's files, unless
+  /// a host is given.
+  public init(usage: UsageHost? = nil, store: JSONStore) {
+    self.usage = usage ?? MacUsageHost(keys: KeyFile(directory: store.directory))
     self.store = store
   }
 

@@ -26,6 +26,19 @@ public enum ProviderIcons {
         IconShape(path: svgPath("M3 7.1 12 12v9.8L3 16.9Z"), opacity: 0.8, evenOdd: false),
         IconShape(path: svgPath("M21 7.1 12 12v9.8l9-4.9Z"), opacity: 1, evenOdd: false),
       ]
+    // Simple marks of Capsule's own for the providers added later, not the
+    // providers' logos: an arch rising, a D, a route, a notched disc.
+    case .antigravity: return [IconShape(path: svgPath("M12 2.5 22 21h-4.6L12 10.6 6.6 21H2Z"), opacity: 1, evenOdd: false)]
+    case .devin:
+      return [
+        IconShape(path: svgPath("M4 3h7.5a9 9 0 0 1 0 18H4ZM8 7v10h3.5a5 5 0 0 0 0-10Z"), opacity: 1, evenOdd: true)
+      ]
+    case .openrouter:
+      return [
+        IconShape(path: svgPath("M2 9.2h6.3l4.9-6.2H22v4h-7.2l-4.9 6.2H2Z"), opacity: 1, evenOdd: false),
+        IconShape(path: svgPath("M2 16.2h20V21H2Z"), opacity: 0.7, evenOdd: false),
+      ]
+    case .deepseek: return [IconShape(path: svgPath("M12 3a9 9 0 1 0 9 9h-4.2A4.8 4.8 0 1 1 12 7.2Z"), opacity: 1, evenOdd: false)]
     }
   }
 

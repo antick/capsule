@@ -1,7 +1,7 @@
 import Foundation
 
 public enum ProviderId: String, Sendable, Codable, CaseIterable {
-  case claude, codex, grok, cursor
+  case claude, codex, grok, cursor, antigravity, devin, openrouter, deepseek
 }
 
 public enum UsageStatus: String, Sendable, Codable {
@@ -92,6 +92,10 @@ public enum ProviderLabels {
     .codex: "Codex",
     .grok: "Grok",
     .cursor: "Cursor",
+    .antigravity: "Antigravity",
+    .devin: "Devin",
+    .openrouter: "OpenRouter",
+    .deepseek: "DeepSeek",
   ]
 
   public static func label(_ id: ProviderId) -> String {

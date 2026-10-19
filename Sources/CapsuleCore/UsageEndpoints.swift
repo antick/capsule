@@ -72,6 +72,62 @@ public enum UsageEndpoints {
   }
 }
 
+extension UsageEndpoints {
+  public enum OpenRouter {
+    public static let creditsURL = "https://openrouter.ai/api/v1/credits"
+    public static let keyURL = "https://openrouter.ai/api/v1/key"
+    public static let keyEnv = "OPENROUTER_API_KEY"
+  }
+
+  public enum DeepSeek {
+    public static let balanceURL = "https://api.deepseek.com/user/balance"
+    public static let keyEnv = "DEEPSEEK_API_KEY"
+  }
+
+  public enum Devin {
+    /// Devin's desktop app keeps its Windsurf API key here.
+    public static let stateDatabasePath = [
+      "Library", "Application Support", "Devin", "User", "globalStorage", "state.vscdb",
+    ]
+    public static let authSQL = "SELECT value FROM ItemTable WHERE key='windsurfAuthStatus' LIMIT 1;"
+    /// The CLI's own login, when there is one.
+    public static let credentialsPath = [".local", "share", "devin", "credentials.toml"]
+    public static let defaultServer = "https://server.codeium.com"
+    public static let statusPath = "/exa.seat_management_pb.SeatManagementService/GetUserStatus"
+    public static let clientVersion = "1.108.2"
+  }
+
+  public enum Antigravity {
+    /// The local language server's RPC, reached on loopback.
+    public static let servicePath = "/exa.language_server_pb.LanguageServerService/"
+    public static let quotaMethod = "RetrieveUserQuotaSummary"
+    public static let csrfHeader = "X-Codeium-Csrf-Token"
+    public static let processNames = ["language_server", "language_server_macos", "language_server_macos_arm"]
+    public static let processMarkers = ["antigravity"]
+    /// The saved Google login, written by Antigravity through the keychain tool.
+    public static let keychainService = "gemini"
+    public static let keychainAccount = "antigravity"
+    public static let keychainPrefix = "go-keyring-base64:"
+    public static let cloudURL = "https://cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary"
+    public static let userAgent = "antigravity"
+  }
+
+  public enum ClaudeConsole {
+    /// The Console's own web API, reached with its session cookie.
+    public static let base = "https://platform.claude.com"
+    public static let organizationsPath = "/api/organizations"
+    public static let cookieName = "sessionKey"
+    public static let subscriptionProgram = "subscription_api_credit"
+  }
+}
+
+/// Keys the user pastes into Settings, kept in a file only they can read.
+public enum StoredKey: String, Sendable, CaseIterable {
+  case openrouter, deepseek, devin, claudeConsole = "claude-console"
+
+  public static let fileName = "keys.json"
+}
+
 /// The tool every keychain read goes through. See `keychainPassword`.
 public enum KeychainTool {
   public static let path = "/usr/bin/security"
