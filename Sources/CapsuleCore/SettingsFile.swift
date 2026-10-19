@@ -27,6 +27,10 @@ extension CapsuleSettings {
       "topEdgeNotch": topEdgeNotch,
       "usageDisplay": usageDisplay.rawValue,
       "customPosition": position(customPosition),
+      "accounts": accounts.map {
+        ["id": $0.id, "provider": $0.provider.rawValue, "path": $0.path, "label": $0.label, "enabled": $0.enabled]
+          as [String: Any]
+      },
       "schemaVersion": SettingsDefaults.schemaVersion,
     ]
   }

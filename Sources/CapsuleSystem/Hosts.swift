@@ -3,7 +3,7 @@ import CapsuleCore
 import CapsuleUsage
 import Foundation
 
-private var userHome: String { FileManager.default.homeDirectoryForCurrentUser.path }
+public var userHome: String { FileManager.default.homeDirectoryForCurrentUser.path }
 
 /// The usage readers' view of this Mac.
 public struct MacUsageHost: UsageHost {

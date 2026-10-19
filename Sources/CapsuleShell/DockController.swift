@@ -42,7 +42,7 @@ public final class DockController {
 
   public init(settings: CapsuleSettings, clock: DockClock = MainClock()) {
     self.settings = settings
-    meterCount = max(1, settings.enabledProviderIds.count)
+    meterCount = max(1, settings.enabledMeters.count)
     behavior = DockBehavior(clock: clock)
     let screen = NSScreen.screens.first
     let placeholder = DockLook(

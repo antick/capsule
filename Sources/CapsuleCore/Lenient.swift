@@ -56,7 +56,31 @@ public struct LossyArray<Element: Codable & Sendable & Equatable>: Codable, Send
   }
 }
 
+/// A list that is empty when absent or not a list, and keeps the elements
+/// that read. For settings a newer build added: an older file has no key.
+@propertyWrapper
+public struct LossyList<Element: Codable & Sendable & Equatable>: Codable, Sendable, Equatable {
+  public var wrappedValue: [Element]
+
+  public init(wrappedValue: [Element]) {
+    self.wrappedValue = wrappedValue
+  }
+
+  public init(from decoder: Decoder) throws {
+    wrappedValue = (try? LossyArray<Element>(from: decoder))?.wrappedValue ?? []
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(wrappedValue)
+  }
+}
+
 extension KeyedDecodingContainer {
+  public func decode<Element>(_ type: LossyList<Element>.Type, forKey key: Key) throws -> LossyList<Element> {
+    (try? decodeIfPresent(type, forKey: key)) ?? LossyList(wrappedValue: [])
+  }
+
   /// An absent key is nil rather than a decoding error.
   public func decode<Value>(_ type: Lenient<Value>.Type, forKey key: Key) throws -> Lenient<Value> {
     (try? decodeIfPresent(type, forKey: key)) ?? Lenient(wrappedValue: nil)

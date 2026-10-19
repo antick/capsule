@@ -4,6 +4,9 @@ import CapsuleCore
 /// What one meter shows.
 public struct MeterState: Equatable {
   public var providerId: ProviderId
+  /// What the meter is called, for VoiceOver: the account's label or the
+  /// provider's name.
+  public var label: String
   public var percent: Double?
   public var display: UsageDisplay
   public var active: Bool
@@ -25,6 +28,7 @@ public struct MeterState: Equatable {
 @MainActor
 public final class MeterView: FlippedView {
   public let providerId: ProviderId
+  public let meterId: MeterId
   private let metrics: HudMetrics
   private let theme: HudTheme
   private let ring = CALayer()
@@ -37,8 +41,9 @@ public final class MeterView: FlippedView {
   public let badge: BadgeView
   private var state: MeterState?
 
-  public init(providerId: ProviderId, metrics: HudMetrics, theme: HudTheme) {
-    self.providerId = providerId
+  public init(meterId: MeterId, metrics: HudMetrics, theme: HudTheme) {
+    self.meterId = meterId
+    self.providerId = meterId.provider
     self.metrics = metrics
     self.theme = theme
     caption = dockLabel(size: metrics.percentFontSize, color: theme.text)
@@ -105,7 +110,7 @@ public final class MeterView: FlippedView {
     let label = shown.map { "\(jsString(.number($0)))\(Copy.percentSuffix)" } ?? "—"
     caption.stringValue = label
     caption.isHidden = next.compact
-    setAccessibilityLabel("\(ProviderLabels.label(next.providerId)) \(label)")
+    setAccessibilityLabel("\(next.label) \(label)")
 
     // The reading sweeps to its value rather than snapping.
     let end = (shown ?? 0) / 100

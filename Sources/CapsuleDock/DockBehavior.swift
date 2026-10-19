@@ -17,7 +17,7 @@ public final class DockBehavior {
     public var keepOpen = false
     public var notificationPopups = true
     /// A card to show regardless, for the settings preview.
-    public var forceOpen: ProviderId?
+    public var forceOpen: MeterId?
 
     public init() {}
   }
@@ -30,10 +30,10 @@ public final class DockBehavior {
   public var onChange: (() -> Void)?
   public var onKeepOpenChange: ((Bool) -> Void)?
   /// The user asked for a provider to be read again.
-  public var onRefresh: ((ProviderId) -> Void)?
+  public var onRefresh: ((MeterId) -> Void)?
 
-  public private(set) var hovered: ProviderId?
-  public private(set) var pinned: ProviderId?
+  public private(set) var hovered: MeterId?
+  public private(set) var pinned: MeterId?
   public private(set) var woken = false
   public private(set) var held = false
   public private(set) var dragging = false
@@ -69,14 +69,15 @@ public final class DockBehavior {
       && inputs.forceOpen == nil
   }
 
-  /// The provider whose card is open.
-  public var openId: ProviderId? {
+  /// The meter whose card is open. Notices belong to a provider's own
+  /// sign-in, so they open its meter.
+  public var openId: MeterId? {
     if dragging || peek { return nil }
-    return notices.providerId ?? inputs.forceOpen ?? pinned ?? hovered
+    return notices.providerId.map { MeterId($0) } ?? inputs.forceOpen ?? pinned ?? hovered
   }
 
   public var openSnapshot: UsageSnapshot? {
-    openId.flatMap { id in meters.first { $0.providerId == id } }
+    openId.flatMap { id in meters.first { $0.meterId == id } }
   }
 
   /// What the card shows: the open one, or the last one while it closes.
@@ -84,8 +85,8 @@ public final class DockBehavior {
 
   /// The meter the card's tail aims at.
   public var joinIndex: Int {
-    let id = openId ?? lastCard?.providerId ?? inputs.snapshots.first?.providerId
-    return max(0, meters.firstIndex { $0.providerId == id } ?? 0)
+    let id = openId ?? lastCard?.meterId ?? inputs.snapshots.first?.meterId
+    return max(0, meters.firstIndex { $0.meterId == id } ?? 0)
   }
 
   /// Notices the card lists instead of readings, if any.
@@ -93,12 +94,14 @@ public final class DockBehavior {
     openId == nil ? lastNotices : (notices.providerId != nil ? notices.visible : [])
   }
 
+  /// Agent activity is read from each tool's default folder, so it belongs
+  /// to the provider's own meter, never to an added account's.
   public var cardSessions: [AgentSession] {
-    cardSnapshot.flatMap { inputs.activity[$0.providerId] } ?? []
+    cardSnapshot.flatMap { $0.accountId == nil ? inputs.activity[$0.providerId] : nil } ?? []
   }
 
   public var cardTokens: TokenUsage? {
-    cardSnapshot.flatMap { inputs.tokens[$0.providerId] }
+    cardSnapshot.flatMap { $0.accountId == nil ? inputs.tokens[$0.providerId] : nil }
   }
 
   /// What a folded dock says at a glance: amber if any agent waits on you,
@@ -141,7 +144,7 @@ public final class DockBehavior {
     changed()
   }
 
-  public func meterEntered(_ id: ProviderId) {
+  public func meterEntered(_ id: MeterId) {
     if dragging || didDrag { return }
     clearTimers()
     notices.close()
@@ -156,7 +159,7 @@ public final class DockBehavior {
     changed()
   }
 
-  public func meterClicked(_ id: ProviderId) {
+  public func meterClicked(_ id: MeterId) {
     if didDrag {
       didDrag = false
       return
@@ -184,7 +187,7 @@ public final class DockBehavior {
     clearTimers()
     if notices.providerId != nil {
       notices.pause()
-    } else if let id = cardSnapshot?.providerId {
+    } else if let id = cardSnapshot?.meterId {
       hovered = id
     }
     changed()

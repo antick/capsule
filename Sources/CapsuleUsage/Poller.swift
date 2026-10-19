@@ -21,7 +21,7 @@ public protocol PollerHost: Sendable {
 /// The original takes timer, wake and network callbacks; here the shell calls
 /// ``tick()``, ``resume()`` and ``online()`` from its own notifications.
 public actor UsagePoller {
-  private let providers: [UsageProvider]
+  private var providers: [UsageProvider]
   private let host: PollerHost
   private let settings: @Sendable () -> CapsuleSettings
   private let onChange: @Sendable ([UsageSnapshot]) -> Void
@@ -56,6 +56,22 @@ public actor UsagePoller {
 
   private var nowMs: Double { host.now().timeIntervalSince1970 * 1000 }
 
+  /// Swaps the readers, for when accounts are added or removed. The next
+  /// ``sync()`` and ``refresh()`` land the change.
+  public func setProviders(_ next: [UsageProvider]) { providers = next }
+
+  /// The meters shown now, and what each is called.
+  private var enabledMeters: [MeterId] { settings().enabledMeters }
+  private func label(_ meter: MeterId) -> String { settings().label(for: meter) }
+
+  /// A provider's reading, marked with the meter it belongs to.
+  private func stamped(_ snapshot: UsageSnapshot, _ meter: MeterId) -> UsageSnapshot {
+    var marked = snapshot
+    marked.accountId = meter.account
+    marked.displayName = label(meter)
+    return marked
+  }
+
   private func publish() { onChange(snapshots) }
 
   /// Writes the readings down, minus the in-flight flag that means nothing later.
@@ -66,10 +82,10 @@ public actor UsagePoller {
   /// Flags the providers still being waited on, keeping their last numbers.
   /// Publishes only when a flag actually changed. An absent flag is not the
   /// same as false: the first pass writes `false` onto placeholders.
-  private func markRefreshing(_ ids: Set<ProviderId>) {
+  private func markRefreshing(_ ids: Set<MeterId>) {
     var changed = false
     let next = snapshots.map { item -> UsageSnapshot in
-      let wanted = ids.contains(item.providerId)
+      let wanted = ids.contains(item.meterId)
       guard item.refreshing != wanted else { return item }
       changed = true
       var flagged = item
@@ -82,21 +98,22 @@ public actor UsagePoller {
   }
 
   /// The last numbers there were, dated, in place of a read that did not happen.
-  private func heldBack(_ id: ProviderId, previous: UsageSnapshot?) -> UsageSnapshot {
+  private func heldBack(_ id: MeterId, previous: UsageSnapshot?) -> UsageSnapshot {
     mergeSnapshot(
       previous: previous,
       next: UsageSnapshot(
-        providerId: id, displayName: ProviderLabels.label(id), iconId: id,
+        providerId: id.provider, displayName: label(id), iconId: id.provider,
         primaryPercent: previous?.primaryPercent, buckets: previous?.buckets ?? [],
-        status: .error, fetchedAt: isoString(host.now())
+        status: .error, fetchedAt: isoString(host.now()), accountId: id.account
       )
     )
   }
 
   /// One provider's turn on the network, with a failure folded into a snapshot.
   private func fetchOne(_ provider: UsageProvider, asked: Bool = false) async -> UsageSnapshot {
-    let key = provider.id.rawValue
-    let previous = snapshots.first { $0.providerId == provider.id }
+    let meter = provider.meter
+    let key = meter.rawValue
+    let previous = snapshots.first { $0.meterId == meter }
     let now = nowMs
     // Signed out a moment ago: still signed out, most likely, and asking
     // again each poll spends the account's goodwill on a known answer.
@@ -105,10 +122,10 @@ public actor UsagePoller {
     }
     // Inside a penalty the answer is already known: show the dated numbers
     // rather than spend an attempt extending the penalty.
-    if (blockedUntil[key] ?? 0) > now { return heldBack(provider.id, previous: previous) }
+    if (blockedUntil[key] ?? 0) > now { return heldBack(meter, previous: previous) }
     do {
       let fresh = mergeSnapshot(
-        previous: previous, next: try await provider.fetchSnapshot(host.usage, now: host.now())
+        previous: previous, next: stamped(try await provider.fetchSnapshot(host.usage, now: host.now()), meter)
       )
       if blockedUntil.removeValue(forKey: key) != nil { host.saveBackoff(blockedUntil) }
       refusals[key] = nil
@@ -121,12 +138,12 @@ public actor UsagePoller {
       blockedUntil[key] = now + Double(wait)
       host.saveBackoff(blockedUntil)
       UsageLog.poller.notice("\(key, privacy: .public) rate limited; asking again in \(wait / 1000, privacy: .public) s")
-      if let fallback = refusal.fallback { return mergeSnapshot(previous: previous, next: fallback) }
+      if let fallback = refusal.fallback { return mergeSnapshot(previous: previous, next: stamped(fallback, meter)) }
     } catch {
       // What went wrong, never what was sent: a status, or the kind of error.
       UsageLog.poller.notice("\(key, privacy: .public) read failed: \(describe(error), privacy: .public)")
     }
-    return heldBack(provider.id, previous: previous)
+    return heldBack(meter, previous: previous)
   }
 
   /// Re-reads every enabled provider. A refresh already running is the answer
@@ -146,32 +163,32 @@ public actor UsagePoller {
 
   /// Returns whether a follow-up refresh is needed.
   private func refreshBody() async -> Bool {
-    let enabled = Set(settings().enabledProviderIds)
+    let enabled = Set(enabledMeters)
     // Only a provider this poller can read is waited on. Demo mode reads
     // three; a fourth switched on would otherwise be flagged as refreshing
     // for good, its sweep spinning without end.
-    let readable = Set(providers.map(\.id))
+    let readable = Set(providers.map(\.meter))
     // Fetched in turn, so clearing each flag as it lands settles the rail in
     // order rather than all at once.
     var pending = enabled.intersection(readable)
     markRefreshing(pending)
     var fetched: [UsageSnapshot] = []
-    for provider in providers where enabled.contains(provider.id) {
+    for provider in providers where enabled.contains(provider.meter) {
       fetched.append(await fetchOne(provider))
-      pending.remove(provider.id)
+      pending.remove(provider.meter)
       markRefreshing(pending)
     }
     // The enabled set may have changed while the network was slow. Land the
     // readings against what is enabled now: a provider switched off is
     // dropped, one switched on keeps its placeholder until the follow-up.
-    let enabledNow = settings().enabledProviderIds
+    let enabledNow = enabledMeters
     let now = host.now()
-    snapshots = placeholderSnapshots(enabledNow, now: now).map { placeholder in
-      if var reading = fetched.first(where: { $0.providerId == placeholder.providerId }) {
+    snapshots = placeholderSnapshots(enabledNow, now: now, label: label).map { placeholder in
+      if var reading = fetched.first(where: { $0.meterId == placeholder.meterId }) {
         reading.refreshing = false
         return reading
       }
-      return snapshots.first { $0.providerId == placeholder.providerId } ?? placeholder
+      return snapshots.first { $0.meterId == placeholder.meterId } ?? placeholder
     }
     publish()
     remember()
@@ -182,21 +199,21 @@ public actor UsagePoller {
     // TypeScript; this rule is the corrected one.
     // A provider with no reader is never read, so it never asks for one:
     // asking would refresh in a loop, and every pass re-flags every ring.
-    return enabledNow.contains { id in readable.contains(id) && !fetched.contains { $0.providerId == id } }
+    return enabledNow.contains { id in readable.contains(id) && !fetched.contains { $0.meterId == id } }
   }
 
   /// Re-reads one provider, for when the user asks for that one.
-  public func refreshProvider(_ id: ProviderId) async {
-    guard let provider = providers.first(where: { $0.id == id }),
-      settings().enabledProviderIds.contains(id),
-      !snapshots.contains(where: { $0.providerId == id && $0.refreshing == true })
+  public func refreshProvider(_ id: MeterId) async {
+    guard let provider = providers.first(where: { $0.meter == id }),
+      enabledMeters.contains(id),
+      !snapshots.contains(where: { $0.meterId == id && $0.refreshing == true })
     else { return }
-    var flagged = Set(snapshots.filter { $0.refreshing == true }.map(\.providerId))
+    var flagged = Set(snapshots.filter { $0.refreshing == true }.map(\.meterId))
     flagged.insert(id)
     markRefreshing(flagged)
     let reading = await fetchOne(provider, asked: true)
     snapshots = snapshots.map { item in
-      guard item.providerId == id else { return item }
+      guard item.meterId == id else { return item }
       var landed = reading
       landed.refreshing = false
       return landed
@@ -208,8 +225,11 @@ public actor UsagePoller {
   /// Reconciles the list with the enabled providers without the network, so a
   /// toggle lands at once. Anything already known is carried over.
   public func sync() {
-    let next = placeholderSnapshots(settings().enabledProviderIds, now: host.now()).map { placeholder in
-      snapshots.first { $0.providerId == placeholder.providerId } ?? placeholder
+    let next = placeholderSnapshots(enabledMeters, now: host.now(), label: label).map { placeholder in
+      guard var known = snapshots.first(where: { $0.meterId == placeholder.meterId }) else { return placeholder }
+      // A renamed account shows its new name at once.
+      known.displayName = placeholder.displayName
+      return known
     }
     guard next != snapshots else { return }
     snapshots = next
@@ -218,7 +238,7 @@ public actor UsagePoller {
 
   /// Shows the remembered readings at once, then reads.
   public func start() async {
-    snapshots = rememberedSnapshots(settings().enabledProviderIds, host.loadSnapshots(), now: host.now())
+    snapshots = rememberedSnapshots(enabledMeters, host.loadSnapshots(), now: host.now(), label: label)
     publish()
     await refresh()
   }

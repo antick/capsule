@@ -189,7 +189,7 @@ struct PollerTests {
         switch step.op {
         case "start": await poller.start()
         case "refresh": await poller.refresh()
-        case "refreshProvider": await poller.refreshProvider(try #require(step.id))
+        case "refreshProvider": await poller.refreshProvider(MeterId(try #require(step.id)))
         case "tick": await poller.tick()
         case "resume": await poller.resume()
         case "online": await poller.online()

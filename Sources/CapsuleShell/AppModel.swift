@@ -81,6 +81,11 @@ public final class AppModel: MenuHandlers {
     settingsModel.onDownloadUpdate = { [weak self] in self?.updater.download() }
     settingsModel.onOpenRelease = { [weak self] in self?.updater.openReleasePage() }
     settingsModel.onInstallUpdate = { [weak self] in self?.installUpdate() }
+    settingsModel.homeDir = userHome
+    settingsModel.onScanAccounts = { [weak self] in self?.scanAccounts() }
+    settingsModel.onCheckAccount = { [weak self] provider, path in
+      checkAccountFolder(provider, path: path, existing: self?.settings.accounts ?? [])
+    }
   }
 
   public func start() {
@@ -136,6 +141,13 @@ public final class AppModel: MenuHandlers {
     }
     if settingsModel.settings != next { settingsModel.settings = next }
     settingsModel.appearance = systemAppearance
+  }
+
+  /// Folders under home that look like accounts not added yet.
+  private func scanAccounts() {
+    settingsModel.foundAccounts = discoverAccounts(
+      home: userHome, entries: accountFolderEntries(), existing: settings.accounts
+    )
   }
 
   // MARK: MenuHandlers

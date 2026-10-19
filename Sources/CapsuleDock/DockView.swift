@@ -73,10 +73,10 @@ public final class DockView: FlippedView {
   var pressStart: NSPoint?
   var pressTarget: PressTarget = .rail
   var moving = false
-  var hoveredMeter: ProviderId?
+  var hoveredMeter: MeterId?
   var overCard = false
 
-  enum PressTarget { case rail, meter(ProviderId), badge(ProviderId) }
+  enum PressTarget { case rail, meter(MeterId), badge(ProviderId) }
 
   public init(look: DockLook, behavior: DockBehavior) {
     self.look = look
@@ -176,16 +176,19 @@ public final class DockView: FlippedView {
     let shift = stowShift(m, spec.growth)
     let summaryWaiting = b.notices.waiting
     for (index, meter) in meters.enumerated() {
-      guard let snapshot = readings.first(where: { $0.providerId == meter.providerId }) else { continue }
+      guard let snapshot = readings.first(where: { $0.meterId == meter.meterId }) else { continue }
+      // Activity and notices come from each tool's default folder, so only
+      // the provider's own meter carries them.
+      let own = snapshot.accountId == nil
       meter.show(
         MeterState(
-          providerId: snapshot.providerId, percent: snapshot.primaryPercent, display: look.display,
-          active: b.openId == snapshot.providerId, compact: spec.compact,
+          providerId: snapshot.providerId, label: snapshot.displayName, percent: snapshot.primaryPercent,
+          display: look.display, active: b.openId == snapshot.meterId, compact: spec.compact,
           refreshing: snapshot.refreshing == true,
-          activity: summarizeActivity(b.inputs.activity[snapshot.providerId]),
-          waitingCount: summaryWaiting.filter { $0.providerId == snapshot.providerId }.count,
-          unreadCount: b.notices.unreadCount(snapshot.providerId),
-          hasNotices: b.notices.hasNotices(snapshot.providerId), stowed: b.peek,
+          activity: own ? summarizeActivity(b.inputs.activity[snapshot.providerId]) : nil,
+          waitingCount: own ? summaryWaiting.filter { $0.providerId == snapshot.providerId }.count : 0,
+          unreadCount: own ? b.notices.unreadCount(snapshot.providerId) : 0,
+          hasNotices: own && b.notices.hasNotices(snapshot.providerId), stowed: b.peek,
           stowShift: CGPoint(x: shift.x, y: shift.y),
           revealDelayMs: min(Double(index) * Motion.meterStaggerMs, Motion.meterStaggerCapMs)
         )
@@ -209,11 +212,11 @@ public final class DockView: FlippedView {
   }
 
   private func rebuildMeters(_ readings: [UsageSnapshot]) {
-    let key = readings.map(\.providerId.rawValue).joined(separator: ",")
+    let key = readings.map(\.meterId.rawValue).joined(separator: ",")
     guard key != meterKey else { return }
     meterKey = key
     for meter in meters { meter.removeFromSuperview() }
-    meters = readings.map { MeterView(providerId: $0.providerId, metrics: look.spec.metrics, theme: look.theme) }
+    meters = readings.map { MeterView(meterId: $0.meterId, metrics: look.spec.metrics, theme: look.theme) }
     for meter in meters { railView.addSubview(meter) }
     layoutMeters()
   }
@@ -252,8 +255,9 @@ public final class DockView: FlippedView {
     let now = look.demoNow ?? Date()
     let content = CardContent(
       snapshot: snapshot, sessions: b.cardSessions, notices: b.cardNotices, tokens: b.cardTokens,
-      display: look.display, unreadCount: b.notices.unreadCount(snapshot.providerId),
-      hasNotices: b.notices.hasNotices(snapshot.providerId), now: now,
+      display: look.display,
+      unreadCount: snapshot.accountId == nil ? b.notices.unreadCount(snapshot.providerId) : 0,
+      hasNotices: snapshot.accountId == nil && b.notices.hasNotices(snapshot.providerId), now: now,
       onOpenNotices: { [weak self] in self?.behavior.noticeBadgeClicked(snapshot.providerId) },
       onDismissNotice: { [weak self] id in self?.onDismissNotice?(id) },
       onClearAll: { [weak self] in self?.onClearNotices?() }

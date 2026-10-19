@@ -86,7 +86,7 @@ struct PreviewDock: NSViewRepresentable {
   private func configure(_ view: DockView) {
     var inputs = view.behavior.inputs
     inputs.snapshots = readings
-    inputs.forceOpen = readings.first?.providerId
+    inputs.forceOpen = readings.first?.meterId
     view.behavior.update(inputs)
     view.settle()
   }

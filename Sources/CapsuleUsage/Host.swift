@@ -50,9 +50,16 @@ public protocol UsageHost: Sendable {
 
 public protocol UsageProvider: Sendable {
   var id: ProviderId { get }
+  /// The meter this reader fills: the provider's own sign-in unless it reads
+  /// an added account.
+  var meter: MeterId { get }
   /// The provider's current reading. Throws ``RateLimited`` when told to wait,
   /// and ``UsageReadError`` when the read failed some other way.
   func fetchSnapshot(_ host: UsageHost, now: Date) async throws -> UsageSnapshot
+}
+
+extension UsageProvider {
+  public var meter: MeterId { MeterId(id) }
 }
 
 public enum UsageReadError: Error, Equatable {

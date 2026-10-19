@@ -47,6 +47,9 @@ public struct UsageSnapshot: Sendable, Codable, Equatable {
   /// stale. A remembered reading has to be dated, or it quietly passes itself
   /// off as live.
   public var staleSince: String?
+  /// The added account this reading is for, or nil for the provider's own
+  /// sign-in.
+  public var accountId: String?
 
   public init(
     providerId: ProviderId,
@@ -57,7 +60,8 @@ public struct UsageSnapshot: Sendable, Codable, Equatable {
     status: UsageStatus,
     fetchedAt: String,
     refreshing: Bool? = nil,
-    staleSince: String? = nil
+    staleSince: String? = nil,
+    accountId: String? = nil
   ) {
     self.providerId = providerId
     self.displayName = displayName
@@ -68,7 +72,10 @@ public struct UsageSnapshot: Sendable, Codable, Equatable {
     self.fetchedAt = fetchedAt
     self.refreshing = refreshing
     self.staleSince = staleSince
+    self.accountId = accountId
   }
+
+  public var meterId: MeterId { MeterId(providerId, account: accountId) }
 }
 
 public enum ProviderLabels {
@@ -100,6 +107,7 @@ public enum Copy {
   public static let cursorTotal = "Total usage"
   public static let cursorModels = "Cursor models"
   public static let cursorOtherModels = "Other models"
+  public static let accountLabelSeparator = " · "
 }
 
 /// How long to wait after a rate-limited read. Milliseconds, matching the

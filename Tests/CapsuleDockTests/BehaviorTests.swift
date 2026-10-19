@@ -56,7 +56,7 @@ struct BehaviorTests {
   }
 
   @Test func aClickPinsRefreshesAndAClickAgainUnpins() {
-    var refreshed: [ProviderId] = []
+    var refreshed: [MeterId] = []
     dock.onRefresh = { refreshed.append($0) }
     dock.pointer(inside: true)
     dock.meterClicked(.codex)
@@ -145,7 +145,7 @@ struct BehaviorTests {
   }
 
   @Test func aDragClosesEverythingAndItsClickIsNotAClick() {
-    var refreshed: [ProviderId] = []
+    var refreshed: [MeterId] = []
     dock.onRefresh = { refreshed.append($0) }
     dock.pointer(inside: true)
     dock.meterClicked(.claude)

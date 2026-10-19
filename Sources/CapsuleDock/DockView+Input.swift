@@ -33,9 +33,9 @@ extension DockView {
     return hitRects.contains { $0.insetBy(dx: -slop, dy: -slop).contains(point) }
   }
 
-  func meterAt(_ point: CGPoint) -> ProviderId? {
+  func meterAt(_ point: CGPoint) -> MeterId? {
     let local = railView.convert(point, from: self)
-    return meters.first { $0.frame.contains(local) }?.providerId
+    return meters.first { $0.frame.contains(local) }?.meterId
   }
 
   func badgeAt(_ point: CGPoint) -> ProviderId? {

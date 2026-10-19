@@ -74,57 +74,37 @@ struct ProvidersPage: View {
       PageHeader(title: Copy.providers, description: Copy.providersHint)
       SettingsSection {
         VStack(spacing: 8) {
-          ForEach(ProviderId.allCases, id: \.self) { id in row(id) }
+          ForEach(ProviderId.allCases, id: \.self) { id in
+            row(id)
+            ForEach(model.settings.accounts.filter { $0.provider == id }) { account in
+              AccountRow(model: model, account: account)
+            }
+          }
         }
       }
+      AddAccountSection(model: model)
     }
+    .onAppear { model.onScanAccounts() }
   }
 
   private func row(_ id: ProviderId) -> some View {
-    let snapshot = model.snapshots.first { $0.providerId == id }
     let enabled = model.settings.enabledProviderIds.contains(id)
-    let percent = snapshot?.primaryPercent.map { jsRound($0) }
-    return HStack(spacing: 14) {
-      ProviderBadge(id: id)
-      VStack(alignment: .leading, spacing: 3) {
-        Text(ProviderLabels.label(id)).font(.system(size: 13.5, weight: .medium))
-        StatusPill(tone: tone(snapshot?.status), text: Copy.statusLabel(snapshot?.status))
+    return MeterRow(
+      id: id, snapshot: model.snapshots.first { $0.meterId == MeterId(id) }, enabled: enabled,
+      label: ProviderLabels.label(id),
+      onToggle: { on in
+        // Rebuilt from the canonical order rather than appended to, so a
+        // provider switched back on returns to where its ring was.
+        model.change { settings in
+          var wanted = Set(settings.enabledProviderIds)
+          if on { wanted.insert(id) } else { wanted.remove(id) }
+          settings.enabledProviderIds = ProviderId.allCases.filter { wanted.contains($0) }
+        }
       }
-      Spacer(minLength: 0)
-      if let percent {
-        Text("\(jsString(.number(percent)))\(Copy.percentSuffix)")
-          .font(.system(size: 13, weight: .medium).monospacedDigit())
-          .foregroundStyle(Tone.severity(percent).color)
-      }
-      Toggle(
-        "",
-        isOn: Binding(
-          get: { enabled },
-          set: { on in
-            // Rebuilt from the canonical order rather than appended to, so a
-            // provider switched back on returns to where its ring was.
-            model.change { settings in
-              var wanted = Set(settings.enabledProviderIds)
-              if on { wanted.insert(id) } else { wanted.remove(id) }
-              settings.enabledProviderIds = ProviderId.allCases.filter { wanted.contains($0) }
-            }
-          })
-      )
-      .labelsHidden().toggleStyle(.switch).accessibilityLabel(ProviderLabels.label(id))
-    }
-    .padding(.horizontal, 14).padding(.vertical, 12)
-    .background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(0.03)))
-    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.primary.opacity(0.08)))
-    .opacity(enabled ? 1 : 0.6)
-  }
-
-  private func tone(_ status: UsageStatus?) -> Tone {
-    switch status {
-    case .ok: return .good
-    case .stale: return .warn
-    case .error: return .bad
-    case .unauthenticated, .disabled: return .neutral
-    case nil: return .busy
+    ) {
+      Text(ProviderLabels.label(id)).font(.system(size: 13.5, weight: .medium))
+    } trailing: {
+      EmptyView()
     }
   }
 }

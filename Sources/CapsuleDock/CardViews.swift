@@ -36,7 +36,7 @@ struct DockCardView: View {
     .padding(.horizontal, m.cardPaddingX)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .foregroundStyle(Color(theme.text.nsColor))
-    .id("\(content.snapshot.providerId.rawValue)-\(content.notices.isEmpty ? "usage" : "notices")")
+    .id("\(content.snapshot.meterId.rawValue)-\(content.notices.isEmpty ? "usage" : "notices")")
     .transition(.opacity.animation(.easeInOut(duration: Motion.crossfadeMs / 1000)))
   }
 }

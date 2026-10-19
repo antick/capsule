@@ -87,13 +87,18 @@ public final class Engine {
     owner.engine = self
   }
 
-  /// Every provider the app can read, in the dock's order, or the samples.
-  static func providers(demo: Bool) -> [UsageProvider] {
-    demo
-      ? SettingsDefaults.enabledProviderIds.map { DemoUsageProvider($0) }
-      : [
-        ClaudeUsageProvider(), CodexUsageProvider(), GrokUsageProvider(), CursorUsageProvider(),
-      ]
+  /// Every reader the app has, in the dock's order, or the samples: each
+  /// provider's own sign-in, then any account added for it.
+  static func providers(_ settings: CapsuleSettings) -> [UsageProvider] {
+    if settings.demoMode { return SettingsDefaults.enabledProviderIds.map { DemoUsageProvider($0) } }
+    let added: [UsageProvider] = settings.accounts.compactMap { account in
+      switch account.provider {
+      case .claude: return ClaudeUsageProvider(account: account)
+      case .codex: return CodexUsageProvider(account: account)
+      default: return nil
+      }
+    }
+    return [ClaudeUsageProvider(), CodexUsageProvider(), GrokUsageProvider(), CursorUsageProvider()] + added
   }
 
   private static func makePoller(
@@ -102,7 +107,7 @@ public final class Engine {
     publish: @escaping @Sendable () -> Void
   ) -> UsagePoller {
     UsagePoller(
-      providers: providers(demo: settings.demoMode),
+      providers: providers(settings),
       host: MacPollerHost(store: store),
       settings: { current.withLock { $0 } },
       onChange: { snapshots in
@@ -150,23 +155,32 @@ public final class Engine {
     if next.pollIntervalMs != previous.pollIntervalMs {
       schedule.setPollInterval(next.pollIntervalMs)
     }
-    // Only a change to which providers are shown needs the network. A theme,
-    // a size step or a drag is not a reason to ask every provider again.
-    guard next.enabledProviderIds != previous.enabledProviderIds else { return }
+    // Only a change to which meters are shown, or where an account lives,
+    // needs the network. A theme, a size step or a drag is not a reason to
+    // ask every provider again; a rename only needs the names redrawn.
     let poller = poller
+    let readers = next.accounts.map { [$0.id, $0.path] } != previous.accounts.map { [$0.id, $0.path] }
+    let meters = next.enabledMeters != previous.enabledMeters
+    if readers || meters {
+      let providers = Engine.providers(next)
+      Task {
+        if readers { await poller.setProviders(providers) }
+        await poller.sync()
+        await poller.refresh()
+      }
+    } else if next.accounts != previous.accounts {
+      Task { await poller.sync() }
+    }
+    guard next.enabledProviderIds != previous.enabledProviderIds else { return }
     let monitor = monitor
     let scanner = scanner
-    Task {
-      await poller.sync()
-      await poller.refresh()
-    }
     Task { await monitor.rescan() }
     Task { await scanner.rescan() }
   }
 
   /// The user asked for one provider to be read again. Clicks on the same
   /// meter read it at most once per gap, however fast they come.
-  public func refreshProvider(_ id: ProviderId) {
+  public func refreshProvider(_ id: MeterId) {
     let now = clock()
     if let last = lastAsked[id], now - last < PollerTuning.manualRefreshGapMs { return }
     lastAsked[id] = now
@@ -174,7 +188,7 @@ public final class Engine {
     Task { await poller.refreshProvider(id) }
   }
 
-  private var lastAsked: [ProviderId: Double] = [:]
+  private var lastAsked: [MeterId: Double] = [:]
   /// Milliseconds on a monotonic clock; replaceable for tests.
   var clock: () -> Double = { ProcessInfo.processInfo.systemUptime * 1000 }
 
@@ -218,7 +232,7 @@ public final class Engine {
   /// process logs at launch: `claude:ok:42 codex:unauthenticated:—`.
   private func logReadings() {
     let line = state.snapshots
-      .map { "\($0.providerId.rawValue):\($0.status.rawValue):\($0.primaryPercent.map { jsString(.number($0)) } ?? "—")" }
+      .map { "\($0.meterId.rawValue):\($0.status.rawValue):\($0.primaryPercent.map { jsString(.number($0)) } ?? "—")" }
       .joined(separator: " ")
     let sessions = state.activity.map { "\($0.key.rawValue)=\($0.value.count)" }.sorted().joined(separator: " ")
     let summary = "usage \(line) · sessions \(sessions.isEmpty ? "none" : sessions) · notices \(state.notices.count)"

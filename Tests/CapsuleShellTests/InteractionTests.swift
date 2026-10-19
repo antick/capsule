@@ -95,7 +95,7 @@ struct InteractionTests {
   }
 
   @Test func aClickPinsTheCardAndRereadsTheProvider() throws {
-    var refreshed: [ProviderId] = []
+    var refreshed: [MeterId] = []
     dock.behavior.onRefresh = { refreshed.append($0) }
     let point = try meterCentre(.grok)
     dock.pointerMoved(point)

@@ -60,6 +60,9 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   public var topEdgeNotch: Bool
   public var usageDisplay: UsageDisplay
   public var customPosition: DockPosition?
+  /// Other accounts of a provider, each read from its own folder and shown
+  /// as a meter of its own after the provider's own.
+  @LossyList public var accounts: [UsageAccount] = []
   public var schemaVersion: Int
 
   /// What a first launch starts from.
@@ -82,6 +85,7 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     topEdgeNotch: true,
     usageDisplay: .used,
     customPosition: nil,
+    accounts: [],
     schemaVersion: SettingsDefaults.schemaVersion
   )
 }
@@ -166,8 +170,33 @@ extension CapsuleSettings {
       topEdgeNotch: flag("topEdgeNotch", defaults.topEdgeNotch),
       usageDisplay: choice("usageDisplay", defaults.usageDisplay),
       customPosition: customPosition,
+      accounts: accountList(fields["accounts"]),
       schemaVersion: SettingsDefaults.schemaVersion
     )
+  }
+
+  /// The added accounts that read, in their stored order. One that is
+  /// malformed, for a provider without accounts, or a repeat is dropped
+  /// rather than costing every other setting.
+  private static func accountList(_ raw: JSONValue?) -> [UsageAccount] {
+    var kept: [UsageAccount] = []
+    for item in raw?.asArray ?? [] {
+      guard let id = item["id"]?.asString, !id.isEmpty,
+        let provider = item["provider"]?.asString.flatMap(ProviderId.init(rawValue:)),
+        AccountRules.supported.contains(provider),
+        let path = item["path"]?.asString, !jsTrim(path).isEmpty,
+        !kept.contains(where: { $0.id == id })
+      else { continue }
+      let label = item["label"]?.asString.map(jsTrim) ?? ""
+      kept.append(
+        UsageAccount(
+          id: id, provider: provider, path: path,
+          label: label.isEmpty ? ProviderLabels.label(provider) : label,
+          enabled: item["enabled"]?.asBool ?? true
+        )
+      )
+    }
+    return Array(kept.prefix(AccountRules.maxAccounts))
   }
 
   /// The enabled providers in the dock's own order, de-duplicated. Stored in

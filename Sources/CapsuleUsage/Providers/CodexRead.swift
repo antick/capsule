@@ -20,7 +20,20 @@ private func codexAuth(_ raw: String?) -> CodexAuth {
 
 public struct CodexUsageProvider: UsageProvider {
   public let id = ProviderId.codex
-  public init() {}
+  public let meter: MeterId
+  /// An added account's `CODEX_HOME`, or nil for the default sign-in.
+  private let codexHome: String?
+
+  public init() {
+    meter = MeterId(.codex)
+    codexHome = nil
+  }
+
+  /// Reads an added account, and only it: never the default sign-in in its place.
+  public init(account: UsageAccount) {
+    meter = account.meter
+    codexHome = account.path
+  }
 
   private func usage(_ host: UsageHost, token: String, account: String?, url: String) async throws
     -> HTTPResponse
@@ -53,7 +66,9 @@ public struct CodexUsageProvider: UsageProvider {
   }
 
   public func fetchSnapshot(_ host: UsageHost, now: Date) async throws -> UsageSnapshot {
-    let path = credentialPath(host, env: UsageEndpoints.Codex.homeEnv, UsageEndpoints.Codex.authPath)
+    let path =
+      codexHome.map { joinPath(AccountPaths.resolve($0, home: host.homeDir), [UsageEndpoints.Codex.authFile]) }
+      ?? credentialPath(host, env: UsageEndpoints.Codex.homeEnv, UsageEndpoints.Codex.authPath)
     let auth = codexAuth(await host.readFile(path))
     var token = auth.accessToken.flatMap { $0.isEmpty ? nil : $0 }
     if token == nil, let refreshToken = auth.refreshToken, !refreshToken.isEmpty {
