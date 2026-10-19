@@ -45,9 +45,17 @@ if has("--refresh") {
   source = "live"
   let host = MacPollerHost(store: store).usage
   let meters = settings.enabledMeters
+  // A provider the app is backing off from is not asked again here: that
+  // would spend the same rate limit twice. Its last reading stands in.
+  let blocked = store.load(StoreFiles.backoff, as: [String: Double].self) ?? [:]
+  let cached = store.load(StoreFiles.snapshots, as: [UsageSnapshot].self) ?? []
   var read: [UsageSnapshot] = []
   for provider in usageProviders(settings) where meters.contains(provider.meter) {
     if let wanted, provider.id != wanted { continue }
+    if (blocked[provider.meter.rawValue] ?? 0) > now.timeIntervalSince1970 * 1000 {
+      if let last = cached.first(where: { $0.meterId == provider.meter }) { read.append(last) }
+      continue
+    }
     guard var snapshot = try? await provider.fetchSnapshot(host, now: now) else { continue }
     snapshot.accountId = provider.meter.account
     snapshot.displayName = settings.label(for: provider.meter)
