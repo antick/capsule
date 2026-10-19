@@ -2,7 +2,7 @@
 
 All notable changes to Capsule are documented in this file.
 
-## Unreleased
+## 0.3.0
 
 ### Added
 
@@ -378,7 +378,7 @@ All notable changes to Capsule are documented in this file.
 - Passive Codex monitoring retains multiple recent threads instead of collapsing them into one, and labels inferred activity as unconfirmed.
 - Main-process builds keep Electron external when bundling the standalone Claude channel entry.
 
-## Unreleased
+## 0.3.0
 
 ### Added
 
