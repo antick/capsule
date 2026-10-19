@@ -13,7 +13,12 @@ All notable changes to Capsule are documented in this file.
 - Claude's extra usage (paid usage beyond the plan) on its card when it is switched on: spend against the monthly cap, or spend alone.
 - Codex credits on its card, with what they are worth.
 - More Cursor detail: the Grok Bot pool, premium requests on request-based plans, on-demand spend against its limit, and credit left (grants plus any Stripe credit). Pace follows Cursor's real billing period, weekly or monthly.
+- Estimated spend at list price, today and over the last 30 days, beside the token counts for Claude, Codex and Grok, from their local logs. Prices come from LiteLLM's public table, refreshed daily, with a bundled fallback; "≥" marks a total that includes a model with no known price. Cursor's spend comes from its own usage history.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
+
+### Fixed
+
+- Token counts no longer double-count Claude messages written more than once while streaming, or a Codex subagent's replay of its parent's history.
 
 ### Removed
 

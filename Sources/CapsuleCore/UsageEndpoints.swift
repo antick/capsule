@@ -57,6 +57,13 @@ public enum UsageEndpoints {
     public static let stripeURL = "https://cursor.com/api/auth/stripe"
     /// The Grok Bot allowance.
     public static let grokBotURL = "https://cursor.com/api/dashboard/get-sand-usage-status"
+    /// Each request's cost, for spend per day.
+    public static let usageEventsURL = "https://cursor.com/api/dashboard/get-filtered-usage-events"
+    public static let eventsPageSize = 1_000
+    /// Enough for a very busy month; a longer history is cut off, not chased.
+    public static let maxEventPages = 20
+    /// Spend is read again at most this often.
+    public static let spendRefreshSeconds = 3_600.0
     public static let stateDatabasePath = [
       "Library", "Application Support", "Cursor", "User", "globalStorage", "state.vscdb",
     ]

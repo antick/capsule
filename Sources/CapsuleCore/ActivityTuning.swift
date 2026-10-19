@@ -65,6 +65,13 @@ public enum TokenTuning {
   public static let maxLineLength = 1_048_576
   public static let claudeLogsDir = [".claude", "projects"]
   public static let codexLogsDir = [".codex", "sessions"]
+  public static let grokLogsDir = [".grok", "sessions"]
+  /// Claude Code's own placeholder rows, which cost nothing.
+  public static let claudeSyntheticModel = "<synthetic>"
+  /// A Grok turn's cost is written in ten-billionths of a dollar.
+  public static let grokTicksPerDollar = 1e10
+  /// The model a Codex turn ran on when its log never names one.
+  public static let codexDefaultModel = "gpt-5"
   /// Remembered per-file totals, so a fresh launch skips unchanged history.
   public static let maxCacheEntries = 4_096
 }
@@ -86,12 +93,24 @@ public struct TokenUsage: Sendable, Codable, Equatable {
   public var todayTokens: Double
   public var monthTokens: Double
   public var scannedAt: String
+  /// Estimated spend at list price, today and over the window, in dollars.
+  /// Absent when nothing could be priced.
+  public var todayCost: Double?
+  public var monthCost: Double?
+  /// Some rows used a model with no known price, so the spend is a floor.
+  public var costPartial: Bool?
 
-  public init(providerId: ProviderId, todayTokens: Double, monthTokens: Double, scannedAt: String) {
+  public init(
+    providerId: ProviderId, todayTokens: Double, monthTokens: Double, scannedAt: String, todayCost: Double? = nil,
+    monthCost: Double? = nil, costPartial: Bool? = nil
+  ) {
     self.providerId = providerId
     self.todayTokens = todayTokens
     self.monthTokens = monthTokens
     self.scannedAt = scannedAt
+    self.todayCost = todayCost
+    self.monthCost = monthCost
+    self.costPartial = costPartial
   }
 }
 

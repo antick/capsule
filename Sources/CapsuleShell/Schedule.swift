@@ -156,3 +156,4 @@ public final class ShellSchedule {
     subscriptions = []
   }
 }
+extension PricedTokenScan: Rescanning {}

@@ -72,4 +72,8 @@ extension Copy {
   public static let of = "of"
   public static let left = "left"
   public static let credits = "credits"
+  public static let atLeast = "≥"
+  public static let tokensAndSpend = "Tokens and spend"
+  public static let spendHint =
+    "Estimated from the local logs at list price; not a bill. ≥ means some models had no known price."
 }

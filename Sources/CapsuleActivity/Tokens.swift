@@ -1,10 +1,17 @@
 import CapsuleCore
 import Foundation
 
-/// Tokens billed at one moment.
+/// Tokens billed at one moment, and what they cost when that is known.
 public struct TokenRow: Sendable, Equatable {
   public var at: Date
   public var tokens: Double
+  /// The same request written twice (Claude streams a message more than
+  /// once) shares a key; only one of them counts.
+  public var key: String? = nil
+  /// Dollars at list price, nil when not priced.
+  public var cost: Double? = nil
+  /// A price was wanted but the model has none.
+  public var unpriced: Bool = false
 }
 
 /// Tokens per local day, keyed "YYYY-MM-DD".
@@ -17,11 +24,20 @@ public struct TokenFileEntry: Sendable, Codable, Equatable {
   public var size: Double
   public var modifiedMs: Double
   public var days: DayHistogram
+  /// Spend per day. Absent in entries written before spend was counted,
+  /// which are read again when prices are wanted.
+  public var cost: DayHistogram?
+  /// Days holding a row with no known price.
+  public var unpricedDays: [String]?
 
-  public init(size: Double, modifiedMs: Double, days: DayHistogram) {
+  public init(
+    size: Double, modifiedMs: Double, days: DayHistogram, cost: DayHistogram? = nil, unpricedDays: [String]? = nil
+  ) {
     self.size = size
     self.modifiedMs = modifiedMs
     self.days = days
+    self.cost = cost
+    self.unpricedDays = unpricedDays
   }
 }
 
@@ -43,15 +59,40 @@ private func when(_ value: JSONValue?) -> Date? {
 
 /// A Claude Code transcript row: each assistant message carries the usage the
 /// API billed for it. Cache reads and writes are tokens too, so they count.
-public func claudeRowTokens(_ row: JSONValue) -> TokenRow? {
+public func claudeRowTokens(_ row: JSONValue) -> TokenRow? { claudeRowUsage(row, prices: nil) }
+
+/// The same row with its dedup key and, given prices, its cost: the cost
+/// Claude Code recorded if it did, else the tokens at the model's price.
+public func claudeRowUsage(_ row: JSONValue, prices: PriceTable?) -> TokenRow? {
   guard let record = row.asObject,
     let usage = record["message"]?["usage"]?.asObject,
     let at = when(record["timestamp"])
   else { return nil }
-  let tokens =
-    count(usage["input_tokens"]) + count(usage["cache_read_input_tokens"])
-    + count(usage["cache_creation_input_tokens"]) + count(usage["output_tokens"])
-  return tokens > 0 ? TokenRow(at: at, tokens: tokens) : nil
+  let input = count(usage["input_tokens"])
+  let output = count(usage["output_tokens"])
+  let read = count(usage["cache_read_input_tokens"])
+  let written = count(usage["cache_creation_input_tokens"])
+  let tokens = input + read + written + output
+  guard tokens > 0 else { return nil }
+  let id = record["message"]?["id"]?.asString
+  var hit = TokenRow(at: at, tokens: tokens, key: id.map { "\($0)|\(record["requestId"]?.asString ?? "")" })
+  guard let prices else { return hit }
+  let model = record["message"]?["model"]?.asString ?? ""
+  if let recorded = record["costUSD"]?.asDouble, recorded.isFinite {
+    hit.cost = recorded
+  } else if model == TokenTuning.claudeSyntheticModel {
+    hit.cost = 0
+  } else if let price = prices.price(for: model) {
+    // The one-hour cache costs more to write; without the split, every write
+    // is the five-minute kind.
+    let split = usage["cache_creation"]?.asObject
+    let long = count(split?["ephemeral_1h_input_tokens"])
+    let short = split == nil ? written : count(split?["ephemeral_5m_input_tokens"])
+    hit.cost = requestCost(price, input: input, output: output, cacheWrite: short, cacheWriteLong: long, cacheRead: read)
+  } else {
+    hit.unpriced = true
+  }
+  return hit
 }
 
 /// A Codex rollout reports a running total each turn rather than a delta, so

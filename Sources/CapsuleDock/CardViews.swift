@@ -292,20 +292,23 @@ struct TokenSection: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: m.cardBucketGap) {
-      Text(Copy.tokenUsage).frame(height: m.cardTextLine)
-      row(Copy.tokensToday, tokens.todayTokens)
-      row(Copy.tokensMonth, tokens.monthTokens)
+      Text(tokens.todayCost == nil ? Copy.tokenUsage : Copy.tokensAndSpend).frame(height: m.cardTextLine)
+      row(Copy.tokensToday, tokens.todayTokens, tokens.todayCost)
+      row(Copy.tokensMonth, tokens.monthTokens, tokens.monthCost)
     }
     .font(.system(size: m.cardLabelSize))
     .padding(.top, m.cardSectionGap)
   }
 
-  private func row(_ label: String, _ value: Double) -> some View {
-    HStack(spacing: m.cardResetGap) {
+  /// Tokens, and beside them the spend they come to at list price.
+  private func row(_ label: String, _ value: Double, _ cost: Double?) -> some View {
+    let spend = cost.map { (tokens.costPartial == true ? Copy.atLeast : "") + formatMoney($0) }
+    return HStack(spacing: m.cardResetGap) {
       Text(label).foregroundStyle(color(theme.textMuted))
       Spacer(minLength: 0)
-      Text(formatCompactCount(value)).monospacedDigit()
+      Text([formatCompactCount(value), spend].compactMap { $0 }.joined(separator: Copy.paceSeparator)).monospacedDigit()
     }
+    .help(cost == nil ? "" : Copy.spendHint)
     .lineLimit(1)
     .frame(height: m.cardTextLine)
   }

@@ -128,3 +128,53 @@ extension Copy {
   public static let cursorGrokBot = "Grok Bot"
   public static let cursorRequests = "Requests"
 }
+
+/// One page of Cursor's usage events. Money is in cents; times are epoch
+/// milliseconds as text.
+public struct CursorUsageEvents: Sendable, Codable, Equatable {
+  public struct Event: Sendable, Codable, Equatable {
+    public struct Tokens: Sendable, Codable, Equatable {
+      @Lenient public var totalCents: Double?
+    }
+    @Lenient public var timestamp: NumberOrString?
+    @Lenient public var tokenUsage: Tokens?
+    @Lenient public var chargedCents: Double?
+  }
+  @Lenient public var totalUsageEventsCount: Double?
+  @LossyArray public var usageEventsDisplay: [Event]?
+}
+
+/// Spend today and over the window, from Cursor's own events: the API-rate
+/// cost of each request, summed per local day.
+public func cursorSpend(_ events: [CursorUsageEvents.Event], now: Date, timeZone: TimeZone = .current) -> UsageExtra? {
+  var days: [String: Double] = [:]
+  for event in events {
+    let cents = event.tokenUsage?.totalCents ?? event.chargedCents ?? 0
+    guard cents > 0, let stamp = event.timestamp else { continue }
+    let ms: Double?
+    switch stamp {
+    case .number(let value): ms = value
+    case .string(let text): ms = Double(jsTrim(text))
+    }
+    guard let ms, let at = jsDate(milliseconds: ms) else { continue }
+    days[dayKey(at, timeZone: timeZone), default: 0] += cents / 100
+  }
+  guard !days.isEmpty else { return nil }
+  let totals = histogramTotalsOf(days, now: now, timeZone: timeZone)
+  return UsageExtra(
+    id: "spend", label: Copy.spendLabel,
+    value: "\(Copy.tokensToday) \(formatMoney(totals.today)) · \(Copy.tokensMonth) \(formatMoney(totals.month))",
+    note: Copy.estimated)
+}
+
+/// Today's and the window's sums of a day histogram.
+func histogramTotalsOf(_ days: [String: Double], now: Date, timeZone: TimeZone) -> (today: Double, month: Double) {
+  let today = dayKey(now, timeZone: timeZone)
+  let floor = dayKey(startOfDay(now, daysAgo: TokenTuning.historyDays - 1, timeZone: timeZone), timeZone: timeZone)
+  return (days[today] ?? 0, days.filter { $0.key >= floor && $0.key <= today }.values.reduce(0, +))
+}
+
+extension Copy {
+  public static let spendLabel = "Spend"
+  public static let estimated = "Estimated"
+}

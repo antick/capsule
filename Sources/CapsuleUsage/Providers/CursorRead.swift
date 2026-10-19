@@ -57,10 +57,29 @@ public struct CursorUsageProvider: UsageProvider {
           UsageEndpoints.Cursor.connectProtocolHeader: UsageEndpoints.Cursor.connectProtocolVersion,
         ]), body: "{}"))
     let stripe = await read(CursorStripe.self, HTTPRequest(url: UsageEndpoints.Cursor.stripeURL, headers: site))
+    let spend = await cursorSpendMemo.value(user: user, now: now) {
+      var events: [CursorUsageEvents.Event] = []
+      let start = startOfDay(now, daysAgo: TokenTuning.historyDays - 1)
+      for page in 1...UsageEndpoints.Cursor.maxEventPages {
+        let body =
+          #"{"startDate":"\#(Int(start.timeIntervalSince1970 * 1000))","endDate":"\#(Int(now.timeIntervalSince1970 * 1000))","page":\#(page),"pageSize":\#(UsageEndpoints.Cursor.eventsPageSize)}"#
+        guard
+          let read = await read(
+            CursorUsageEvents.self,
+            HTTPRequest(
+              method: "POST", url: UsageEndpoints.Cursor.usageEventsURL,
+              headers: site.merging(["Content-Type": "application/json"]) { _, new in new }, body: body))
+        else { return nil }
+        let batch = read.usageEventsDisplay ?? []
+        events += batch
+        if batch.isEmpty || Double(events.count) >= (read.totalUsageEventsCount ?? 0) { break }
+      }
+      return cursorSpend(events, now: now)
+    }
     var next = snapshot
     next.buckets += [cursorGrokBot(grokBot, fetchedAt: now), cursorRequestRow(requests, fetchedAt: now)].compactMap { $0 }
-    let credits = cursorCredits(grants, stripe: stripe)
-    if credits != nil || next.extras != nil { next.extras = (next.extras ?? []) + [credits].compactMap { $0 } }
+    let added = [cursorCredits(grants, stripe: stripe), spend].compactMap { $0 }
+    if !added.isEmpty || next.extras != nil { next.extras = (next.extras ?? []) + added }
     return next
   }
 
@@ -115,3 +134,24 @@ public struct CursorUsageProvider: UsageProvider {
     return mapCursorUsage(try decode(CursorSummary.self, response, id), fetchedAt: now)
   }
 }
+
+/// Cursor's spend, kept for an hour: paging through a month of events on
+/// every poll would cost more than the number is worth.
+actor CursorSpendMemo {
+  private var user: String?
+  private var at: Date?
+  private var kept: UsageExtra?
+
+  func value(user: String, now: Date, fetch: () async -> UsageExtra?) async -> UsageExtra? {
+    if self.user == user, let at, now.timeIntervalSince(at) < UsageEndpoints.Cursor.spendRefreshSeconds, at <= now {
+      return kept
+    }
+    let fresh = await fetch()
+    self.user = user
+    at = now
+    if fresh != nil { kept = fresh }
+    return kept
+  }
+}
+
+let cursorSpendMemo = CursorSpendMemo()

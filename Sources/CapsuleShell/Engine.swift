@@ -52,6 +52,9 @@ public final class Engine {
   private var poller: UsagePoller
   private let monitor: ActivityMonitor
   private let scanner: TokenScanner
+  private let prices: PriceBook
+  /// The token scan, with prices refreshed before it when they are stale.
+  private let spend: PricedTokenScan
   private var schedule: ShellSchedule
   private let tracker = NoticeTracker()
   private var lastLogged = ""
@@ -75,13 +78,16 @@ public final class Engine {
       latest.withLock { $0.activity = activity }
       Task { @MainActor in owner.engine?.activityChanged(activity) }
     }
-    scanner = TokenScanner(host: activityHost, enabled: enabled) { tokens in
+    let prices = PriceBook(store: store)
+    self.prices = prices
+    scanner = TokenScanner(host: activityHost, enabled: enabled, onChange: { tokens in
       latest.withLock { $0.tokens = tokens }
       publish()
-    }
+    }, prices: { prices.table })
+    spend = PricedTokenScan(scanner: scanner, prices: prices)
     poller = Engine.makePoller(settings: settings, store: store, current: current, latest: latest, busy: busy, publish: publish)
     schedule = ShellSchedule(
-      usage: poller, activity: monitor, tokens: scanner, events: events,
+      usage: poller, activity: monitor, tokens: spend, events: events,
       watchedDirectory: monitor.watchedDirectory
     )
     owner.engine = self
