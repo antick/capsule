@@ -76,6 +76,8 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   /// The percentages under each meter on a side dock. Off by default: the
   /// card shows them on hover.
   @DefaultOff public var dockPercent: Bool = false
+  /// Rings or gauges on the dock.
+  @Defaulted public var meterStyle: MeterStyle = .rings
   @Defaulted public var pinStyle: PinStyle = .text
   /// Windows left off the cards.
   @LossyList public var hiddenMetrics: [MetricKey] = []
@@ -126,6 +128,7 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     pinnedMetrics: [],
     dockRings: .single,
     dockPercent: false,
+    meterStyle: .rings,
     pinStyle: .text,
     hiddenMetrics: [],
     starredMetrics: [],
@@ -234,6 +237,7 @@ extension CapsuleSettings {
       },
       dockRings: choice("dockRings", defaults.dockRings),
       dockPercent: flag("dockPercent", defaults.dockPercent),
+      meterStyle: choice("meterStyle", defaults.meterStyle),
       pinStyle: choice("pinStyle", defaults.pinStyle),
       hiddenMetrics: metricList(fields["hiddenMetrics"]),
       starredMetrics: metricList(fields["starredMetrics"]),

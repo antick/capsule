@@ -14,6 +14,8 @@ public struct DockLook: Equatable {
   public var rows = CardRows()
   /// One ring per meter, or session and week.
   public var rings: DockRings = .single
+  /// Rings or gauges.
+  public var meterStyle: MeterStyle = .rings
 
   public init(spec: FrameSpec, theme: HudTheme, display: UsageDisplay, demoNow: Date? = nil) {
     self.spec = spec
@@ -117,7 +119,7 @@ public final class DockView: FlippedView {
     // only slides the rail must not throw away their animations.
     let meterLook =
       next.spec.metrics != look.spec.metrics || next.theme != look.theme
-      || next.spec.compact != look.spec.compact
+      || next.spec.compact != look.spec.compact || next.meterStyle != look.meterStyle
     look = next
     if meterLook { meterKey = "" }
     applyLook()
@@ -227,7 +229,8 @@ public final class DockView: FlippedView {
     meterKey = key
     for meter in meters { meter.removeFromSuperview() }
     meters = readings.map { reading in
-      let meter = MeterView(meterId: reading.meterId, metrics: look.spec.metrics, theme: look.theme)
+      let meter = MeterView(
+        meterId: reading.meterId, metrics: look.spec.metrics, theme: look.theme, style: look.meterStyle)
       meter.onPress = { [weak self] in self?.behavior.meterClicked(reading.meterId) }
       return meter
     }

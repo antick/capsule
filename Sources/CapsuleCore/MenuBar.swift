@@ -27,6 +27,14 @@ public enum DockRings: String, Sendable, Codable, CaseIterable {
   case sessionAndWeek = "session-and-week"
 }
 
+/// What each dock meter is drawn as.
+public enum MeterStyle: String, Sendable, Codable, CaseIterable {
+  /// A ring that fills as the window is used.
+  case rings
+  /// A tile that drains as the window is used: full while plenty is left.
+  case gauges
+}
+
 /// How a pinned metric is drawn.
 public enum PinStyle: String, Sendable, Codable, CaseIterable {
   case text, bars
@@ -59,6 +67,7 @@ public struct MetricKey: Hashable, Sendable, Codable {
 extension Presence: SettingDefault { public static let settingDefault = Presence.dock }
 extension MenuBarStyle: SettingDefault { public static let settingDefault = MenuBarStyle.icon }
 extension DockRings: SettingDefault { public static let settingDefault = DockRings.single }
+extension MeterStyle: SettingDefault { public static let settingDefault = MeterStyle.rings }
 extension PinStyle: SettingDefault { public static let settingDefault = PinStyle.text }
 
 public enum MenuBarLimits {
@@ -152,6 +161,22 @@ public enum DualRing {
   /// Drawn softer than the session, in the same severity colour, so the
   /// two read apart and both still say how close to the limit they are.
   public static let alpha = 0.6
+}
+
+/// A gauge tile on the dock, in shares of the meter's size.
+public enum Gauge {
+  /// The tile's corner radius.
+  public static let cornerShare = 0.3
+  /// Between the session's column and the week's.
+  public static let gapShare = 0.05
+  /// The light across the tile's top half.
+  public static let sheenAlpha = 0.18
+  /// The halo that keeps the mark legible over the fill.
+  public static let iconHaloAlpha = 0.45
+  public static let iconHaloRadius = 1.5
+  /// The outline of a tile with no reading, in shares of the ring's stroke,
+  /// so it never passes for a window used up.
+  public static let outlineShare = 0.5
 }
 
 /// Sizes of the menu-bar item's picture, in points.

@@ -15,9 +15,12 @@ extension Copy {
   public static let pinnedMetricsHint =
     "Up to two per provider: the shorter window on top, the longer below, beside the provider's mark. Choosing a third replaces the oldest. Providers with none chosen stay out of the menu bar."
   public static let pinStyle = "Draw figures as"
-  public static let dockRings = "Rings"
+  public static let meters = "Meters"
+  public static let metersHint =
+    "Rings fill up as a window is used. Gauges drain: full while plenty is left, emptying as you use it. Both turn from green to red as the limit nears."
+  public static let dockRings = "Shows"
   public static let dockRingsHint =
-    "One ring for each card's top window, or two: the session outside and the week inside, where a provider has both."
+    "The card's top window alone, or the session and the week where a provider has both: inside the ring, or beside it in a gauge."
   public static let dockPercent = "Percent labels"
   public static let dockPercentHint = "The figures under each ring on a side dock. Hovering a ring always shows them on its card."
   public static let refreshAll = "Refresh all"
@@ -54,9 +57,16 @@ extension Copy {
     }
   }
 
+  public static func label(_ style: MeterStyle) -> String {
+    switch style {
+    case .rings: return "Rings"
+    case .gauges: return "Gauges"
+    }
+  }
+
   public static func label(_ rings: DockRings) -> String {
     switch rings {
-    case .single: return "One ring"
+    case .single: return "Top window"
     case .sessionAndWeek: return "Session and week"
     }
   }

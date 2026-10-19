@@ -86,14 +86,19 @@ struct MenuBarTests {
     settings.pinnedMetrics = [MetricKey(.claude, "current-session")]
     settings.pinStyle = .bars
     settings.dockRings = .sessionAndWeek
+    settings.dockPercent = true
+    settings.meterStyle = .gauges
     let data = try #require(settings.documentData)
     #expect(CapsuleSettings.read(data: data) == settings)
 
     let defaults = try #require(CapsuleSettings.defaults.documentData)
     var raw = try #require(JSONValue.parse(String(decoding: defaults, as: UTF8.self))?.asObject)
-    for key in ["presence", "menuBarStyle", "dockRings", "pinnedMetrics", "pinStyle"] { raw[key] = nil }
+    for key in ["presence", "menuBarStyle", "dockRings", "pinnedMetrics", "pinStyle", "dockPercent", "meterStyle"] {
+      raw[key] = nil
+    }
     raw["presence"] = .string("somewhere-new")
     let read = try #require(CapsuleSettings.read(.object(raw)))
     #expect(read.presence == .dock && read.menuBarStyle == .icon && read.pinnedMetrics.isEmpty && read.dockRings == .single)
+    #expect(!read.dockPercent && read.meterStyle == .rings)
   }
 }

@@ -50,16 +50,20 @@ public final class MeterView: FlippedView {
   /// The week, inside the session ring, when the dock shows both.
   private let innerTrack = CAShapeLayer()
   private let innerValue = CAShapeLayer()
+  /// The tile drawn in place of the rings when the dock shows gauges.
+  private let gauge: GaugeLayers?
   /// VoiceOver, or any assistive app, pressed the meter: the same as a click.
   public var onPress: (() -> Void)?
 
-  public init(meterId: MeterId, metrics: HudMetrics, theme: HudTheme) {
+  public init(meterId: MeterId, metrics: HudMetrics, theme: HudTheme, style: MeterStyle = .rings) {
     self.meterId = meterId
     self.providerId = meterId.provider
     self.metrics = metrics
     self.theme = theme
     caption = dockLabel(size: metrics.percentFontSize, color: theme.text)
     badge = BadgeView(metrics: metrics, theme: theme)
+    gauge = style == .gauges ? GaugeLayers(
+        size: metrics.meterSize, outline: metrics.ringStroke * Gauge.outlineShare, theme: theme) : nil
     super.init(frame: .zero)
     let size = metrics.meterSize
     let stroke = metrics.ringStroke
@@ -70,7 +74,7 @@ public final class MeterView: FlippedView {
       shape.path = ringPath(size: size, radius: radius)
       shape.fillColor = nil
       shape.lineWidth = stroke
-      ring.addSublayer(shape)
+      if gauge == nil { ring.addSublayer(shape) }
     }
     // The week's ring sits just inside the session's, clear of the agent ring.
     let innerStroke = stroke * DualRing.strokeShare
@@ -81,8 +85,9 @@ public final class MeterView: FlippedView {
       shape.fillColor = nil
       shape.lineWidth = innerStroke
       shape.isHidden = true
-      ring.addSublayer(shape)
+      if gauge == nil { ring.addSublayer(shape) }
     }
+    if let gauge { ring.addSublayer(gauge.root) }
     innerTrack.strokeColor = theme.ringTrack.cgColor
     innerValue.lineCap = .round
     innerValue.strokeEnd = 0
@@ -102,6 +107,13 @@ public final class MeterView: FlippedView {
     ring.addSublayer(agent)
     icon = iconLayer(providerId, size: metrics.iconSize, color: theme.text)
     icon.position = CGPoint(x: size / 2, y: size / 2)
+    if gauge != nil {
+      // A faint halo of the rail's colour keeps the mark clear over the fill.
+      icon.shadowColor = theme.surface.cgColor
+      icon.shadowOpacity = Float(Gauge.iconHaloAlpha)
+      icon.shadowRadius = Gauge.iconHaloRadius
+      icon.shadowOffset = .zero
+    }
     ring.addSublayer(icon)
     let dot = metrics.cardStatusDot
     incident.frame = CGRect(x: 0, y: size - dot, width: dot, height: dot)
@@ -182,6 +194,7 @@ public final class MeterView: FlippedView {
     }
     innerValue.strokeColor = (innerRounded.map { SeverityColors.forPercent($0).with(alpha: DualRing.alpha) }
       ?? theme.ringTrack).cgColor
+    gauge?.show(used: rounded, week: innerRounded, split: next.inner != nil)
 
     // Pressed in while it works, released when the answer lands.
     if previous?.refreshing != next.refreshing {
@@ -191,9 +204,11 @@ public final class MeterView: FlippedView {
       ring.add(springAnimation("transform.scale", Springs.press, from: from, to: scale), forKey: "press")
       sweep.isHidden = !next.refreshing
       if next.refreshing, !reduceMotion {
-        sweep.add(spin(Motion.sweepMs), forKey: "spin")
+        // A gauge breathes while it reloads; a ring has its chasing arc.
+        if let gauge { gauge.root.add(pulse(), forKey: "spin") } else { sweep.add(spin(Motion.sweepMs), forKey: "spin") }
       } else {
         sweep.removeAnimation(forKey: "spin")
+        gauge?.root.removeAnimation(forKey: "spin")
       }
     }
 

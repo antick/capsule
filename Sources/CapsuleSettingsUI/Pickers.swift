@@ -47,6 +47,7 @@ struct DockPreview: View {
       demoNow: demo ? Demo.now : nil
     )
     look.rings = s.dockRings
+    look.meterStyle = s.meterStyle
     return look
   }
 
@@ -139,6 +140,48 @@ struct Silhouette: View {
       )
       context.fill(placed, with: .color(Color(white: 0.03)))
       if style.outline { context.stroke(placed, with: .color(.white.opacity(0.3)), lineWidth: 1) }
+    }
+  }
+}
+
+/// Rings or gauges, each shown as three meters at different readings.
+struct MeterStylePicker: View {
+  let value: MeterStyle
+  let onChange: (MeterStyle) -> Void
+  /// Shares used for the sample meters: plenty left, half, nearly gone.
+  private let samples = [20.0, 55.0, 88.0]
+
+  var body: some View {
+    HStack(spacing: 8) {
+      ForEach(MeterStyle.allCases, id: \.self) { style in
+        OptionCard(selected: value == style, label: Copy.label(style), action: { onChange(style) }) {
+          HStack(spacing: 10) {
+            ForEach(samples, id: \.self) { used in sample(style, used: used) }
+          }
+          .frame(maxWidth: .infinity).frame(height: 56)
+          .background(HudTheme.midnight.surface.swiftUI).clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+      }
+    }
+  }
+
+  @ViewBuilder private func sample(_ style: MeterStyle, used: Double) -> some View {
+    let m = hudMetrics(HudScale.min)
+    let color = SeverityColors.forPercent(used).swiftUI
+    let track = HudTheme.midnight.ringTrack.swiftUI
+    switch style {
+    case .rings:
+      ZStack {
+        Circle().stroke(track, lineWidth: m.ringStroke)
+        Circle().trim(from: 0, to: used / 100).stroke(color, style: StrokeStyle(lineWidth: m.ringStroke, lineCap: .round))
+          .rotationEffect(.degrees(-90))
+      }
+      .padding(m.ringStroke / 2).frame(width: m.meterSize, height: m.meterSize)
+    case .gauges:
+      RoundedRectangle(cornerRadius: m.meterSize * Gauge.cornerShare, style: .continuous).fill(track)
+        .overlay(alignment: .bottom) { Rectangle().fill(color).frame(height: m.meterSize * (100 - used) / 100) }
+        .clipShape(RoundedRectangle(cornerRadius: m.meterSize * Gauge.cornerShare, style: .continuous))
+        .frame(width: m.meterSize, height: m.meterSize)
     }
   }
 }

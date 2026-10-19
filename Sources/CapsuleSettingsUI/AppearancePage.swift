@@ -13,11 +13,14 @@ struct AppearancePage: View {
       SettingsSection(title: Copy.dockStyle, hint: Copy.dockStyleHint) {
         StylePicker(value: s.dockStyle) { id in model.change { $0.dockStyle = id } }
       }
-      SettingsSection(title: Copy.dockRings, hint: Copy.dockRingsHint) {
-        Picker(Copy.dockRings, selection: model.binding(\.dockRings)) {
-          ForEach(DockRings.allCases, id: \.self) { Text(Copy.label($0)).tag($0) }
+      SettingsSection(title: Copy.meters, hint: Copy.metersHint) {
+        MeterStylePicker(value: s.meterStyle) { style in model.change { $0.meterStyle = style } }
+        SettingRow(label: Copy.dockRings, hint: Copy.dockRingsHint) {
+          Picker(Copy.dockRings, selection: model.binding(\.dockRings)) {
+            ForEach(DockRings.allCases, id: \.self) { Text(Copy.label($0)).tag($0) }
+          }
+          .pickerStyle(.segmented).labelsHidden().fixedSize()
         }
-        .pickerStyle(.segmented).labelsHidden()
         SwitchRow(label: Copy.dockPercent, hint: Copy.dockPercentHint, isOn: model.binding(\.dockPercent))
       }
       SettingsSection(title: Copy.theme, hint: Copy.themeHint) {

@@ -219,6 +219,7 @@ public final class DockController {
     )
     look.rows = CardRows(settings) { [weak self] edit in self?.onEdit(edit) }
     look.rings = settings.dockRings
+    look.meterStyle = settings.meterStyle
     view.update(look: look)
     // Packed against the docked edge, in case the frame and the window
     // disagree by a rounding.

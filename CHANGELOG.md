@@ -10,6 +10,7 @@ All notable changes to Capsule are documented in this file.
 - The menu-bar item shows Capsule's icon, or the figures you choose: up to two per provider, the shorter window on top and the longer below beside its mark, as text or mini bars. Choosing a third replaces the oldest; providers follow the dock's order.
 - With Capsule in the edge dock alone there is no menu-bar item at all; right-click the dock or open Capsule again for Settings.
 - Dock rings can show the session and the week together: the session outside, the week as a thinner, softer ring inside.
+- Gauges, a second meter style beside rings (Appearance → Meters): each provider is a rounded tile that drains as you use it, full while plenty is left and turning from green to red as the limit nears. With session and week it splits into two columns; a provider with no reading yet is an outline, so it never passes for one used up.
 - Percent labels under the rings are off by default, so a side dock packs its rings closer; hovering a ring shows its card with every figure. Switch them back on in Appearance.
 - Pace on every window: how far ahead of or behind an even pace you are, a mark on the bar where even pace would be, and when the window runs out at the current rate. Switch it off in General.
 - Click a percentage to flip used and left everywhere, or a reset time to flip countdown and date.
