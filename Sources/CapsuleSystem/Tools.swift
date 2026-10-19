@@ -34,8 +34,9 @@ private func runToolNow(_ path: String, _ arguments: [String], timeout: Double) 
     _ = read.wait(timeout: .now() + 1)
     return nil
   }
-  _ = read.wait(timeout: .now() + timeout)
-  guard process.terminationStatus == 0 else { return nil }
+  // A child still holding the pipe could leave the reader running; give up
+  // rather than read what it is still writing.
+  guard read.wait(timeout: .now() + timeout) == .success, process.terminationStatus == 0 else { return nil }
   return String(data: data, encoding: .utf8)
 }
 
