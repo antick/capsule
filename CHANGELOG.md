@@ -25,6 +25,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Fixed
 
+- The menu-bar panel opens as a small window under the menu bar's right end when a menu-bar manager has hidden Capsule's item, instead of opening out of sight.
 - Token counts no longer double-count Claude messages written more than once while streaming, or a Codex subagent's replay of its parent's history.
 
 ### Removed

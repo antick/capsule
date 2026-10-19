@@ -12,6 +12,8 @@ final class StatusItemController: NSObject {
   private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
   private let popover = NSPopover()
   private let hosting = NSHostingController(rootView: AnyView(EmptyView()))
+  /// The floating window's own copy: a view controller lives in one window.
+  private let floatingHosting = NSHostingController(rootView: AnyView(EmptyView()))
   private var settings: CapsuleSettings
   private var content: UsagePanelContent?
   private var drawn: [MenuBarEntry]?
@@ -41,7 +43,10 @@ final class StatusItemController: NSObject {
 
   func apply(_ next: CapsuleSettings) {
     settings = next
-    if !next.presence.opensPanelFromMenuBar, popover.isShown { popover.performClose(nil) }
+    if !next.presence.opensPanelFromMenuBar {
+      if popover.isShown { popover.performClose(nil) }
+      floating?.orderOut(nil)
+    }
   }
 
   /// New readings: redraw the item if what it shows changed, and the panel.
@@ -49,6 +54,7 @@ final class StatusItemController: NSObject {
     self.content = content
     draw(menuBarEntries(settings, content.snapshots))
     if popover.isShown { hosting.rootView = AnyView(UsagePanelView(content: content)) }
+    if floating?.isVisible == true { floatingHosting.rootView = AnyView(UsagePanelView(content: content)) }
   }
 
   private func draw(_ entries: [MenuBarEntry]) {
@@ -82,10 +88,72 @@ final class StatusItemController: NSObject {
   func togglePanel() {
     guard let button = item.button else { return }
     if popover.isShown { return popover.performClose(nil) }
+    if let floating, floating.isVisible { return floating.orderOut(nil) }
     guard let content else { return }
     hosting.rootView = AnyView(UsagePanelView(content: content))
-    popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-    popover.contentViewController?.view.window?.makeKey()
+    if isOnScreen(button) {
+      popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+      popover.contentViewController?.view.window?.makeKey()
+    } else {
+      showFloating()
+    }
     onPanelOpened()
+  }
+
+  /// A menu-bar manager can park the item off every screen, where a popover
+  /// anchored to it would open out of sight.
+  private func isOnScreen(_ button: NSStatusBarButton) -> Bool {
+    guard let window = button.window else { return false }
+    let frame = window.convertToScreen(button.convert(button.bounds, to: nil))
+    return NSScreen.screens.contains { $0.frame.intersects(frame) }
+  }
+
+  /// The panel as a small floating window under the menu bar's right end,
+  /// for when the item itself cannot be seen. Closes when clicked away from.
+  private var floating: NSPanel?
+
+  private func showFloating() {
+    let panel =
+      floating
+      ?? {
+        let made = NSPanel(
+          contentRect: .zero, styleMask: [.nonactivatingPanel, .titled, .fullSizeContentView], backing: .buffered,
+          defer: false)
+        made.titleVisibility = .hidden
+        made.titlebarAppearsTransparent = true
+        made.isFloatingPanel = true
+        made.hidesOnDeactivate = false
+        made.level = .popUpMenu
+        made.isReleasedWhenClosed = false
+        made.contentViewController = floatingHosting
+        return made
+      }()
+    floating = panel
+    floatingHosting.rootView = hosting.rootView
+    guard let screen = NSScreen.main else { return }
+    let size = floatingHosting.view.fittingSize
+    let visible = screen.visibleFrame
+    panel.setFrame(
+      NSRect(
+        x: visible.maxX - size.width - MenuBarPanelMetrics.padding, y: visible.maxY - size.height,
+        width: size.width, height: size.height),
+      display: true)
+    panel.orderFrontRegardless()
+    panel.makeKey()
+    watchClickAway()
+  }
+
+  private var clickAway: Any?
+
+  /// A click anywhere else puts the floating panel away, as a popover would.
+  private func watchClickAway() {
+    if let clickAway { NSEvent.removeMonitor(clickAway) }
+    clickAway = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+      MainActor.assumeIsolated {
+        self?.floating?.orderOut(nil)
+        if let monitor = self?.clickAway { NSEvent.removeMonitor(monitor) }
+        self?.clickAway = nil
+      }
+    }
   }
 }
