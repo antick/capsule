@@ -134,7 +134,7 @@ struct UsageCardView: View {
     case .disabled: message(Copy.usageDisabled)
     case .unauthenticated: message(Copy.notConnected)
     default:
-      if snapshot.buckets.isEmpty {
+      if snapshot.buckets.isEmpty && (snapshot.extras ?? []).isEmpty {
         message(snapshot.status == .stale ? Copy.staleData : Copy.unavailable)
       } else {
         VStack(alignment: .leading, spacing: m.cardSectionGap) {
@@ -142,6 +142,9 @@ struct UsageCardView: View {
             BucketRow(
               meter: snapshot.meterId, provider: snapshot.providerId, bucket: bucket, display: content.display,
               rows: content.rows, now: content.now, m: m, theme: theme)
+          }
+          ForEach(snapshot.extras ?? [], id: \.id) { extra in
+            ExtraRow(meter: snapshot.meterId, extra: extra, rows: content.rows, now: content.now, m: m, theme: theme)
           }
         }
       }
@@ -234,6 +237,50 @@ struct BucketRow: View {
     case .slightlyAhead: return SeverityColors.color(.mid)
     case .ahead, .farAhead: return SeverityColors.color(.critical)
     }
+  }
+}
+
+/// An amount on the card: extra usage, credits, a balance. A window's shape,
+/// with the bar only when there is a share to show.
+struct ExtraRow: View {
+  let meter: MeterId
+  let extra: UsageExtra
+  let rows: CardRows
+  let now: Date
+  let m: HudMetrics
+  let theme: HudTheme
+
+  var body: some View {
+    let key = MetricKey(meter, extra.id)
+    VStack(alignment: .leading, spacing: m.cardBucketGap) {
+      HStack(alignment: .firstTextBaseline, spacing: m.cardResetGap) {
+        Text(extra.label).font(.system(size: m.cardLabelSize)).lineLimit(1)
+        Spacer(minLength: 0)
+        if let resets = extra.resetsAt.flatMap(looseDate) {
+          Button(action: rows.onFlipReset) {
+            Text(formatResetCopy(resets, style: .absolute, flipped: rows.flipReset, now: now))
+              .font(.system(size: m.cardResetSize)).foregroundStyle(color(theme.textMuted)).lineLimit(1)
+          }
+          .buttonStyle(.plain).focusable(false).help(Copy.flipResetHint)
+        } else if let note = extra.note {
+          Text(note).font(.system(size: m.cardResetSize)).foregroundStyle(color(theme.textMuted)).lineLimit(1)
+        }
+      }
+      .frame(height: m.cardTextLine)
+      if let used = extra.percentUsed {
+        GeometryReader { box in
+          ZStack(alignment: .leading) {
+            Capsule().fill(color(theme.barTrack))
+            Capsule().fill(color(SeverityColors.forPercent(used)))
+              .frame(width: box.size.width * max(0, min(100, used)) / 100)
+          }
+        }
+        .frame(height: m.barHeight)
+      }
+      Text(extra.value).font(.system(size: m.cardLabelSize).monospacedDigit()).lineLimit(1).minimumScaleFactor(0.8)
+        .frame(height: m.cardTextLine)
+    }
+    .contextMenu { Button(Copy.hideMetric) { rows.onHide(key) } }
   }
 }
 

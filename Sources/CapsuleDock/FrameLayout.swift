@@ -135,6 +135,12 @@ public func dockCardHeight(
     return cardHeightFor(m, buckets: 0, sessions: shown) + more
   }
   let status = snapshot?.status
-  let buckets = status == .unauthenticated || status == .disabled ? 0 : snapshot?.buckets.count ?? 0
-  return cardHeightFor(m, buckets: buckets, sessions: sessions, tokens: tokens)
+  // Extras are drawn in a window's shape, so each counts as one more row;
+  // one with no share to show has no bar.
+  let extras = snapshot?.extras ?? []
+  let rows = (snapshot?.buckets.count ?? 0) + extras.count
+  let shown = status == .unauthenticated || status == .disabled ? 0 : rows
+  let barless = shown == 0 ? 0 : extras.filter { $0.percentUsed == nil }.count
+  return cardHeightFor(m, buckets: shown, sessions: sessions, tokens: tokens)
+    - Double(barless) * (m.barHeight + m.cardBucketGap)
 }

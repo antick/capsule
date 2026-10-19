@@ -50,6 +50,8 @@ public struct UsageSnapshot: Sendable, Codable, Equatable {
   /// The added account this reading is for, or nil for the provider's own
   /// sign-in.
   public var accountId: String?
+  /// Amounts beyond the percentage windows: extra usage, credits, spend.
+  public var extras: [UsageExtra]?
 
   public init(
     providerId: ProviderId,
@@ -61,7 +63,8 @@ public struct UsageSnapshot: Sendable, Codable, Equatable {
     fetchedAt: String,
     refreshing: Bool? = nil,
     staleSince: String? = nil,
-    accountId: String? = nil
+    accountId: String? = nil,
+    extras: [UsageExtra]? = nil
   ) {
     self.providerId = providerId
     self.displayName = displayName
@@ -73,6 +76,7 @@ public struct UsageSnapshot: Sendable, Codable, Equatable {
     self.refreshing = refreshing
     self.staleSince = staleSince
     self.accountId = accountId
+    self.extras = extras
   }
 
   public var meterId: MeterId { MeterId(providerId, account: accountId) }

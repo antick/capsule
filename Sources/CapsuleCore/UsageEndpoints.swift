@@ -27,6 +27,8 @@ public enum UsageEndpoints {
     public static let authFile = "auth.json"
     public static let authPath = [".codex", authFile]
     public static let homeEnv = "CODEX_HOME"
+    /// What one Codex credit costs to buy, for showing a balance in dollars.
+    public static let dollarsPerCredit = 0.04
   }
 
   public enum Grok {

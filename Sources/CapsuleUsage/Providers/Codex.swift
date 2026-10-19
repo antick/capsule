@@ -11,7 +11,15 @@ public struct CodexWindow: Sendable, Codable, Equatable {
   @Lenient public var label: String?
 }
 
+/// The account's Codex credits, which do not reset.
+public struct CodexCredits: Sendable, Codable, Equatable {
+  @Lenient public var has_credits: Bool?
+  @Lenient public var unlimited: Bool?
+  @Lenient public var balance: NumberOrString?
+}
+
 public struct CodexUsagePayload: Sendable, Codable, Equatable {
+  @Lenient public var credits: CodexCredits?
   public struct RateLimit: Sendable, Codable, Equatable {
     @Lenient public var primary_window: CodexWindow?
     @Lenient public var secondary_window: CodexWindow?
@@ -89,6 +97,27 @@ public func mapCodexUsage(
     // A 200 carrying no window told us nothing. Calling that "ok" would
     // publish the nothing over the last good numbers; "error" keeps them.
     status: buckets.isEmpty ? .error : .ok,
-    fetchedAt: isoString(fetchedAt)
+    fetchedAt: isoString(fetchedAt),
+    extras: codexCredits(payload.credits).map { [$0] }
   )
+}
+
+/// The credit balance, with what it is worth at Codex's own rate. No credits
+/// object, or one saying the account has none and no balance, shows nothing.
+func codexCredits(_ credits: CodexCredits?) -> UsageExtra? {
+  guard let credits else { return nil }
+  if credits.unlimited == true {
+    return UsageExtra(id: "credits", label: Copy.codexCredits, value: Copy.unlimited)
+  }
+  let balance: Double?
+  switch credits.balance {
+  case .number(let value): balance = value
+  case .string(let text): balance = Double(jsTrim(text))
+  case nil: balance = nil
+  }
+  guard let balance, balance.isFinite else { return nil }
+  let whole = max(0, balance.rounded(.down))
+  return UsageExtra(
+    id: "credits", label: Copy.codexCredits,
+    value: "\(formatWhole(whole)) \(Copy.credits) · \(formatMoney(whole * UsageEndpoints.Codex.dollarsPerCredit))")
 }

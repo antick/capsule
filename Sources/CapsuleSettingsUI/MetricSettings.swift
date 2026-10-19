@@ -9,7 +9,7 @@ struct MetricsSection: View {
 
   var body: some View {
     SettingsSection(title: Copy.metrics, hint: Copy.metricsHint) {
-      let readings = model.snapshots.filter { !$0.buckets.isEmpty }
+      let readings = model.snapshots.filter { !$0.buckets.isEmpty || !($0.extras ?? []).isEmpty }
       if readings.isEmpty {
         Text(Copy.noMetricsYet).font(.system(size: 12)).foregroundStyle(.secondary)
       }
@@ -22,6 +22,14 @@ struct MetricsSection: View {
           let ordered = ordering(snapshot)
           ForEach(Array(ordered.enumerated()), id: \.element.id) { index, bucket in
             row(snapshot, bucket, index: index, count: ordered.count)
+          }
+          ForEach(snapshot.extras ?? [], id: \.id) { extra in
+            let key = MetricKey(snapshot.meterId, extra.id)
+            let hidden = model.settings.hiddenMetrics.contains(key)
+            Toggle(extra.label, isOn: Binding(get: { !hidden }, set: { on in model.change { $0.setHidden(key, !on) } }))
+              .toggleStyle(.checkbox).font(.system(size: 12.5))
+              .accessibilityLabel("\(Copy.showMetric) \(snapshot.displayName) \(extra.label)")
+              .padding(.leading, 23).opacity(hidden ? 0.55 : 1)
           }
         }
         .padding(.vertical, 4)

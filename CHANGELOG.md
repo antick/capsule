@@ -10,6 +10,8 @@ All notable changes to Capsule are documented in this file.
 - The menu-bar item can show Capsule's icon, one provider's percentage (chosen, or whichever is highest), or up to six pinned metrics as text or mini bars.
 - Pace on every window: how far ahead of or behind an even pace you are, a mark on the bar where even pace would be, and when the window runs out at the current rate. Switch it off in General.
 - Click a percentage to flip used and left everywhere, or a reset time to flip countdown and date.
+- Claude's extra usage (paid usage beyond the plan) on its card when it is switched on: spend against the monthly cap, or spend alone.
+- Codex credits on its card, with what they are worth.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
 
 ### Removed

@@ -15,6 +15,7 @@ public func arrangeBuckets(_ snapshot: UsageSnapshot, _ settings: CapsuleSetting
   }
   var arranged = snapshot
   arranged.buckets = visible.sorted { rank($0) < rank($1) }.map(\.element)
+  arranged.extras = snapshot.extras?.filter { !settings.hiddenMetrics.contains(MetricKey(meter, $0.id)) }
   // The ring follows the top row, so a star decides what the ring shows.
   if let first = arranged.buckets.first, first.id != snapshot.buckets.first?.id {
     arranged.primaryPercent = first.percentUsed

@@ -21,10 +21,20 @@ public struct ClaudeLimit: Sendable, Codable, Equatable {
   @Lenient public var scope: Scope?
 }
 
+/// Paid usage beyond the plan. Amounts are in cents.
+public struct ClaudeExtraUsage: Sendable, Codable, Equatable {
+  @Lenient public var is_enabled: Bool?
+  @Lenient public var monthly_limit: Double?
+  @Lenient public var monthly_credit_limit: Double?
+  @Lenient public var used_credits: Double?
+  @Lenient public var currency: String?
+}
+
 public struct ClaudeUsagePayload: Sendable, Codable, Equatable {
   @Lenient public var five_hour: ClaudeWindow?
   @Lenient public var seven_day: ClaudeWindow?
   @LossyArray public var limits: [ClaudeLimit]?
+  @Lenient public var extra_usage: ClaudeExtraUsage?
 
   public init(five_hour: ClaudeWindow? = nil, seven_day: ClaudeWindow? = nil, limits: [ClaudeLimit]? = nil) {
     self.five_hour = five_hour
@@ -112,8 +122,29 @@ public func mapClaudeUsage(
     // A 200 carrying no window told us nothing. Calling that "ok" would
     // publish the nothing over the last good numbers; "error" keeps them.
     status: buckets.isEmpty ? .error : .ok,
-    fetchedAt: isoString(fetchedAt)
+    fetchedAt: isoString(fetchedAt),
+    extras: claudeExtraUsage(payload.extra_usage, fetchedAt: fetchedAt).map { [$0] }
   )
+}
+
+/// Extra usage, when the account has it switched on: spend against the
+/// monthly cap, or spend alone when there is no cap. Anthropic gives no
+/// reset, so the cap is taken to start again on the first of the month, UTC.
+func claudeExtraUsage(_ extra: ClaudeExtraUsage?, fetchedAt: Date) -> UsageExtra? {
+  guard let extra, extra.is_enabled == true else { return nil }
+  let currency = extra.currency.map(jsTrim).flatMap { $0.isEmpty ? nil : $0 } ?? MoneyDefaults.currency
+  let used = max(0, (extra.used_credits ?? 0) / 100)
+  let resets = isoString(startOfNextMonthUTC(after: fetchedAt))
+  if let cents = extra.monthly_limit ?? extra.monthly_credit_limit, cents > 0 {
+    let limit = cents / 100
+    return UsageExtra(
+      id: "extra-usage", label: Copy.extraUsage,
+      value: "\(formatMoney(used, currency: currency)) \(Copy.of) \(formatMoney(limit, currency: currency))",
+      percentUsed: clampPercent(used / limit * 100), resetsAt: resets)
+  }
+  return UsageExtra(
+    id: "extra-usage", label: Copy.extraUsage, value: "\(formatMoney(used, currency: currency)) \(Copy.spent)",
+    resetsAt: resets)
 }
 
 /// The usage Claude Code already cached in `~/.claude.json`, used when a live
