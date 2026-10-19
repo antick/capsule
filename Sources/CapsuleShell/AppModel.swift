@@ -29,7 +29,11 @@ public final class AppModel: MenuHandlers {
   private let confetti = Confetti()
   private lazy var alertState: [String: QuotaWindowState] =
     store.load(QuotaAlertRules.stateFile) ?? [:]
-  private lazy var history: UsageHistory = store.load(HistoryTuning.file) ?? [:]
+  private lazy var history: UsageHistory = pruneHistory(store.load(HistoryTuning.file) ?? [:], now: Date())
+  /// The readings history last saw, so activity and status changes do not
+  /// re-record them.
+  private var recordedSnapshots: [UsageSnapshot] = []
+  private var historySave: DispatchWorkItem?
   private lazy var settingsWindow = SettingsWindowController(model: settingsModel)
 
   public init(store: JSONStore = .applicationSupport(AppIdentity.supportDirectory), events: ShellEvents = .mac) {
@@ -134,6 +138,11 @@ public final class AppModel: MenuHandlers {
   }
 
   public func stop() {
+    // A save still waiting is written now, so quitting keeps the last readings.
+    if historySave != nil, historySave?.isCancelled == false {
+      historySave?.cancel()
+      store.save(HistoryTuning.file, history)
+    }
     engine.stop()
     updater.stop()
     dock.hide()
@@ -147,13 +156,26 @@ public final class AppModel: MenuHandlers {
     pushToDock()
     settingsModel.snapshots = state.snapshots
     alertOnChanges(state.snapshots)
-    let recorded = recordHistory(history, state.snapshots, now: Date())
-    if recorded != history {
-      history = recorded
-      store.save(HistoryTuning.file, recorded)
-      settingsModel.history = recorded
-    }
+    recordReadings(state.snapshots)
   }
+
+  /// Adds the readings to the history when they changed, and writes it down
+  /// a little later, off the main thread, however often they change.
+  private func recordReadings(_ snapshots: [UsageSnapshot]) {
+    guard snapshots != recordedSnapshots else { return }
+    recordedSnapshots = snapshots
+    let recorded = recordHistory(history, snapshots, now: Date())
+    guard recorded != history else { return }
+    history = recorded
+    // Only an open settings window needs it as it changes.
+    if settingsWindow.window?.isVisible == true { settingsModel.history = recorded }
+    historySave?.cancel()
+    let store = store
+    let save = DispatchWorkItem { DispatchQueue.global(qos: .utility).async { store.save(HistoryTuning.file, recorded) } }
+    historySave = save
+    DispatchQueue.main.asyncAfter(deadline: .now() + HistoryTuning.saveDelaySeconds, execute: save)
+  }
+
 
   private func pushToDock() {
     dock.update(

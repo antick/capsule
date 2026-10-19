@@ -16,17 +16,17 @@ struct HistoryPage: View {
       }
       ForEach(readings, id: \.meterId) { snapshot in
         let lines = snapshot.buckets.map { bucket in
-          (bucket.label, chartSamples(model.history, MetricKey(snapshot.meterId, bucket.id), now: now))
-        }.filter { !$0.1.isEmpty }
+          (id: bucket.id, label: bucket.label, samples: chartSamples(model.history, MetricKey(snapshot.meterId, bucket.id), now: now))
+        }.filter { !$0.samples.isEmpty }
         if !lines.isEmpty {
           Section {
             Chart {
-              ForEach(lines, id: \.0) { label, samples in
-                ForEach(samples, id: \.at) { sample in
+              ForEach(lines, id: \.id) { line in
+                ForEach(line.samples, id: \.at) { sample in
                   LineMark(
                     x: .value("Time", Date(timeIntervalSince1970: sample.at)), y: .value("Used", sample.percent)
                   )
-                  .foregroundStyle(by: .value("Window", label))
+                  .foregroundStyle(by: .value("Window", line.label))
                   .interpolationMethod(.stepEnd)
                 }
               }

@@ -19,10 +19,14 @@ public enum HistoryTuning {
   /// A reading is kept when it moved this many points, or this long has
   /// passed since the last one kept.
   public static let minimumMove = 1.0
-  public static let sampleSeconds = 600.0
+  public static let sampleSeconds = 3_600.0
   /// How far back the history reaches, and the most kept per window.
   public static let keepSeconds = 14 * 86_400.0
-  public static let maxSamples = 2_016
+  public static let maxSamples = 1_000
+  /// The most points one window draws in a chart.
+  public static let maxChartPoints = 300
+  /// How long after a change the history waits before it is written down.
+  public static let saveDelaySeconds = 30.0
   /// What the charts show.
   public static let chartSeconds = 7 * 86_400.0
   public static let file = "usage-history.json"
@@ -31,7 +35,9 @@ public enum HistoryTuning {
 }
 
 /// The history with these readings added: a window's reading is kept when
-/// it moved or enough time passed, and old readings are let go.
+/// it moved a point, or an hour passed since the last one kept (a stepped
+/// chart needs no more). Only windows that gained a reading are pruned;
+/// ``pruneHistory(_:now:)`` does the rest once, at launch.
 public func recordHistory(_ history: UsageHistory, _ snapshots: [UsageSnapshot], now: Date) -> UsageHistory {
   var next = history
   let stamp = now.timeIntervalSince1970
@@ -46,20 +52,33 @@ public func recordHistory(_ history: UsageHistory, _ snapshots: [UsageSnapshot],
         continue
       }
       samples.append(UsageSample(at: stamp, percent: percent))
+      let floor = stamp - HistoryTuning.keepSeconds
+      if let first = samples.first, first.at < floor { samples.removeAll { $0.at < floor } }
+      if samples.count > HistoryTuning.maxSamples { samples.removeFirst(samples.count - HistoryTuning.maxSamples) }
       next[key] = samples
     }
-  }
-  for (key, samples) in next {
-    let kept = samples.filter { stamp - $0.at <= HistoryTuning.keepSeconds }.suffix(HistoryTuning.maxSamples)
-    next[key] = kept.isEmpty ? nil : Array(kept)
   }
   return next
 }
 
-/// A window's readings inside the charts' span, oldest first.
+/// Lets go of everything older than the history keeps, for every window.
+public func pruneHistory(_ history: UsageHistory, now: Date) -> UsageHistory {
+  let floor = now.timeIntervalSince1970 - HistoryTuning.keepSeconds
+  return history.compactMapValues { samples in
+    let kept = samples.filter { $0.at >= floor }.suffix(HistoryTuning.maxSamples)
+    return kept.isEmpty ? nil : Array(kept)
+  }
+}
+
+/// A window's readings inside the charts' span, oldest first, thinned to
+/// what a chart can show: every reading when there are few, an even spread
+/// that keeps the latest when there are many.
 public func chartSamples(_ history: UsageHistory, _ key: MetricKey, now: Date) -> [UsageSample] {
   let floor = now.timeIntervalSince1970 - HistoryTuning.chartSeconds
-  return (history[key.rawValue] ?? []).filter { $0.at >= floor }
+  let inside = (history[key.rawValue] ?? []).filter { $0.at >= floor }
+  guard inside.count > HistoryTuning.maxChartPoints else { return inside }
+  let step = Double(inside.count - 1) / Double(HistoryTuning.maxChartPoints - 1)
+  return (0..<HistoryTuning.maxChartPoints).map { inside[Int((Double($0) * step).rounded())] }
 }
 
 extension Copy {
