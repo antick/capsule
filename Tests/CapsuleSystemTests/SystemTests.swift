@@ -276,3 +276,23 @@ struct CodexThreadQueryTests {
     #expect(sqliteRows(path, ActivityTuning.codexRolloutsSQL) == [["task", "Build the logo", "/r/task.jsonl"]])
   }
 }
+
+@Suite("The key file")
+struct KeyFileTests {
+  @Test func keysStayOwnerOnlyAndSurviveEachOther() throws {
+    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("capsule-keys-\(UUID().uuidString)")
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let one = KeyFile(directory: dir)
+    let two = KeyFile(directory: dir)
+    one.set(.openrouter, "  sk-or-test  ")
+    two.set(.deepseek, "sk-ds-test")
+    #expect(one.value(.openrouter) == "sk-or-test" && one.value(.deepseek) == "sk-ds-test")
+    let path = dir.appendingPathComponent(StoredKey.fileName).path
+    let mode = try FileManager.default.attributesOfItem(atPath: path)[.posixPermissions] as? Int
+    #expect(mode == 0o600)
+    two.set(.openrouter, nil)
+    #expect(one.value(.openrouter) == nil && one.value(.deepseek) == "sk-ds-test")
+    // Nothing left beside it from the writes.
+    #expect(try FileManager.default.contentsOfDirectory(atPath: dir.path) == [StoredKey.fileName])
+  }
+}

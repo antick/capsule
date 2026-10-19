@@ -7,7 +7,9 @@ import Foundation
 /// usage dock should never ask for a password.
 public final class KeyFile: @unchecked Sendable {
   private let url: URL
-  private let lock = NSLock()
+  /// One lock for every instance: the app and its reader each hold one.
+  private static let lock = NSLock()
+  private var lock: NSLock { Self.lock }
 
   public init(directory: URL) {
     url = directory.appendingPathComponent(StoredKey.fileName)
@@ -40,12 +42,11 @@ public final class KeyFile: @unchecked Sendable {
     let manager = FileManager.default
     try? manager.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
     guard let data = try? JSONEncoder().encode(all) else { return }
-    // Created owner-only before anything is written to it.
-    if !manager.fileExists(atPath: url.path) {
-      manager.createFile(atPath: url.path, contents: nil, attributes: [.posixPermissions: 0o600])
-    }
-    try? data.write(to: url)
-    try? manager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+    // Written whole to an owner-only file beside it, then moved over it in
+    // one step, so a reader never meets a half-written file.
+    let temp = url.deletingLastPathComponent().appendingPathComponent(".\(StoredKey.fileName).\(UUID().uuidString)")
+    guard manager.createFile(atPath: temp.path, contents: data, attributes: [.posixPermissions: 0o600]) else { return }
+    if rename(temp.path, url.path) != 0 { try? manager.removeItem(at: temp) }
   }
 }
 
