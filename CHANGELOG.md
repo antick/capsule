@@ -25,6 +25,11 @@ All notable changes to Capsule are documented in this file.
 - Homebrew: `brew install --cask antick/tap/capsule`. The release workflow updates the cask, which also links the `capsule` command.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
 
+### Changed
+
+- Settings is redesigned as a native macOS settings window: a sidebar of panes (General, Appearance, Menu bar, Providers, Accounts & keys, Cards, History, Updates) and grouped forms. The menu-bar pane previews the item live in light and dark; pins are chips; card rows have a star, up and down, and a switch.
+- While Settings is open Capsule shows in the Dock and the app switcher, so the window can be minimised, switched to and brought back like any other; closing it returns Capsule to the menu bar alone.
+
 ### Fixed
 
 - The menu-bar panel opens as a small window under the menu bar's right end when a menu-bar manager has hidden Capsule's item, instead of opening out of sight.

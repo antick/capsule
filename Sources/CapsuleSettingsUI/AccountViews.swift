@@ -3,8 +3,66 @@ import CapsuleCore
 import CapsuleDock
 import SwiftUI
 
-/// One meter's row on the providers page: its mark, name and status, its
-/// reading, anything extra, and the switch that shows or hides its ring.
+/// A provider's mark on the dock's own black, as the dock shows it.
+struct ProviderBadge: View {
+  let id: ProviderId
+  var size = 30.0
+
+  var body: some View {
+    ZStack {
+      RoundedRectangle(cornerRadius: size * 0.28, style: .continuous).fill(HudTheme.midnight.surface.swiftUI)
+      ProviderMark(id: id, tint: HudTheme.midnight.text.swiftUI).frame(width: size * 0.55, height: size * 0.55)
+    }
+    .frame(width: size, height: size)
+  }
+}
+
+/// Every provider, each followed by the accounts added for it.
+struct ProvidersPage: View {
+  @ObservedObject var model: SettingsModel
+
+  var body: some View {
+    SettingsForm(lead: Copy.providersHint) {
+      ForEach(ProviderId.allCases, id: \.self) { id in
+        Section {
+          row(id)
+          ForEach(model.settings.accounts.filter { $0.provider == id }) { account in
+            AccountRow(model: model, account: account)
+          }
+        }
+      }
+    }
+    .onAppear { model.onScanAccounts() }
+  }
+
+  private func row(_ id: ProviderId) -> some View {
+    let enabled = model.settings.enabledProviderIds.contains(id)
+    let name = model.settings.label(for: MeterId(id))
+    // The default folder shows once another account sits beside it.
+    let paired = model.settings.accounts.contains { $0.provider == id }
+    let folder = AccountRules.defaultFolder(id).map { "~/" + $0.joined(separator: "/") }
+    return MeterRow(
+      id: id, snapshot: model.snapshots.first { $0.meterId == MeterId(id) }, enabled: enabled, label: name,
+      onToggle: { on in
+        // Rebuilt from the canonical order, so a provider switched back on
+        // returns to where its ring was.
+        model.change { settings in
+          var wanted = Set(settings.enabledProviderIds)
+          if on { wanted.insert(id) } else { wanted.remove(id) }
+          settings.enabledProviderIds = ProviderId.allCases.filter { wanted.contains($0) }
+        }
+      }
+    ) {
+      MeterTitle(name: name, placeholder: ProviderLabels.label(id), folder: paired ? folder : nil) { next in
+        model.change { $0.setName(next, for: id) }
+      }
+    } trailing: {
+      EmptyView()
+    }
+  }
+}
+
+/// One meter's row: its mark, name and status, its reading, and its switch.
 struct MeterRow<Title: View, Trailing: View>: View {
   let id: ProviderId
   let snapshot: UsageSnapshot?
@@ -17,26 +75,24 @@ struct MeterRow<Title: View, Trailing: View>: View {
 
   var body: some View {
     let percent = snapshot?.primaryPercent.map { jsRound($0) }
-    HStack(spacing: 14) {
+    HStack(spacing: 12) {
       ProviderBadge(id: id)
-      VStack(alignment: .leading, spacing: 3) {
+      VStack(alignment: .leading, spacing: 2) {
         title
         StatusPill(tone: tone(snapshot?.status), text: Copy.statusLabel(snapshot?.status))
       }
       Spacer(minLength: 0)
-      if let percent {
+      if let percent, enabled {
         Text("\(jsString(.number(percent)))\(Copy.percentSuffix)")
-          .font(.system(size: 13, weight: .medium).monospacedDigit())
+          .font(.system(size: 13, weight: .semibold).monospacedDigit())
           .foregroundStyle(Tone.severity(percent).color)
       }
       trailing
       Toggle("", isOn: Binding(get: { enabled }, set: onToggle))
         .labelsHidden().toggleStyle(.switch).accessibilityLabel(label)
     }
-    .padding(.horizontal, 14).padding(.vertical, 12)
-    .background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(0.03)))
-    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.primary.opacity(0.08)))
-    .opacity(enabled ? 1 : 0.6)
+    .padding(.vertical, 2)
+    .opacity(enabled ? 1 : 0.55)
   }
 
   private func tone(_ status: UsageStatus?) -> Tone {
@@ -62,15 +118,15 @@ struct MeterTitle: View {
     VStack(alignment: .leading, spacing: 1) {
       HStack(spacing: 5) {
         TextField(placeholder, text: $draft)
-          .textFieldStyle(.plain).font(.system(size: 13.5, weight: .medium)).fixedSize()
+          .labelsHidden().textFieldStyle(.plain).font(.system(size: 13, weight: .semibold)).fixedSize()
           .onSubmit(commit)
           .onChange(of: draft) { _, _ in commit() }
           .accessibilityLabel(Copy.accountLabel)
-        Image(systemName: "pencil").font(.system(size: 10.5)).foregroundStyle(.tertiary)
+        Image(systemName: "pencil").font(.system(size: 10)).foregroundStyle(.tertiary)
       }
       .help(Copy.renameHint)
       if let folder {
-        Text(folder).font(.system(size: 11.5).monospaced()).foregroundStyle(.secondary)
+        Text(folder).font(.system(size: 11, design: .monospaced)).foregroundStyle(.secondary)
           .lineLimit(1).truncationMode(.middle)
       }
     }
@@ -101,115 +157,8 @@ struct AccountRow: View {
         folder: AccountPaths.display(account.path, home: model.homeDir)
       ) { name in model.updateAccount(account.id) { $0.label = name } }
     } trailing: {
-      Button { model.removeAccount(account.id) } label: { Image(systemName: "trash") }
+      Button(role: .destructive) { model.removeAccount(account.id) } label: { Image(systemName: "trash") }
         .buttonStyle(.borderless).help(Copy.removeAccount).accessibilityLabel(Copy.removeAccount)
     }
-  }
-}
-
-/// Adds another account: one click for a folder found on this Mac, or any
-/// folder by path or by picking it.
-struct AddAccountSection: View {
-  @ObservedObject var model: SettingsModel
-  @State private var provider: ProviderId = .claude
-  @State private var path = ""
-  @State private var problem: String?
-
-  var body: some View {
-    SettingsSection(title: Copy.otherAccounts, hint: Copy.otherAccountsHint) {
-      if !model.foundAccounts.isEmpty {
-        VStack(alignment: .leading, spacing: 6) {
-          Text(Copy.foundAccount).font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
-          ForEach(model.foundAccounts, id: \.self) { found in
-            HStack(spacing: 10) {
-              ProviderMark(id: found.provider, tint: .primary).frame(width: 15, height: 15)
-              Text(ProviderLabels.label(found.provider)).font(.system(size: 13, weight: .medium))
-              Text(AccountPaths.display(found.path, home: model.homeDir))
-                .font(.system(size: 12).monospaced()).foregroundStyle(.secondary)
-              Spacer(minLength: 0)
-              Button(Copy.addAccount) { submit(found.provider, found.path) }
-            }
-          }
-        }
-        Divider()
-      }
-      HStack(spacing: 8) {
-        Picker(Copy.accountProvider, selection: $provider) {
-          ForEach(AccountRules.supported, id: \.self) { Text(ProviderLabels.label($0)).tag($0) }
-        }
-        .pickerStyle(.segmented).labelsHidden().fixedSize()
-        TextField(Copy.accountPathPlaceholder, text: $path)
-          .textFieldStyle(.roundedBorder).font(.system(size: 12.5).monospaced())
-          .onSubmit { submit(provider, path) }
-        Button(Copy.chooseFolder, action: choose)
-        Button(Copy.addAccount) { submit(provider, path) }
-          .disabled(jsTrim(path).isEmpty)
-      }
-      if let problem {
-        Text(problem).font(.system(size: 12)).foregroundStyle(.red)
-      }
-    }
-    .onChange(of: path) { _, _ in problem = nil }
-    .onChange(of: provider) { _, _ in problem = nil }
-  }
-
-  private func submit(_ provider: ProviderId, _ path: String) {
-    let check = model.addAccount(provider, path: path)
-    problem = Copy.accountCheck(check)
-    if check == .ok { self.path = "" }
-  }
-
-  /// The system folder picker, showing the dot-folders accounts live in.
-  private func choose() {
-    let panel = NSOpenPanel()
-    panel.canChooseDirectories = true
-    panel.canChooseFiles = false
-    panel.allowsMultipleSelection = false
-    panel.showsHiddenFiles = true
-    panel.directoryURL = URL(fileURLWithPath: model.homeDir, isDirectory: true)
-    guard panel.runModal() == .OK, let url = panel.url else { return }
-    path = AccountPaths.display(url.path, home: model.homeDir)
-  }
-}
-
-/// Keys and sessions for providers with no login on this Mac. A saved key is
-/// never shown again; it can only be replaced or cleared.
-struct ApiKeysSection: View {
-  @ObservedObject var model: SettingsModel
-  @State private var drafts: [StoredKey: String] = [:]
-
-  var body: some View {
-    SettingsSection(title: Copy.apiKeys, hint: Copy.apiKeysHint) {
-      ForEach(StoredKey.allCases, id: \.self) { key in
-        let saved = model.savedKeys.contains(key)
-        VStack(alignment: .leading, spacing: 6) {
-          HStack(spacing: 8) {
-            Text(Copy.label(key)).font(.system(size: 13, weight: .medium))
-            StatusPill(tone: saved ? .good : .neutral, text: saved ? Copy.keySaved : Copy.keyNotSet)
-            Spacer(minLength: 0)
-          }
-          Text(Copy.hint(key)).font(.system(size: 12)).foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-          HStack(spacing: 8) {
-            SecureField(Copy.pasteKey, text: Binding(get: { drafts[key] ?? "" }, set: { drafts[key] = $0 }))
-              .textFieldStyle(.roundedBorder).accessibilityLabel(Copy.label(key))
-              .onSubmit { save(key) }
-            Button(Copy.saveKey) { save(key) }.disabled(jsTrim(drafts[key] ?? "").isEmpty)
-            if saved {
-              Button(Copy.clearKey) { model.onSaveKey(key, nil) }.accessibilityLabel("\(Copy.clearKey) \(Copy.label(key))")
-            }
-          }
-        }
-        .padding(.vertical, 4)
-        if key != StoredKey.allCases.last { Divider() }
-      }
-    }
-  }
-
-  private func save(_ key: StoredKey) {
-    let value = jsTrim(drafts[key] ?? "")
-    guard !value.isEmpty else { return }
-    model.onSaveKey(key, value)
-    drafts[key] = ""
   }
 }

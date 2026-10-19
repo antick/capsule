@@ -7,7 +7,8 @@ import CapsuleHUD
 /// provider stays one item. Drawn when the bar draws it, so it follows the
 /// menu bar's light or dark look.
 public enum MenuBarImage {
-  public static func render(_ entries: [MenuBarEntry], style: PinStyle) -> NSImage {
+  /// `ink` fixes the colour for a preview; nil follows the menu bar.
+  public static func render(_ entries: [MenuBarEntry], style: PinStyle, ink fixed: NSColor? = nil) -> NSImage {
     let m = MenuBarMetrics.self
     let widths = entries.map { m.iconSize + m.iconGap + figuresWidth($0.values, style: style) }
     let total = widths.reduce(0, +) + m.entryGap * Double(max(0, entries.count - 1))
@@ -15,7 +16,7 @@ public enum MenuBarImage {
     let image = NSImage(size: size, flipped: false) { _ in
       var x = 0.0
       for (index, entry) in entries.enumerated() {
-        let ink = NSColor.labelColor
+        let ink = fixed ?? NSColor.labelColor
         drawIcon(entry.provider, at: NSPoint(x: x, y: (m.height - m.iconSize) / 2), color: ink)
         x += m.iconSize + m.iconGap
         drawFigures(entry.values, style: style, at: x, ink: ink)

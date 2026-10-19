@@ -8,7 +8,8 @@ extension Copy {
   public static let presence = "Show Capsule in"
   public static let presenceHint = "The dock rests at a screen edge; the menu bar opens a panel with every card."
   public static let menuBarStyle = "Menu bar shows"
-  public static let menuBarStyleHint = "Capsule's icon, one provider's percentage, or the metrics you pin."
+  public static let menuBarStyleHint =
+    "Capsule's icon alone, one provider's session and week, or the windows you pin. A provider's two figures stack beside its mark."
   public static let menuBarMeter = "Provider"
   public static let menuBarMeterHint = "Which percentage the menu bar shows."
   public static let highestUsage = "Highest usage"
@@ -38,7 +39,7 @@ extension Copy {
   public static func label(_ style: MenuBarStyle) -> String {
     switch style {
     case .icon: return "Icon"
-    case .single: return "One percentage"
+    case .single: return "One provider"
     case .pinned: return "Pinned metrics"
     }
   }

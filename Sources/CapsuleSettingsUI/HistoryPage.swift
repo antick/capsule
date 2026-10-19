@@ -9,22 +9,17 @@ struct HistoryPage: View {
 
   var body: some View {
     let now = Date()
-    VStack(spacing: 16) {
-      PageHeader(title: Copy.history, description: Copy.historyHint)
+    SettingsForm(lead: Copy.historyHint) {
       let readings = model.snapshots.filter { !$0.buckets.isEmpty }
       if readings.isEmpty || model.history.isEmpty {
-        SettingsSection { Text(Copy.noHistoryYet).font(.system(size: 12.5)).foregroundStyle(.secondary) }
+        Section { Text(Copy.noHistoryYet).foregroundStyle(.secondary) }
       }
       ForEach(readings, id: \.meterId) { snapshot in
         let lines = snapshot.buckets.map { bucket in
           (bucket.label, chartSamples(model.history, MetricKey(snapshot.meterId, bucket.id), now: now))
         }.filter { !$0.1.isEmpty }
         if !lines.isEmpty {
-          SettingsSection {
-            HStack(spacing: 8) {
-              ProviderMark(id: snapshot.providerId, tint: .primary).frame(width: 15, height: 15)
-              Text(snapshot.displayName).font(.system(size: 13.5, weight: .medium))
-            }
+          Section {
             Chart {
               ForEach(lines, id: \.0) { label, samples in
                 ForEach(samples, id: \.at) { sample in
@@ -51,7 +46,13 @@ struct HistoryPage: View {
               }
             }
             .frame(height: HistoryTuning.chartHeight)
+            .padding(.vertical, 6)
             .accessibilityLabel("\(snapshot.displayName) \(Copy.history)")
+          } header: {
+            HStack(spacing: 8) {
+              ProviderBadge(id: snapshot.providerId, size: 20)
+              Text(snapshot.displayName)
+            }
           }
         }
       }

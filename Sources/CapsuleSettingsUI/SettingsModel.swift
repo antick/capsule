@@ -4,7 +4,7 @@ import Foundation
 
 /// The pages of the settings window.
 public enum SettingsPage: String, CaseIterable, Sendable {
-  case appearance, providers, history, updates, general, onboarding
+  case general, appearance, menuBar, providers, accounts, cards, history, updates, onboarding
 }
 
 /// What the settings window shows and what it can ask for. The app owns the

@@ -1,5 +1,6 @@
 import AppKit
 import CapsuleCore
+import CapsuleDock
 import CapsuleHUD
 import SwiftUI
 
@@ -38,7 +39,6 @@ enum Tone {
   }
 }
 
-/// A small dot and a word, coloured by tone.
 struct StatusPill: View {
   let tone: Tone
   let text: String
@@ -51,82 +51,171 @@ struct StatusPill: View {
   }
 }
 
-/// The heading each page opens with.
-struct PageHeader: View {
-  let title: String
-  var description: String?
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 4) {
-      Text(title).font(.system(size: 22, weight: .semibold))
-      if let description {
-        Text(description).font(.system(size: 13)).foregroundStyle(.secondary)
-          .fixedSize(horizontal: false, vertical: true)
-      }
-    }
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .padding(.horizontal, 4)
-  }
-}
-
-/// A card of related settings.
-struct SettingsSection<Content: View, Aside: View>: View {
-  var title: String?
-  var hint: String?
-  var padded = true
-  @ViewBuilder let aside: Aside
+/// A page: the system's grouped form, as System Settings draws its own.
+/// It handles the title bar, scrolling, and light and dark by itself.
+struct SettingsForm<Content: View>: View {
+  var lead: String?
   @ViewBuilder let content: Content
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      if let title {
-        HStack(alignment: .top, spacing: 16) {
-          VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.system(size: 15, weight: .semibold))
-            if let hint {
-              Text(hint).font(.system(size: 12.5)).foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            }
+    Form {
+      // The intro is a callout row of its own, so every section's header
+      // below it looks alike.
+      if let lead {
+        Section {
+          Label {
+            Text(lead).font(.system(size: 12.5)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+          } icon: {
+            Image(systemName: "info.circle").foregroundStyle(.secondary)
           }
-          Spacer(minLength: 0)
-          aside
         }
       }
       content
     }
-    .padding(padded ? 20 : 0)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(RoundedRectangle(cornerRadius: 16).fill(Color(nsColor: .controlBackgroundColor)))
-    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Color.primary.opacity(0.08)))
-    .clipShape(RoundedRectangle(cornerRadius: 16))
+    .formStyle(.grouped)
+  }
+}
+
+/// A group of related settings: a title, the rows, and a note under them.
+struct SettingsSection<Content: View, Aside: View>: View {
+  var title: String?
+  var hint: String?
+  @ViewBuilder let aside: Aside
+  @ViewBuilder let content: Content
+
+  var body: some View {
+    Section {
+      content
+    } header: {
+      if let title {
+        HStack(alignment: .firstTextBaseline) {
+          Text(title)
+          Spacer(minLength: 0)
+          aside
+        }
+      }
+    } footer: {
+      if let hint {
+        Text(hint).font(.system(size: 11.5)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+          .frame(maxWidth: .infinity, alignment: .leading).multilineTextAlignment(.leading)
+      }
+    }
   }
 }
 
 extension SettingsSection where Aside == EmptyView {
-  init(title: String? = nil, hint: String? = nil, padded: Bool = true, @ViewBuilder content: () -> Content) {
-    self.init(title: title, hint: hint, padded: padded, aside: { EmptyView() }, content: content)
+  init(title: String? = nil, hint: String? = nil, @ViewBuilder content: () -> Content) {
+    self.init(title: title, hint: hint, aside: { EmptyView() }, content: content)
   }
 }
 
-/// One setting: what it is on the left, the control on the right.
+/// One setting: what it is, a line on what it does, and its control.
 struct SettingRow<Control: View>: View {
   let label: String
   var hint: String?
   @ViewBuilder let control: Control
 
   var body: some View {
-    HStack(spacing: 24) {
-      VStack(alignment: .leading, spacing: 2) {
-        Text(label).font(.system(size: 13.5, weight: .medium))
-        if let hint {
-          Text(hint).font(.system(size: 12)).foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-        }
-      }
-      Spacer(minLength: 0)
+    LabeledContent {
       control
+    } label: {
+      Text(label)
+      if let hint { Text(hint) }
     }
-    .padding(.vertical, 6)
+  }
+}
+
+/// An on/off setting, the most common row.
+struct SwitchRow: View {
+  let label: String
+  var hint: String?
+  let isOn: Binding<Bool>
+
+  var body: some View {
+    Toggle(isOn: isOn) {
+      Text(label)
+      if let hint { Text(hint) }
+    }
+    .toggleStyle(.switch)
+  }
+}
+
+/// A sidebar icon: a white symbol on a tinted rounded square, as System
+/// Settings marks its panes.
+struct PaneIcon: View {
+  let symbol: String
+  let tint: Color
+
+  var body: some View {
+    Image(systemName: symbol)
+      .font(.system(size: 11.5, weight: .semibold))
+      .foregroundStyle(.white)
+      .frame(width: 22, height: 22)
+      .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(tint.gradient))
+  }
+}
+
+/// A selectable chip: a provider's mark and a name, filled when chosen.
+struct Chip: View {
+  let provider: ProviderId?
+  let label: String
+  let selected: Bool
+  var disabled = false
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 6) {
+        if let provider { ProviderMark(id: provider, tint: selected ? .white : .primary).frame(width: 12, height: 12) }
+        Text(label).font(.system(size: 12, weight: .medium)).lineLimit(1)
+        if selected { Image(systemName: "checkmark").font(.system(size: 9.5, weight: .bold)) }
+      }
+      .padding(.horizontal, 10).padding(.vertical, 5)
+      .foregroundStyle(selected ? Color.white : Color.primary)
+      .background(Capsule().fill(selected ? Color.accentColor : Color.primary.opacity(0.06)))
+      .overlay(Capsule().strokeBorder(selected ? Color.clear : Color.primary.opacity(0.12)))
+      .contentShape(Capsule())
+    }
+    .buttonStyle(.plain)
+    .disabled(disabled && !selected)
+    .opacity(disabled && !selected ? 0.4 : 1)
+    .accessibilityAddTraits(selected ? .isSelected : [])
+  }
+}
+
+/// Lays chips out in rows, wrapping when a row is full.
+struct FlowLayout: Layout {
+  var spacing: CGFloat = 6
+
+  func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    arrange(proposal.width ?? .infinity, subviews).size
+  }
+
+  func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+    for (index, origin) in arrange(bounds.width, subviews).origins.enumerated() {
+      subviews[index].place(at: CGPoint(x: bounds.minX + origin.x, y: bounds.minY + origin.y), proposal: .unspecified)
+    }
+  }
+
+  private func arrange(_ width: CGFloat, _ subviews: Subviews) -> (origins: [CGPoint], size: CGSize) {
+    var origins: [CGPoint] = []
+    var x: CGFloat = 0
+    var y: CGFloat = 0
+    var line: CGFloat = 0
+    var widest: CGFloat = 0
+    for subview in subviews {
+      let size = subview.sizeThatFits(.unspecified)
+      if x > 0, x + size.width > width {
+        x = 0
+        y += line + spacing
+        line = 0
+      }
+      origins.append(CGPoint(x: x, y: y))
+      x += size.width + spacing
+      line = max(line, size.height)
+      widest = max(widest, x - spacing)
+    }
+    return (origins, CGSize(width: widest, height: y + line))
   }
 }
 
@@ -142,9 +231,9 @@ struct OptionCard<Picture: View>: View {
   var body: some View {
     Button(action: action) {
       let words = VStack(alignment: .leading, spacing: 2) {
-        Text(label).font(.system(size: 13, weight: .medium))
+        Text(label).font(.system(size: 12.5, weight: .medium))
         if let hint {
-          Text(hint).font(.system(size: 11.5)).foregroundStyle(.secondary)
+          Text(hint).font(.system(size: 11)).foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true).multilineTextAlignment(.leading)
         }
       }
@@ -155,16 +244,17 @@ struct OptionCard<Picture: View>: View {
           VStack(alignment: .leading, spacing: 8) { picture; words }
         }
       }
-      .padding(10)
+      .padding(9)
       .frame(maxWidth: .infinity, alignment: .leading)
       .background(
-        RoundedRectangle(cornerRadius: 12).fill(selected ? Color.accentColor.opacity(0.12) : Color.primary.opacity(0.03))
+        RoundedRectangle(cornerRadius: 10, style: .continuous)
+          .fill(selected ? Color.accentColor.opacity(0.1) : Color.primary.opacity(0.025))
       )
       .overlay(
-        RoundedRectangle(cornerRadius: 12).strokeBorder(
-          selected ? Color.accentColor : Color.primary.opacity(0.1), lineWidth: selected ? 1.5 : 1)
+        RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(
+          selected ? Color.accentColor : Color.primary.opacity(0.1), lineWidth: selected ? 2 : 1)
       )
-      .contentShape(RoundedRectangle(cornerRadius: 12))
+      .contentShape(RoundedRectangle(cornerRadius: 10))
     }
     .buttonStyle(.plain)
     .accessibilityAddTraits(selected ? .isSelected : [])
@@ -181,5 +271,12 @@ struct AppMark: View {
 
   var body: some View {
     Image(nsImage: BrandIcon.image()).resizable().frame(width: size, height: size)
+  }
+}
+
+/// Reads and writes one setting through the model.
+extension SettingsModel {
+  func binding<Value>(_ key: WritableKeyPath<CapsuleSettings, Value>) -> Binding<Value> {
+    Binding(get: { self.settings[keyPath: key] }, set: { value in self.change { $0[keyPath: key] = value } })
   }
 }
