@@ -2,7 +2,7 @@
 
 All notable changes to Capsule are documented in this file.
 
-## Unreleased
+## 0.4.0
 
 ### Added
 
@@ -40,7 +40,6 @@ All notable changes to Capsule are documented in this file.
 ### Fixed
 
 - The dock-size setting no longer shrinks or grows the cards; it sizes the rail and meters alone. Its hint in Settings now says so.
-
 - The menu-bar panel opens as a small window under the menu bar's right end when a menu-bar manager has hidden Capsule's item, instead of opening out of sight.
 - Reset notices and confetti fire when a window's reset time moves on, even if the new window is already in use by the next read.
 - A newly pasted Claude Console session is read at once; a failed read is retried on the next poll.
@@ -49,15 +48,12 @@ All notable changes to Capsule are documented in this file.
 - The key file is written atomically, so a read never meets a half-written file. `capsule --refresh` respects the app's rate-limit backoff.
 - Claude's current-session row no longer vanishes between sessions: a session that has not started shows at 0% marked "Not started".
 - Token counts no longer double-count Claude messages written more than once while streaming, or a Codex subagent's replay of its parent's history.
+- Cursor no longer shows "Not signed in" while it is signed in. A store Capsule could not read in that moment, or a passing refusal while the token is still valid, now keeps the last numbers and tries again on the next poll.
+- The welcome card opens only when no provider is signed in, not whenever one switched-on provider is.
 
 ### Removed
 
 - Demo mode. Capsule always shows your real usage; the settings preview still draws sample rings until the first reading lands.
-
-### Fixed
-
-- Cursor no longer shows "Not signed in" while it is signed in. A store Capsule could not read in that moment, or a passing refusal while the token is still valid, now keeps the last numbers and tries again on the next poll.
-- The welcome card opens only when no provider is signed in, not whenever one switched-on provider is.
 
 ## 0.3.0
 

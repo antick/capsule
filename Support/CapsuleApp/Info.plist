@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Capsule</string>
 	<key>CFBundleExecutable</key>
 	<string>CapsuleApp</string>
 	<key>CFBundleIconFile</key>
@@ -12,33 +14,31 @@
 	<string>com.antick.capsule</string>
 	<key>CFBundleName</key>
 	<string>Capsule</string>
-	<key>CFBundleDisplayName</key>
-	<string>Capsule</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.3.0</string>
+	<string>0.4.0</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>5</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHighResolutionCapable</key>
 	<true/>
-	<key>SUFeedURL</key>
-	<string>https://antick.github.io/capsule/appcast.xml</string>
-	<key>SUEnableAutomaticChecks</key>
-	<false/>
 	<key>SUAutomaticallyUpdate</key>
+	<false/>
+	<key>SUEnableAutomaticChecks</key>
 	<false/>
 	<key>SUEnableSystemProfiling</key>
 	<false/>
-	<key>SUVerifyUpdateBeforeExtraction</key>
-	<true/>
+	<key>SUFeedURL</key>
+	<string>https://antick.github.io/capsule/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>jZpCboegcOkvJQnhV061Ex6mt4f4rCLNEq12IjC+TEQ=</string>
 	<key>SURequireSignedFeed</key>
+	<true/>
+	<key>SUVerifyUpdateBeforeExtraction</key>
 	<true/>
 </dict>
 </plist>
