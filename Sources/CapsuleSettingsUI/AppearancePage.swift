@@ -14,7 +14,7 @@ struct AppearancePage: View {
         StylePicker(value: s.dockStyle) { id in model.change { $0.dockStyle = id } }
       }
       SettingsSection(title: Copy.meters, hint: Copy.metersHint) {
-        MeterStylePicker(value: s.meterStyle) { style in model.change { $0.meterStyle = style } }
+        MeterStylePicker(value: s.meterStyle, theme: resolveHudTheme(s.hudTheme, system: model.appearance)) { style in model.change { $0.meterStyle = style } }
         SettingRow(label: Copy.dockRings, hint: Copy.dockRingsHint) {
           Picker(Copy.dockRings, selection: model.binding(\.dockRings)) {
             ForEach(DockRings.allCases, id: \.self) { Text(Copy.label($0)).tag($0) }

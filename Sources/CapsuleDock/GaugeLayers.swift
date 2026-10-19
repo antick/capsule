@@ -2,8 +2,10 @@ import AppKit
 import CapsuleCore
 
 /// A meter drawn as a tile that drains: full while plenty of the window is
-/// left, emptying as it is used, in the colour of how close the limit is.
-/// With the session and the week it splits into two columns, session first.
+/// left, emptying as it is used. The fill is a tint of the meter's colour
+/// with a solid band at the level, so the mark stays legible over it. With
+/// the session and the week it splits into two columns, session first, each
+/// in its own colour.
 @MainActor
 final class GaugeLayers {
   let root = CALayer()
@@ -12,6 +14,7 @@ final class GaugeLayers {
   private let outline: Double
   private let tracks = [CAShapeLayer(), CAShapeLayer()]
   private let fills = [CAShapeLayer(), CAShapeLayer()]
+  private let levels = [CAShapeLayer(), CAShapeLayer()]
   private let sheen = CAGradientLayer()
   private var split: Bool?
 
@@ -24,15 +27,17 @@ final class GaugeLayers {
     root.cornerCurve = .continuous
     root.masksToBounds = true
     root.borderColor = theme.ringTrack.cgColor
-    for (track, fill) in zip(tracks, fills) {
-      for shape in [track, fill] {
+    for index in tracks.indices {
+      for shape in [tracks[index], fills[index], levels[index]] {
         shape.frame = root.bounds
         shape.fillColor = nil
         shape.lineCap = .butt
         root.addSublayer(shape)
       }
-      track.strokeColor = theme.ringTrack.cgColor
-      fill.strokeEnd = 0
+      tracks[index].strokeColor = theme.ringTrack.cgColor
+      fills[index].strokeEnd = 0
+      levels[index].strokeStart = 0
+      levels[index].strokeEnd = 0
     }
     sheen.frame = root.bounds
     sheen.colors = [
@@ -54,18 +59,28 @@ final class GaugeLayers {
     let none = used == nil && (!next || week == nil)
     root.borderWidth = none ? outline : 0
     for (index, track) in tracks.enumerated() { track.isHidden = none || (index == 1 && !next) }
-    let readings = next ? [used, week] : [used]
-    for (index, fill) in fills.enumerated() {
-      let reading = index < readings.count ? readings[index] : nil
+    let readings: [(Double?, MeterRole)] = next ? [(used, .session), (week, .week)] : [(used, .session)]
+    for index in fills.indices {
+      let (reading, role) = index < readings.count ? readings[index] : (nil, .session)
       let left = reading.map { max(0, min(100, 100 - $0)) / 100 } ?? 0
-      fill.isHidden = reading == nil || left <= 0
-      fill.strokeColor = (reading.map { SeverityColors.forPercent($0) } ?? theme.ringTrack).cgColor
-      if Double(fill.strokeEnd) != left {
-        let from = fill.presentation()?.strokeEnd ?? fill.strokeEnd
-        fill.strokeEnd = left
-        fill.add(springAnimation("strokeEnd", Springs.reading, from: from, to: left), forKey: "reading")
-      }
+      let color = reading.map { theme.meterColor($0, role: role) } ?? theme.ringTrack
+      let hidden = reading == nil || left <= 0
+      fills[index].isHidden = hidden
+      levels[index].isHidden = hidden
+      fills[index].strokeColor = color.with(alpha: Gauge.fillAlpha).cgColor
+      levels[index].strokeColor = color.cgColor
+      sweep(fills[index], "strokeEnd", to: left)
+      sweep(levels[index], "strokeEnd", to: left)
+      sweep(levels[index], "strokeStart", to: max(0, left - Gauge.levelShare))
     }
+  }
+
+  private func sweep(_ shape: CAShapeLayer, _ key: String, to target: Double) {
+    let current = Double(key == "strokeEnd" ? shape.strokeEnd : shape.strokeStart)
+    guard current != target else { return }
+    let from = shape.presentation()?.value(forKeyPath: key) ?? current
+    shape.setValue(target, forKeyPath: key)
+    shape.add(springAnimation(key, Springs.reading, from: from, to: target), forKey: key)
   }
 
   /// Columns as thick strokes from the bottom up, so a fill sweeps the way
@@ -79,7 +94,7 @@ final class GaugeLayers {
       let path = CGMutablePath()
       path.move(to: CGPoint(x: x, y: size))
       path.addLine(to: CGPoint(x: x, y: 0))
-      for shape in [tracks[index], fills[index]] {
+      for shape in [tracks[index], fills[index], levels[index]] {
         shape.path = path
         shape.lineWidth = width
         shape.isHidden = !shown

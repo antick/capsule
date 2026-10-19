@@ -1,7 +1,7 @@
 import Foundation
 
 public enum HudThemeChoice: String, Sendable, Codable, CaseIterable {
-  case auto, midnight, graphite, ink, porcelain, linen
+  case auto, midnight, graphite, ink, aurora, porcelain, linen, sage, blush
 }
 
 public enum HideDelay: String, Sendable, Codable, CaseIterable {

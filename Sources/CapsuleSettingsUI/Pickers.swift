@@ -144,44 +144,82 @@ struct Silhouette: View {
   }
 }
 
-/// Rings or gauges, each shown as three meters at different readings.
+/// Rings or gauges, each shown as three meters at different readings in
+/// the chosen theme: session and week, the last near its limit.
 struct MeterStylePicker: View {
   let value: MeterStyle
+  let theme: HudTheme
   let onChange: (MeterStyle) -> Void
-  /// Shares used for the sample meters: plenty left, half, nearly gone.
-  private let samples = [20.0, 55.0, 88.0]
+  /// Session and week used, for the samples: plenty left, half, nearly gone.
+  private let samples: [(Double, Double)] = [(20, 35), (55, 30), (93, 60)]
 
   var body: some View {
     HStack(spacing: 8) {
       ForEach(MeterStyle.allCases, id: \.self) { style in
         OptionCard(selected: value == style, label: Copy.label(style), action: { onChange(style) }) {
           HStack(spacing: 10) {
-            ForEach(samples, id: \.self) { used in sample(style, used: used) }
+            ForEach(samples.indices, id: \.self) { index in
+              MeterSample(style: style, theme: theme, session: samples[index].0, week: samples[index].1)
+            }
           }
           .frame(maxWidth: .infinity).frame(height: 56)
-          .background(HudTheme.midnight.surface.swiftUI).clipShape(RoundedRectangle(cornerRadius: 8))
+          .background(theme.surface.swiftUI).clipShape(RoundedRectangle(cornerRadius: 8))
         }
       }
     }
   }
+}
 
-  @ViewBuilder private func sample(_ style: MeterStyle, used: Double) -> some View {
-    let m = hudMetrics(HudScale.min)
-    let color = SeverityColors.forPercent(used).swiftUI
-    let track = HudTheme.midnight.ringTrack.swiftUI
+/// One dock meter drawn small: a ring with the week inside, or a gauge
+/// with the week beside.
+struct MeterSample: View {
+  let style: MeterStyle
+  let theme: HudTheme
+  let session: Double
+  let week: Double
+  var size = hudMetrics(HudScale.min).meterSize
+
+  var body: some View {
+    let stroke = size * hudMetrics().ringStroke / hudMetrics().meterSize
+    let track = theme.ringTrack.swiftUI
+    let outer = theme.meterColor(session, role: .session).swiftUI
+    let inner = theme.meterColor(week, role: .week).swiftUI
     switch style {
     case .rings:
+      let innerStroke = stroke * DualRing.strokeShare
+      let inset = stroke + stroke * DualRing.gapShare
       ZStack {
-        Circle().stroke(track, lineWidth: m.ringStroke)
-        Circle().trim(from: 0, to: used / 100).stroke(color, style: StrokeStyle(lineWidth: m.ringStroke, lineCap: .round))
-          .rotationEffect(.degrees(-90))
+        arc(1, track, stroke)
+        arc(session / 100, outer, stroke)
+        arc(1, track, innerStroke).padding(inset)
+        arc(week / 100, inner, innerStroke).padding(inset)
       }
-      .padding(m.ringStroke / 2).frame(width: m.meterSize, height: m.meterSize)
+      .padding(stroke / 2).frame(width: size, height: size)
     case .gauges:
-      RoundedRectangle(cornerRadius: m.meterSize * Gauge.cornerShare, style: .continuous).fill(track)
-        .overlay(alignment: .bottom) { Rectangle().fill(color).frame(height: m.meterSize * (100 - used) / 100) }
-        .clipShape(RoundedRectangle(cornerRadius: m.meterSize * Gauge.cornerShare, style: .continuous))
-        .frame(width: m.meterSize, height: m.meterSize)
+      let shape = RoundedRectangle(cornerRadius: size * Gauge.cornerShare, style: .continuous)
+      HStack(spacing: max(1, jsRound(size * Gauge.gapShare))) {
+        column(session, role: .session)
+        column(week, role: .week)
+      }
+      .clipShape(shape).frame(width: size, height: size)
+    }
+  }
+
+  private func arc(_ share: Double, _ color: Color, _ width: Double) -> some View {
+    Circle().trim(from: 0, to: share).stroke(color, style: StrokeStyle(lineWidth: width, lineCap: .round))
+      .rotationEffect(.degrees(-90))
+  }
+
+  private func column(_ used: Double, role: MeterRole) -> some View {
+    let color = theme.meterColor(used, role: role)
+    let left = (100 - used) / 100
+    return GeometryReader { box in
+      ZStack(alignment: .bottom) {
+        Rectangle().fill(theme.ringTrack.swiftUI)
+        Rectangle().fill(color.with(alpha: Gauge.fillAlpha).swiftUI).frame(height: box.size.height * left)
+        Rectangle().fill(color.swiftUI).frame(height: box.size.height * min(left, Gauge.levelShare))
+          .offset(y: -box.size.height * max(0, left - Gauge.levelShare))
+      }
     }
   }
 }
@@ -207,12 +245,14 @@ struct ThemePicker: View {
   }
 
   private func swatch(_ theme: HudTheme) -> some View {
-    HStack(spacing: 4) {
-      Circle().strokeBorder(theme.ringTrack.swiftUI, lineWidth: 2).frame(width: 14, height: 14)
-      Circle().strokeBorder(SeverityColors.color(.low).swiftUI, lineWidth: 2).frame(width: 14, height: 14)
-      Capsule().fill(theme.text.swiftUI).frame(width: 16, height: 6)
+    HStack(spacing: 6) {
+      MeterSample(style: .rings, theme: theme, session: 62, week: 34, size: 26)
+      VStack(alignment: .leading, spacing: 4) {
+        Capsule().fill(theme.text.swiftUI).frame(width: 18, height: 4)
+        Capsule().fill(theme.textMuted.swiftUI).frame(width: 12, height: 4)
+      }
     }
-    .frame(width: 64, height: 40)
+    .frame(width: 72, height: 44)
     .background(RoundedRectangle(cornerRadius: 8).fill(theme.surface.swiftUI))
     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(theme.surfaceEdge.swiftUI))
   }
@@ -222,7 +262,7 @@ struct ThemePicker: View {
       HudTheme.porcelain.surface.swiftUI
       HudTheme.midnight.surface.swiftUI
     }
-    .frame(width: 64, height: 40)
+    .frame(width: 72, height: 44)
     .clipShape(RoundedRectangle(cornerRadius: 8))
     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.primary.opacity(0.2)))
   }

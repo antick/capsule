@@ -111,6 +111,12 @@ public func sessionAndWeek(_ snapshot: UsageSnapshot) -> [UsageBucket] {
   return pair.isEmpty ? Array(snapshot.buckets.prefix(1)) : pair
 }
 
+/// The colour a window takes on a card: the session's for a day or less,
+/// the week's for anything longer, as the two rings are drawn.
+public func meterRole(_ provider: ProviderId, _ bucket: UsageBucket) -> MeterRole {
+  (WindowLengths.seconds(provider, bucket) ?? 0) > WindowLengths.day ? .week : .session
+}
+
 /// What the menu-bar item shows for these readings, in the dock's order.
 /// Within a meter its figures read shortest window first, whatever order
 /// they were chosen in. Empty means Capsule's own mark.
@@ -158,9 +164,6 @@ extension CapsuleSettings {
 public enum DualRing {
   public static let strokeShare = 0.6
   public static let gapShare = 0.2
-  /// Drawn softer than the session, in the same severity colour, so the
-  /// two read apart and both still say how close to the limit they are.
-  public static let alpha = 0.6
 }
 
 /// A gauge tile on the dock, in shares of the meter's size.
@@ -171,6 +174,11 @@ public enum Gauge {
   public static let gapShare = 0.05
   /// The light across the tile's top half.
   public static let sheenAlpha = 0.18
+  /// The fill is a tint of the meter's colour, so the mark reads over it
+  /// on any theme; a solid band marks the level.
+  public static let fillAlpha = 0.32
+  /// The level band's depth, in shares of the tile's height.
+  public static let levelShare = 0.09
   /// The halo that keeps the mark legible over the fill.
   public static let iconHaloAlpha = 0.45
   public static let iconHaloRadius = 1.5

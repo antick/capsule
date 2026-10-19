@@ -169,12 +169,12 @@ public final class MeterView: FlippedView {
       ["\(next.label) \(label)", next.incident.map(Copy.label)].compactMap { $0 }.joined(separator: Copy.paceSeparator))
     incident.isHidden = next.incident == nil || next.incident == StatusLevel.none
     if let level = next.incident {
-      incident.fillColor = SeverityColors.color(level.isOutage ? .critical : .mid).cgColor
+      incident.fillColor = (level.isOutage ? theme.meters.critical : theme.meters.warn).cgColor
     }
 
     // The reading sweeps to its value rather than snapping.
     let end = (shown ?? 0) / 100
-    let color = rounded.map { SeverityColors.forPercent($0) } ?? theme.ringTrack
+    let color = rounded.map { theme.meterColor($0, role: .session) } ?? theme.ringTrack
     value.isHidden = (shown ?? 0) <= 0
     if Double(value.strokeEnd) != end {
       let from = value.presentation()?.strokeEnd ?? value.strokeEnd
@@ -192,8 +192,7 @@ public final class MeterView: FlippedView {
       innerValue.strokeEnd = innerEnd
       innerValue.add(springAnimation("strokeEnd", Springs.reading, from: from, to: innerEnd), forKey: "reading")
     }
-    innerValue.strokeColor = (innerRounded.map { SeverityColors.forPercent($0).with(alpha: DualRing.alpha) }
-      ?? theme.ringTrack).cgColor
+    innerValue.strokeColor = (innerRounded.map { theme.meterColor($0, role: .week) } ?? theme.ringTrack).cgColor
     gauge?.show(used: rounded, week: innerRounded, split: next.inner != nil)
 
     // Pressed in while it works, released when the answer lands.

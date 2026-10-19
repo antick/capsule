@@ -203,3 +203,15 @@ struct DockMetricsTests {
     #expect(cardReserveHeight(small) == cardReserveHeight(base))
   }
 }
+
+struct MeterPaletteTests {
+  @Test func sessionAndWeekTakeTheirOwnColoursUntilTheLimitNears() {
+    for theme in [HudTheme.midnight, .graphite, .ink, .aurora, .porcelain, .linen, .sage, .blush] {
+      #expect(theme.meters.session != theme.meters.week)
+      #expect(theme.meterColor(20, role: .session) == theme.meters.session)
+      #expect(theme.meterColor(60, role: .week) == theme.meters.week)
+      #expect(theme.meterColor(80, role: .week) == theme.meters.warn)
+      #expect(theme.meterColor(95, role: .session) == theme.meters.critical)
+    }
+  }
+}

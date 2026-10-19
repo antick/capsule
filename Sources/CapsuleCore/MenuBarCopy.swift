@@ -17,7 +17,7 @@ extension Copy {
   public static let pinStyle = "Draw figures as"
   public static let meters = "Meters"
   public static let metersHint =
-    "Rings fill up as a window is used. Gauges drain: full while plenty is left, emptying as you use it. Both turn from green to red as the limit nears."
+    "Rings fill up as a window is used. Gauges drain: full while plenty is left, emptying as you use it. The session and the week each take the theme's own colour, turning amber and then red as a limit nears."
   public static let dockRings = "Shows"
   public static let dockRingsHint =
     "The card's top window alone, or the session and the week where a provider has both: inside the ring, or beside it in a gauge."

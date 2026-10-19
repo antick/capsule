@@ -197,7 +197,7 @@ struct BucketRow: View {
       GeometryReader { box in
         ZStack(alignment: .leading) {
           Capsule().fill(color(theme.barTrack))
-          Capsule().fill(color(SeverityColors.forPercent(used)))
+          Capsule().fill(color(theme.meterColor(used, role: meterRole(provider, bucket))))
             .frame(width: box.size.width * max(0, min(100, shown)) / 100)
             .animation(.timingCurve(0.22, 1, 0.36, 1, duration: Motion.barMs / 1000), value: shown)
           // Where an even pace would be by now.
@@ -233,13 +233,14 @@ struct BucketRow: View {
     }
   }
 
-  /// Muted on pace, the severity colours ahead of it, green with room to spare.
+  /// Muted on pace, the theme's warning colours ahead of it, its good
+  /// colour with room to spare.
   private func paceColor(_ pace: Pace) -> ThemeColor {
     switch pace.stage {
     case .onTrack, .slightlyBehind: return theme.textMuted
-    case .behind, .farBehind: return SeverityColors.color(.low)
-    case .slightlyAhead: return SeverityColors.color(.mid)
-    case .ahead, .farAhead: return SeverityColors.color(.critical)
+    case .behind, .farBehind: return theme.meters.good
+    case .slightlyAhead: return theme.meters.warn
+    case .ahead, .farAhead: return theme.meters.bad
     }
   }
 }
@@ -275,7 +276,7 @@ struct ExtraRow: View {
         GeometryReader { box in
           ZStack(alignment: .leading) {
             Capsule().fill(color(theme.barTrack))
-            Capsule().fill(color(SeverityColors.forPercent(used)))
+            Capsule().fill(color(theme.meterColor(used, role: .session)))
               .frame(width: box.size.width * max(0, min(100, used)) / 100)
           }
         }

@@ -129,7 +129,7 @@ struct SnapshotTests {
   }
 
   @Test func everyCardState() async throws {
-    for theme in [HudTheme.midnight, .graphite, .ink, .porcelain, .linen] {
+    for theme in [HudTheme.midnight, .graphite, .ink, .aurora, .porcelain, .linen, .sage, .blush] {
       let base = look(.rightEdge, style: .rail, theme: theme, count: 3)
       for (card, label) in [
         (Card.closed, "closed"), (.open, "open"), (.notices, "notices"), (.sessions, "sessions"),
