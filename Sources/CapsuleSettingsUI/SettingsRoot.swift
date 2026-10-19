@@ -11,6 +11,7 @@ public struct SettingsRoot: View {
   private let nav: [(SettingsPage, String, String)] = [
     (.appearance, Copy.appearance, "paintpalette"),
     (.providers, Copy.providers, "powerplug"),
+    (.history, Copy.history, "chart.xyaxis.line"),
     (.updates, UpdateCopy.updates, "arrow.down.to.line"),
     (.general, Copy.general, "gearshape"),
   ]
@@ -33,6 +34,7 @@ public struct SettingsRoot: View {
     switch model.page {
     case .appearance: AppearancePage(model: model)
     case .providers: ProvidersPage(model: model)
+    case .history: HistoryPage(model: model)
     case .updates: UpdatesPage(model: model)
     case .general: GeneralPage(model: model)
     case .onboarding: OnboardingPage(model: model)

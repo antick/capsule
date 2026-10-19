@@ -20,6 +20,7 @@ All notable changes to Capsule are documented in this file.
 - Provider status: Claude, Codex, Cursor and Antigravity status pages are read every five minutes; an incident puts a dot on the ring (yellow for minor issues and maintenance, red for outages) and a Status row on the card. Switch it off in General.
 - Quota notifications: a macOS notification when a window's share left crosses a threshold (50% and 20% by default, or another set in General), once per crossing, re-armed when it recovers. A window starting again sends a notification, and a weekly one a short burst of confetti (skipped with Reduce Motion). Nothing fires at launch.
 - Adaptive refresh, on by default: reads at your interval while an agent works, every 2 minutes after you look at Capsule, slowing to 5, 15 and 30 minutes the longer you have not, and 30 minutes on Low Power Mode or a hot Mac. Looking after a long idle reads at once. Switch it off in General for the fixed interval.
+- Usage history: each window's readings are kept for two weeks, drawn per provider on a new History page in Settings, with a trend line under each card in the menu-bar panel.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
 
 ### Fixed

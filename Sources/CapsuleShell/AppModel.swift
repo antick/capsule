@@ -29,6 +29,7 @@ public final class AppModel: MenuHandlers {
   private let confetti = Confetti()
   private lazy var alertState: [String: QuotaWindowState] =
     store.load(QuotaAlertRules.stateFile) ?? [:]
+  private lazy var history: UsageHistory = store.load(HistoryTuning.file) ?? [:]
   private lazy var settingsWindow = SettingsWindowController(model: settingsModel)
 
   public init(store: JSONStore = .applicationSupport(AppIdentity.supportDirectory), events: ShellEvents = .mac) {
@@ -140,6 +141,12 @@ public final class AppModel: MenuHandlers {
     pushToDock()
     settingsModel.snapshots = state.snapshots
     alertOnChanges(state.snapshots)
+    let recorded = recordHistory(history, state.snapshots, now: Date())
+    if recorded != history {
+      history = recorded
+      store.save(HistoryTuning.file, recorded)
+      settingsModel.history = recorded
+    }
   }
 
   private func pushToDock() {
@@ -156,6 +163,7 @@ public final class AppModel: MenuHandlers {
         onOpenSettings: { [weak self] in self?.openSettings(.appearance) }
       )
     panel.rows = CardRows(settings) { [weak self] edit in self?.edit(edit) }
+    panel.history = history
     statusItem?.update(panel)
   }
 
@@ -232,6 +240,7 @@ public final class AppModel: MenuHandlers {
     engine.noteInteraction()
     settingsModel.appearance = systemAppearance
     settingsModel.snapshots = engine.state.snapshots
+    settingsModel.history = history
     settingsWindow.show(page)
   }
 

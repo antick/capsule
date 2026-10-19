@@ -4,7 +4,7 @@ import Foundation
 
 /// The pages of the settings window.
 public enum SettingsPage: String, CaseIterable, Sendable {
-  case appearance, providers, updates, general, onboarding
+  case appearance, providers, history, updates, general, onboarding
 }
 
 /// What the settings window shows and what it can ask for. The app owns the
@@ -18,6 +18,8 @@ public final class SettingsModel: ObservableObject {
   @Published public var appearance: HudAppearance = .dark
   /// Folders on this Mac that look like accounts not added yet.
   @Published public var foundAccounts: [AccountCandidate] = []
+  /// Each window's readings over time, for the History page.
+  @Published public var history: UsageHistory = [:]
   /// The user's home, for showing paths with `~`.
   public var homeDir = ""
   /// Which keys are saved. The values themselves never reach the window.
