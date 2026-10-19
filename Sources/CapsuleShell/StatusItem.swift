@@ -62,8 +62,10 @@ final class StatusItemController: NSObject {
     drawn = entries
     drawnStyle = settings.pinStyle
     button.image = entries.isEmpty ? BrandIcon.image(template: true) : MenuBarImage.render(entries, style: settings.pinStyle)
-    let spoken = entries.compactMap { entry in
-      entry.percent.map { "\(ProviderLabels.label(entry.provider)) \(jsString(.number($0)))\(Copy.percentSuffix)" }
+    let spoken = entries.map { entry in
+      ([ProviderLabels.label(entry.provider)]
+        + entry.values.compactMap { $0.percent.map { "\(jsString(.number($0)))\(Copy.percentSuffix)" } })
+        .joined(separator: " ")
     }
     button.setAccessibilityLabel(([AppIdentity.name] + spoken).joined(separator: ", "))
   }

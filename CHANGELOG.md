@@ -7,7 +7,7 @@ All notable changes to Capsule are documented in this file.
 ### Added
 
 - Choose where Capsule lives: the edge dock, the menu bar, or both. In the menu bar a click opens a panel with every card; a right-click opens the commands.
-- The menu-bar item can show Capsule's icon, one provider's percentage (chosen, or whichever is highest), or up to six pinned metrics as text or mini bars.
+- The menu-bar item can show Capsule's icon, one provider (chosen, or whichever is highest), or up to six pinned metrics, as text or mini bars. A provider's session and week stack beside its mark as one item; a provider with only one window shows one figure.
 - Pace on every window: how far ahead of or behind an even pace you are, a mark on the bar where even pace would be, and when the window runs out at the current rate. Switch it off in General.
 - Click a percentage to flip used and left everywhere, or a reset time to flip countdown and date.
 - Claude's extra usage (paid usage beyond the plan) on its card when it is switched on: spend against the monthly cap, or spend alone.

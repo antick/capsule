@@ -4,19 +4,28 @@ import Testing
 
 @Suite("The menu-bar item")
 struct MenuBarTests {
+  /// Windows by id, with lengths the menu bar can tell apart.
   func snapshot(_ meter: MeterId, _ buckets: [(String, Double)]) -> UsageSnapshot {
     UsageSnapshot(
       providerId: meter.provider, displayName: "x", iconId: meter.provider, primaryPercent: buckets.first?.1,
-      buckets: buckets.map { UsageBucket(id: $0.0, label: $0.0, percentUsed: $0.1, resetsAt: "", resetStyle: .relative) },
+      buckets: buckets.map {
+        UsageBucket(
+          id: $0.0, label: $0.0, percentUsed: $0.1, resetsAt: "", resetStyle: .relative,
+          windowSeconds: $0.0 == "session" ? WindowLengths.fiveHours : WindowLengths.week)
+      },
       status: .ok, fetchedAt: "", accountId: meter.account
     )
+  }
+
+  func one(_ provider: ProviderId, _ values: Double?...) -> MenuBarEntry {
+    MenuBarEntry(provider: provider, values: values.map { MenuBarValue(percent: $0, used: $0) })
   }
 
   var readings: [UsageSnapshot] {
     [
       snapshot(.claude, [("session", 12.4), ("week", 40)]),
       snapshot(MeterId(.claude, account: "w"), [("session", 61)]),
-      snapshot(.codex, [("primary", 30)]),
+      snapshot(.codex, [("week", 30)]),
     ]
   }
 
@@ -24,29 +33,28 @@ struct MenuBarTests {
     #expect(menuBarEntries(.defaults, readings).isEmpty)
   }
 
-  @Test func singleShowsTheHighestUnlessOneIsChosen() {
+  @Test func oneProviderShowsItsSessionAndWeekTogether() {
     var settings = CapsuleSettings.defaults
     settings.menuBarStyle = .single
-    #expect(menuBarEntries(settings, readings) == [MenuBarEntry(provider: .claude, percent: 61, used: 61)])
+    #expect(menuBarEntries(settings, readings) == [one(.claude, 61)])
+    settings.menuBarMeter = "claude"
+    #expect(menuBarEntries(settings, readings) == [one(.claude, 12, 40)])
     settings.menuBarMeter = "codex"
-    #expect(menuBarEntries(settings, readings) == [MenuBarEntry(provider: .codex, percent: 30, used: 30)])
     settings.usageDisplay = .remaining
-    #expect(menuBarEntries(settings, readings) == [MenuBarEntry(provider: .codex, percent: 70, used: 30)])
+    #expect(menuBarEntries(settings, readings) == [MenuBarEntry(provider: .codex, values: [MenuBarValue(percent: 70, used: 30)])])
   }
 
   @Test func pinnedShowsEachPinInOrderAndSkipsGoneOnes() {
     var settings = CapsuleSettings.defaults
     settings.menuBarStyle = .pinned
     settings.pinnedMetrics = [
-      MetricKey(.codex, "primary"), MetricKey(.claude, "week"), MetricKey(.grok, "weekly"),
+      MetricKey(.codex, "week"), MetricKey(.claude, "week"), MetricKey(.grok, "weekly"),
       MetricKey(MeterId(.claude, account: "w"), "gone"),
     ]
-    #expect(
-      menuBarEntries(settings, readings) == [
-        MenuBarEntry(provider: .codex, percent: 30, used: 30),
-        MenuBarEntry(provider: .claude, percent: 40, used: 40),
-        MenuBarEntry(provider: .claude, percent: nil, used: nil),
-      ])
+    #expect(menuBarEntries(settings, readings) == [one(.codex, 30), one(.claude, 40), one(.claude, nil)])
+    // Two pins of one meter share its mark.
+    settings.pinnedMetrics = [MetricKey(.claude, "session"), MetricKey(.codex, "week"), MetricKey(.claude, "week")]
+    #expect(menuBarEntries(settings, readings) == [one(.claude, 12, 40), one(.codex, 30)])
   }
 
   @Test func metricKeysRoundTripTheirText() {

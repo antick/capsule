@@ -54,30 +54,51 @@ extension PinStyle: SettingDefault { public static let settingDefault = PinStyle
 public enum MenuBarLimits {
   /// Pinned metrics the menu bar holds before it crowds other items out.
   public static let maxPins = 6
+  /// Figures stacked beside one mark: the session and the week.
+  public static let valuesPerMeter = 2
 }
 
-/// One thing the menu-bar item draws.
-public struct MenuBarEntry: Equatable, Sendable {
-  public var provider: ProviderId
-  /// The share shown, already flipped to "left" when the user reads it so.
+/// One figure in the menu bar: the share shown, and the share used that its
+/// colour follows.
+public struct MenuBarValue: Equatable, Sendable {
+  /// Already flipped to "left" when the user reads it so.
   public var percent: Double?
-  /// The share used, which the colour always follows.
   public var used: Double?
 
-  public init(provider: ProviderId, percent: Double?, used: Double?) {
-    self.provider = provider
+  public init(percent: Double?, used: Double?) {
     self.percent = percent
     self.used = used
   }
 }
 
+/// One provider's mark in the menu bar with up to two figures beside it,
+/// stacked: its session above its week, as one item.
+public struct MenuBarEntry: Equatable, Sendable {
+  public var provider: ProviderId
+  public var values: [MenuBarValue]
+
+  public init(provider: ProviderId, values: [MenuBarValue]) {
+    self.provider = provider
+    self.values = values
+  }
+}
+
+/// A meter's short window and its weekly one, where it has them: the pair
+/// the menu bar shows for a provider. One alone when that is all there is.
+public func sessionAndWeek(_ snapshot: UsageSnapshot) -> [UsageBucket] {
+  let length = { (bucket: UsageBucket) in WindowLengths.seconds(snapshot.providerId, bucket) }
+  let session = snapshot.buckets.first { length($0).map { $0 <= WindowLengths.day } ?? false }
+  let week = snapshot.buckets.first { length($0).map { $0 >= WindowLengths.week } ?? false }
+  let pair = [session, week].compactMap { $0 }
+  return pair.isEmpty ? Array(snapshot.buckets.prefix(1)) : pair
+}
+
 /// What the menu-bar item shows for these readings. Empty means Capsule's
 /// own mark.
 public func menuBarEntries(_ settings: CapsuleSettings, _ snapshots: [UsageSnapshot]) -> [MenuBarEntry] {
-  func entry(_ snapshot: UsageSnapshot, _ used: Double?) -> MenuBarEntry {
+  func value(_ used: Double?) -> MenuBarValue {
     let rounded = used.map(jsRound)
-    let shown = rounded.map { settings.usageDisplay == .remaining ? 100 - $0 : $0 }
-    return MenuBarEntry(provider: snapshot.providerId, percent: shown, used: rounded)
+    return MenuBarValue(percent: rounded.map { settings.usageDisplay == .remaining ? 100 - $0 : $0 }, used: rounded)
   }
   switch settings.menuBarStyle {
   case .icon:
@@ -86,12 +107,25 @@ public func menuBarEntries(_ settings: CapsuleSettings, _ snapshots: [UsageSnaps
     let chosen = settings.menuBarMeter.flatMap { raw in snapshots.first { $0.meterId.rawValue == raw } }
     let highest = snapshots.filter { $0.primaryPercent != nil }.max { $0.primaryPercent! < $1.primaryPercent! }
     guard let snapshot = chosen ?? highest else { return [] }
-    return [entry(snapshot, snapshot.primaryPercent)]
+    let pair = sessionAndWeek(snapshot)
+    return [
+      MenuBarEntry(
+        provider: snapshot.providerId,
+        values: pair.isEmpty ? [value(snapshot.primaryPercent)] : pair.map { value($0.percentUsed) })
+    ]
   case .pinned:
-    return settings.pinnedMetrics.prefix(MenuBarLimits.maxPins).compactMap { key in
-      guard let snapshot = snapshots.first(where: { $0.meterId.rawValue == key.meter }) else { return nil }
-      return entry(snapshot, snapshot.buckets.first { $0.id == key.bucket }?.percentUsed)
+    // Pins of one meter share its mark, at most two figures each.
+    var entries: [(meter: String, entry: MenuBarEntry)] = []
+    for key in settings.pinnedMetrics.prefix(MenuBarLimits.maxPins) {
+      guard let snapshot = snapshots.first(where: { $0.meterId.rawValue == key.meter }) else { continue }
+      let figure = value(snapshot.buckets.first { $0.id == key.bucket }?.percentUsed)
+      if let index = entries.firstIndex(where: { $0.meter == key.meter }) {
+        if entries[index].entry.values.count < MenuBarLimits.valuesPerMeter { entries[index].entry.values.append(figure) }
+      } else {
+        entries.append((key.meter, MenuBarEntry(provider: snapshot.providerId, values: [figure])))
+      }
     }
+    return entries.map(\.entry)
   }
 }
 
@@ -102,6 +136,10 @@ public enum MenuBarMetrics {
   public static let iconGap = 3.0
   public static let entryGap = 8.0
   public static let fontSize = 12.0
+  /// Two figures stacked in the bar's height.
+  public static let stackedFontSize = 8.5
+  public static let stackedBarHeight = 4.0
+  public static let stackedGap = 2.0
   public static let barWidth = 22.0
   public static let barHeight = 5.0
   public static let trackAlpha = 0.25
