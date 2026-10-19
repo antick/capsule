@@ -59,6 +59,8 @@ public protocol UsageHost: Sendable {
   func listeningPorts(_ pid: Int) async -> [Int]
   func readSecret(_ service: String, account: String) async -> String?
   func environment(_ name: String) -> String?
+  /// Where "today" begins for spend read by the day.
+  var timeZone: TimeZone { get }
 }
 
 public protocol UsageProvider: Sendable {
@@ -91,6 +93,7 @@ extension UsageHost {
   public func listeningPorts(_ pid: Int) async -> [Int] { [] }
   /// A generic-password item by service and account.
   public func readSecret(_ service: String, account: String) async -> String? { nil }
+  public var timeZone: TimeZone { .current }
 }
 
 extension UsageProvider {

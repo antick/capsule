@@ -59,7 +59,7 @@ public struct CursorUsageProvider: UsageProvider {
     let stripe = await read(CursorStripe.self, HTTPRequest(url: UsageEndpoints.Cursor.stripeURL, headers: site))
     let spend = await cursorSpendMemo.value(user: user, now: now) {
       var events: [CursorUsageEvents.Event] = []
-      let start = startOfDay(now, daysAgo: TokenTuning.historyDays - 1)
+      let start = startOfDay(now, daysAgo: TokenTuning.historyDays - 1, timeZone: host.timeZone)
       for page in 1...UsageEndpoints.Cursor.maxEventPages {
         let body =
           #"{"startDate":"\#(Int(start.timeIntervalSince1970 * 1000))","endDate":"\#(Int(now.timeIntervalSince1970 * 1000))","page":\#(page),"pageSize":\#(UsageEndpoints.Cursor.eventsPageSize)}"#
@@ -74,7 +74,7 @@ public struct CursorUsageProvider: UsageProvider {
         events += batch
         if batch.isEmpty || Double(events.count) >= (read.totalUsageEventsCount ?? 0) { break }
       }
-      return cursorSpend(events, now: now)
+      return cursorSpend(events, now: now, timeZone: host.timeZone)
     }
     var next = snapshot
     next.buckets += [cursorGrokBot(grokBot, fetchedAt: now), cursorRequestRow(requests, fetchedAt: now)].compactMap { $0 }

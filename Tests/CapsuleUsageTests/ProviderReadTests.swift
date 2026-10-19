@@ -87,6 +87,8 @@ final class StubUsageHost: UsageHost, @unchecked Sendable {
   }
 
   func environment(_ name: String) -> String? { world.env[name] }
+  /// Pinned, so the recorded requests match on any machine's clock.
+  var timeZone: TimeZone { TimeZone(identifier: "UTC") ?? .current }
 }
 
 struct ReadOutcome: Codable, Equatable {
