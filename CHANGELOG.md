@@ -7,6 +7,8 @@ All notable changes to Capsule are documented in this file.
 ### Added
 
 - Several Claude Code and Codex accounts at once. Settings → Providers finds other sign-in folders on this Mac (such as `~/.claude_second` or `~/.codex_sw`) to add in one click, or takes any folder by path. Each account gets its own ring, name and on/off switch.
+- Every provider row in Settings can be renamed, including each tool's default sign-in, so two Claude rings are easy to tell apart. The name heads the dock's card.
+- Dock rings answer an accessibility press, so VoiceOver can open a ring's card.
 
 ### Fixed
 

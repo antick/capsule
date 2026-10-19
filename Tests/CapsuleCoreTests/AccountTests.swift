@@ -90,4 +90,18 @@ struct AccountTests {
     raw["accounts"] = nil
     #expect(CapsuleSettings.read(.object(raw))?.accounts == [])
   }
+
+  @Test func theDefaultSignInCanBeNamedAndTheNameSurvivesARead() throws {
+    var settings = CapsuleSettings.defaults
+    settings.setName("  Personal Claude ", for: .claude)
+    #expect(settings.label(for: .claude) == "Personal Claude")
+    #expect(settings.label(for: .codex) == "Codex")
+    let data = try #require(settings.documentData)
+    #expect(CapsuleSettings.read(data: data)?.label(for: .claude) == "Personal Claude")
+    // A blank name, or the provider's own, goes back to the default.
+    settings.setName("", for: .claude)
+    #expect(settings.meterNames.isEmpty)
+    settings.setName("Codex", for: .codex)
+    #expect(settings.meterNames.isEmpty)
+  }
 }

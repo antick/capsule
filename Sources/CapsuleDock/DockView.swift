@@ -216,7 +216,11 @@ public final class DockView: FlippedView {
     guard key != meterKey else { return }
     meterKey = key
     for meter in meters { meter.removeFromSuperview() }
-    meters = readings.map { MeterView(meterId: $0.meterId, metrics: look.spec.metrics, theme: look.theme) }
+    meters = readings.map { reading in
+      let meter = MeterView(meterId: reading.meterId, metrics: look.spec.metrics, theme: look.theme)
+      meter.onPress = { [weak self] in self?.behavior.meterClicked(reading.meterId) }
+      return meter
+    }
     for meter in meters { railView.addSubview(meter) }
     layoutMeters()
   }

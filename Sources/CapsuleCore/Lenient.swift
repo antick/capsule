@@ -76,7 +76,32 @@ public struct LossyList<Element: Codable & Sendable & Equatable>: Codable, Senda
   }
 }
 
+/// A string map that is empty when absent, keeping only the entries whose
+/// value is a string.
+@propertyWrapper
+public struct LossyNames: Codable, Sendable, Equatable {
+  public var wrappedValue: [String: String]
+
+  public init(wrappedValue: [String: String]) {
+    self.wrappedValue = wrappedValue
+  }
+
+  public init(from decoder: Decoder) throws {
+    let raw = (try? decoder.singleValueContainer().decode(JSONValue.self))?.asObject ?? [:]
+    wrappedValue = raw.compactMapValues(\.asString)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(wrappedValue)
+  }
+}
+
 extension KeyedDecodingContainer {
+  public func decode(_ type: LossyNames.Type, forKey key: Key) throws -> LossyNames {
+    (try? decodeIfPresent(type, forKey: key)) ?? LossyNames(wrappedValue: [:])
+  }
+
   public func decode<Element>(_ type: LossyList<Element>.Type, forKey key: Key) throws -> LossyList<Element> {
     (try? decodeIfPresent(type, forKey: key)) ?? LossyList(wrappedValue: [])
   }

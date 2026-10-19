@@ -40,6 +40,8 @@ public final class MeterView: FlippedView {
   private let caption: NSTextField
   public let badge: BadgeView
   private var state: MeterState?
+  /// VoiceOver, or any assistive app, pressed the meter: the same as a click.
+  public var onPress: (() -> Void)?
 
   public init(meterId: MeterId, metrics: HudMetrics, theme: HudTheme) {
     self.meterId = meterId
@@ -83,6 +85,12 @@ public final class MeterView: FlippedView {
     badge.isHidden = true
     setAccessibilityElement(true)
     setAccessibilityRole(.button)
+  }
+
+  public override func accessibilityPerformPress() -> Bool {
+    guard let onPress else { return false }
+    onPress()
+    return true
   }
 
   /// The meter's footprint on the rail.

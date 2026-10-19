@@ -63,6 +63,9 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   /// Other accounts of a provider, each read from its own folder and shown
   /// as a meter of its own after the provider's own.
   @LossyList public var accounts: [UsageAccount] = []
+  /// The user's own name for a provider's default sign-in, by provider id.
+  /// Absent means the provider's name.
+  @LossyNames public var meterNames: [String: String] = [:]
   public var schemaVersion: Int
 
   /// What a first launch starts from.
@@ -86,6 +89,7 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     usageDisplay: .used,
     customPosition: nil,
     accounts: [],
+    meterNames: [:],
     schemaVersion: SettingsDefaults.schemaVersion
   )
 }
@@ -171,6 +175,11 @@ extension CapsuleSettings {
       usageDisplay: choice("usageDisplay", defaults.usageDisplay),
       customPosition: customPosition,
       accounts: accountList(fields["accounts"]),
+      meterNames: (fields["meterNames"]?.asObject ?? [:]).reduce(into: [:]) { names, entry in
+        guard ProviderId(rawValue: entry.key) != nil, let name = entry.value.asString.map(jsTrim), !name.isEmpty
+        else { return }
+        names[entry.key] = name
+      },
       schemaVersion: SettingsDefaults.schemaVersion
     )
   }

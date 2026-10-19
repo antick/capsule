@@ -89,9 +89,14 @@ struct ProvidersPage: View {
 
   private func row(_ id: ProviderId) -> some View {
     let enabled = model.settings.enabledProviderIds.contains(id)
+    let name = model.settings.label(for: MeterId(id))
+    // The default folder is shown once another account sits beside it, so
+    // the two can be told apart.
+    let paired = model.settings.accounts.contains { $0.provider == id }
+    let folder = AccountRules.defaultFolder(id).map { "~/" + $0.joined(separator: "/") }
     return MeterRow(
       id: id, snapshot: model.snapshots.first { $0.meterId == MeterId(id) }, enabled: enabled,
-      label: ProviderLabels.label(id),
+      label: name,
       onToggle: { on in
         // Rebuilt from the canonical order rather than appended to, so a
         // provider switched back on returns to where its ring was.
@@ -102,7 +107,9 @@ struct ProvidersPage: View {
         }
       }
     ) {
-      Text(ProviderLabels.label(id)).font(.system(size: 13.5, weight: .medium))
+      MeterTitle(name: name, placeholder: ProviderLabels.label(id), folder: paired ? folder : nil) { next in
+        model.change { $0.setName(next, for: id) }
+      }
     } trailing: {
       EmptyView()
     }

@@ -168,7 +168,7 @@ public final class Engine {
         await poller.sync()
         await poller.refresh()
       }
-    } else if next.accounts != previous.accounts {
+    } else if next.accounts != previous.accounts || next.meterNames != previous.meterNames {
       Task { await poller.sync() }
     }
     guard next.enabledProviderIds != previous.enabledProviderIds else { return }

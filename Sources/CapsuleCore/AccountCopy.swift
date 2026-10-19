@@ -12,6 +12,7 @@ extension Copy {
   public static let accountProvider = "Provider"
   public static let removeAccount = "Remove account"
   public static let accountLabel = "Name"
+  public static let renameHint = "Click to rename. Shown on the dock's card."
 
   public static func accountCheck(_ check: AccountCheck) -> String? {
     switch check {

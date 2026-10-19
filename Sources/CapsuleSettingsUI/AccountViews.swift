@@ -50,11 +50,45 @@ struct MeterRow<Title: View, Trailing: View>: View {
   }
 }
 
+/// A meter's name, edited in place, and the folder it reads if it has one.
+struct MeterTitle: View {
+  let name: String
+  let placeholder: String
+  let folder: String?
+  let onRename: (String) -> Void
+  @State private var draft = ""
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 1) {
+      HStack(spacing: 5) {
+        TextField(placeholder, text: $draft)
+          .textFieldStyle(.plain).font(.system(size: 13.5, weight: .medium)).fixedSize()
+          .onSubmit(commit)
+          .onChange(of: draft) { _, _ in commit() }
+          .accessibilityLabel(Copy.accountLabel)
+        Image(systemName: "pencil").font(.system(size: 10.5)).foregroundStyle(.tertiary)
+      }
+      .help(Copy.renameHint)
+      if let folder {
+        Text(folder).font(.system(size: 11.5).monospaced()).foregroundStyle(.secondary)
+          .lineLimit(1).truncationMode(.middle)
+      }
+    }
+    .onAppear { draft = name }
+    .onChange(of: name) { _, next in if jsTrim(draft) != next { draft = next } }
+  }
+
+  private func commit() {
+    let trimmed = jsTrim(draft)
+    guard !trimmed.isEmpty, trimmed != name else { return }
+    onRename(trimmed)
+  }
+}
+
 /// An added account: its name, editable in place, and the folder it reads.
 struct AccountRow: View {
   @ObservedObject var model: SettingsModel
   let account: UsageAccount
-  @State private var name = ""
 
   var body: some View {
     MeterRow(
@@ -62,25 +96,14 @@ struct AccountRow: View {
       enabled: account.enabled, label: account.label,
       onToggle: { on in model.updateAccount(account.id) { $0.enabled = on } }
     ) {
-      VStack(alignment: .leading, spacing: 1) {
-        TextField(Copy.accountLabel, text: $name)
-          .textFieldStyle(.plain).font(.system(size: 13.5, weight: .medium))
-          .onSubmit(commit)
-          .onChange(of: name) { _, _ in commit() }
-        Text(AccountPaths.display(account.path, home: model.homeDir))
-          .font(.system(size: 11.5).monospaced()).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
-      }
+      MeterTitle(
+        name: account.label, placeholder: ProviderLabels.label(account.provider),
+        folder: AccountPaths.display(account.path, home: model.homeDir)
+      ) { name in model.updateAccount(account.id) { $0.label = name } }
     } trailing: {
       Button { model.removeAccount(account.id) } label: { Image(systemName: "trash") }
         .buttonStyle(.borderless).help(Copy.removeAccount).accessibilityLabel(Copy.removeAccount)
     }
-    .onAppear { name = account.label }
-  }
-
-  private func commit() {
-    let trimmed = jsTrim(name)
-    guard !trimmed.isEmpty, trimmed != account.label else { return }
-    model.updateAccount(account.id) { $0.label = trimmed }
   }
 }
 

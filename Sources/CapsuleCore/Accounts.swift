@@ -184,9 +184,17 @@ extension CapsuleSettings {
     }
   }
 
-  /// What a meter is called: the account's label, or the provider's name.
+  /// What a meter is called: the account's label, the name given to the
+  /// provider's own sign-in, or the provider's name.
   public func label(for meter: MeterId) -> String {
-    meter.account.flatMap { id in accounts.first { $0.id == id }?.label } ?? ProviderLabels.label(meter.provider)
+    if let id = meter.account { return accounts.first { $0.id == id }?.label ?? ProviderLabels.label(meter.provider) }
+    return meterNames[meter.provider.rawValue] ?? ProviderLabels.label(meter.provider)
+  }
+
+  /// Names the provider's own sign-in; a blank name goes back to the default.
+  public mutating func setName(_ name: String, for provider: ProviderId) {
+    let trimmed = jsTrim(name)
+    meterNames[provider.rawValue] = trimmed.isEmpty || trimmed == ProviderLabels.label(provider) ? nil : trimmed
   }
 
   /// An id no account here has yet.
