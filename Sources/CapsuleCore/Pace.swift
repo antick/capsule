@@ -13,6 +13,7 @@ public enum WindowLengths {
   /// tell. Read from the window's id and label, which the mappers set from
   /// the provider's own window lengths.
   public static func seconds(_ provider: ProviderId, _ bucket: UsageBucket) -> Double? {
+    if let stated = bucket.windowSeconds, stated > 0 { return stated }
     switch bucket.label {
     case Copy.fiveHourWindow, Copy.currentSession: return fiveHours
     case Copy.weeklyWindow, Copy.allModels, Copy.grokWeekly: return week
@@ -21,6 +22,8 @@ public enum WindowLengths {
     default: break
     }
     if provider == .claude, bucket.id.hasPrefix("weekly-") { return week }
+    if provider == .cursor, bucket.id == "grok-bot" { return week }
+    if provider == .cursor, bucket.id == "requests" { return month }
     return nil
   }
 }

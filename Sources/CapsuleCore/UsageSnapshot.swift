@@ -14,19 +14,23 @@ public struct UsageBucket: Sendable, Codable, Equatable {
   public var percentUsed: Double
   public var resetsAt: String
   public var resetStyle: ResetStyle
+  /// How long the window lasts, when the provider says so outright.
+  public var windowSeconds: Double?
 
   public init(
     id: String,
     label: String,
     percentUsed: Double,
     resetsAt: String,
-    resetStyle: ResetStyle
+    resetStyle: ResetStyle,
+    windowSeconds: Double? = nil
   ) {
     self.id = id
     self.label = label
     self.percentUsed = percentUsed
     self.resetsAt = resetsAt
     self.resetStyle = resetStyle
+    self.windowSeconds = windowSeconds
   }
 }
 

@@ -24,6 +24,46 @@ public struct CursorUsageProvider: UsageProvider {
     )
   }
 
+  /// The detail beyond the period's percentages: the Grok Bot pool, premium
+  /// requests, and credit left. Each is its own request and optional: one
+  /// that fails leaves the rest of the reading as it was.
+  private func enriched(
+    _ snapshot: UsageSnapshot, _ host: UsageHost, token: String, user: String, cookie: String, now: Date
+  ) async -> UsageSnapshot {
+    let site = usageHeaders([
+      "Cookie": cookie, "Origin": UsageEndpoints.Cursor.dashboardOrigin,
+      "Referer": UsageEndpoints.Cursor.dashboardReferer,
+    ])
+    func read<T: Decodable>(_ type: T.Type, _ request: HTTPRequest) async -> T? {
+      guard let response = try? await host.send(request), response.ok else { return nil }
+      return try? decode(type, response, id)
+    }
+    let grokBot = await read(
+      CursorGrokBot.self,
+      HTTPRequest(
+        method: "POST", url: UsageEndpoints.Cursor.grokBotURL,
+        headers: site.merging(["Content-Type": "application/json"]) { _, new in new }, body: "{}"))
+    let requests = await read(
+      CursorRequests.self,
+      HTTPRequest(
+        url: "\(UsageEndpoints.Cursor.legacyURL)?user=\(jsEncodeURIComponent(user))",
+        headers: usageHeaders(["Authorization": "Bearer \(token)"])))
+    let grants = await read(
+      CursorCreditGrants.self,
+      HTTPRequest(
+        method: "POST", url: UsageEndpoints.Cursor.creditGrantsURL,
+        headers: usageHeaders([
+          "Authorization": "Bearer \(token)", "Content-Type": "application/json",
+          UsageEndpoints.Cursor.connectProtocolHeader: UsageEndpoints.Cursor.connectProtocolVersion,
+        ]), body: "{}"))
+    let stripe = await read(CursorStripe.self, HTTPRequest(url: UsageEndpoints.Cursor.stripeURL, headers: site))
+    var next = snapshot
+    next.buckets += [cursorGrokBot(grokBot, fetchedAt: now), cursorRequestRow(requests, fetchedAt: now)].compactMap { $0 }
+    let credits = cursorCredits(grants, stripe: stripe)
+    if credits != nil || next.extras != nil { next.extras = (next.extras ?? []) + [credits].compactMap { $0 } }
+    return next
+  }
+
   public func fetchSnapshot(_ host: UsageHost, now: Date) async throws -> UsageSnapshot {
     // Read straight from Cursor's state store rather than through the sqlite3
     // command the original shells out to: the same query, one process fewer.
@@ -65,7 +105,7 @@ public struct CursorUsageProvider: UsageProvider {
       if period.ok, let payload = try? decode(CursorPeriodUsage.self, period, id),
         let snapshot = mapCursorPeriod(payload, fetchedAt: now)
       {
-        return snapshot
+        return await enriched(snapshot, host, token: token, user: user, cookie: cookie, now: now)
       }
     }
     let response = try await summary(host, token: token, user: user)

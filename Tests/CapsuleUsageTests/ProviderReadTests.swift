@@ -31,7 +31,7 @@ struct World: Decodable {
   let responses: [Response]
 }
 
-struct RecordedRequest: Decodable, Equatable {
+struct RecordedRequest: Codable, Equatable {
   let method: String
   let url: String
   let headers: [String: String]
@@ -89,8 +89,8 @@ final class StubUsageHost: UsageHost, @unchecked Sendable {
   func environment(_ name: String) -> String? { world.env[name] }
 }
 
-struct ReadOutcome: Decodable, Equatable {
-  struct Refusal: Decodable, Equatable {
+struct ReadOutcome: Codable, Equatable {
+  struct Refusal: Codable, Equatable {
     let retryAfterMs: Int?
     let fallback: UsageSnapshot?
   }
@@ -100,7 +100,7 @@ struct ReadOutcome: Decodable, Equatable {
   let failed: Bool?
 }
 
-struct ReadExpected: Decodable {
+struct ReadExpected: Codable {
   let outcome: ReadOutcome
   let requests: [RecordedRequest]
 }
@@ -120,6 +120,7 @@ struct ProviderReadTests {
   func reads() async throws {
     let file: FixtureFile<World, ReadExpected> = try Fixtures.load("usage/provider-reads")
     let now = try file.now()
+    var recorded: [ReadExpected] = []
     for testCase in file.cases {
       let host = StubUsageHost(testCase.input)
       let outcome: ReadOutcome
@@ -135,8 +136,11 @@ struct ProviderReadTests {
       } catch {
         outcome = ReadOutcome(snapshot: nil, rateLimited: nil, failed: true)
       }
+      recorded.append(ReadExpected(outcome: outcome, requests: host.requests))
+      if FixtureWriter.recording { continue }
       #expect(outcome == testCase.expected.outcome, "\(testCase.name): outcome")
       #expect(host.requests == testCase.expected.requests, "\(testCase.name): requests")
     }
+    if FixtureWriter.recording { try FixtureWriter.record("usage/provider-reads", recorded) }
   }
 }

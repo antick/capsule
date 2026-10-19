@@ -49,6 +49,14 @@ public enum UsageEndpoints {
     public static let usageURL = "https://cursor.com/api/usage-summary"
     public static let legacyURL = "https://cursor.com/api/usage"
     public static let sessionCookie = "WorkosCursorSessionToken"
+    /// Prepaid credit grants, over Cursor's own RPC with the app's token.
+    public static let creditGrantsURL = "https://api2.cursor.sh/aiserver.v1.DashboardService/GetCreditGrantsBalance"
+    public static let connectProtocolHeader = "Connect-Protocol-Version"
+    public static let connectProtocolVersion = "1"
+    /// The Stripe account, whose negative balance is credit held.
+    public static let stripeURL = "https://cursor.com/api/auth/stripe"
+    /// The Grok Bot allowance.
+    public static let grokBotURL = "https://cursor.com/api/dashboard/get-sand-usage-status"
     public static let stateDatabasePath = [
       "Library", "Application Support", "Cursor", "User", "globalStorage", "state.vscdb",
     ]

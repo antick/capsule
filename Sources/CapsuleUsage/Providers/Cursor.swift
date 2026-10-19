@@ -24,8 +24,10 @@ public struct CursorPeriodUsage: Sendable, Codable, Equatable {
     @Lenient public var autoPercentUsed: Double?
     @Lenient public var apiPercentUsed: Double?
   }
+  @Lenient public var billingCycleStart: NumberOrString?
   @Lenient public var billingCycleEnd: NumberOrString?
   @Lenient public var planUsage: PlanUsage?
+  @Lenient public var spendLimitUsage: CursorSpendLimit?
 }
 
 /// The period's three readings — total, Cursor's own models (the Auto bucket)
@@ -34,6 +36,10 @@ public struct CursorPeriodUsage: Sendable, Codable, Equatable {
 public func mapCursorPeriod(_ payload: CursorPeriodUsage, fetchedAt: Date) -> UsageSnapshot? {
   guard let plan = payload.planUsage else { return nil }
   let resetsAt = resetIso(payload.billingCycleEnd, fallback: fetchedAt)
+  // The period's own length: weekly on the newer plans, monthly on others.
+  let start = payload.billingCycleStart.flatMap { looseDate(resetIso($0, fallback: .distantPast)) }
+  let length = start.flatMap { start in looseDate(resetsAt).map { $0.timeIntervalSince(start) } }
+    .flatMap { $0 > 0 ? $0 : nil }
   let rows: [(String, String, Double?)] = [
     ("total", Copy.cursorTotal, plan.totalPercentUsed),
     ("cursor-models", Copy.cursorModels, plan.autoPercentUsed),
@@ -42,13 +48,15 @@ public func mapCursorPeriod(_ payload: CursorPeriodUsage, fetchedAt: Date) -> Us
   let buckets = rows.compactMap { id, label, value in
     value.map {
       UsageBucket(
-        id: id, label: label, percentUsed: clampPercent($0), resetsAt: resetsAt, resetStyle: .relative)
+        id: id, label: label, percentUsed: clampPercent($0), resetsAt: resetsAt, resetStyle: .relative,
+        windowSeconds: length)
     }
   }
   guard let headline = buckets.first(where: { $0.id == "total" }) ?? buckets.first else { return nil }
   return UsageSnapshot(
     providerId: .cursor, displayName: ProviderLabels.label(.cursor), iconId: .cursor,
-    primaryPercent: headline.percentUsed, buckets: buckets, status: .ok, fetchedAt: isoString(fetchedAt)
+    primaryPercent: headline.percentUsed, buckets: buckets, status: .ok, fetchedAt: isoString(fetchedAt),
+    extras: cursorOnDemand(payload.spendLimitUsage, resetsAt: resetsAt).map { [$0] }
   )
 }
 

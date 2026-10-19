@@ -2766,6 +2766,51 @@
             },
             "method" : "POST",
             "url" : "https://cursor.com/api/dashboard/get-current-period-usage"
+          },
+          {
+            "body" : "{}",
+            "headers" : {
+              "accept" : "application/json",
+              "content-type" : "application/json",
+              "cookie" : "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin" : "https://cursor.com",
+              "referer" : "https://cursor.com/dashboard",
+              "user-agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "method" : "POST",
+            "url" : "https://cursor.com/api/dashboard/get-sand-usage-status"
+          },
+          {
+            "headers" : {
+              "accept" : "application/json",
+              "authorization" : "Bearer x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "user-agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "method" : "GET",
+            "url" : "https://cursor.com/api/usage?user=user_42"
+          },
+          {
+            "body" : "{}",
+            "headers" : {
+              "accept" : "application/json",
+              "authorization" : "Bearer x.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "connect-protocol-version" : "1",
+              "content-type" : "application/json",
+              "user-agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "method" : "POST",
+            "url" : "https://api2.cursor.sh/aiserver.v1.DashboardService/GetCreditGrantsBalance"
+          },
+          {
+            "headers" : {
+              "accept" : "application/json",
+              "cookie" : "WorkosCursorSessionToken=user_42%3A%3Ax.eyJzdWIiOiJ1c2VyXzQyIn0.y",
+              "origin" : "https://cursor.com",
+              "referer" : "https://cursor.com/dashboard",
+              "user-agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Capsule/0.1"
+            },
+            "method" : "GET",
+            "url" : "https://cursor.com/api/auth/stripe"
           }
         ]
       },

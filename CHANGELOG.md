@@ -12,6 +12,7 @@ All notable changes to Capsule are documented in this file.
 - Click a percentage to flip used and left everywhere, or a reset time to flip countdown and date.
 - Claude's extra usage (paid usage beyond the plan) on its card when it is switched on: spend against the monthly cap, or spend alone.
 - Codex credits on its card, with what they are worth.
+- More Cursor detail: the Grok Bot pool, premium requests on request-based plans, on-demand spend against its limit, and credit left (grants plus any Stripe credit). Pace follows Cursor's real billing period, weekly or monthly.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
 
 ### Removed
