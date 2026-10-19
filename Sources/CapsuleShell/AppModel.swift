@@ -25,6 +25,10 @@ public final class AppModel: MenuHandlers {
   private let settingsModel: SettingsModel
   private var menus: Menus?
   private var statusItem: StatusItemController?
+  private let notifier = Notifier()
+  private let confetti = Confetti()
+  private lazy var alertState: [String: QuotaWindowState] =
+    store.load(QuotaAlertRules.stateFile) ?? [:]
   private lazy var settingsWindow = SettingsWindowController(model: settingsModel)
 
   public init(store: JSONStore = .applicationSupport(AppIdentity.supportDirectory), events: ShellEvents = .mac) {
@@ -133,6 +137,7 @@ public final class AppModel: MenuHandlers {
   private func stateChanged(_ state: ShellState) {
     pushToDock()
     settingsModel.snapshots = state.snapshots
+    alertOnChanges(state.snapshots)
   }
 
   private func pushToDock() {
@@ -150,6 +155,24 @@ public final class AppModel: MenuHandlers {
       )
     panel.rows = CardRows(settings) { [weak self] edit in self?.edit(edit) }
     statusItem?.update(panel)
+  }
+
+  /// Low-quota warnings and reset notices for windows that just crossed.
+  /// Each window is followed even with alerts off, so turning them on
+  /// later does not announce everything at once.
+  private func alertOnChanges(_ snapshots: [UsageSnapshot]) {
+    let result = evaluateQuotaAlerts(snapshots, thresholds: settings.effectiveThresholds, state: alertState)
+    guard result.state != alertState else { return }
+    alertState = result.state
+    store.save(QuotaAlertRules.stateFile, result.state)
+    let wanted = result.alerts.filter { alert in
+      switch alert.kind {
+      case .low: return settings.quotaAlerts
+      case .reset: return settings.celebrateResets
+      }
+    }
+    notifier.post(wanted)
+    if wanted.contains(where: { $0.kind == .reset && $0.weekly }) { confetti.burst(on: dock.panel.screen) }
   }
 
   /// One edit made on a card, applied like any other change of settings.

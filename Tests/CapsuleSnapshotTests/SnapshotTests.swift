@@ -200,11 +200,14 @@ struct SettingsControlTests {
     var settings = CapsuleSettings.defaults
     settings.notificationPopups = true
     settings.launchAtLogin = false
-    // Show pace, check status, notification popups, launch at login.
-    #expect(try await switches(settings) == [.on, .on, .on, .off])
+    // Show pace, check status, low warnings, resets, notification popups,
+    // launch at login.
+    #expect(try await switches(settings) == [.on, .on, .on, .on, .on, .off])
     settings.notificationPopups = false
     settings.showPace = false
     settings.checkStatus = false
-    #expect(try await switches(settings) == [.off, .off, .off, .off])
+    settings.quotaAlerts = false
+    settings.celebrateResets = false
+    #expect(try await switches(settings) == [.off, .off, .off, .off, .off, .off])
   }
 }

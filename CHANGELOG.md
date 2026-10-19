@@ -18,6 +18,7 @@ All notable changes to Capsule are documented in this file.
 - API keys and sessions in Settings → Providers, for providers with no login on this Mac, kept in an owner-only file in Capsule's folder and never shown again once saved.
 - The monthly API credit a Claude Max plan includes, on the Claude card, from a pasted Console session.
 - Provider status: Claude, Codex, Cursor and Antigravity status pages are read every five minutes; an incident puts a dot on the ring (yellow for minor issues and maintenance, red for outages) and a Status row on the card. Switch it off in General.
+- Quota notifications: a macOS notification when a window's share left crosses a threshold (50% and 20% by default, or another set in General), once per crossing, re-armed when it recovers. A window starting again sends a notification, and a weekly one a short burst of confetti (skipped with Reduce Motion). Nothing fires at launch.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
 
 ### Fixed

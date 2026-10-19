@@ -87,6 +87,12 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   @DefaultOn public var showPace: Bool = true
   /// Read providers' public status pages and mark rings during incidents.
   @DefaultOn public var checkStatus: Bool = true
+  /// A macOS notification when a window's share left crosses a threshold.
+  @DefaultOn public var quotaAlerts: Bool = true
+  /// The thresholds, in percent left; empty takes the defaults.
+  @LossyList public var alertThresholds: [Int] = []
+  /// A notification when a window resets, and confetti for a weekly one.
+  @DefaultOn public var celebrateResets: Bool = true
   public var schemaVersion: Int
 
   /// What a first launch starts from.
@@ -121,6 +127,9 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     flipResetStyle: false,
     showPace: true,
     checkStatus: true,
+    quotaAlerts: true,
+    alertThresholds: [],
+    celebrateResets: true,
     schemaVersion: SettingsDefaults.schemaVersion
   )
 }
@@ -221,6 +230,10 @@ extension CapsuleSettings {
       flipResetStyle: flag("flipResetStyle", defaults.flipResetStyle),
       showPace: flag("showPace", defaults.showPace),
       checkStatus: flag("checkStatus", defaults.checkStatus),
+      quotaAlerts: flag("quotaAlerts", defaults.quotaAlerts),
+      alertThresholds: (fields["alertThresholds"]?.asArray ?? []).compactMap { $0.asDouble.map { Int($0) } }
+        .filter { $0 > 0 && $0 < 100 },
+      celebrateResets: flag("celebrateResets", defaults.celebrateResets),
       schemaVersion: SettingsDefaults.schemaVersion
     )
   }

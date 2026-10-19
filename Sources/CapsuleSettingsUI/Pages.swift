@@ -266,6 +266,30 @@ struct GeneralPage: View {
             .accessibilityLabel(Copy.checkStatus)
         }
         Divider()
+        SettingRow(label: Copy.quotaAlerts, hint: Copy.quotaAlertsHint) {
+          Toggle("", isOn: binding(\.quotaAlerts)).labelsHidden().toggleStyle(.switch)
+            .accessibilityLabel(Copy.quotaAlerts)
+        }
+        if s.quotaAlerts {
+          Divider()
+          SettingRow(label: Copy.alertThresholds) {
+            Picker(
+              Copy.alertThresholds,
+              selection: Binding(get: { s.effectiveThresholds }, set: { next in model.change { $0.alertThresholds = next } })
+            ) {
+              ForEach(AlertPresets.options, id: \.self) { option in
+                Text(option.map { "\($0)\(Copy.percentLeftSuffix)" }.joined(separator: ", ")).tag(option)
+              }
+            }
+            .labelsHidden().fixedSize()
+          }
+        }
+        Divider()
+        SettingRow(label: Copy.celebrateResets, hint: Copy.celebrateResetsHint) {
+          Toggle("", isOn: binding(\.celebrateResets)).labelsHidden().toggleStyle(.switch)
+            .accessibilityLabel(Copy.celebrateResets)
+        }
+        Divider()
         SettingRow(label: Copy.notificationPopups, hint: Copy.notificationPopupsHint) {
           Toggle("", isOn: binding(\.notificationPopups)).labelsHidden().toggleStyle(.switch)
             .accessibilityLabel(Copy.notificationPopups)
