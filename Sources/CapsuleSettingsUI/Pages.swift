@@ -84,6 +84,7 @@ struct ProvidersPage: View {
         }
       }
       AddAccountSection(model: model)
+      MetricsSection(model: model)
     }
     .onAppear { model.onScanAccounts() }
   }
@@ -253,6 +254,10 @@ struct GeneralPage: View {
             Text(Copy.usageDisplayRemaining).tag(UsageDisplay.remaining)
           }
           .pickerStyle(.segmented).labelsHidden().fixedSize()
+        }
+        Divider()
+        SettingRow(label: Copy.showPace, hint: Copy.showPaceHint) {
+          Toggle("", isOn: binding(\.showPace)).labelsHidden().toggleStyle(.switch).accessibilityLabel(Copy.showPace)
         }
         Divider()
         SettingRow(label: Copy.notificationPopups, hint: Copy.notificationPopupsHint) {

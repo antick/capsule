@@ -30,6 +30,8 @@ public final class DockController {
   public var onMoved: ((PlacementPreset, DockPosition) -> Void)?
   /// The menu a right-click on the dock shows.
   public var contextMenu: (() -> NSMenu)?
+  /// An edit made on the card itself: a flip, a hidden or starred row.
+  public var onEdit: ((inout CapsuleSettings) -> Void) -> Void = { _ in }
 
   private struct DragState {
     var preset: PlacementPreset
@@ -134,7 +136,7 @@ public final class DockController {
     state: ShellState, notices: [ActivityNotice], keepOpen: Bool, demoNow: Date?
   ) {
     var inputs = behavior.inputs
-    inputs.snapshots = state.snapshots
+    inputs.snapshots = state.snapshots.map { arrangeBuckets($0, settings) }
     inputs.activity = state.activity
     inputs.tokens = state.tokens
     inputs.autoHide = settings.autoHide
@@ -210,13 +212,13 @@ public final class DockController {
     } ?? box
     panel.setFrame(appKit(shown, Self.primaryHeight), display: false)
     let dark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-    view.update(
-      look: DockLook(
-        spec: frameSpec(settings: settings, placement: next, meterCount: meterCount, joined: joined),
-        theme: resolveHudTheme(settings.hudTheme, system: dark ? .dark : .light),
-        display: settings.usageDisplay, demoNow: demoNow
-      )
+    var look = DockLook(
+      spec: frameSpec(settings: settings, placement: next, meterCount: meterCount, joined: joined),
+      theme: resolveHudTheme(settings.hudTheme, system: dark ? .dark : .light),
+      display: settings.usageDisplay, demoNow: demoNow
     )
+    look.rows = CardRows(settings) { [weak self] edit in self?.onEdit(edit) }
+    view.update(look: look)
     // Packed against the docked edge, in case the frame and the window
     // disagree by a rounding.
     let size = view.frameSize

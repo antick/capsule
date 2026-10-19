@@ -121,7 +121,43 @@ public struct Defaulted<Value: SettingDefault>: Codable, Sendable, Equatable {
   }
 }
 
+/// A switch that is off when absent.
+@propertyWrapper
+public struct DefaultOff: Codable, Sendable, Equatable {
+  public var wrappedValue: Bool
+  public init(wrappedValue: Bool) { self.wrappedValue = wrappedValue }
+  public init(from decoder: Decoder) throws {
+    wrappedValue = (try? decoder.singleValueContainer().decode(Bool.self)) ?? false
+  }
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(wrappedValue)
+  }
+}
+
+/// A switch that is on when absent.
+@propertyWrapper
+public struct DefaultOn: Codable, Sendable, Equatable {
+  public var wrappedValue: Bool
+  public init(wrappedValue: Bool) { self.wrappedValue = wrappedValue }
+  public init(from decoder: Decoder) throws {
+    wrappedValue = (try? decoder.singleValueContainer().decode(Bool.self)) ?? true
+  }
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(wrappedValue)
+  }
+}
+
 extension KeyedDecodingContainer {
+  public func decode(_ type: DefaultOff.Type, forKey key: Key) throws -> DefaultOff {
+    (try? decodeIfPresent(type, forKey: key)) ?? DefaultOff(wrappedValue: false)
+  }
+
+  public func decode(_ type: DefaultOn.Type, forKey key: Key) throws -> DefaultOn {
+    (try? decodeIfPresent(type, forKey: key)) ?? DefaultOn(wrappedValue: true)
+  }
+
   public func decode<Value>(_ type: Defaulted<Value>.Type, forKey key: Key) throws -> Defaulted<Value> {
     (try? decodeIfPresent(type, forKey: key)) ?? Defaulted(wrappedValue: Value.settingDefault)
   }

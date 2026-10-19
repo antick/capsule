@@ -200,9 +200,10 @@ struct SettingsControlTests {
     var settings = CapsuleSettings.defaults
     settings.notificationPopups = true
     settings.launchAtLogin = false
-    // Notification popups, launch at login.
-    #expect(try await switches(settings) == [.on, .off])
+    // Show pace, notification popups, launch at login.
+    #expect(try await switches(settings) == [.on, .on, .off])
     settings.notificationPopups = false
-    #expect(try await switches(settings) == [.off, .off])
+    settings.showPace = false
+    #expect(try await switches(settings) == [.off, .off, .off])
   }
 }

@@ -74,6 +74,17 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   /// The metrics the pinned style shows, in order.
   @LossyList public var pinnedMetrics: [MetricKey] = []
   @Defaulted public var pinStyle: PinStyle = .text
+  /// Windows left off the cards.
+  @LossyList public var hiddenMetrics: [MetricKey] = []
+  /// Windows kept at the top of their card, in the order starred.
+  @LossyList public var starredMetrics: [MetricKey] = []
+  /// The order of each meter's windows, where the user changed it.
+  @LossyList public var metricOrder: [MetricKey] = []
+  /// Read each reset the other way: a countdown as a date, a date as a
+  /// countdown.
+  @DefaultOff public var flipResetStyle: Bool = false
+  /// Show how each window's use compares with an even pace.
+  @DefaultOn public var showPace: Bool = true
   public var schemaVersion: Int
 
   /// What a first launch starts from.
@@ -102,6 +113,11 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     menuBarMeter: nil,
     pinnedMetrics: [],
     pinStyle: .text,
+    hiddenMetrics: [],
+    starredMetrics: [],
+    metricOrder: [],
+    flipResetStyle: false,
+    showPace: true,
     schemaVersion: SettingsDefaults.schemaVersion
   )
 }
@@ -194,11 +210,21 @@ extension CapsuleSettings {
       presence: choice("presence", defaults.presence),
       menuBarStyle: choice("menuBarStyle", defaults.menuBarStyle),
       menuBarMeter: fields["menuBarMeter"]?.asString.flatMap { $0.isEmpty ? nil : $0 },
-      pinnedMetrics: (fields["pinnedMetrics"]?.asArray ?? []).compactMap { $0.asString.flatMap(MetricKey.init(rawValue:)) }
-        .reduce(into: [MetricKey]()) { kept, key in if !kept.contains(key) { kept.append(key) } },
+      pinnedMetrics: metricList(fields["pinnedMetrics"]),
       pinStyle: choice("pinStyle", defaults.pinStyle),
+      hiddenMetrics: metricList(fields["hiddenMetrics"]),
+      starredMetrics: metricList(fields["starredMetrics"]),
+      metricOrder: metricList(fields["metricOrder"]),
+      flipResetStyle: flag("flipResetStyle", defaults.flipResetStyle),
+      showPace: flag("showPace", defaults.showPace),
       schemaVersion: SettingsDefaults.schemaVersion
     )
+  }
+
+  /// Metric keys as stored, de-duplicated, unreadable ones dropped.
+  private static func metricList(_ raw: JSONValue?) -> [MetricKey] {
+    (raw?.asArray ?? []).compactMap { $0.asString.flatMap(MetricKey.init(rawValue:)) }
+      .reduce(into: [MetricKey]()) { kept, key in if !kept.contains(key) { kept.append(key) } }
   }
 
   /// The added accounts that read, in their stored order. One that is

@@ -10,6 +10,8 @@ public struct DockLook: Equatable {
   public var display: UsageDisplay
   /// A frozen clock for demo mode; nil reads the real one.
   public var demoNow: Date?
+  /// How the card's rows read, and the edits they offer.
+  public var rows = CardRows()
 
   public init(spec: FrameSpec, theme: HudTheme, display: UsageDisplay, demoNow: Date? = nil) {
     self.spec = spec
@@ -264,7 +266,8 @@ public final class DockView: FlippedView {
       hasNotices: snapshot.accountId == nil && b.notices.hasNotices(snapshot.providerId), now: now,
       onOpenNotices: { [weak self] in self?.behavior.noticeBadgeClicked(snapshot.providerId) },
       onDismissNotice: { [weak self] id in self?.onDismissNotice?(id) },
-      onClearAll: { [weak self] in self?.onClearNotices?() }
+      onClearAll: { [weak self] in self?.onClearNotices?() },
+      rows: look.rows
     )
     cardContent = content
     hosting.rootView = AnyView(DockCardView(content: content, m: look.spec.metrics, theme: look.theme))

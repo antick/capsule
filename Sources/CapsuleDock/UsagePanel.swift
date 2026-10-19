@@ -12,6 +12,7 @@ public struct UsagePanelContent {
   public var now: Date
   public var onRefreshAll: () -> Void
   public var onOpenSettings: () -> Void
+  public var rows = CardRows()
 
   public init(
     snapshots: [UsageSnapshot], activity: [ProviderId: [AgentSession]], tokens: [ProviderId: TokenUsage],
@@ -91,7 +92,8 @@ public struct UsagePanelView: View {
     let card = CardContent(
       snapshot: snapshot, sessions: own ? content.activity[snapshot.providerId] ?? [] : [], notices: [],
       tokens: own ? content.tokens[snapshot.providerId] : nil, display: content.display, unreadCount: 0,
-      hasNotices: false, now: content.now, onOpenNotices: {}, onDismissNotice: { _ in }, onClearAll: {}
+      hasNotices: false, now: content.now, onOpenNotices: {}, onDismissNotice: { _ in }, onClearAll: {},
+      rows: content.rows
     )
     return UsageCardView(content: card, m: m, theme: content.theme)
       .padding(.top, m.cardPaddingTop).padding(.bottom, m.cardPaddingBottom).padding(.horizontal, m.cardPaddingX)

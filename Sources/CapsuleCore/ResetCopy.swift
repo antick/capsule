@@ -47,6 +47,30 @@ public func formatResetAbsolute(
   return "Resets \(weekday(resetsAt, locale: locale, timeZone: timeZone)) \(time)"
 }
 
+/// A span ahead, short: "12 min", "2h 10 min", "3d 4h".
+public func formatSpan(_ seconds: TimeInterval) -> String {
+  let totalMinutes = Int((max(0, seconds) / Durations.minute).rounded())
+  if totalMinutes < 60 { return "\(totalMinutes) min" }
+  let totalHours = totalMinutes / 60
+  if totalHours < 24 { return "\(totalHours)h \(totalMinutes % 60) min" }
+  return "\(totalHours / 24)d \(totalHours % 24)h"
+}
+
+/// A countdown at any distance, for a reset the user asked to see counted:
+/// "Resets in 3d 4h".
+public func formatResetCountdown(_ resetsAt: Date, now: Date) -> String {
+  "Resets in \(formatSpan(resetsAt.timeIntervalSince(now)))"
+}
+
+/// The reset as the user chose to read it: the window's own style, or the
+/// other one when flipped. A flipped countdown counts days too.
+public func formatResetCopy(
+  _ resetsAt: Date, style: ResetStyle, flipped: Bool, now: Date
+) -> String {
+  guard flipped else { return formatResetCopy(resetsAt, style: style, now: now) }
+  return style == .relative ? formatResetAbsolute(resetsAt, now: now) : formatResetCountdown(resetsAt, now: now)
+}
+
 public func formatResetCopy(
   _ resetsAt: Date,
   style: ResetStyle,

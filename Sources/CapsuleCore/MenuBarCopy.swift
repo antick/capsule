@@ -16,6 +16,15 @@ extension Copy {
   public static let pinnedMetricsHint = "Up to six, shown side by side in the menu bar."
   public static let pinStyle = "Draw pins as"
   public static let refreshAll = "Refresh all"
+  public static let metrics = "Metrics"
+  public static let metricsHint =
+    "Choose which windows each card shows, star the ones to keep at the top, and set their order. Right-click a row on a card to hide or star it there."
+  public static let showMetric = "Show"
+  public static let moveUp = "Move up"
+  public static let moveDown = "Move down"
+  public static let showPace = "Show pace"
+  public static let showPaceHint =
+    "Compare each window's use with an even pace through it, and say when it would run out at this rate."
   public static let noMetricsYet = "Readings appear here once providers have been read."
 
   public static func label(_ presence: Presence) -> String {

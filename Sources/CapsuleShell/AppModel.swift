@@ -75,6 +75,7 @@ public final class AppModel: MenuHandlers {
       self.apply(next)
     }
     dock.contextMenu = { [weak self] in self?.menus?.contextMenu() ?? NSMenu() }
+    dock.onEdit = { [weak self] edit in self?.edit(edit) }
     updater.onFocus = { [weak self] in self?.openSettings(.updates) }
     updater.onChange = { [weak self] state in self?.settingsModel.update = state }
     settingsModel.onApply = { [weak self] next in self?.apply(next) }
@@ -125,14 +126,23 @@ public final class AppModel: MenuHandlers {
       demoNow: nil
     )
     let state = engine.state
-    statusItem?.update(
-      UsagePanelContent(
-        snapshots: state.snapshots, activity: state.activity, tokens: state.tokens, display: settings.usageDisplay,
+    let arranged = state.snapshots.map { arrangeBuckets($0, settings) }
+    var panel = UsagePanelContent(
+        snapshots: arranged, activity: state.activity, tokens: state.tokens, display: settings.usageDisplay,
         theme: resolveHudTheme(settings.hudTheme, system: systemAppearance), now: Date(),
         onRefreshAll: { [weak self] in self?.engine.refreshAll() },
         onOpenSettings: { [weak self] in self?.openSettings(.appearance) }
       )
-    )
+    panel.rows = CardRows(settings) { [weak self] edit in self?.edit(edit) }
+    statusItem?.update(panel)
+  }
+
+  /// One edit made on a card, applied like any other change of settings.
+  private func edit(_ change: (inout CapsuleSettings) -> Void) {
+    var next = settings
+    change(&next)
+    guard next != settings else { return }
+    apply(next)
   }
 
   /// Takes new settings from anywhere — the window, a menu, a drag — and

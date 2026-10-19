@@ -32,6 +32,11 @@ extension CapsuleSettings {
       "menuBarMeter": menuBarMeter ?? NSNull(),
       "pinnedMetrics": pinnedMetrics.map(\.rawValue),
       "pinStyle": pinStyle.rawValue,
+      "hiddenMetrics": hiddenMetrics.map(\.rawValue),
+      "starredMetrics": starredMetrics.map(\.rawValue),
+      "metricOrder": metricOrder.map(\.rawValue),
+      "flipResetStyle": flipResetStyle,
+      "showPace": showPace,
       "accounts": accounts.map {
         ["id": $0.id, "provider": $0.provider.rawValue, "path": $0.path, "label": $0.label, "enabled": $0.enabled]
           as [String: Any]

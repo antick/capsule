@@ -15,6 +15,38 @@ public struct CardContent {
   public var onOpenNotices: () -> Void
   public var onDismissNotice: (String) -> Void
   public var onClearAll: () -> Void
+  /// How each row reads, and what clicking or right-clicking it does.
+  public var rows = CardRows()
+}
+
+/// The user's choices for a card's rows, and the edits they can make there.
+/// Equal when the choices are: the edits are the same whoever built them.
+public struct CardRows: Equatable {
+  public static func == (lhs: CardRows, rhs: CardRows) -> Bool {
+    lhs.flipReset == rhs.flipReset && lhs.showPace == rhs.showPace && lhs.starred == rhs.starred
+  }
+
+  public var flipReset = false
+  public var showPace = true
+  public var starred: Set<MetricKey> = []
+  /// Flip used/left everywhere.
+  public var onFlipDisplay: () -> Void = {}
+  /// Flip countdown/date everywhere.
+  public var onFlipReset: () -> Void = {}
+  public var onHide: (MetricKey) -> Void = { _ in }
+  public var onStar: (MetricKey, Bool) -> Void = { _, _ in }
+
+  public init() {}
+
+  public init(_ settings: CapsuleSettings, onChange: @escaping ((inout CapsuleSettings) -> Void) -> Void) {
+    flipReset = settings.flipResetStyle
+    showPace = settings.showPace
+    starred = Set(settings.starredMetrics)
+    onFlipDisplay = { onChange { $0.usageDisplay = $0.usageDisplay == .used ? .remaining : .used } }
+    onFlipReset = { onChange { $0.flipResetStyle.toggle() } }
+    onHide = { key in onChange { $0.setHidden(key, true) } }
+    onStar = { key, on in onChange { $0.setStarred(key, on) } }
+  }
 }
 
 /// The card: a provider's readings, or its notices while they are up.
@@ -107,7 +139,9 @@ struct UsageCardView: View {
       } else {
         VStack(alignment: .leading, spacing: m.cardSectionGap) {
           ForEach(snapshot.buckets, id: \.id) { bucket in
-            BucketRow(bucket: bucket, display: content.display, now: content.now, m: m, theme: theme)
+            BucketRow(
+              meter: snapshot.meterId, provider: snapshot.providerId, bucket: bucket, display: content.display,
+              rows: content.rows, now: content.now, m: m, theme: theme)
           }
         }
       }
@@ -121,8 +155,11 @@ struct UsageCardView: View {
 }
 
 struct BucketRow: View {
+  let meter: MeterId
+  let provider: ProviderId
   let bucket: UsageBucket
   let display: UsageDisplay
+  let rows: CardRows
   let now: Date
   let m: HudMetrics
   let theme: HudTheme
@@ -131,12 +168,23 @@ struct BucketRow: View {
     let used = jsRound(bucket.percentUsed)
     let shown = display == .remaining ? 100 - used : used
     let suffix = display == .remaining ? Copy.percentRemainingSuffix : Copy.percentUsedSuffix
+    let key = MetricKey(meter, bucket.id)
+    let starred = rows.starred.contains(key)
+    let paced = rows.showPace ? pace(provider, bucket, now: now) : nil
     VStack(alignment: .leading, spacing: m.cardBucketGap) {
       HStack(alignment: .firstTextBaseline, spacing: m.cardResetGap) {
+        if starred {
+          Image(systemName: "star.fill").font(.system(size: m.cardResetSize)).foregroundStyle(color(theme.textMuted))
+            .accessibilityLabel(Copy.starred)
+        }
         Text(bucket.label).font(.system(size: m.cardLabelSize)).lineLimit(1)
         Spacer(minLength: 0)
-        Text(formatResetCopy(date(bucket.resetsAt), style: bucket.resetStyle, now: now))
-          .font(.system(size: m.cardResetSize)).foregroundStyle(color(theme.textMuted)).lineLimit(1)
+        // Clicking the reset flips countdown and date on every card.
+        Button(action: rows.onFlipReset) {
+          Text(formatResetCopy(date(bucket.resetsAt), style: bucket.resetStyle, flipped: rows.flipReset, now: now))
+            .font(.system(size: m.cardResetSize)).foregroundStyle(color(theme.textMuted)).lineLimit(1)
+        }
+        .buttonStyle(.plain).focusable(false).help(Copy.flipResetHint)
       }
       .frame(height: m.cardTextLine)
       GeometryReader { box in
@@ -145,11 +193,46 @@ struct BucketRow: View {
           Capsule().fill(color(SeverityColors.forPercent(used)))
             .frame(width: box.size.width * max(0, min(100, shown)) / 100)
             .animation(.timingCurve(0.22, 1, 0.36, 1, duration: Motion.barMs / 1000), value: shown)
+          // Where an even pace would be by now.
+          if let paced {
+            let mark = display == .remaining ? 1 - paced.elapsedFraction : paced.elapsedFraction
+            let width = m.barHeight * PaceMark.widthPerBar
+            Rectangle().fill(color(theme.text)).frame(width: width, height: m.barHeight * PaceMark.heightPerBar)
+              .offset(x: box.size.width * mark - width / 2)
+              .accessibilityHidden(true)
+          }
         }
       }
       .frame(height: m.barHeight)
-      Text("\(jsString(.number(shown)))\(suffix)").font(.system(size: m.cardLabelSize).monospacedDigit())
-        .frame(height: m.cardTextLine)
+      HStack(alignment: .firstTextBaseline, spacing: m.cardResetGap) {
+        // Clicking the percentage flips used and left on every card.
+        Button(action: rows.onFlipDisplay) {
+          Text("\(jsString(.number(shown)))\(suffix)").font(.system(size: m.cardLabelSize).monospacedDigit())
+        }
+        .buttonStyle(.plain).focusable(false).help(Copy.flipDisplayHint)
+        Spacer(minLength: 0)
+        if let paced {
+          let copy = formatPace(paced, now: now)
+          Text([copy.pace, copy.outlook].compactMap { $0 }.joined(separator: Copy.paceSeparator))
+            .font(.system(size: m.cardResetSize)).lineLimit(1).minimumScaleFactor(0.8)
+            .foregroundStyle(color(paceColor(paced)))
+        }
+      }
+      .frame(height: m.cardTextLine)
+    }
+    .contextMenu {
+      Button(starred ? Copy.unstarMetric : Copy.starMetric) { rows.onStar(key, !starred) }
+      Button(Copy.hideMetric) { rows.onHide(key) }
+    }
+  }
+
+  /// Muted on pace, the severity colours ahead of it, green with room to spare.
+  private func paceColor(_ pace: Pace) -> ThemeColor {
+    switch pace.stage {
+    case .onTrack, .slightlyBehind: return theme.textMuted
+    case .behind, .farBehind: return SeverityColors.color(.low)
+    case .slightlyAhead: return SeverityColors.color(.mid)
+    case .ahead, .farAhead: return SeverityColors.color(.critical)
     }
   }
 }
