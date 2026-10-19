@@ -120,15 +120,18 @@ sent to the update service. Development builds do not check for updates.
 Capsule needs macOS 14 or newer on Apple silicon, and Xcode with Swift 6.
 
 ```bash
-taskpolicy -b scripts/dev.sh
+mise run dev                      # build and open Capsule Dev
+mise run stop                     # quit it
+mise run test CapsuleCoreTests    # one test target
+mise tasks                        # everything else
 ```
 
+Without mise, `taskpolicy -b scripts/dev.sh` does the same as `mise run dev`.
 This opens **Capsule Dev**, with a blue icon and separate settings and caches.
 Your installed Capsule can keep running alongside it.
 
 Right-click the dock for **Settings**, **Keep open**, placement shortcuts, and
-**Quit Capsule**. You can also use the menu bar icon. Turn on **Demo mode** in
-Settings to explore the full interface without provider accounts.
+**Quit Capsule**. You can also use the menu bar icon.
 
 ## Check a change
 

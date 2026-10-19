@@ -1,0 +1,23 @@
+# Everyday commands, so nobody has to remember this repo's own scripts.
+# `mise tasks` lists them. Everything runs at background priority.
+
+[tasks.dev]
+description = "Build Capsule Dev and open it (never touches the installed Capsule)"
+run = "taskpolicy -b scripts/dev.sh"
+
+[tasks."dev:release"]
+description = "The same, with optimized code"
+run = "taskpolicy -b scripts/dev.sh release"
+
+[tasks.test]
+description = "Run one test target, e.g. mise run test CapsuleCoreTests"
+usage = 'arg "<target>" help="Test target, such as CapsuleCoreTests or CapsuleDockTests"'
+run = 'taskpolicy -b swift test --filter "${usage_target}"'
+
+[tasks.cli]
+description = "Run the capsule command line against Capsule Dev's data"
+run = "taskpolicy -b swift run CapsuleCLI --dev --pretty"
+
+[tasks.stop]
+description = "Quit Capsule Dev"
+run = "osascript -e 'quit app \"Capsule Dev\"'"
