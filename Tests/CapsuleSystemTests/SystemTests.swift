@@ -60,8 +60,8 @@ struct SQLiteTests {
 struct KeychainTests {
   /// Reads only; nothing is ever written to the user's keychain.
   @Test("an item that does not exist is nil")
-  func missing() {
-    #expect(keychainPassword(service: "capsule-test-\(UUID().uuidString)") == nil)
+  func missing() async {
+    #expect(await keychainPassword(service: "capsule-test-\(UUID().uuidString)") == nil)
   }
 }
 

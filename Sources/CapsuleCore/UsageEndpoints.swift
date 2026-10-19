@@ -9,8 +9,13 @@ public enum UsageEndpoints {
   public enum Claude {
     public static let usageURL = "https://api.anthropic.com/api/oauth/usage"
     public static let betaHeader = "oauth-2025-04-20"
-    public static let credentialsPath = [".claude", ".credentials.json"]
+    public static let credentialsFile = ".credentials.json"
+    public static let credentialsPath = [".claude", credentialsFile]
     public static let keychainService = "Claude Code-credentials"
+    /// An account in its own `CLAUDE_CONFIG_DIR` keeps its keychain item
+    /// under the service name plus `-` and this many hex characters of the
+    /// folder path's SHA-256.
+    public static let keychainHashLength = 8
     public static let usageCacheFile = ".claude.json"
   }
 
@@ -19,7 +24,8 @@ public enum UsageEndpoints {
     public static let fallbackURL = "https://chatgpt.com/backend-api/codex/usage"
     public static let tokenURL = "https://auth.openai.com/oauth/token"
     public static let clientId = "app_EMohtA1zFfdvkohgPldNB5nP"
-    public static let authPath = [".codex", "auth.json"]
+    public static let authFile = "auth.json"
+    public static let authPath = [".codex", authFile]
     public static let homeEnv = "CODEX_HOME"
   }
 
@@ -47,5 +53,10 @@ public enum UsageEndpoints {
     public static let tokenSQL =
       "SELECT hex(value) FROM ItemTable WHERE key='cursorAuth/accessToken' LIMIT 1;"
   }
+}
 
+/// The tool every keychain read goes through. See `keychainPassword`.
+public enum KeychainTool {
+  public static let path = "/usr/bin/security"
+  public static let timeoutSeconds = 5.0
 }

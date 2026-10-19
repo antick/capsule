@@ -2,6 +2,12 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Unreleased
+
+### Fixed
+
+- macOS no longer asks for the login keychain password every few minutes. Capsule now reads Claude's sign-in through `/usr/bin/security`, the tool Claude Code writes it with, so a token refresh no longer revokes Capsule's access.
+
 ## 0.2.1
 
 ### Fixed
