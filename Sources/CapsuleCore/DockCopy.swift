@@ -72,7 +72,7 @@ extension Copy {
   public static let system = "System"
   public static let behaviourHint = "When the dock shows itself and when it gets out of the way."
   public static let dockSize = "Dock size"
-  public static let dockSizeHint = "Scales the whole dock — rings, card and type together."
+  public static let dockSizeHint = "Scales the rail and its meters. Cards keep their own size."
   public static let decreaseSize = "Make the dock smaller"
   public static let increaseSize = "Make the dock bigger"
   public static let theme = "Theme"
