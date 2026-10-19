@@ -80,6 +80,9 @@ public func scanLogs(
         guard let read = await histogramOf(host, file, floor: floor, timeZone: timeZone, parse: parser())
         else { continue }
         entry = read
+        // Read with prices: mark it so, even when nothing in it had a cost,
+        // or it would be read again on every scan.
+        if priced, entry?.cost == nil { entry?.cost = [:] }
       }
       cache[file.path] = entry
     }
