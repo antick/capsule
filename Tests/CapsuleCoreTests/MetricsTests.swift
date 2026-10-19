@@ -191,3 +191,15 @@ struct MetricsTests {
     #expect(jsRound(-0.5) == 0)
   }
 }
+
+struct DockMetricsTests {
+  @Test func dockSizeLeavesTheCardAlone() {
+    let small = dockMetrics(HudScale.min)
+    let base = hudMetrics()
+    #expect(small.meterSize < base.meterSize)
+    #expect(small.railWidth < base.railWidth)
+    #expect(small.cardWidth == base.cardWidth)
+    #expect(small.cardTitleSize == base.cardTitleSize)
+    #expect(cardReserveHeight(small) == cardReserveHeight(base))
+  }
+}

@@ -34,6 +34,8 @@ All notable changes to Capsule are documented in this file.
 
 ### Fixed
 
+- The dock-size setting no longer shrinks or grows the cards; it sizes the rail and meters alone.
+
 - The menu-bar panel opens as a small window under the menu bar's right end when a menu-bar manager has hidden Capsule's item, instead of opening out of sight.
 - Reset notices and confetti fire when a window's reset time moves on, even if the new window is already in use by the next read.
 - A newly pasted Claude Console session is read at once; a failed read is retried on the next poll.

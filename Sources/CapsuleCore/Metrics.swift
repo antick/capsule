@@ -54,6 +54,25 @@ public func hudMetrics(_ scale: Double = HudScale.default) -> HudMetrics {
   return metrics
 }
 
+/// The dock at `scale` with its card at its own size: the dock-size setting
+/// grows and shrinks the rail and meters, never the card a reading opens in.
+public func dockMetrics(_ scale: Double) -> HudMetrics {
+  var metrics = hudMetrics(scale)
+  let card = hudMetrics()
+  for key in HudMetrics.cardKeys { metrics[keyPath: key] = card[keyPath: key] }
+  return metrics
+}
+
+extension HudMetrics {
+  /// The card's own sizes, and the tail that carries it off the rail.
+  static let cardKeys: [WritableKeyPath<HudMetrics, Double> & Sendable] = [
+    \.cardWidth, \.cardRadius, \.cardPaddingX, \.cardPaddingTop, \.cardPaddingBottom, \.cardTitleSize,
+    \.cardTitleLine, \.cardTitleGap, \.cardIconSize, \.cardIconGap, \.cardLabelSize, \.cardResetSize,
+    \.cardResetGap, \.cardTextLine, \.cardBucketGap, \.cardSectionGap, \.barHeight, \.tailBase, \.tailLength,
+    \.cardRule, \.cardRuleGap, \.cardStatusDot, \.cardStatusStroke, \.cardStatusGap,
+  ]
+}
+
 // MARK: - Rail
 
 public func meterBlockSize(_ m: HudMetrics, compact: Bool = false) -> Double {

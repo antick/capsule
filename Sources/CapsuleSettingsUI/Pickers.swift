@@ -35,7 +35,7 @@ struct DockPreview: View {
   }
 
   private func previewLook(_ s: CapsuleSettings, layout: PresetLayout, count: Int, demo: Bool) -> DockLook {
-    let m = hudMetrics(s.hudScale)
+    let m = dockMetrics(s.hudScale)
     let style = DockStyle.of(s.dockStyle)
     let compact = layout.orientation == .horizontal
     var look = DockLook(

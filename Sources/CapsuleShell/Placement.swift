@@ -66,7 +66,7 @@ public func joinedNotch(
   }
   return hardware
     ?? virtualNotch(
-      hudMetrics(settings.hudScale),
+      dockMetrics(settings.hudScale),
       menuBarHeight: chrome.display.workArea.y - chrome.display.bounds.y
     )
 }
@@ -77,7 +77,7 @@ public func dockPlacement(
   settings: CapsuleSettings, preset: PlacementPreset, meterCount: Int, chrome: ChromeSnapshot,
   joined: HardwareNotch?
 ) -> PlacementResult {
-  let m = hudMetrics(settings.hudScale)
+  let m = dockMetrics(settings.hudScale)
   let style = DockStyle.of(settings.dockStyle)
   let notchAllowed = styleSupportsNotch(style)
   let notch = preset == .topEdge && notchAllowed ? joined : nil
@@ -118,7 +118,7 @@ public func slid(_ placement: PlacementResult, railStart: Double) -> PlacementRe
 public func frameSpec(
   settings: CapsuleSettings, placement: PlacementResult, meterCount: Int, joined: HardwareNotch?
 ) -> FrameSpec {
-  let m = hudMetrics(settings.hudScale)
+  let m = dockMetrics(settings.hudScale)
   let style = DockStyle.of(settings.dockStyle)
   let notch = placement.notch && styleSupportsNotch(style)
   let shared = notch ? joined : nil
