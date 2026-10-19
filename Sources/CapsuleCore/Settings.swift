@@ -85,6 +85,8 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   @DefaultOff public var flipResetStyle: Bool = false
   /// Show how each window's use compares with an even pace.
   @DefaultOn public var showPace: Bool = true
+  /// Read providers' public status pages and mark rings during incidents.
+  @DefaultOn public var checkStatus: Bool = true
   public var schemaVersion: Int
 
   /// What a first launch starts from.
@@ -118,6 +120,7 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     metricOrder: [],
     flipResetStyle: false,
     showPace: true,
+    checkStatus: true,
     schemaVersion: SettingsDefaults.schemaVersion
   )
 }
@@ -217,6 +220,7 @@ extension CapsuleSettings {
       metricOrder: metricList(fields["metricOrder"]),
       flipResetStyle: flag("flipResetStyle", defaults.flipResetStyle),
       showPace: flag("showPace", defaults.showPace),
+      checkStatus: flag("checkStatus", defaults.checkStatus),
       schemaVersion: SettingsDefaults.schemaVersion
     )
   }

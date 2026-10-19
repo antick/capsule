@@ -141,7 +141,7 @@ public final class AppModel: MenuHandlers {
       demoNow: nil
     )
     let state = engine.state
-    let arranged = state.snapshots.map { arrangeBuckets($0, settings) }
+    let arranged = presented(state.snapshots, settings, statuses: state.statuses)
     var panel = UsagePanelContent(
         snapshots: arranged, activity: state.activity, tokens: state.tokens, display: settings.usageDisplay,
         theme: resolveHudTheme(settings.hudTheme, system: systemAppearance), now: Date(),

@@ -18,6 +18,8 @@ public struct ShellState: Sendable, Equatable {
   public var activity: [ProviderId: [AgentSession]] = [:]
   public var tokens: [ProviderId: TokenUsage] = [:]
   public var notices: [ActivityNotice] = []
+  /// Providers' status pages, for those that publish one.
+  public var statuses: [ProviderId: ProviderStatus] = [:]
 
   public init() {}
 }
@@ -127,6 +129,7 @@ public final class Engine {
   }
 
   public func start() {
+    startStatusChecks()
     let owner = owner
     schedule.start(pollIntervalMs: settings.pollIntervalMs) {
       // The first round of reads, so the app can tell who is not signed in.
@@ -137,7 +140,37 @@ public final class Engine {
     }
   }
 
-  public func stop() { schedule.stop() }
+  public func stop() {
+    schedule.stop()
+    statusTask?.cancel()
+    statusTask = nil
+  }
+
+  private var statusTask: Task<Void, Never>?
+  private lazy var statusChecker = StatusChecker(host: MacPollerHost(store: store).usage)
+
+  /// Reads the status pages now and then every few minutes, while asked to.
+  private func startStatusChecks() {
+    statusTask?.cancel()
+    guard settings.checkStatus else {
+      latest.withLock { $0.statuses = [:] }
+      publish()
+      return
+    }
+    let checker = statusChecker
+    let current = current
+    let latest = latest
+    let owner = owner
+    statusTask = Task {
+      while !Task.isCancelled {
+        let providers = current.withLock { $0.enabledMeters.map(\.provider) }
+        let statuses = await checker.check(providers, now: Date())
+        latest.withLock { $0.statuses = statuses }
+        await MainActor.run { owner.engine?.publish() }
+        try? await Task.sleep(nanoseconds: UInt64(StatusTuning.intervalSeconds * 1_000_000_000))
+      }
+    }
+  }
 
   /// Takes new settings, doing only what each change needs: a new tick for
   /// the interval, and otherwise reconciling the provider list at once
@@ -146,6 +179,7 @@ public final class Engine {
     let previous = settings
     settings = next
     current.withLock { $0 = next }
+    if next.checkStatus != previous.checkStatus { startStatusChecks() }
     if next.pollIntervalMs != previous.pollIntervalMs {
       schedule.setPollInterval(next.pollIntervalMs)
     }
@@ -235,7 +269,9 @@ public final class Engine {
       .map { "\($0.meterId.rawValue):\($0.status.rawValue):\($0.primaryPercent.map { jsString(.number($0)) } ?? "—")" }
       .joined(separator: " ")
     let sessions = state.activity.map { "\($0.key.rawValue)=\($0.value.count)" }.sorted().joined(separator: " ")
-    let summary = "usage \(line) · sessions \(sessions.isEmpty ? "none" : sessions) · notices \(state.notices.count)"
+    let statuses = state.statuses.map { "\($0.key.rawValue)=\($0.value.level.rawValue)" }.sorted().joined(separator: " ")
+    let summary =
+      "usage \(line) · sessions \(sessions.isEmpty ? "none" : sessions) · notices \(state.notices.count) · status \(statuses.isEmpty ? "unchecked" : statuses)"
     guard summary != lastLogged else { return }
     lastLogged = summary
     ShellLog.engine.notice("\(summary, privacy: .public)")

@@ -37,6 +37,7 @@ extension CapsuleSettings {
       "metricOrder": metricOrder.map(\.rawValue),
       "flipResetStyle": flipResetStyle,
       "showPace": showPace,
+      "checkStatus": checkStatus,
       "accounts": accounts.map {
         ["id": $0.id, "provider": $0.provider.rawValue, "path": $0.path, "label": $0.label, "enabled": $0.enabled]
           as [String: Any]

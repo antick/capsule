@@ -261,6 +261,11 @@ struct GeneralPage: View {
           Toggle("", isOn: binding(\.showPace)).labelsHidden().toggleStyle(.switch).accessibilityLabel(Copy.showPace)
         }
         Divider()
+        SettingRow(label: Copy.checkStatus, hint: Copy.checkStatusHint) {
+          Toggle("", isOn: binding(\.checkStatus)).labelsHidden().toggleStyle(.switch)
+            .accessibilityLabel(Copy.checkStatus)
+        }
+        Divider()
         SettingRow(label: Copy.notificationPopups, hint: Copy.notificationPopupsHint) {
           Toggle("", isOn: binding(\.notificationPopups)).labelsHidden().toggleStyle(.switch)
             .accessibilityLabel(Copy.notificationPopups)

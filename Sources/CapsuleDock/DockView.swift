@@ -191,6 +191,7 @@ public final class DockView: FlippedView {
           waitingCount: own ? summaryWaiting.filter { $0.providerId == snapshot.providerId }.count : 0,
           unreadCount: own ? b.notices.unreadCount(snapshot.providerId) : 0,
           hasNotices: own && b.notices.hasNotices(snapshot.providerId), stowed: b.peek,
+          incident: snapshot.statusLevel,
           stowShift: CGPoint(x: shift.x, y: shift.y),
           revealDelayMs: min(Double(index) * Motion.meterStaggerMs, Motion.meterStaggerCapMs)
         )

@@ -17,6 +17,8 @@ public struct MeterState: Equatable {
   public var unreadCount: Int
   public var hasNotices: Bool
   public var stowed: Bool
+  /// An incident on the provider's status page.
+  public var incident: StatusLevel? = nil
   /// Which way it slides toward the edge while stowed.
   public var stowShift: CGPoint
   public var revealDelayMs: Double
@@ -37,6 +39,8 @@ public final class MeterView: FlippedView {
   private let sweep = CAShapeLayer()
   private let agent = CAShapeLayer()
   private var icon = CALayer()
+  /// A dot at the ring's lower left while the provider has an incident.
+  private let incident = CAShapeLayer()
   private let caption: NSTextField
   public let badge: BadgeView
   private var state: MeterState?
@@ -79,6 +83,13 @@ public final class MeterView: FlippedView {
     icon = iconLayer(providerId, size: metrics.iconSize, color: theme.text)
     icon.position = CGPoint(x: size / 2, y: size / 2)
     ring.addSublayer(icon)
+    let dot = metrics.cardStatusDot
+    incident.frame = CGRect(x: 0, y: size - dot, width: dot, height: dot)
+    incident.path = CGPath(ellipseIn: CGRect(x: 0, y: 0, width: dot, height: dot), transform: nil)
+    incident.strokeColor = theme.surface.cgColor
+    incident.lineWidth = metrics.cardStatusStroke
+    incident.isHidden = true
+    ring.addSublayer(incident)
     layer?.addSublayer(ring)
     addSubview(caption)
     addSubview(badge)
@@ -118,7 +129,12 @@ public final class MeterView: FlippedView {
     let label = shown.map { "\(jsString(.number($0)))\(Copy.percentSuffix)" } ?? "—"
     caption.stringValue = label
     caption.isHidden = next.compact
-    setAccessibilityLabel("\(next.label) \(label)")
+    setAccessibilityLabel(
+      ["\(next.label) \(label)", next.incident.map(Copy.label)].compactMap { $0 }.joined(separator: Copy.paceSeparator))
+    incident.isHidden = next.incident == nil || next.incident == StatusLevel.none
+    if let level = next.incident {
+      incident.fillColor = SeverityColors.color(level.isOutage ? .critical : .mid).cgColor
+    }
 
     // The reading sweeps to its value rather than snapping.
     let end = (shown ?? 0) / 100

@@ -56,6 +56,8 @@ public struct UsageSnapshot: Sendable, Codable, Equatable {
   public var accountId: String?
   /// Amounts beyond the percentage windows: extra usage, credits, spend.
   public var extras: [UsageExtra]?
+  /// The provider's status page, when it reports anything but all clear.
+  public var statusLevel: StatusLevel?
 
   public init(
     providerId: ProviderId,

@@ -136,7 +136,7 @@ public final class DockController {
     state: ShellState, notices: [ActivityNotice], keepOpen: Bool, demoNow: Date?
   ) {
     var inputs = behavior.inputs
-    inputs.snapshots = state.snapshots.map { arrangeBuckets($0, settings) }
+    inputs.snapshots = presented(state.snapshots, settings, statuses: state.statuses)
     inputs.activity = state.activity
     inputs.tokens = state.tokens
     inputs.autoHide = settings.autoHide

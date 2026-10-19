@@ -17,6 +17,7 @@ All notable changes to Capsule are documented in this file.
 - New providers, off until switched on: Antigravity (Gemini and Claude/GPT pools, from the running app or its saved login), Devin (daily and weekly quotas and overage balance, from Devin's own app login), OpenRouter (balance, key limit, spend) and DeepSeek (balance).
 - API keys and sessions in Settings → Providers, for providers with no login on this Mac, kept in an owner-only file in Capsule's folder and never shown again once saved.
 - The monthly API credit a Claude Max plan includes, on the Claude card, from a pasted Console session.
+- Provider status: Claude, Codex, Cursor and Antigravity status pages are read every five minutes; an incident puts a dot on the ring (yellow for minor issues and maintenance, red for outages) and a Status row on the card. Switch it off in General.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
 
 ### Fixed
