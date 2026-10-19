@@ -16,5 +16,12 @@ struct AdaptiveRefreshTests {
     #expect(delay(2 * 60 * minute) == 15 * minute)
     #expect(delay(5 * 60 * minute) == 30 * minute)
     #expect(delay(nil) == 30 * minute)
+    // Numbers always on screen wait no longer than the warm pace.
+    #expect(
+      AdaptiveRefresh.delayMs(
+        sinceInteractionMs: nil, busy: false, constrained: false, intervalMs: minute, glanceable: true) == 5 * minute)
+    #expect(
+      AdaptiveRefresh.delayMs(
+        sinceInteractionMs: nil, busy: false, constrained: true, intervalMs: minute, glanceable: true) == 30 * minute)
   }
 }

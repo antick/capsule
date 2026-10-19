@@ -110,7 +110,11 @@ public final class Engine {
     let info = ProcessInfo.processInfo
     let constrained = info.isLowPowerModeEnabled || info.thermalState == .serious || info.thermalState == .critical
     let since = lookedAt.withLock { $0 }.map { uptimeMs() - $0 }
-    return AdaptiveRefresh.delayMs(sinceInteractionMs: since, busy: busy, constrained: constrained, intervalMs: interval)
+    let glanceable =
+      (settings.presence.showsMenuBarItem && settings.menuBarStyle == .figures)
+      || (settings.presence.showsDock && !settings.autoHide)
+    return AdaptiveRefresh.delayMs(
+      sinceInteractionMs: since, busy: busy, constrained: constrained, intervalMs: interval, glanceable: glanceable)
   }
 
   /// The user looked at Capsule: reads speed up, and readings older than
@@ -146,6 +150,8 @@ public final class Engine {
   }
 
   public func start() {
+    // Launching counts as looking: the first reads come at the quick pace.
+    Engine.lookedAt.withLock { $0 = Engine.uptimeMs() }
     startStatusChecks()
     let owner = owner
     schedule.start(pollIntervalMs: settings.pollIntervalMs) {

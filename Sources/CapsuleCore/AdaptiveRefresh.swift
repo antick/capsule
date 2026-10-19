@@ -16,9 +16,18 @@ public enum AdaptiveRefresh {
   /// The wait before the next read. Low Power Mode or a hot Mac wins; an
   /// agent at work polls at the user's own interval; otherwise the longer
   /// since the user last looked, the longer the wait.
-  public static func delayMs(sinceInteractionMs: Double?, busy: Bool, constrained: Bool, intervalMs: Double) -> Double {
+  /// `glanceable`: the numbers are on screen without asking, in the menu bar
+  /// or an always-shown dock, so they never wait longer than the warm pace.
+  public static func delayMs(
+    sinceInteractionMs: Double?, busy: Bool, constrained: Bool, intervalMs: Double, glanceable: Bool = false
+  ) -> Double {
     if constrained { return constrainedMs }
     if busy { return intervalMs }
+    if glanceable { return min(idleDelay(sinceInteractionMs, intervalMs: intervalMs), warmMs) }
+    return idleDelay(sinceInteractionMs, intervalMs: intervalMs)
+  }
+
+  private static func idleDelay(_ sinceInteractionMs: Double?, intervalMs: Double) -> Double {
     guard let since = sinceInteractionMs else { return longIdleMs }
     if since <= recentWindowMs { return max(intervalMs, recentMs) }
     if since <= warmWindowMs { return warmMs }
