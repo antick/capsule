@@ -34,6 +34,16 @@ struct QuotaAlertTests {
     #expect(evaluateQuotaAlerts(reading(55), thresholds: [50, 20], state: recovered).alerts.map(\.kind) == [.low(threshold: 50)])
   }
 
+  @Test func aResetIsFoundByItsResetTimeMovingOnEvenWithUseAlreadyBack() {
+    let busy = evaluateQuotaAlerts(reading(70), thresholds: [50], state: [:]).state
+    // Read again only after the agent had used 8% of the new window.
+    let later = evaluateQuotaAlerts(reading(8, resets: "2027-01-27T00:00:00Z"), thresholds: [50], state: busy)
+    #expect(later.alerts.map(\.kind) == [.reset])
+    // Use falling within the same window is not a reset.
+    let same = evaluateQuotaAlerts(reading(5), thresholds: [50], state: busy)
+    #expect(same.alerts.isEmpty)
+  }
+
   @Test func aResetIsAnnouncedOncePerWindow() {
     let busy = evaluateQuotaAlerts(reading(60), thresholds: [50], state: [:]).state
     let reset = evaluateQuotaAlerts(reading(0, resets: "2027-01-27T00:00:00Z"), thresholds: [50], state: busy)

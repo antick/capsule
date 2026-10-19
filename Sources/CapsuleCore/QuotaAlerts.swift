@@ -83,10 +83,14 @@ public func evaluateQuotaAlerts(
           left: left, fired: ordered.filter { left <= Double($0) }, resetsAt: bucket.resetsAt, announcedReset: nil)
         continue
       }
+      // A reset: the window's reset time moved on and its use fell. Where a
+      // provider names no reset time, use falling to almost nothing.
       let usedBefore = 100 - window.left
-      if usedBefore > QuotaAlertRules.resetUsedPercent, bucket.percentUsed <= QuotaAlertRules.resetUsedPercent,
-        window.announcedReset != bucket.resetsAt
-      {
+      let movedOn = looseDate(bucket.resetsAt).flatMap { next in looseDate(window.resetsAt).map { next > $0 } }
+      let reset =
+        movedOn.map { $0 && bucket.percentUsed < usedBefore }
+        ?? (usedBefore > QuotaAlertRules.resetUsedPercent && bucket.percentUsed <= QuotaAlertRules.resetUsedPercent)
+      if reset, window.announcedReset != bucket.resetsAt {
         alerts.append(alert(.reset))
         window.announcedReset = bucket.resetsAt
       }
