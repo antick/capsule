@@ -30,31 +30,46 @@ struct MenuBarTests {
   }
 
   @Test func theIconStyleDrawsNoEntries() {
-    #expect(menuBarEntries(.defaults, readings).isEmpty)
+    var settings = CapsuleSettings.defaults
+    settings.pinnedMetrics = [MetricKey(.claude, "session")]
+    #expect(menuBarEntries(settings, readings).isEmpty)
   }
 
-  @Test func oneProviderShowsItsSessionAndWeekTogether() {
+  @Test func figuresFollowTheDockOrderWithTheShorterWindowOnTop() {
     var settings = CapsuleSettings.defaults
-    settings.menuBarStyle = .single
-    #expect(menuBarEntries(settings, readings) == [one(.claude, 61)])
-    settings.menuBarMeter = "claude"
-    #expect(menuBarEntries(settings, readings) == [one(.claude, 12, 40)])
-    settings.menuBarMeter = "codex"
-    settings.usageDisplay = .remaining
-    #expect(menuBarEntries(settings, readings) == [MenuBarEntry(provider: .codex, values: [MenuBarValue(percent: 70, used: 30)])])
-  }
-
-  @Test func pinnedShowsEachPinInOrderAndSkipsGoneOnes() {
-    var settings = CapsuleSettings.defaults
-    settings.menuBarStyle = .pinned
-    settings.pinnedMetrics = [
-      MetricKey(.codex, "week"), MetricKey(.claude, "week"), MetricKey(.grok, "weekly"),
-      MetricKey(MeterId(.claude, account: "w"), "gone"),
-    ]
-    #expect(menuBarEntries(settings, readings) == [one(.codex, 30), one(.claude, 40), one(.claude, nil)])
-    // Two pins of one meter share its mark.
-    settings.pinnedMetrics = [MetricKey(.claude, "session"), MetricKey(.codex, "week"), MetricKey(.claude, "week")]
+    settings.menuBarStyle = .figures
+    // Chosen week first, session second, Codex before Claude: drawn in the
+    // dock's order, session on top.
+    settings.pinnedMetrics = [MetricKey(.codex, "week"), MetricKey(.claude, "week"), MetricKey(.claude, "session")]
     #expect(menuBarEntries(settings, readings) == [one(.claude, 12, 40), one(.codex, 30)])
+    settings.usageDisplay = .remaining
+    #expect(menuBarEntries(settings, readings).last == MenuBarEntry(provider: .codex, values: [MenuBarValue(percent: 70, used: 30)]))
+  }
+
+  @Test func aThirdFigureReplacesTheOldestOfThatProvider() {
+    var settings = CapsuleSettings.defaults
+    settings.toggleFigure(MetricKey(.claude, "a"), true)
+    settings.toggleFigure(MetricKey(.codex, "x"), true)
+    settings.toggleFigure(MetricKey(.claude, "b"), true)
+    settings.toggleFigure(MetricKey(.claude, "c"), true)
+    #expect(settings.pinnedMetrics == [MetricKey(.codex, "x"), MetricKey(.claude, "b"), MetricKey(.claude, "c")])
+    settings.toggleFigure(MetricKey(.claude, "b"), false)
+    #expect(settings.pinnedMetrics == [MetricKey(.codex, "x"), MetricKey(.claude, "c")])
+  }
+
+  @Test func choosingFiguresStartsFromTheBusiestSessionAndWeek() {
+    var settings = CapsuleSettings.defaults
+    settings.seedFigures(readings)
+    #expect(settings.pinnedMetrics == [MetricKey(MeterId(.claude, account: "w"), "session")])
+    settings.pinnedMetrics = [MetricKey(.codex, "week")]
+    settings.seedFigures(readings)
+    #expect(settings.pinnedMetrics == [MetricKey(.codex, "week")])
+  }
+
+  @Test func theEdgeDockAloneHasNoMenuBarItem() {
+    #expect(!Presence.dock.showsMenuBarItem && Presence.dock.showsDock)
+    #expect(Presence.menuBar.showsMenuBarItem && !Presence.menuBar.showsDock)
+    #expect(Presence.both.showsMenuBarItem && Presence.both.showsDock)
   }
 
   @Test func metricKeysRoundTripTheirText() {
@@ -67,18 +82,18 @@ struct MenuBarTests {
   @Test func theMenuBarSettingsRoundTripAndDefault() throws {
     var settings = CapsuleSettings.defaults
     settings.presence = .both
-    settings.menuBarStyle = .pinned
-    settings.menuBarMeter = "codex"
+    settings.menuBarStyle = .figures
     settings.pinnedMetrics = [MetricKey(.claude, "current-session")]
     settings.pinStyle = .bars
+    settings.dockRings = .sessionAndWeek
     let data = try #require(settings.documentData)
     #expect(CapsuleSettings.read(data: data) == settings)
 
     let defaults = try #require(CapsuleSettings.defaults.documentData)
     var raw = try #require(JSONValue.parse(String(decoding: defaults, as: UTF8.self))?.asObject)
-    for key in ["presence", "menuBarStyle", "menuBarMeter", "pinnedMetrics", "pinStyle"] { raw[key] = nil }
+    for key in ["presence", "menuBarStyle", "dockRings", "pinnedMetrics", "pinStyle"] { raw[key] = nil }
     raw["presence"] = .string("somewhere-new")
     let read = try #require(CapsuleSettings.read(.object(raw)))
-    #expect(read.presence == .dock && read.menuBarStyle == .icon && read.pinnedMetrics.isEmpty)
+    #expect(read.presence == .dock && read.menuBarStyle == .icon && read.pinnedMetrics.isEmpty && read.dockRings == .single)
   }
 }

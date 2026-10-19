@@ -12,7 +12,6 @@ struct MenuBarPage: View {
   var body: some View {
     let s = model.settings
     SettingsForm(lead: Copy.menuBarHint) {
-      Section { MenuBarPreview(model: model) }
       SettingsSection(title: Copy.presence, hint: Copy.presenceHint) {
         HStack(spacing: 8) {
           ForEach(Presence.allCases, id: \.self) { presence in
@@ -25,58 +24,57 @@ struct MenuBarPage: View {
           }
         }
       }
-      SettingsSection(title: Copy.menuBarStyle, hint: Copy.menuBarStyleHint) {
-        HStack(spacing: 8) {
-          ForEach(MenuBarStyle.allCases, id: \.self) { style in
-            OptionCard(selected: s.menuBarStyle == style, label: Copy.label(style), action: {
-              model.change { $0.menuBarStyle = style }
-            }) {
-              MenuBarSample(entries: sample(style), style: s.pinStyle, height: 22).frame(maxWidth: .infinity).frame(height: 36)
+      if s.presence.showsMenuBarItem {
+        Section { MenuBarPreview(model: model) }
+        SettingsSection(title: Copy.menuBarStyle, hint: Copy.menuBarStyleHint) {
+          HStack(spacing: 8) {
+            ForEach(MenuBarStyle.allCases, id: \.self) { style in
+              OptionCard(selected: s.menuBarStyle == style, label: Copy.label(style), action: {
+                model.change { settings in
+                  settings.menuBarStyle = style
+                  if style == .figures { settings.seedFigures(model.snapshots) }
+                }
+              }) {
+                MenuBarSample(entries: sample(style), style: s.pinStyle, height: 22).frame(maxWidth: .infinity)
+                  .frame(height: 36)
+              }
+            }
+          }
+          if s.menuBarStyle == .figures {
+            SettingRow(label: Copy.pinStyle) {
+              Picker(Copy.pinStyle, selection: model.binding(\.pinStyle)) {
+                ForEach(PinStyle.allCases, id: \.self) { Text(Copy.label($0)).tag($0) }
+              }
+              .pickerStyle(.segmented).labelsHidden().fixedSize()
             }
           }
         }
-        if s.menuBarStyle != .icon {
-          SettingRow(label: Copy.pinStyle) {
-            Picker(Copy.pinStyle, selection: model.binding(\.pinStyle)) {
-              ForEach(PinStyle.allCases, id: \.self) { Text(Copy.label($0)).tag($0) }
-            }
-            .pickerStyle(.segmented).labelsHidden().fixedSize()
-          }
-        }
-        if s.menuBarStyle == .single {
-          SettingRow(label: Copy.menuBarMeter, hint: Copy.menuBarMeterHint) {
-            Picker(
-              Copy.menuBarMeter,
-              selection: Binding(get: { s.menuBarMeter ?? "" }, set: { raw in model.change { $0.menuBarMeter = raw.isEmpty ? nil : raw } })
-            ) {
-              Text(Copy.highestUsage).tag("")
-              ForEach(model.snapshots, id: \.meterId) { Text($0.displayName).tag($0.meterId.rawValue) }
-            }
-            .labelsHidden().fixedSize()
-          }
+        if s.menuBarStyle == .figures { FiguresSection(model: model) }
+      } else {
+        Section {
+          Label(Copy.noMenuBarItem, systemImage: "menubar.rectangle").foregroundStyle(.secondary)
         }
       }
-      if s.menuBarStyle == .pinned { PinnedMetricsSection(model: model) }
     }
   }
 
   private static func symbol(_ presence: Presence) -> String {
     switch presence {
-    case .dock: return "dock.rectangle"
+    case .dock: return "rectangle.righthalf.inset.filled"
     case .menuBar: return "menubar.rectangle"
-    case .both: return "rectangle.split.2x1"
+    case .both: return "rectangle.inset.topright.filled"
     }
   }
 
   /// A made-up reading for each style's card, so the card shows the look.
   private func sample(_ style: MenuBarStyle) -> [MenuBarEntry] {
-    let low = MenuBarValue(percent: 12, used: 12)
-    let mid = MenuBarValue(percent: 48, used: 48)
     switch style {
     case .icon: return []
-    case .single: return [MenuBarEntry(provider: .claude, values: [low, mid])]
-    case .pinned:
-      return [MenuBarEntry(provider: .claude, values: [low, mid]), MenuBarEntry(provider: .codex, values: [mid])]
+    case .figures:
+      return [
+        MenuBarEntry(provider: .claude, values: [MenuBarValue(percent: 12, used: 12), MenuBarValue(percent: 48, used: 48)]),
+        MenuBarEntry(provider: .codex, values: [MenuBarValue(percent: 30, used: 30)]),
+      ]
     }
   }
 }
@@ -129,23 +127,23 @@ struct MenuBarSample: View {
   }
 }
 
-/// The metrics to pin, as chips grouped by meter.
-struct PinnedMetricsSection: View {
+/// Which figures each provider shows, as chips: at most two per provider,
+/// each marked with where it sits.
+struct FiguresSection: View {
   @ObservedObject var model: SettingsModel
 
   var body: some View {
-    let pinned = model.settings.pinnedMetrics
     SettingsSection(title: Copy.pinnedMetrics, hint: Copy.pinnedMetricsHint) {
       let readings = model.snapshots.filter { !$0.buckets.isEmpty }
       if readings.isEmpty { Text(Copy.noMetricsYet).foregroundStyle(.secondary) }
       ForEach(readings, id: \.meterId) { snapshot in
+        let placed = places(snapshot)
         LabeledContent {
           FlowLayout {
             ForEach(snapshot.buckets, id: \.id) { bucket in
               let key = MetricKey(snapshot.meterId, bucket.id)
-              let on = pinned.contains(key)
-              Chip(provider: nil, label: bucket.label, selected: on, disabled: pinned.count >= MenuBarLimits.maxPins) {
-                toggle(key, !on)
+              Chip(provider: nil, label: bucket.label, selected: placed[key] != nil, place: placed[key]) {
+                model.change { $0.toggleFigure(key, placed[key] == nil) }
               }
               .accessibilityLabel("\(snapshot.displayName) \(bucket.label)")
             }
@@ -160,14 +158,28 @@ struct PinnedMetricsSection: View {
     }
   }
 
-  private func toggle(_ key: MetricKey, _ on: Bool) {
-    model.change { settings in
-      settings.pinnedMetrics.removeAll { $0 == key }
-      if on, settings.pinnedMetrics.count < MenuBarLimits.maxPins { settings.pinnedMetrics.append(key) }
+  /// Where each chosen figure of a meter sits: on top or below.
+  private func places(_ snapshot: UsageSnapshot) -> [MetricKey: ChipPlace] {
+    var settings = model.settings
+    settings.menuBarStyle = .figures
+    guard let entry = menuBarEntries(settings, [snapshot]).first else { return [:] }
+    let chosen = Set(model.settings.pinnedMetrics)
+    let ordered = snapshot.buckets.filter { chosen.contains(MetricKey(snapshot.meterId, $0.id)) }
+      .sorted {
+        (WindowLengths.seconds(snapshot.providerId, $0) ?? .infinity)
+          < (WindowLengths.seconds(snapshot.providerId, $1) ?? .infinity)
+      }
+      .prefix(entry.values.count)
+    var result: [MetricKey: ChipPlace] = [:]
+    for (index, bucket) in ordered.enumerated() {
+      result[MetricKey(snapshot.meterId, bucket.id)] = ordered.count == 1 ? .only : index == 0 ? .top : .bottom
     }
+    return result
   }
 }
 
 extension Copy {
+  public static let noMenuBarItem =
+    "Capsule has no menu-bar item while it lives in the edge dock. Right-click the dock for Settings, or open Capsule again from Applications."
   public static let menuBarPreview = "How the menu bar item looks now"
 }

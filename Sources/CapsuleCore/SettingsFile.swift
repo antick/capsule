@@ -29,7 +29,7 @@ extension CapsuleSettings {
       "meterNames": meterNames,
       "presence": presence.rawValue,
       "menuBarStyle": menuBarStyle.rawValue,
-      "menuBarMeter": menuBarMeter ?? NSNull(),
+      "dockRings": dockRings.rawValue,
       "pinnedMetrics": pinnedMetrics.map(\.rawValue),
       "pinStyle": pinStyle.rawValue,
       "hiddenMetrics": hiddenMetrics.map(\.rawValue),

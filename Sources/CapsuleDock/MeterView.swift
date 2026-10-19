@@ -8,6 +8,9 @@ public struct MeterState: Equatable {
   /// provider's name.
   public var label: String
   public var percent: Double?
+  /// The week's share used, drawn as a second ring inside, when the dock
+  /// shows session and week.
+  public var inner: Double? = nil
   public var display: UsageDisplay
   public var active: Bool
   public var compact: Bool
@@ -44,6 +47,9 @@ public final class MeterView: FlippedView {
   private let caption: NSTextField
   public let badge: BadgeView
   private var state: MeterState?
+  /// The week, inside the session ring, when the dock shows both.
+  private let innerTrack = CAShapeLayer()
+  private let innerValue = CAShapeLayer()
   /// VoiceOver, or any assistive app, pressed the meter: the same as a click.
   public var onPress: (() -> Void)?
 
@@ -66,6 +72,20 @@ public final class MeterView: FlippedView {
       shape.lineWidth = stroke
       ring.addSublayer(shape)
     }
+    // The week's ring sits just inside the session's, clear of the agent ring.
+    let innerStroke = stroke * DualRing.strokeShare
+    let innerRadius = radius - stroke / 2 - stroke * DualRing.gapShare - innerStroke / 2
+    for shape in [innerTrack, innerValue] {
+      shape.frame = ring.bounds
+      shape.path = ringPath(size: size, radius: innerRadius)
+      shape.fillColor = nil
+      shape.lineWidth = innerStroke
+      shape.isHidden = true
+      ring.addSublayer(shape)
+    }
+    innerTrack.strokeColor = theme.ringTrack.cgColor
+    innerValue.lineCap = .round
+    innerValue.strokeEnd = 0
     track.strokeColor = theme.ringTrack.cgColor
     value.lineCap = .round
     value.strokeEnd = 0
@@ -126,7 +146,11 @@ public final class MeterView: FlippedView {
     // The colour always answers "how close to the wall", whichever end the
     // number is read from.
     let shown = rounded.map { next.display == .remaining ? 100 - $0 : $0 }
-    let label = shown.map { "\(jsString(.number($0)))\(Copy.percentSuffix)" } ?? "—"
+    let innerRounded = next.inner.map { jsRound($0) }
+    let innerShown = innerRounded.map { next.display == .remaining ? 100 - $0 : $0 }
+    let figures = [shown] + (next.inner == nil ? [] : [innerShown])
+    let label = figures.map { $0.map { "\(jsString(.number($0)))\(Copy.percentSuffix)" } ?? Copy.noReading }
+      .joined(separator: Copy.paceSeparator)
     caption.stringValue = label
     caption.isHidden = next.compact
     setAccessibilityLabel(
@@ -146,6 +170,17 @@ public final class MeterView: FlippedView {
       value.add(springAnimation("strokeEnd", Springs.reading, from: from, to: end), forKey: "reading")
     }
     value.strokeColor = color.cgColor
+
+    // The week, inside, sweeping the same way.
+    innerTrack.isHidden = next.inner == nil
+    innerValue.isHidden = (innerShown ?? 0) <= 0
+    let innerEnd = (innerShown ?? 0) / 100
+    if Double(innerValue.strokeEnd) != innerEnd {
+      let from = innerValue.presentation()?.strokeEnd ?? innerValue.strokeEnd
+      innerValue.strokeEnd = innerEnd
+      innerValue.add(springAnimation("strokeEnd", Springs.reading, from: from, to: innerEnd), forKey: "reading")
+    }
+    innerValue.strokeColor = (innerRounded.map { SeverityColors.forPercent($0) } ?? theme.ringTrack).cgColor
 
     // Pressed in while it works, released when the answer lands.
     if previous?.refreshing != next.refreshing {

@@ -38,7 +38,7 @@ struct DockPreview: View {
     let m = hudMetrics(s.hudScale)
     let style = DockStyle.of(s.dockStyle)
     let compact = layout.orientation == .horizontal
-    return DockLook(
+    var look = DockLook(
       spec: FrameSpec(
         metrics: m, style: style, growth: layout.cardGrowth, notch: layout.notch && styleSupportsNotch(style),
         compact: compact, railLength: railLengthForCount(m, count, compact: compact), railBias: nil, joined: nil
@@ -46,6 +46,8 @@ struct DockPreview: View {
       theme: resolveHudTheme(s.hudTheme, system: model.appearance), display: s.usageDisplay,
       demoNow: demo ? Demo.now : nil
     )
+    look.rings = s.dockRings
+    return look
   }
 
   private func anchor(_ growth: CardGrowth) -> UnitPoint {

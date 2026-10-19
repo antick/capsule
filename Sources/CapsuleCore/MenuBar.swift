@@ -1,21 +1,30 @@
 import Foundation
 
-/// Where Capsule shows itself: the edge dock, the menu bar, or both.
+/// Where Capsule shows itself: the edge dock alone, the menu bar alone, or
+/// both. With the dock alone there is no menu-bar item at all; the dock's
+/// right-click, or opening the app again, reaches Settings.
 public enum Presence: String, Sendable, Codable, CaseIterable {
   case dock, menuBar = "menu-bar", both
 
   public var showsDock: Bool { self != .menuBar }
-  public var opensPanelFromMenuBar: Bool { self != .dock }
+  public var showsMenuBarItem: Bool { self != .dock }
 }
 
 /// What the menu-bar item draws.
 public enum MenuBarStyle: String, Sendable, Codable, CaseIterable {
   /// Capsule's own mark.
   case icon
-  /// One meter's mark and percentage: the chosen one, or the highest.
+  /// The figures the user chose: per provider, its mark with up to two
+  /// figures stacked beside it.
+  case figures
+}
+
+/// How each ring on the dock reads.
+public enum DockRings: String, Sendable, Codable, CaseIterable {
+  /// One ring: the card's top window.
   case single
-  /// The metrics the user pinned, side by side.
-  case pinned
+  /// Two rings: the short window outside, the week inside.
+  case sessionAndWeek = "session-and-week"
 }
 
 /// How a pinned metric is drawn.
@@ -49,12 +58,12 @@ public struct MetricKey: Hashable, Sendable, Codable {
 
 extension Presence: SettingDefault { public static let settingDefault = Presence.dock }
 extension MenuBarStyle: SettingDefault { public static let settingDefault = MenuBarStyle.icon }
+extension DockRings: SettingDefault { public static let settingDefault = DockRings.single }
 extension PinStyle: SettingDefault { public static let settingDefault = PinStyle.text }
 
 public enum MenuBarLimits {
-  /// Pinned metrics the menu bar holds before it crowds other items out.
-  public static let maxPins = 6
-  /// Figures stacked beside one mark: the session and the week.
+  /// Figures stacked beside one mark: as many as fit the bar's height, one
+  /// above the other.
   public static let valuesPerMeter = 2
 }
 
@@ -93,40 +102,53 @@ public func sessionAndWeek(_ snapshot: UsageSnapshot) -> [UsageBucket] {
   return pair.isEmpty ? Array(snapshot.buckets.prefix(1)) : pair
 }
 
-/// What the menu-bar item shows for these readings. Empty means Capsule's
-/// own mark.
+/// What the menu-bar item shows for these readings, in the dock's order.
+/// Within a meter its figures read shortest window first, whatever order
+/// they were chosen in. Empty means Capsule's own mark.
 public func menuBarEntries(_ settings: CapsuleSettings, _ snapshots: [UsageSnapshot]) -> [MenuBarEntry] {
+  guard settings.menuBarStyle == .figures else { return [] }
   func value(_ used: Double?) -> MenuBarValue {
     let rounded = used.map(jsRound)
     return MenuBarValue(percent: rounded.map { settings.usageDisplay == .remaining ? 100 - $0 : $0 }, used: rounded)
   }
-  switch settings.menuBarStyle {
-  case .icon:
-    return []
-  case .single:
-    let chosen = settings.menuBarMeter.flatMap { raw in snapshots.first { $0.meterId.rawValue == raw } }
-    let highest = snapshots.filter { $0.primaryPercent != nil }.max { $0.primaryPercent! < $1.primaryPercent! }
-    guard let snapshot = chosen ?? highest else { return [] }
-    let pair = sessionAndWeek(snapshot)
-    return [
-      MenuBarEntry(
-        provider: snapshot.providerId,
-        values: pair.isEmpty ? [value(snapshot.primaryPercent)] : pair.map { value($0.percentUsed) })
-    ]
-  case .pinned:
-    // Pins of one meter share its mark, at most two figures each.
-    var entries: [(meter: String, entry: MenuBarEntry)] = []
-    for key in settings.pinnedMetrics.prefix(MenuBarLimits.maxPins) {
-      guard let snapshot = snapshots.first(where: { $0.meterId.rawValue == key.meter }) else { continue }
-      let figure = value(snapshot.buckets.first { $0.id == key.bucket }?.percentUsed)
-      if let index = entries.firstIndex(where: { $0.meter == key.meter }) {
-        if entries[index].entry.values.count < MenuBarLimits.valuesPerMeter { entries[index].entry.values.append(figure) }
-      } else {
-        entries.append((key.meter, MenuBarEntry(provider: snapshot.providerId, values: [figure])))
-      }
-    }
-    return entries.map(\.entry)
+  let chosen = Set(settings.pinnedMetrics)
+  return snapshots.compactMap { snapshot in
+    let picked = snapshot.buckets.filter { chosen.contains(MetricKey(snapshot.meterId, $0.id)) }
+      .sorted { (WindowLengths.seconds(snapshot.providerId, $0) ?? .infinity) < (WindowLengths.seconds(snapshot.providerId, $1) ?? .infinity) }
+      .prefix(MenuBarLimits.valuesPerMeter)
+    guard !picked.isEmpty else { return nil }
+    return MenuBarEntry(provider: snapshot.providerId, values: picked.map { value($0.percentUsed) })
   }
+}
+
+extension CapsuleSettings {
+  /// Chooses or drops one figure. A meter already showing two drops its
+  /// oldest choice to make room, so a click always does what it says.
+  public mutating func toggleFigure(_ key: MetricKey, _ on: Bool) {
+    pinnedMetrics.removeAll { $0 == key }
+    guard on else { return }
+    let mine = pinnedMetrics.filter { $0.meter == key.meter }
+    if mine.count >= MenuBarLimits.valuesPerMeter, let oldest = mine.first {
+      pinnedMetrics.removeAll { $0 == oldest }
+    }
+    pinnedMetrics.append(key)
+  }
+
+  /// Figures to start from when none are chosen: the busiest meter's
+  /// session and week.
+  public mutating func seedFigures(_ snapshots: [UsageSnapshot]) {
+    guard pinnedMetrics.isEmpty,
+      let busiest = snapshots.filter({ $0.primaryPercent != nil }).max(by: { $0.primaryPercent! < $1.primaryPercent! })
+        ?? snapshots.first
+    else { return }
+    pinnedMetrics = sessionAndWeek(busiest).map { MetricKey(busiest.meterId, $0.id) }
+  }
+}
+
+/// The week's ring on the dock, in shares of the session ring's stroke.
+public enum DualRing {
+  public static let strokeShare = 0.6
+  public static let gapShare = 0.2
 }
 
 /// Sizes of the menu-bar item's picture, in points.

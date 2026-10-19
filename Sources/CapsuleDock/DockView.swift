@@ -12,6 +12,8 @@ public struct DockLook: Equatable {
   public var demoNow: Date?
   /// How the card's rows read, and the edits they offer.
   public var rows = CardRows()
+  /// One ring per meter, or session and week.
+  public var rings: DockRings = .single
 
   public init(spec: FrameSpec, theme: HudTheme, display: UsageDisplay, demoNow: Date? = nil) {
     self.spec = spec
@@ -182,9 +184,14 @@ public final class DockView: FlippedView {
       // Activity and notices come from each tool's default folder, so only
       // the provider's own meter carries them.
       let own = snapshot.accountId == nil
+      // Two rings: the short window outside, the week inside, where there
+      // are both; otherwise the one ring as usual.
+      let pair = look.rings == .sessionAndWeek ? sessionAndWeek(snapshot) : []
+      let outer = pair.count == 2 ? pair[0].percentUsed : snapshot.primaryPercent
       meter.show(
         MeterState(
-          providerId: snapshot.providerId, label: snapshot.displayName, percent: snapshot.primaryPercent,
+          providerId: snapshot.providerId, label: snapshot.displayName, percent: outer,
+          inner: pair.count == 2 ? pair[1].percentUsed : nil,
           display: look.display, active: b.openId == snapshot.meterId, compact: spec.compact,
           refreshing: snapshot.refreshing == true,
           activity: own ? summarizeActivity(b.inputs.activity[snapshot.providerId]) : nil,

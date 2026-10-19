@@ -4,9 +4,9 @@ import CapsuleDock
 import CapsuleHUD
 import SwiftUI
 
-/// The menu-bar item: Capsule's mark, one percentage or the pinned metrics;
-/// a click opens the panel of cards when Capsule lives in the menu bar, and
-/// the commands otherwise. A right-click always opens the commands.
+/// The menu-bar item: Capsule's mark or the chosen figures. A click opens
+/// the panel of cards, a right-click the commands. Not there at all when
+/// Capsule lives in the edge dock alone.
 @MainActor
 final class StatusItemController: NSObject {
   private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -38,12 +38,14 @@ final class StatusItemController: NSObject {
       button.setAccessibilityLabel(AppIdentity.name)
       button.toolTip = AppIdentity.name
     }
+    item.isVisible = settings.presence.showsMenuBarItem
     draw([])
   }
 
   func apply(_ next: CapsuleSettings) {
     settings = next
-    if !next.presence.opensPanelFromMenuBar {
+    item.isVisible = next.presence.showsMenuBarItem
+    if !next.presence.showsMenuBarItem {
       if popover.isShown { popover.performClose(nil) }
       floating?.orderOut(nil)
     }
@@ -73,7 +75,7 @@ final class StatusItemController: NSObject {
   @objc private func clicked() {
     let right = NSApp.currentEvent?.type == .rightMouseUp
       || NSApp.currentEvent?.modifierFlags.contains(.control) == true
-    if right || !settings.presence.opensPanelFromMenuBar { return showCommands() }
+    if right { return showCommands() }
     togglePanel()
   }
 

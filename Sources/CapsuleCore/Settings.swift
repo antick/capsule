@@ -69,10 +69,10 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   @Defaulted public var presence: Presence = .dock
   /// What the menu-bar item draws.
   @Defaulted public var menuBarStyle: MenuBarStyle = .icon
-  /// The meter the single style shows; nil for whichever is highest.
-  public var menuBarMeter: String? = nil
-  /// The metrics the pinned style shows, in order.
+  /// The figures the menu bar shows, at most two per meter.
   @LossyList public var pinnedMetrics: [MetricKey] = []
+  /// One ring per dock meter, or the session and the week as two.
+  @Defaulted public var dockRings: DockRings = .single
   @Defaulted public var pinStyle: PinStyle = .text
   /// Windows left off the cards.
   @LossyList public var hiddenMetrics: [MetricKey] = []
@@ -120,8 +120,8 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     meterNames: [:],
     presence: .dock,
     menuBarStyle: .icon,
-    menuBarMeter: nil,
     pinnedMetrics: [],
+    dockRings: .single,
     pinStyle: .text,
     hiddenMetrics: [],
     starredMetrics: [],
@@ -224,8 +224,11 @@ extension CapsuleSettings {
       },
       presence: choice("presence", defaults.presence),
       menuBarStyle: choice("menuBarStyle", defaults.menuBarStyle),
-      menuBarMeter: fields["menuBarMeter"]?.asString.flatMap { $0.isEmpty ? nil : $0 },
-      pinnedMetrics: metricList(fields["pinnedMetrics"]),
+      pinnedMetrics: metricList(fields["pinnedMetrics"]).reduce(into: [MetricKey]()) { kept, key in
+        // Two per meter: an older file may hold more than the bar can stack.
+        if kept.filter({ $0.meter == key.meter }).count < MenuBarLimits.valuesPerMeter { kept.append(key) }
+      },
+      dockRings: choice("dockRings", defaults.dockRings),
       pinStyle: choice("pinStyle", defaults.pinStyle),
       hiddenMetrics: metricList(fields["hiddenMetrics"]),
       starredMetrics: metricList(fields["starredMetrics"]),

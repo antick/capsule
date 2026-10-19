@@ -155,11 +155,26 @@ struct PaneIcon: View {
   }
 }
 
-/// A selectable chip: a provider's mark and a name, filled when chosen.
+/// Where a chosen figure sits in the menu bar.
+enum ChipPlace {
+  case only, top, bottom
+
+  var symbol: String? {
+    switch self {
+    case .only: return nil
+    case .top: return "arrow.up"
+    case .bottom: return "arrow.down"
+    }
+  }
+}
+
+/// A selectable chip: a provider's mark and a name, filled when chosen, and
+/// where it sits when that matters.
 struct Chip: View {
   let provider: ProviderId?
   let label: String
   let selected: Bool
+  var place: ChipPlace? = nil
   var disabled = false
   let action: () -> Void
 
@@ -168,7 +183,9 @@ struct Chip: View {
       HStack(spacing: 6) {
         if let provider { ProviderMark(id: provider, tint: selected ? .white : .primary).frame(width: 12, height: 12) }
         Text(label).font(.system(size: 12, weight: .medium)).lineLimit(1)
-        if selected { Image(systemName: "checkmark").font(.system(size: 9.5, weight: .bold)) }
+        if selected {
+          Image(systemName: place?.symbol ?? "checkmark").font(.system(size: 9.5, weight: .bold))
+        }
       }
       .padding(.horizontal, 10).padding(.vertical, 5)
       .foregroundStyle(selected ? Color.white : Color.primary)
