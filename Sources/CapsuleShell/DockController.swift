@@ -78,7 +78,12 @@ public final class DockController {
     }
   }
 
+  /// Whether the dock is on screen.
+  public private(set) var isShown = false
+
   public func show() {
+    guard !isShown else { return }
+    isShown = true
     let center = NotificationCenter.default
     let workspace = NSWorkspace.shared.notificationCenter
     observers = [
@@ -102,6 +107,8 @@ public final class DockController {
   }
 
   public func hide() {
+    guard isShown else { return }
+    isShown = false
     tracker.stop()
     for (center, token) in observers { center.removeObserver(token) }
     observers = []

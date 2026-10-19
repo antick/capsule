@@ -33,6 +33,7 @@ struct AppearancePage: View {
           }
         }
       }
+      MenuBarSection(model: model)
       SettingsSection(title: Copy.behaviour, hint: Copy.behaviourHint) {
         SettingRow(label: Copy.autoHide, hint: Copy.autoHideHint) {
           Toggle("", isOn: binding(\.autoHide)).labelsHidden().toggleStyle(.switch).accessibilityLabel(Copy.autoHide)

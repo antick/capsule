@@ -65,6 +65,15 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   /// The user's own name for a provider's default sign-in, by provider id.
   /// Absent means the provider's name.
   @LossyNames public var meterNames: [String: String] = [:]
+  /// The edge dock, the menu bar, or both.
+  @Defaulted public var presence: Presence = .dock
+  /// What the menu-bar item draws.
+  @Defaulted public var menuBarStyle: MenuBarStyle = .icon
+  /// The meter the single style shows; nil for whichever is highest.
+  public var menuBarMeter: String? = nil
+  /// The metrics the pinned style shows, in order.
+  @LossyList public var pinnedMetrics: [MetricKey] = []
+  @Defaulted public var pinStyle: PinStyle = .text
   public var schemaVersion: Int
 
   /// What a first launch starts from.
@@ -88,6 +97,11 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     customPosition: nil,
     accounts: [],
     meterNames: [:],
+    presence: .dock,
+    menuBarStyle: .icon,
+    menuBarMeter: nil,
+    pinnedMetrics: [],
+    pinStyle: .text,
     schemaVersion: SettingsDefaults.schemaVersion
   )
 }
@@ -177,6 +191,12 @@ extension CapsuleSettings {
         else { return }
         names[entry.key] = name
       },
+      presence: choice("presence", defaults.presence),
+      menuBarStyle: choice("menuBarStyle", defaults.menuBarStyle),
+      menuBarMeter: fields["menuBarMeter"]?.asString.flatMap { $0.isEmpty ? nil : $0 },
+      pinnedMetrics: (fields["pinnedMetrics"]?.asArray ?? []).compactMap { $0.asString.flatMap(MetricKey.init(rawValue:)) }
+        .reduce(into: [MetricKey]()) { kept, key in if !kept.contains(key) { kept.append(key) } },
+      pinStyle: choice("pinStyle", defaults.pinStyle),
       schemaVersion: SettingsDefaults.schemaVersion
     )
   }

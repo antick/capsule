@@ -173,6 +173,12 @@ public final class Engine {
     Task { await poller.refreshProvider(id) }
   }
 
+  /// The user asked for every provider to be read again.
+  public func refreshAll() {
+    let poller = poller
+    Task { await poller.refresh() }
+  }
+
   private var lastAsked: [MeterId: Double] = [:]
   /// Milliseconds on a monotonic clock; replaceable for tests.
   var clock: () -> Double = { ProcessInfo.processInfo.systemUptime * 1000 }

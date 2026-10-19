@@ -4,6 +4,11 @@ All notable changes to Capsule are documented in this file.
 
 ## Unreleased
 
+### Added
+
+- Choose where Capsule lives: the edge dock, the menu bar, or both. In the menu bar a click opens a panel with every card; a right-click opens the commands.
+- The menu-bar item can show Capsule's icon, one provider's percentage (chosen, or whichever is highest), or up to six pinned metrics as text or mini bars.
+
 ### Removed
 
 - Demo mode. Capsule always shows your real usage; the settings preview still draws sample rings until the first reading lands.

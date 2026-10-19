@@ -97,7 +97,35 @@ public struct LossyNames: Codable, Sendable, Equatable {
   }
 }
 
+/// A value with a default of its own, for settings a newer build added.
+public protocol SettingDefault: Codable, Sendable, Equatable {
+  static var settingDefault: Self { get }
+}
+
+/// A setting that takes its default when absent or unreadable.
+@propertyWrapper
+public struct Defaulted<Value: SettingDefault>: Codable, Sendable, Equatable {
+  public var wrappedValue: Value
+
+  public init(wrappedValue: Value) {
+    self.wrappedValue = wrappedValue
+  }
+
+  public init(from decoder: Decoder) throws {
+    wrappedValue = (try? decoder.singleValueContainer().decode(Value.self)) ?? Value.settingDefault
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(wrappedValue)
+  }
+}
+
 extension KeyedDecodingContainer {
+  public func decode<Value>(_ type: Defaulted<Value>.Type, forKey key: Key) throws -> Defaulted<Value> {
+    (try? decodeIfPresent(type, forKey: key)) ?? Defaulted(wrappedValue: Value.settingDefault)
+  }
+
   public func decode(_ type: LossyNames.Type, forKey key: Key) throws -> LossyNames {
     (try? decodeIfPresent(type, forKey: key)) ?? LossyNames(wrappedValue: [:])
   }

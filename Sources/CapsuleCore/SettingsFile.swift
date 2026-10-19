@@ -27,6 +27,11 @@ extension CapsuleSettings {
       "usageDisplay": usageDisplay.rawValue,
       "customPosition": position(customPosition),
       "meterNames": meterNames,
+      "presence": presence.rawValue,
+      "menuBarStyle": menuBarStyle.rawValue,
+      "menuBarMeter": menuBarMeter ?? NSNull(),
+      "pinnedMetrics": pinnedMetrics.map(\.rawValue),
+      "pinStyle": pinStyle.rawValue,
       "accounts": accounts.map {
         ["id": $0.id, "provider": $0.provider.rawValue, "path": $0.path, "label": $0.label, "enabled": $0.enabled]
           as [String: Any]

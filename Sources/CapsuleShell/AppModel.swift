@@ -24,6 +24,7 @@ public final class AppModel: MenuHandlers {
   private let updater: Updater
   private let settingsModel: SettingsModel
   private var menus: Menus?
+  private var statusItem: StatusItemController?
   private lazy var settingsWindow = SettingsWindowController(model: settingsModel)
 
   public init(store: JSONStore = .applicationSupport(AppIdentity.supportDirectory), events: ShellEvents = .mac) {
@@ -92,9 +93,12 @@ public final class AppModel: MenuHandlers {
   public func start() {
     NSApp.applicationIconImage = BrandIcon.image()
     menus = Menus(handlers: self)
+    let status = StatusItemController(settings: settings)
+    status.commands = { [weak self] in self?.menus?.contextMenu() ?? NSMenu() }
+    statusItem = status
     settingsModel.appearance = systemAppearance
     pushToDock()
-    dock.show()
+    if settings.presence.showsDock { dock.show() }
     engine.start()
     updater.syncSchedule()
     if firstRun { openSettings(.onboarding) }
@@ -120,6 +124,15 @@ public final class AppModel: MenuHandlers {
       state: engine.state, notices: engine.state.notices, keepOpen: keepOpen,
       demoNow: nil
     )
+    let state = engine.state
+    statusItem?.update(
+      UsagePanelContent(
+        snapshots: state.snapshots, activity: state.activity, tokens: state.tokens, display: settings.usageDisplay,
+        theme: resolveHudTheme(settings.hudTheme, system: systemAppearance), now: Date(),
+        onRefreshAll: { [weak self] in self?.engine.refreshAll() },
+        onOpenSettings: { [weak self] in self?.openSettings(.appearance) }
+      )
+    )
   }
 
   /// Takes new settings from anywhere — the window, a menu, a drag — and
@@ -134,6 +147,8 @@ public final class AppModel: MenuHandlers {
     if !next.autoHide { keepOpen = false }
     engine.apply(next)
     dock.apply(settings: next)
+    statusItem?.apply(next)
+    if next.presence.showsDock { dock.show() } else { dock.hide() }
     pushToDock()
     updater.autoDownload = next.autoUpdateDownload
     if next.autoUpdateCheck != previous.autoUpdateCheck {

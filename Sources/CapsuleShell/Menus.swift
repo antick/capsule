@@ -18,48 +18,44 @@ public protocol MenuHandlers: AnyObject {
 }
 
 
-/// The menus: the menu-bar item's, the dock's right-click one (the same
-/// commands), and the application menu shown while settings is in front.
+/// The menus: the commands the menu-bar item and the dock's right-click
+/// show, and the application menu shown while settings is in front.
 @MainActor
 public final class Menus: NSObject, NSMenuDelegate {
   private weak var handlers: MenuHandlers?
-  private let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-  private let statusMenu = NSMenu()
 
   public init(handlers: MenuHandlers) {
     self.handlers = handlers
     super.init()
-    if let button = item.button {
-      button.image = Self.statusImage()
-      button.setAccessibilityLabel(AppIdentity.name)
-      button.toolTip = AppIdentity.name
-    }
-    statusMenu.delegate = self
-    item.menu = statusMenu
     NSApp.mainMenu = applicationMenu()
-  }
-
-  private static func statusImage() -> NSImage {
-    BrandIcon.image(template: true)
   }
 
   /// Rebuilt each time it opens, so it always says what is true now.
   public func menuNeedsUpdate(_ menu: NSMenu) {
     menu.removeAllItems()
-    let entries = menu === statusMenu ? commandItems() : applicationItems()
-    for entry in entries { menu.addItem(entry) }
+    for entry in applicationItems() { menu.addItem(entry) }
   }
 
-  /// A fresh copy for the dock's right-click.
+  /// A fresh copy of the commands, for the menu-bar item and the dock's
+  /// right-click.
   public func contextMenu() -> NSMenu {
     let menu = NSMenu()
     for entry in commandItems() { menu.addItem(entry) }
     return menu
   }
 
-  /// Show Dock, Keep open, Settings, Position, updates, Quit.
+  /// Show Dock, Keep open, Settings, Position, updates, Quit. The dock's
+  /// own commands are left out while Capsule lives only in the menu bar.
   private func commandItems() -> [NSMenuItem] {
     guard let handlers else { return [] }
+    guard handlers.settings.presence.showsDock else {
+      return [
+        action(Copy.openSettings) { $0.openSettings(.appearance) },
+        updateItem(),
+        .separator(),
+        action(Copy.quit) { _ in NSApp.terminate(nil) },
+      ]
+    }
     let position = NSMenuItem(title: Copy.position, action: nil, keyEquivalent: "")
     position.submenu = placementMenu(handlers.settings.placementPreset)
     return [
