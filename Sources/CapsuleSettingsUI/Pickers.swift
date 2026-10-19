@@ -37,7 +37,7 @@ struct DockPreview: View {
   private func previewLook(_ s: CapsuleSettings, layout: PresetLayout, count: Int, demo: Bool) -> DockLook {
     let m = dockMetrics(s.hudScale)
     let style = DockStyle.of(s.dockStyle)
-    let compact = layout.orientation == .horizontal
+    let compact = layout.orientation == .horizontal || !s.dockPercent
     var look = DockLook(
       spec: FrameSpec(
         metrics: m, style: style, growth: layout.cardGrowth, notch: layout.notch && styleSupportsNotch(style),

@@ -51,8 +51,10 @@ func appKit(_ rect: Rect, _ primaryHeight: CGFloat) -> CGRect {
 
 /// A dock lying along an edge drops its percent captions, which makes its
 /// rail shorter than a vertical one.
-func isCompact(_ preset: PlacementPreset) -> Bool {
-  preset == .topEdge || preset == .bottomEdge
+/// Meters with no percentage under them: along the top and bottom edges,
+/// and anywhere the percentages are switched off.
+func isCompact(_ preset: PlacementPreset, settings: CapsuleSettings) -> Bool {
+  preset == .topEdge || preset == .bottomEdge || !settings.dockPercent
 }
 
 /// The notch the dock is drawn as, if any: only the top edge, in notch style,
@@ -85,7 +87,7 @@ public func dockPlacement(
     preset, chrome: chrome,
     hud: HudSize(
       railWidth: m.railWidth + (notch?.height ?? 0),
-      railLength: railLength(m, meterCount: meterCount, preset: preset, joined: notch),
+      railLength: railLength(m, meterCount: meterCount, compact: isCompact(preset, settings: settings), joined: notch),
       cardWidth: m.cardWidth, cardHeight: cardReserveHeight(m), expanded: true,
       shadowPadding: m.shadowPadding, joinWidth: m.tailLength + m.joinGap,
       edgeFlare: notch != nil ? m.notchBezelFillet : m.edgeFlare * style.flare,
@@ -95,9 +97,9 @@ public func dockPlacement(
   )
 }
 
-func railLength(_ m: HudMetrics, meterCount: Int, preset: PlacementPreset, joined: HardwareNotch?) -> Double {
+func railLength(_ m: HudMetrics, meterCount: Int, compact: Bool, joined: HardwareNotch?) -> Double {
   if let joined { return joinedNotchRailLength(m, meterCount, notch: joined) }
-  return railLengthForCount(m, meterCount, compact: isCompact(preset))
+  return railLengthForCount(m, meterCount, compact: compact)
 }
 
 /// The leading edge of a placement's rail, in screen coordinates.
@@ -124,8 +126,9 @@ public func frameSpec(
   let shared = notch ? joined : nil
   return FrameSpec(
     metrics: m, style: style, growth: placement.cardGrowth, notch: notch,
-    compact: isCompact(placement.visualPreset),
-    railLength: railLength(m, meterCount: meterCount, preset: placement.visualPreset, joined: shared),
+    compact: isCompact(placement.visualPreset, settings: settings),
+    railLength: railLength(
+      m, meterCount: meterCount, compact: isCompact(placement.visualPreset, settings: settings), joined: shared),
     railBias: placement.railBias, joined: shared
   )
 }

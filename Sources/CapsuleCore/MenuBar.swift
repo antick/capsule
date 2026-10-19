@@ -149,6 +149,9 @@ extension CapsuleSettings {
 public enum DualRing {
   public static let strokeShare = 0.6
   public static let gapShare = 0.2
+  /// Drawn softer than the session, in the same severity colour, so the
+  /// two read apart and both still say how close to the limit they are.
+  public static let alpha = 0.6
 }
 
 /// Sizes of the menu-bar item's picture, in points.

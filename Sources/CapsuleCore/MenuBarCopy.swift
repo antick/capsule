@@ -18,6 +18,8 @@ extension Copy {
   public static let dockRings = "Rings"
   public static let dockRingsHint =
     "One ring for each card's top window, or two: the session outside and the week inside, where a provider has both."
+  public static let dockPercent = "Percent labels"
+  public static let dockPercentHint = "The figures under each ring on a side dock. Hovering a ring always shows them on its card."
   public static let refreshAll = "Refresh all"
   public static let metrics = "Metrics"
   public static let metricsHint =

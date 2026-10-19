@@ -23,9 +23,10 @@ struct Placed {
 
 func place(
   _ preset: PlacementPreset, style: DockStyleId = .rail, meters: Int = 3, joined: HardwareNotch? = nil,
-  railStart: Double? = nil
+  railStart: Double? = nil, percent: Bool = false
 ) -> Placed {
   var settings = CapsuleSettings.defaults
+  settings.dockPercent = percent
   settings.placementPreset = preset
   settings.dockStyle = style
   var placement = dockPlacement(settings: settings, preset: preset, meterCount: meters, chrome: chrome, joined: joined)
@@ -92,7 +93,11 @@ struct PlacementShellTests {
   @Test func moreMetersMakeALongerRail() {
     let m = hudMetrics()
     let grown = place(.rightEdge, meters: 5).rail.height - place(.rightEdge, meters: 3).rail.height
-    #expect(abs(grown - 2 * meterStrideSize(m)) < 0.001)
+    // Percentages are off by default, so a side dock packs its meters close.
+    #expect(abs(grown - 2 * meterStrideSize(m, compact: true)) < 0.001)
+    let labelled = place(.rightEdge, meters: 5, percent: true).rail.height
+      - place(.rightEdge, meters: 3, percent: true).rail.height
+    #expect(abs(labelled - 2 * meterStrideSize(m)) < 0.001)
   }
 
   @Test func aRememberedPositionPutsTheRailExactlyThere() {

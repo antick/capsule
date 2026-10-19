@@ -18,6 +18,7 @@ struct AppearancePage: View {
           ForEach(DockRings.allCases, id: \.self) { Text(Copy.label($0)).tag($0) }
         }
         .pickerStyle(.segmented).labelsHidden()
+        SwitchRow(label: Copy.dockPercent, hint: Copy.dockPercentHint, isOn: model.binding(\.dockPercent))
       }
       SettingsSection(title: Copy.theme, hint: Copy.themeHint) {
         ThemePicker(value: s.hudTheme) { choice in model.change { $0.hudTheme = choice } }

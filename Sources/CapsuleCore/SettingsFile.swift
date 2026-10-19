@@ -30,6 +30,7 @@ extension CapsuleSettings {
       "presence": presence.rawValue,
       "menuBarStyle": menuBarStyle.rawValue,
       "dockRings": dockRings.rawValue,
+      "dockPercent": dockPercent,
       "pinnedMetrics": pinnedMetrics.map(\.rawValue),
       "pinStyle": pinStyle.rawValue,
       "hiddenMetrics": hiddenMetrics.map(\.rawValue),

@@ -180,7 +180,8 @@ public final class MeterView: FlippedView {
       innerValue.strokeEnd = innerEnd
       innerValue.add(springAnimation("strokeEnd", Springs.reading, from: from, to: innerEnd), forKey: "reading")
     }
-    innerValue.strokeColor = (innerRounded.map { SeverityColors.forPercent($0) } ?? theme.ringTrack).cgColor
+    innerValue.strokeColor = (innerRounded.map { SeverityColors.forPercent($0).with(alpha: DualRing.alpha) }
+      ?? theme.ringTrack).cgColor
 
     // Pressed in while it works, released when the answer lands.
     if previous?.refreshing != next.refreshing {

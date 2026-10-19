@@ -73,6 +73,9 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   @LossyList public var pinnedMetrics: [MetricKey] = []
   /// One ring per dock meter, or the session and the week as two.
   @Defaulted public var dockRings: DockRings = .single
+  /// The percentages under each meter on a side dock. Off by default: the
+  /// card shows them on hover.
+  @DefaultOff public var dockPercent: Bool = false
   @Defaulted public var pinStyle: PinStyle = .text
   /// Windows left off the cards.
   @LossyList public var hiddenMetrics: [MetricKey] = []
@@ -122,6 +125,7 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
     menuBarStyle: .icon,
     pinnedMetrics: [],
     dockRings: .single,
+    dockPercent: false,
     pinStyle: .text,
     hiddenMetrics: [],
     starredMetrics: [],
@@ -229,6 +233,7 @@ extension CapsuleSettings {
         if kept.filter({ $0.meter == key.meter }).count < MenuBarLimits.valuesPerMeter { kept.append(key) }
       },
       dockRings: choice("dockRings", defaults.dockRings),
+      dockPercent: flag("dockPercent", defaults.dockPercent),
       pinStyle: choice("pinStyle", defaults.pinStyle),
       hiddenMetrics: metricList(fields["hiddenMetrics"]),
       starredMetrics: metricList(fields["starredMetrics"]),
