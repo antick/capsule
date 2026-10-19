@@ -38,7 +38,10 @@ struct SnapshotTests {
     )
   }
 
-  func render(_ name: String, look: DockLook, card: Card, peek: Bool = false) async throws -> NSBitmapImageRep {
+  /// `desktop: false` leaves the background clear, for the README to frame.
+  func render(
+    _ name: String, look: DockLook, card: Card, peek: Bool = false, desktop: Bool = true
+  ) async throws -> NSBitmapImageRep {
     _ = NSApplication.shared
     let behavior = DockBehavior(clock: MainClock())
     let view = DockView(look: look, behavior: behavior)
@@ -103,8 +106,10 @@ struct SnapshotTests {
     let context = try #require(NSGraphicsContext(bitmapImageRep: rep))
     let cg = context.cgContext
     // A desktop to read the shadows and the surface against.
-    cg.setFillColor(look.theme.appearance == .dark ? CGColor(gray: 0.45, alpha: 1) : CGColor(gray: 0.82, alpha: 1))
-    cg.fill(CGRect(x: 0, y: 0, width: size.width * scale, height: size.height * scale))
+    if desktop {
+      cg.setFillColor(look.theme.appearance == .dark ? CGColor(gray: 0.45, alpha: 1) : CGColor(gray: 0.82, alpha: 1))
+      cg.fill(CGRect(x: 0, y: 0, width: size.width * scale, height: size.height * scale))
+    }
     // The dock draws y-down; the bitmap is y-up.
     cg.translateBy(x: 0, y: size.height * scale)
     cg.scaleBy(x: scale, y: -scale)
