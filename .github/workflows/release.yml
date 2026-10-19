@@ -63,6 +63,13 @@ jobs:
             ".build/release-artifacts/Capsule-$version-arm64.zip" \
             .build/release-artifacts/SHA256SUMS .build/release-artifacts/appcast.xml
           gh release edit "v$version" --draft=false --latest
+      - name: Update the Homebrew cask
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          set -euo pipefail
+          version=$(scripts/version.sh)
+          python3 scripts/release/homebrew.py "$version" ".build/release-artifacts/Capsule-$version-arm64.zip"
       - name: Remove signing material
         if: always()
         run: python3 scripts/release/cleanup-signing.py

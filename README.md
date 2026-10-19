@@ -87,7 +87,13 @@ of the app; its source is kept in git history at the `electron-final` tag.
 
 ## Install
 
-Download the latest `.dmg` from
+With Homebrew:
+
+```sh
+brew install --cask antick/tap/capsule
+```
+
+Or download the latest `.dmg` from
 [Releases](https://github.com/antick/capsule/releases), open it, and drag
 Capsule to Applications. Capsule is a native Swift app and needs an Apple
 silicon Mac on macOS 14 Sonoma or newer. New releases do not support Intel Macs.

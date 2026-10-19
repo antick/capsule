@@ -22,6 +22,7 @@ All notable changes to Capsule are documented in this file.
 - Adaptive refresh, on by default: reads at your interval while an agent works, every 2 minutes after you look at Capsule, slowing to 5, 15 and 30 minutes the longer you have not, and 30 minutes on Low Power Mode or a hot Mac. Looking after a long idle reads at once. Switch it off in General for the fixed interval.
 - Usage history: each window's readings are kept for two weeks, drawn per provider on a new History page in Settings, with a trend line under each card in the menu-bar panel.
 - `capsule`, a command line that prints every meter's windows, pace and amounts as JSON, from the app's cache or read live with `--refresh`. Shipped inside the app; install it from Settings → General.
+- Homebrew: `brew install --cask antick/tap/capsule`. The release workflow updates the cask, which also links the `capsule` command.
 - Hide, star and reorder each card's rows in Settings → Providers → Metrics, or right-click a row to hide or star it. A starred row leads its card and drives its ring.
 
 ### Fixed

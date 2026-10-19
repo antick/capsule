@@ -33,6 +33,10 @@ Development never starts the updater. Neither build changes your normal HOME.
   `APPLE_API_KEY_P8`, `APPLE_API_KEY_ID`, `APPLE_API_ISSUER`,
   `SPARKLE_PRIVATE_KEY` (Sparkle export, base64 text).
 - The `github-pages` environment must permit deployment from release tags.
+- `HOMEBREW_TAP_TOKEN` in the `release` environment: a fine-grained token with
+  Contents read and write on `antick/homebrew-tap` only. The release job uses it
+  to point `Casks/capsule.rb` at the new zip; without it the job warns and the
+  cask stays where it was.
 
 Use `gh secret set NAME --env release` with input from a protected local file
 or stdin; never put secret values in shell history. Keep a secure backup of the
