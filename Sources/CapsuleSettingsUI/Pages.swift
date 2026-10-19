@@ -300,6 +300,20 @@ struct GeneralPage: View {
             .accessibilityLabel(Copy.notificationPopups)
         }
       }
+      if model.hasCommandLine {
+        SettingsSection(title: Copy.commandLine, hint: Copy.commandLineHint) {
+          HStack(spacing: 10) {
+            if let path = model.commandLinePath {
+              Text(AccountPaths.display(path, home: model.homeDir)).font(.system(size: 12.5).monospaced())
+                .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+            Button(model.commandLinePath == nil ? Copy.installCommandLine : Copy.reinstallCommandLine) {
+              model.onInstallCommandLine()
+            }
+          }
+        }
+      }
       SettingsSection(title: Copy.system) {
         SettingRow(label: Copy.launchAtLogin, hint: Copy.launchAtLoginHint) {
           Toggle("", isOn: binding(\.launchAtLogin)).labelsHidden().toggleStyle(.switch)

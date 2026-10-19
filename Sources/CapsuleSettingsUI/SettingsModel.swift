@@ -24,6 +24,10 @@ public final class SettingsModel: ObservableObject {
   public var homeDir = ""
   /// Which keys are saved. The values themselves never reach the window.
   @Published public var savedKeys: Set<StoredKey> = []
+  /// Where `capsule` is linked, once installed; nil when not.
+  @Published public var commandLinePath: String?
+  /// Whether this build carries the command line at all.
+  public var hasCommandLine = false
 
   public var onApply: (CapsuleSettings) -> Void = { _ in }
   public var onRevealDock: () -> Void = {}
@@ -33,6 +37,7 @@ public final class SettingsModel: ObservableObject {
   public var onOpenRelease: () -> Void = {}
   /// Looks for account folders again and updates ``foundAccounts``.
   public var onScanAccounts: () -> Void = {}
+  public var onInstallCommandLine: () -> Void = {}
   /// Saves a pasted key, or forgets it when nil.
   public var onSaveKey: (StoredKey, String?) -> Void = { _, _ in }
   /// Whether a folder can be added, by what is on disk.

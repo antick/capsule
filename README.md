@@ -38,15 +38,36 @@ and scale the whole dock from one place.
 
 ## Provider support
 
-| Provider | Usage | Activity notices | Local token totals |
-| --- | :---: | :---: | :---: |
-| Claude | Yes | Yes | Yes |
-| Codex | Yes | Yes | Yes |
-| Grok | Yes | Yes | — |
-| Cursor | Yes | — | — |
+| Provider | Usage | Activity notices | Tokens and spend | Status page | Sign-in |
+| --- | :---: | :---: | :---: | :---: | --- |
+| Claude | Yes | Yes | Yes | Yes | Claude Code's login; more accounts by folder |
+| Codex | Yes | Yes | Yes | Yes | Codex's login; more accounts by folder |
+| Grok | Yes | Yes | Yes | — | Grok CLI's login |
+| Cursor | Yes | — | Spend | Yes | Cursor's login |
+| Antigravity | Yes | — | — | Yes | The running app, or its saved login |
+| Devin | Yes | — | — | — | Devin's app login, or a pasted key |
+| OpenRouter | Balance, spend | — | — | — | Pasted API key |
+| DeepSeek | Balance | — | — | — | Pasted API key |
 
-Claude, Codex, and Grok are enabled by default. Cursor can be enabled from
-**Settings → Providers**.
+Claude, Codex, and Grok are enabled by default; the rest can be switched on in
+**Settings → Providers**, which also adds more Claude Code or Codex accounts
+and takes the keys for providers with no local login. Spend is an estimate at
+list price from local logs, not a bill.
+
+## Command line
+
+`capsule` prints the same limits as JSON, for scripts and agents. Install it
+from **Settings → General → Command line** (a link in `~/.local/bin`), then:
+
+```sh
+capsule --pretty            # the app's last readings
+capsule --refresh           # read every switched-on provider now
+capsule --provider claude   # one provider
+```
+
+Each window carries `percentUsed`, `percentLeft`, `resetsAt`, and its pace:
+`paceDelta` (points ahead of an even pace) and `runsOutAt` when it would run
+out before the reset.
 
 ## How it works
 

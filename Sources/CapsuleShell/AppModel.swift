@@ -91,6 +91,12 @@ public final class AppModel: MenuHandlers {
     settingsModel.onOpenRelease = { [weak self] in self?.updater.openReleasePage() }
     settingsModel.onInstallUpdate = { [weak self] in self?.installUpdate() }
     settingsModel.homeDir = userHome
+    settingsModel.hasCommandLine = CommandLineTool.bundled != nil
+    settingsModel.commandLinePath = CommandLineTool.isInstalled ? CommandLineTool.linkPath : nil
+    settingsModel.onInstallCommandLine = { [weak self] in
+      CommandLineTool.install()
+      self?.settingsModel.commandLinePath = CommandLineTool.isInstalled ? CommandLineTool.linkPath : nil
+    }
     let keys = KeyFile(directory: store.directory)
     settingsModel.savedKeys = Set(StoredKey.allCases.filter(keys.has))
     settingsModel.onSaveKey = { [weak self] key, value in

@@ -95,21 +95,8 @@ public final class Engine {
     owner.engine = self
   }
 
-  /// Every reader the app has, in the dock's order: each provider's own
-  /// sign-in, then any account added for it.
-  static func providers(_ settings: CapsuleSettings) -> [UsageProvider] {
-    let added: [UsageProvider] = settings.accounts.compactMap { account in
-      switch account.provider {
-      case .claude: return ClaudeUsageProvider(account: account)
-      case .codex: return CodexUsageProvider(account: account)
-      default: return nil
-      }
-    }
-    return [
-      ClaudeUsageProvider(), CodexUsageProvider(), GrokUsageProvider(), CursorUsageProvider(),
-      AntigravityUsageProvider(), DevinUsageProvider(), OpenRouterUsageProvider(), DeepSeekUsageProvider(),
-    ] + added
-  }
+  /// Every reader the app has, in the dock's order.
+  static func providers(_ settings: CapsuleSettings) -> [UsageProvider] { usageProviders(settings) }
 
   /// When the user last looked at Capsule, in uptime milliseconds.
   private nonisolated static let lookedAt = OSAllocatedUnfairLock<Double?>(initialState: nil)

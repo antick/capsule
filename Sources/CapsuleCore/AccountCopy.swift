@@ -14,6 +14,11 @@ extension Copy {
   public static let accountLabel = "Name"
   public static let renameHint = "Click to rename. Shown on the dock's card."
 
+  public static let commandLine = "Command line"
+  public static let commandLineHint =
+    "Adds the capsule command, which prints these limits as JSON for scripts and agents. Linked in ~/.local/bin; no password needed."
+  public static let installCommandLine = "Install"
+  public static let reinstallCommandLine = "Reinstall"
   public static let apiKeys = "API keys and sessions"
   public static let apiKeysHint =
     "For providers with no login on this Mac. Kept in a file only your account can read, in Capsule's own folder; never shown again once saved."

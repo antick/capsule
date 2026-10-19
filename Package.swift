@@ -18,6 +18,7 @@ let package = Package(
     .library(name: "CapsuleActivity", targets: ["CapsuleActivity"]),
     .library(name: "CapsuleSystem", targets: ["CapsuleSystem"]),
     .executable(name: "CapsuleApp", targets: ["CapsuleApp"]),
+    .executable(name: "CapsuleCLI", targets: ["CapsuleCLI"]),
   ],
   dependencies: [
     .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.10.0"),
@@ -59,6 +60,9 @@ let package = Package(
     .executableTarget(
       name: "CapsuleApp", dependencies: ["CapsuleCore", "CapsuleShell", "CapsuleSystem", "CapsuleSettingsUI"]
     ),
+    // `capsule`, the command line: the same limits as JSON. Shipped inside
+    // Capsule.app at Contents/Helpers/capsule.
+    .executableTarget(name: "CapsuleCLI", dependencies: ["CapsuleCore", "CapsuleUsage", "CapsuleSystem"]),
     // Test support: reads the same JSON corpus the Vitest suites read.
     .target(name: "CapsuleFixtures"),
     .testTarget(

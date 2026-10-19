@@ -12,6 +12,7 @@ cd "$root"
 [ "$(uname -m)" = "$CAPSULE_ARCH" ] || release_fail "Capsule builds require an Apple silicon Mac."
 bin=$(swift build -c "$config" --arch "$CAPSULE_ARCH" --show-bin-path)
 swift build -c "$config" --arch "$CAPSULE_ARCH" --product CapsuleApp >&2
+swift build -c "$config" --arch "$CAPSULE_ARCH" --product CapsuleCLI >&2
 name=$(plist_value CFBundleName)
 identifier=$(plist_value CFBundleIdentifier)
 icon=AppIcon
@@ -22,8 +23,10 @@ if [ "$channel" = development ]; then
 fi
 app="$root/.build/bundles/$channel/$name.app"
 rm -rf "$app"
-mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources" "$app/Contents/Frameworks"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources" "$app/Contents/Frameworks" "$app/Contents/Helpers"
 cp "$bin/CapsuleApp" "$app/Contents/MacOS/CapsuleApp"
+# The command line, `capsule`, beside the app it reads the cache of.
+cp "$bin/CapsuleCLI" "$app/Contents/Helpers/capsule"
 cp "$CAPSULE_PLIST" "$app/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $identifier" "$app/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleName $name" "$app/Contents/Info.plist"
@@ -36,8 +39,10 @@ framework="$root/.build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm6
 ditto "$framework" "$app/Contents/Frameworks/Sparkle.framework"
 cp .build/checkouts/Sparkle/LICENSE "$app/Contents/Resources/Sparkle-LICENSE.txt"
 # SPM's executable needs a bundle-relative runtime search path.
-install_name_tool -add_rpath @executable_path/../Frameworks "$app/Contents/MacOS/CapsuleApp" 2>/dev/null ||
-  otool -l "$app/Contents/MacOS/CapsuleApp" | grep -q '@executable_path/../Frameworks'
+for binary in "$app/Contents/MacOS/CapsuleApp" "$app/Contents/Helpers/capsule"; do
+  install_name_tool -add_rpath @executable_path/../Frameworks "$binary" 2>/dev/null ||
+    otool -l "$binary" | grep -q '@executable_path/../Frameworks'
+done
 identity=${CAPSULE_SIGN_IDENTITY:-$(security find-identity -v -p codesigning 2>/dev/null |
   awk '/Developer ID Application/ { print $2; exit }')}
 if [ "$channel" = production ]; then
