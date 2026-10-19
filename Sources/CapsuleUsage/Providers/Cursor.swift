@@ -92,6 +92,14 @@ public func jwtSubject(_ token: String) -> String? {
   return sub
 }
 
+/// When the token stops being accepted, from its `exp` claim, or nil.
+public func jwtExpiry(_ token: String) -> Date? {
+  let parts = token.split(separator: ".", omittingEmptySubsequences: false)
+  guard parts.count > 1, let data = base64URLDecoded(String(parts[1])) else { return nil }
+  struct Claims: Decodable { var exp: Double? }
+  return (try? JSONDecoder().decode(Claims.self, from: data))?.exp.map { Date(timeIntervalSince1970: $0) }
+}
+
 func base64URLDecoded(_ raw: String) -> Data? {
   var text = raw.replacingOccurrences(of: "-", with: "+")
     .replacingOccurrences(of: "_", with: "/")

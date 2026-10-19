@@ -45,6 +45,8 @@ public protocol UsageHost: Sendable {
   func readSecret(_ service: String) async -> String?
   /// Rows from a read-only SQL query, or none if the store cannot be read.
   func query(_ database: String, _ sql: String) async -> [[String]]
+  /// The same, but nil when the store could not be read at all.
+  func queryIfReadable(_ database: String, _ sql: String) async -> [[String]]?
   func environment(_ name: String) -> String?
 }
 
@@ -56,6 +58,10 @@ public protocol UsageProvider: Sendable {
   /// The provider's current reading. Throws ``RateLimited`` when told to wait,
   /// and ``UsageReadError`` when the read failed some other way.
   func fetchSnapshot(_ host: UsageHost, now: Date) async throws -> UsageSnapshot
+}
+
+extension UsageHost {
+  public func queryIfReadable(_ database: String, _ sql: String) async -> [[String]]? { await query(database, sql) }
 }
 
 extension UsageProvider {

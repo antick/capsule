@@ -120,7 +120,6 @@ struct SettingsDocumentTests {
     var settings = CapsuleSettings.defaults
     settings.placementPreset = .topEdge
     settings.enabledProviderIds = [.codex, .cursor]
-    settings.demoMode = true
     settings.pollIntervalMs = 300_000
     settings.hudScale = 1.2
     settings.hudTheme = .ink

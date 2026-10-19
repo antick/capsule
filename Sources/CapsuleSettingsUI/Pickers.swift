@@ -16,8 +16,8 @@ struct DockPreview: View {
     let layout = layoutForPreset(settings.placementPreset)
     let live = !model.snapshots.isEmpty
     let readings = live ? model.snapshots : Demo.snapshots
-    // Demo readings are dated against the demo clock, live or not.
-    let look = previewLook(settings, layout: layout, count: readings.count, demo: !live || settings.demoMode)
+    // Sample readings are dated against their own clock.
+    let look = previewLook(settings, layout: layout, count: readings.count, demo: !live)
     let size = frameLayout(look.spec, FrameMotion(openness: 1, joinOffset: 0, cardAlong: 0)).size
     GeometryReader { box in
       let zoom = min(1, (height - inset) / size.height, (box.size.width - inset) / size.width)

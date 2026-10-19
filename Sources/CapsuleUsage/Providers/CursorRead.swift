@@ -27,10 +27,23 @@ public struct CursorUsageProvider: UsageProvider {
   public func fetchSnapshot(_ host: UsageHost, now: Date) async throws -> UsageSnapshot {
     // Read straight from Cursor's state store rather than through the sqlite3
     // command the original shells out to: the same query, one process fewer.
-    let rows = await host.query(
-      joinPath(host.homeDir, UsageEndpoints.Cursor.stateDatabasePath), UsageEndpoints.Cursor.tokenSQL
-    )
+    // A store that could not be read, often because Cursor is mid-write,
+    // says nothing about the sign-in: keep the last numbers and look again.
+    guard
+      let rows = await host.queryIfReadable(
+        joinPath(host.homeDir, UsageEndpoints.Cursor.stateDatabasePath), UsageEndpoints.Cursor.tokenSQL
+      )
+    else { throw UsageReadError.unreadable(id) }
     guard let token = cursorTokenFromHex(rows.first?.first), let user = jwtSubject(token) else {
+      UsageLog.poller.notice("cursor has no token in its store")
+      return unauthenticatedSnapshot(id, fetchedAt: now)
+    }
+    /// Turned away while the token itself is still good: a passing refusal
+    /// (the site's bot screening, say), not a sign-out. Kept as an error so
+    /// the last numbers stay and the next poll asks again.
+    func refused(_ status: Int) throws -> UsageSnapshot {
+      if let expiry = jwtExpiry(token), expiry > now { throw UsageReadError.http(id, status) }
+      UsageLog.poller.notice("cursor token expired; showing it as signed out")
       return unauthenticatedSnapshot(id, fetchedAt: now)
     }
     // The current period first: on the newer plans that is where the usage
@@ -47,7 +60,7 @@ public struct CursorUsageProvider: UsageProvider {
         body: "{}"
       )
     ) {
-      if period.status == 401 || period.status == 403 { return unauthenticatedSnapshot(id, fetchedAt: now) }
+      if period.status == 401 || period.status == 403 { return try refused(period.status) }
       if period.status == 429 { throw rateLimited(period, now: now) }
       if period.ok, let payload = try? decode(CursorPeriodUsage.self, period, id),
         let snapshot = mapCursorPeriod(payload, fetchedAt: now)
@@ -56,7 +69,7 @@ public struct CursorUsageProvider: UsageProvider {
       }
     }
     let response = try await summary(host, token: token, user: user)
-    if response.status == 401 || response.status == 403 { return unauthenticatedSnapshot(id, fetchedAt: now) }
+    if response.status == 401 || response.status == 403 { return try refused(response.status) }
     if response.status == 429 { throw rateLimited(response, now: now) }
     guard response.ok else { throw UsageReadError.http(id, response.status) }
     return mapCursorUsage(try decode(CursorSummary.self, response, id), fetchedAt: now)

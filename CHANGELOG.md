@@ -2,6 +2,17 @@
 
 All notable changes to Capsule are documented in this file.
 
+## Unreleased
+
+### Removed
+
+- Demo mode. Capsule always shows your real usage; the settings preview still draws sample rings until the first reading lands.
+
+### Fixed
+
+- Cursor no longer shows "Not signed in" while it is signed in. A store Capsule could not read in that moment, or a passing refusal while the token is still valid, now keeps the last numbers and tries again on the next poll.
+- The welcome card opens only when no provider is signed in, not whenever one switched-on provider is.
+
 ## 0.3.0
 
 ### Added

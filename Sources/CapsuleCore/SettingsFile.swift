@@ -11,7 +11,6 @@ extension CapsuleSettings {
     return [
       "placementPreset": placementPreset.rawValue,
       "enabledProviderIds": enabledProviderIds.map(\.rawValue),
-      "demoMode": demoMode,
       "pollIntervalMs": pollIntervalMs,
       "launchAtLogin": launchAtLogin,
       "hudScale": hudScale,

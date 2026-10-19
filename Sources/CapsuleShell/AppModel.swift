@@ -53,8 +53,9 @@ public final class AppModel: MenuHandlers {
   private func wire() {
     engine.onChange = { [weak self] state in self?.stateChanged(state) }
     engine.onFirstReading = { [weak self] state in
-      // Someone not signed in anywhere is shown where to start.
-      if state.snapshots.contains(where: { $0.status == .unauthenticated }) {
+      // Someone not signed in anywhere is shown where to start. One provider
+      // switched on but not signed in is not a new user.
+      if !state.snapshots.isEmpty, state.snapshots.allSatisfy({ $0.status == .unauthenticated }) {
         self?.openSettings(.onboarding)
       }
     }
@@ -117,7 +118,7 @@ public final class AppModel: MenuHandlers {
   private func pushToDock() {
     dock.update(
       state: engine.state, notices: engine.state.notices, keepOpen: keepOpen,
-      demoNow: settings.demoMode ? Demo.now : nil
+      demoNow: nil
     )
   }
 

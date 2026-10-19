@@ -87,10 +87,9 @@ public final class Engine {
     owner.engine = self
   }
 
-  /// Every reader the app has, in the dock's order, or the samples: each
-  /// provider's own sign-in, then any account added for it.
+  /// Every reader the app has, in the dock's order: each provider's own
+  /// sign-in, then any account added for it.
   static func providers(_ settings: CapsuleSettings) -> [UsageProvider] {
-    if settings.demoMode { return SettingsDefaults.enabledProviderIds.map { DemoUsageProvider($0) } }
     let added: [UsageProvider] = settings.accounts.compactMap { account in
       switch account.provider {
       case .claude: return ClaudeUsageProvider(account: account)
@@ -131,27 +130,13 @@ public final class Engine {
 
   public func stop() { schedule.stop() }
 
-  /// Takes new settings, doing only what each change needs: new providers
-  /// for demo mode, a new tick for the interval, and otherwise reconciling
-  /// the provider list at once before reading again.
+  /// Takes new settings, doing only what each change needs: a new tick for
+  /// the interval, and otherwise reconciling the provider list at once
+  /// before reading again.
   public func apply(_ next: CapsuleSettings) {
     let previous = settings
     settings = next
     current.withLock { $0 = next }
-    if next.demoMode != previous.demoMode {
-      schedule.stop()
-      let owner = owner
-      poller = Engine.makePoller(
-        settings: next, store: store, current: current, latest: latest, busy: busy,
-        publish: { Task { @MainActor in owner.engine?.publish() } }
-      )
-      schedule = ShellSchedule(
-        usage: poller, activity: monitor, tokens: scanner, events: events,
-        watchedDirectory: monitor.watchedDirectory
-      )
-      schedule.start(pollIntervalMs: next.pollIntervalMs)
-      return
-    }
     if next.pollIntervalMs != previous.pollIntervalMs {
       schedule.setPollInterval(next.pollIntervalMs)
     }

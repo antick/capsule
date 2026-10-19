@@ -38,7 +38,6 @@ public enum SettingsDefaults {
 public struct CapsuleSettings: Sendable, Codable, Equatable {
   public var placementPreset: PlacementPreset
   public var enabledProviderIds: [ProviderId]
-  public var demoMode: Bool
   public var pollIntervalMs: Int
   public var launchAtLogin: Bool
   public var hudScale: Double
@@ -72,7 +71,6 @@ public struct CapsuleSettings: Sendable, Codable, Equatable {
   public static let defaults = CapsuleSettings(
     placementPreset: .rightEdge,
     enabledProviderIds: SettingsDefaults.enabledProviderIds,
-    demoMode: false,
     pollIntervalMs: SettingsDefaults.pollIntervalMs,
     launchAtLogin: false,
     hudScale: HudScale.default,
@@ -112,7 +110,8 @@ extension CapsuleSettings {
   /// The rules follow the Electron app's schema exactly. A required field
   /// that is missing or the wrong type refuses the whole file. A field with
   /// a fallback takes it when absent or unreadable, so a newer build's value
-  /// cannot cost the user every other preference. Unknown keys are dropped.
+  /// cannot cost the user every other preference. Unknown keys are dropped,
+  /// among them `demoMode`, which the app no longer has.
   public static func parseCurrent(_ raw: JSONValue) -> CapsuleSettings? {
     guard let fields = raw.asObject else { return nil }
 
@@ -121,7 +120,6 @@ extension CapsuleSettings {
       let preset = fields["placementPreset"]?.asString
         .flatMap(PlacementPreset.init(rawValue:)),
       let enabled = providerOrder(fields["enabledProviderIds"]),
-      let demoMode = fields["demoMode"]?.asBool,
       let poll = fields["pollIntervalMs"]?.asDouble,
       poll.isFinite, poll == poll.rounded(.towardZero), poll > 0,
       let launchAtLogin = fields["launchAtLogin"]?.asBool
@@ -158,7 +156,6 @@ extension CapsuleSettings {
     return CapsuleSettings(
       placementPreset: preset,
       enabledProviderIds: enabled,
-      demoMode: demoMode,
       pollIntervalMs: Int(poll),
       launchAtLogin: launchAtLogin,
       hudScale: hudScale,

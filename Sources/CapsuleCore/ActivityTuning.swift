@@ -125,6 +125,13 @@ public struct ActivityNotice: Sendable, Codable, Equatable {
 }
 
 /// How often usage is read.
+/// Reading another tool's SQLite store.
+public enum StoreTuning {
+  /// How long to wait out the tool's own write before giving up. Cursor's
+  /// store runs to gigabytes, and its checkpoints hold the lock for a while.
+  public static let busyTimeoutMs: Int32 = 2_000
+}
+
 public enum PollerTuning {
   /// While nobody is working, wait this long between reads: numbers that
   /// cannot have moved are not worth spending rate limit on.

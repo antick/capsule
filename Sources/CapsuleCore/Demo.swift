@@ -1,6 +1,7 @@
 import Foundation
 
-/// Sample readings for demo mode and the settings preview. Mirrors
+/// Sample readings for the settings preview before any real reading lands,
+/// and for tests. Mirrors
 /// `DEMO_SNAPSHOTS` in `@capsule/config`: the menu bar in the reference HUD
 /// reads Thu 27 Aug 11.22, local time.
 public enum Demo {

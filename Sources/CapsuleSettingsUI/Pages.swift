@@ -264,10 +264,6 @@ struct GeneralPage: View {
           Toggle("", isOn: binding(\.launchAtLogin)).labelsHidden().toggleStyle(.switch)
             .accessibilityLabel(Copy.launchAtLogin)
         }
-        Divider()
-        SettingRow(label: Copy.demoMode, hint: Copy.demoModeHint) {
-          Toggle("", isOn: binding(\.demoMode)).labelsHidden().toggleStyle(.switch).accessibilityLabel(Copy.demoMode)
-        }
       }
     }
   }
@@ -290,12 +286,8 @@ struct OnboardingPage: View {
             .fixedSize(horizontal: false, vertical: true)
         }
         HStack(spacing: 8) {
-          Button(Copy.enableDemo) {
-            model.change { $0.demoMode = true }
-            model.page = .appearance
-          }
-          .keyboardShortcut(.defaultAction)
           Button(Copy.providers) { model.page = .providers }
+            .keyboardShortcut(.defaultAction)
         }
       }
     }

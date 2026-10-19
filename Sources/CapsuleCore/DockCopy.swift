@@ -54,8 +54,6 @@ extension Copy {
     "Whether the rings, bars and percentages count what you have used or what you have left."
   public static let usageDisplayUsed = "Used"
   public static let usageDisplayRemaining = "Remaining"
-  public static let demoMode = "Demo mode"
-  public static let demoModeHint = "Show sample numbers instead of your real usage."
   public static let launchAtLogin = "Launch at login"
   public static let launchAtLoginHint = "Start Capsule automatically when you log in."
   public static let pollInterval = "Refresh every"
@@ -105,7 +103,6 @@ extension Copy {
   public static let onboardingTitle = "Welcome to Capsule"
   public static let onboardingBody =
     "Capsule reads Claude, Codex, and Grok usage from logins already on this Mac. Agent chat remains disabled."
-  public static let enableDemo = "Enable demo mode"
 
   /// What the providers page says about each status.
   public static func statusLabel(_ status: UsageStatus?) -> String {
