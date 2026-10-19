@@ -50,7 +50,11 @@ public struct ClaudeUsagePayload: Sendable, Codable, Equatable {
 private func limitBuckets(_ limits: [ClaudeLimit]?) -> [UsageBucket] {
   var rows: [UsageBucket] = []
   for limit in limits ?? [] {
-    guard let percent = limit.percent, percent.isFinite, let resetsAt = limit.resets_at else { continue }
+    // A window with no reset time has not started: no session since the
+    // last one ended. It is still a row, at its figure, with nothing to count
+    // down to; dropping it made the session vanish between sessions.
+    guard let percent = limit.percent, percent.isFinite else { continue }
+    let resetsAt = limit.resets_at ?? UsageBucket.notStarted
     let row: (id: String, label: String, style: ResetStyle)
     switch limit.kind {
     case "session": row = ("current-session", Copy.currentSession, .relative)

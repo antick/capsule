@@ -183,11 +183,15 @@ struct BucketRow: View {
         Text(bucket.label).font(.system(size: m.cardLabelSize)).lineLimit(1)
         Spacer(minLength: 0)
         // Clicking the reset flips countdown and date on every card.
-        Button(action: rows.onFlipReset) {
-          Text(formatResetCopy(date(bucket.resetsAt), style: bucket.resetStyle, flipped: rows.flipReset, now: now))
-            .font(.system(size: m.cardResetSize)).foregroundStyle(color(theme.textMuted)).lineLimit(1)
+        if bucket.hasStarted {
+          Button(action: rows.onFlipReset) {
+            Text(formatResetCopy(date(bucket.resetsAt), style: bucket.resetStyle, flipped: rows.flipReset, now: now))
+              .font(.system(size: m.cardResetSize)).foregroundStyle(color(theme.textMuted)).lineLimit(1)
+          }
+          .buttonStyle(.plain).focusable(false).help(Copy.flipResetHint)
+        } else {
+          Text(Copy.notStarted).font(.system(size: m.cardResetSize)).foregroundStyle(color(theme.textMuted)).lineLimit(1)
         }
-        .buttonStyle(.plain).focusable(false).help(Copy.flipResetHint)
       }
       .frame(height: m.cardTextLine)
       GeometryReader { box in

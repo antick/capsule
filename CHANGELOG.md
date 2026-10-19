@@ -40,6 +40,7 @@ All notable changes to Capsule are documented in this file.
 - Usage history is recorded only when readings change and saved in the background, so the dock and panel stay smooth; charts thin long histories.
 - With figures in the menu bar or the dock always shown, adaptive refresh keeps the numbers at most five minutes old.
 - The key file is written atomically, so a read never meets a half-written file. `capsule --refresh` respects the app's rate-limit backoff.
+- Claude's current-session row no longer vanishes between sessions: a session that has not started shows at 0% marked "Not started".
 - Token counts no longer double-count Claude messages written more than once while streaming, or a Codex subagent's replay of its parent's history.
 
 ### Removed

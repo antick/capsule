@@ -17,6 +17,12 @@ public struct UsageBucket: Sendable, Codable, Equatable {
   /// How long the window lasts, when the provider says so outright.
   public var windowSeconds: Double?
 
+  /// The reset of a window that has not started yet.
+  public static let notStarted = ""
+
+  /// Whether the window has started, so has a reset to count down to.
+  public var hasStarted: Bool { looseDate(resetsAt) != nil }
+
   public init(
     id: String,
     label: String,

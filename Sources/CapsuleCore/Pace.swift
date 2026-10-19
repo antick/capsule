@@ -123,6 +123,7 @@ extension Copy {
   public static let starred = "Starred"
   public static let hideMetric = "Hide"
   public static let onPace = "On pace"
+  public static let notStarted = "Not started"
   public static let inDeficit = "in deficit"
   public static let inReserve = "in reserve"
   public static let runsOutIn = "Runs out in"

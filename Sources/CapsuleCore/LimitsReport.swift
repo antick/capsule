@@ -8,7 +8,8 @@ public struct LimitsReport: Encodable, Equatable {
     public var label: String
     public var percentUsed: Double
     public var percentLeft: Double
-    public var resetsAt: String
+    /// Nil for a window that has not started.
+    public var resetsAt: String?
     /// Points ahead of an even pace; positive runs out early.
     public var paceDelta: Double?
     /// When it runs out at the current rate, if before the reset.
@@ -91,7 +92,7 @@ public func limitsReport(_ snapshots: [UsageSnapshot], source: String, now: Date
           let paced = pace(snapshot.providerId, bucket, now: now)
           return LimitsReport.Window(
             id: bucket.id, label: bucket.label, percentUsed: bucket.percentUsed, percentLeft: 100 - bucket.percentUsed,
-            resetsAt: bucket.resetsAt, paceDelta: paced.map { ($0.delta * 10).rounded() / 10 },
+            resetsAt: bucket.hasStarted ? bucket.resetsAt : nil, paceDelta: paced.map { ($0.delta * 10).rounded() / 10 },
             runsOutAt: paced?.runsOutAt.map(isoString))
         },
         amounts: (snapshot.extras ?? []).map {

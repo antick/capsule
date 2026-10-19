@@ -45,4 +45,15 @@ struct ExtrasTests {
     let december = Date(timeIntervalSince1970: 1_797_000_000)  // 2026-12-11
     #expect(isoString(startOfNextMonthUTC(after: december)) == "2027-01-01T00:00:00.000Z")
   }
+
+  @Test func aSessionThatHasNotStartedStaysAsARow() throws {
+    let payload = try decode(
+      ClaudeUsagePayload.self,
+      #"{"limits":[{"kind":"session","percent":0,"resets_at":null},{"kind":"weekly_all","percent":5,"resets_at":"2027-01-20T14:00:00Z"}]}"#
+    )
+    let snapshot = mapClaudeUsage(payload, fetchedAt: now)
+    #expect(snapshot.buckets.map(\.id) == ["current-session", "all-models"])
+    #expect(snapshot.buckets.first?.hasStarted == false)
+    #expect(snapshot.buckets.last?.hasStarted == true)
+  }
 }
