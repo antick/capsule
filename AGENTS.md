@@ -46,6 +46,7 @@ Capsule is a native macOS always-on-top AI usage dock, in Swift and AppKit. Spec
 ## Workflows
 
 - Every workflow has `permissions: {}` at the top and per-job permissions with a comment saying why. Checkouts use `persist-credentials: false`. Pin every action to a full commit SHA with its version in a comment.
+- The repository only runs GitHub's own actions and those listed in Settings → Actions → General; a workflow using any other action fails to start. Add a new action's owner/name to that list (`gh api repos/antick/capsule/actions/permissions/selected-actions`) before using it.
 - Never use `pull_request_target` or put `${{ }}` expressions inside `run:` scripts; pass them through `env:`.
 - `mise run security:workflows` must report no findings.
 
