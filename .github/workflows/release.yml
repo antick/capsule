@@ -14,14 +14,17 @@ concurrency:
 
 jobs:
   macos:
+    name: Build and publish release
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: macos-26
     environment: release
     permissions:
-      contents: write
+      contents: write # create GitHub releases and upload release assets
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: "26.6"
@@ -75,14 +78,16 @@ jobs:
         run: python3 scripts/release/cleanup-signing.py
 
   feed:
+    name: Deploy update feed
     needs: macos
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
-      pages: write
-      id-token: write
+      pages: write # deploy the Sparkle appcast to GitHub Pages
+      id-token: write # request an OIDC token for the Pages deployment
     steps:
       - name: Deploy feed after release assets are public
         id: deployment

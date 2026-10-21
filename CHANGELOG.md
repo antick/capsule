@@ -32,6 +32,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Changed
 
+- GitHub Actions workflows hardened: explicit least-privilege `permissions`, checkout steps no longer persist credentials, and manual release runs are limited to `main` while tag pushes stay on `v*`.
 - A new README: logo, badges, screenshots of the dock in every theme with rings and gauges, and the new settings, all rendered from sample readings by `scripts/readme-shots.py`.
 
 - Settings is redesigned as a native macOS settings window: a sidebar of panes (General, Appearance, Menu bar, Providers, Accounts & keys, Cards, History, Updates) and grouped forms. The menu-bar pane previews the item live in light and dark; pins are chips; card rows have a star, up and down, and a switch.
