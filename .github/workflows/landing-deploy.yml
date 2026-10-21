@@ -3,15 +3,27 @@ name: Deploy landing page
 # Deploys the latest stable release's landing page to capsule.potion.sh.
 #
 # The Release workflow calls this once a release is public. Run it by hand to
-# redeploy the latest release. It never deploys a branch, a pull request or a
-# draft: Vercel's own Git deployments are off in apps/landing/vercel.json.
+# redeploy the latest release, or explicitly choose main for website-only updates.
+# Vercel's own Git deployments are off in apps/landing/vercel.json.
 #
 # The page is built here, from the release tag with the locked toolchain, and
 # only the finished files are uploaded. The Vercel token lives in the
 # `landing` environment, which only main and v* tags may use.
 on:
   workflow_call:
+    secrets:
+      VERCEL_TOKEN:
+        required: true
+      VERCEL_ORG_ID:
+        required: true
+      VERCEL_PROJECT_ID:
+        required: true
   workflow_dispatch:
+    inputs:
+      deploy_main:
+        description: Deploy the website from main without a desktop release
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -30,12 +42,24 @@ jobs:
     permissions:
       contents: read # check out the code and read the latest release
     steps:
-      - name: Find the latest stable release
+      - name: Select the deployment source
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_SHA: ${{ github.sha }}
+          DEPLOY_MAIN: ${{ inputs.deploy_main }}
         run: |
           set -euo pipefail
+          if [[ "$EVENT_NAME" == workflow_dispatch && "$DEPLOY_MAIN" == true ]]; then
+            if [[ "$SOURCE_REF" != refs/heads/main ]]; then
+              echo "Website-only deployments must run from main." >&2
+              exit 1
+            fi
+            echo "ref=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           # `gh release view` with no tag returns the release marked Latest,
           # which is never a draft or a prerelease.
           tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
@@ -43,15 +67,15 @@ jobs:
             echo "Not a stable release tag: $tag" >&2
             exit 1
           fi
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "ref=refs/tags/$tag" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: refs/tags/${{ steps.release.outputs.tag }}
+          ref: ${{ steps.release.outputs.ref }}
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Check the release is on main
+      - name: Check the source is on main
         run: git merge-base --is-ancestor HEAD origin/main
 
       - name: Check the release includes the landing page

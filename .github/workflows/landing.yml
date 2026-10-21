@@ -1,7 +1,7 @@
 name: Landing
 
 # Checks the landing page at capsule.potion.sh. It never deploys: only a
-# published release does, through landing-deploy.yml.
+# published release or an explicit manual run does, through landing-deploy.yml.
 on:
   push:
     branches: [main]
@@ -12,6 +12,7 @@ on:
       - "mise.toml"
       - "mise.lock"
       - ".github/workflows/landing.yml"
+      - ".github/workflows/landing-deploy.yml"
   pull_request:
     paths:
       - "apps/landing/**"
@@ -20,6 +21,7 @@ on:
       - "mise.toml"
       - "mise.lock"
       - ".github/workflows/landing.yml"
+      - ".github/workflows/landing-deploy.yml"
 
 permissions: {}
 

@@ -81,11 +81,19 @@ Astro from the screenshots in `docs/images` and the version in Info.plist.
 `mise run landing:dev` serves it locally and `mise run landing:check`
 type-checks, builds, tests and audits it, as the Landing workflow does.
 
-It deploys only from a published release: the Release workflow's last job
+Automatic deploys follow a published release: the Release workflow's last job
 calls `landing-deploy.yml`, which checks out the latest stable release tag,
 confirms it is on `main`, checks the page, builds it with Vercel's CLI and
 uploads the result. Run "Deploy landing page" by hand to redeploy the latest
-release. Vercel's Git integration is off in `apps/landing/vercel.json`, so
+release. For website-only updates, run it from main with `deploy_main: true`:
+
+```sh
+gh workflow run landing-deploy.yml --ref main -f deploy_main=true
+```
+
+This checks and deploys the exact main commit through the same `landing`
+environment, without changing the app version or creating a release tag.
+Vercel's Git integration is off in `apps/landing/vercel.json`, so
 pushes and pull requests never deploy and Vercel never builds code itself.
 The CLI comes from `.github/vercel`, locked and without install scripts.
 
@@ -96,8 +104,8 @@ One-time setup:
    `apps/landing/vercel.json` supplies them.
 2. Add the domain `capsule.potion.sh` to the project and point a `CNAME` for
    `capsule` at the target Vercel shows.
-3. Create a token at <https://vercel.com/account/tokens> scoped to the team
-   that owns the project, with an expiry. Read the org and project IDs from
+3. Create a token at <https://vercel.com/account/tokens> scoped to the `capsule`
+   project, with No Expiration. Read the org and project IDs from
    the project's settings.
 4. Create the environment and its secrets:
 

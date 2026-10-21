@@ -41,7 +41,7 @@ Capsule is a native macOS always-on-top AI usage dock, in Swift and AppKit. Spec
 - Tools (node, pnpm, gitleaks, zizmor) are pinned in `mise.toml` with checksums in `mise.lock`. Use `mise run landing:dev`, `mise run landing:check` and `mise run security`.
 - The page runs no JavaScript and inlines nothing; the CSP in `apps/landing/vercel.json` forbids it and `tests/site.test.mjs` checks it. Keep it that way.
 - New dependencies are exact versions at least 7 days old, installed with `--ignore-scripts`; keep `pnpm-workspace.yaml`'s trust policy on and justify any exclusion there.
-- It deploys only from a published release (`.github/workflows/landing-deploy.yml`). Never enable Vercel's Git deployments.
+- Automatic deploys follow published releases (`.github/workflows/landing-deploy.yml`). Website-only updates may be deployed manually from main with `deploy_main: true`, through the same landing environment. Never enable Vercel's Git deployments.
 
 ## Workflows
 
