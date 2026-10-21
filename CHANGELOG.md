@@ -12,6 +12,7 @@ All notable changes to Capsule are documented in this file.
 
 ### Changed
 
+- The landing deployment routes the homepage to its built HTML and checks the public URL after publishing.
 - Website-only updates can be deployed manually from main without a desktop release, using the protected landing environment. Release-triggered deploys explicitly forward the required deployment secrets.
 - Workflows start with no permissions and grant each job only what it needs, never keep the checkout's token, and have timeouts. A release run by hand starts only from `main`.
 - The app's checks skip changes that touch only the website.

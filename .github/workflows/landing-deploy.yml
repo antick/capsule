@@ -118,3 +118,6 @@ jobs:
           "$vercel" pull --yes --environment=production
           "$vercel" build --prod
           "$vercel" deploy --prebuilt --prod --yes
+
+      - name: Verify the public homepage
+        run: curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 --output /dev/null https://capsule.potion.sh
