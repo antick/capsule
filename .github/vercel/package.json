@@ -1,0 +1,10 @@
+{
+  "name": "@capsule/vercel-cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Vercel CLI, locked, for the landing page's deploy workflow only.",
+  "packageManager": "pnpm@12.13.0",
+  "devDependencies": {
+    "vercel": "64.0.2"
+  }
+}

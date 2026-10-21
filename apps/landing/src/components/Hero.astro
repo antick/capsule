@@ -1,0 +1,25 @@
+---
+import { Image } from "astro:assets";
+import hero from "../../../../docs/images/hero.png";
+import { site } from "../lib/site";
+import Install from "./Install.astro";
+---
+<section class="hero wrap" aria-labelledby="hero-title">
+  <p class="eyebrow">For Claude, Codex, Grok, Cursor and more</p>
+  <h1 id="hero-title">Your AI coding limits, <em>parked at the edge of your screen.</em></h1>
+  <p class="lede">
+    Every session and weekly limit in one small dock that stays out of the way
+    until you glance at it.
+  </p>
+  <Install />
+  <p class="fine-print">Version {site.version} · macOS 14 or newer · Apple silicon · Free and open source</p>
+  <Image
+    class="hero-shot"
+    src={hero}
+    alt="Capsule's dock on a dark and a light desktop, with the Claude card open: session and weekly limits, pace, token usage and agent activity"
+    widths={[600, 900, 1200, 1800]}
+    sizes="(min-width: 1180px) 1120px, 94vw"
+    loading="eager"
+    fetchpriority="high"
+  />
+</section>

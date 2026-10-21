@@ -1,0 +1,49 @@
+name: Landing
+
+# Checks the landing page at capsule.potion.sh. It never deploys: only a
+# published release does, through landing-deploy.yml.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/landing/**"
+      - "docs/images/**"
+      - "Support/CapsuleApp/Info.plist"
+      - "mise.toml"
+      - "mise.lock"
+      - ".github/workflows/landing.yml"
+  pull_request:
+    paths:
+      - "apps/landing/**"
+      - "docs/images/**"
+      - "Support/CapsuleApp/Info.plist"
+      - "mise.toml"
+      - "mise.lock"
+      - ".github/workflows/landing.yml"
+
+permissions: {}
+
+concurrency:
+  group: landing-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Type-check, build, test and audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read # check out the code
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: jdx/mise-action@08ae2a091c038e1e05ec6f5115dc5c69d5a2a6b8 # v5.1.2
+        with:
+          version: 2026.9.15
+          sha256: 09ea631d6f3e7031d63606a0892dc4c796f9fb57f493bc45937f9f7113c88216
+          install_args: node pnpm
+          cache: false
+
+      - run: mise run landing:check

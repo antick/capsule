@@ -1,0 +1,8 @@
+---
+import { Image } from "astro:assets";
+import logo from "../../../../docs/images/logo.png";
+---
+<a class="brand" href="/" aria-label="Capsule home">
+  <Image src={logo} alt="" width={32} height={32} densities={[1, 2]} />
+  <span>Capsule</span>
+</a>

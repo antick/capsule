@@ -1,0 +1,16 @@
+# Settings for this one package; the landing page is not part of a workspace.
+
+# Only install versions published at least 7 days ago (in minutes).
+minimumReleaseAge: 10080
+# Refuse a version whose publishing provenance is weaker than an earlier one.
+trustPolicy: no-downgrade
+# Exact versions checked by hand. chokidar 4.0.2 and 4.0.3 were published by
+# its sole maintainer without provenance after 4.0.1 had it; 5.0.0 has it again.
+trustPolicyExclude:
+  - chokidar@4.0.3
+# Every dependency must come from the registry, never a git URL or tarball.
+blockExoticSubdeps: true
+# Fail the install if a package wants to run a build script it was not allowed.
+strictDepBuilds: true
+# No dependency may run install scripts. sharp ships prebuilt binaries.
+allowBuilds: {}

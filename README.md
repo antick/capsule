@@ -15,7 +15,7 @@ small dock that stays out of the way until you glance at it.
 ![Swift 6](https://img.shields.io/badge/Swift-6-F05138?style=flat-square&logo=swift&logoColor=white)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-2563eb?style=flat-square)](LICENSE)
 
-[Install](#install) · [Features](#what-it-does) · [Themes](#eight-themes) · [Providers](#providers) · [Command line](#command-line) · [Build it](#build-it-yourself)
+[Website](https://capsule.potion.sh) · [Install](#install) · [Features](#what-it-does) · [Themes](#eight-themes) · [Providers](#providers) · [Command line](#command-line) · [Build it](#build-it-yourself)
 
 <br>
 
@@ -209,6 +209,11 @@ in Settings → Updates. One-time signing setup lives in
 [docs/releasing.md](docs/releasing.md).
 
 </details>
+
+## Security
+
+Report vulnerabilities privately; see [SECURITY.md](SECURITY.md) for how, and
+for how releases and this repository are protected.
 
 ## License
 

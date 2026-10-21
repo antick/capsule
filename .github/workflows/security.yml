@@ -1,0 +1,63 @@
+name: Security
+
+# Lints every workflow for security problems and scans the whole git history
+# for secrets. Runs on every change and weekly, since new advisories against
+# pinned actions appear without any change here.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 6 * * 1"
+
+permissions: {}
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  workflows:
+    name: Lint workflows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # check out the code; zizmor reads public action metadata
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: jdx/mise-action@08ae2a091c038e1e05ec6f5115dc5c69d5a2a6b8 # v5.1.2
+        with:
+          version: 2026.9.15
+          sha256: 09ea631d6f3e7031d63606a0892dc4c796f9fb57f493bc45937f9f7113c88216
+          install_args: zizmor
+          cache: false
+
+      - name: Run zizmor
+        env:
+          # Online audits: known-vulnerable and impostor action commits.
+          GH_TOKEN: ${{ github.token }}
+        run: mise run security:workflows
+
+  secrets:
+    name: Scan for secrets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # check out the code
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: jdx/mise-action@08ae2a091c038e1e05ec6f5115dc5c69d5a2a6b8 # v5.1.2
+        with:
+          version: 2026.9.15
+          sha256: 09ea631d6f3e7031d63606a0892dc4c796f9fb57f493bc45937f9f7113c88216
+          install_args: gitleaks
+          cache: false
+
+      - run: mise run security:secrets

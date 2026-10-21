@@ -1,0 +1,6 @@
+# Every change needs the maintainer's review once the main ruleset requires
+# code owner approval. Workflows and their tooling matter most.
+*                     @antick
+/.github/             @antick
+/mise.toml            @antick
+/mise.lock            @antick

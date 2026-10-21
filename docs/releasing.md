@@ -38,6 +38,10 @@ Development never starts the updater. Neither build changes your normal HOME.
   to point `Casks/capsule.rb` at the new zip; without it the job warns and the
   cask stays where it was.
 
+- GitHub environment `landing`, restricted to the `main` branch and `v*` tags,
+  with `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. See
+  [The landing page](#the-landing-page).
+
 Use `gh secret set NAME --env release` with input from a protected local file
 or stdin; never put secret values in shell history. Keep a secure backup of the
 Apple certificate/private key, its password, and Sparkle key. GitHub secrets
@@ -64,11 +68,53 @@ The Release workflow checks the tag/version/main ancestry and increasing build,
 runs all test targets, builds, signs nested helpers, notarizes, staples and
 checks Gatekeeper. It produces a DMG, ZIP, SHA256SUMS and signed appcast.xml.
 It creates a draft, uploads the complete set, publishes the release, then
-updates Pages. Nothing is published if an earlier check fails. The feed is
+updates Pages and deploys the landing page. Nothing is published if an earlier check fails. The feed is
 published only after its downloads are public. Never move a published tag.
 
 DMG installation is drag-and-drop into Applications. No administrator installer
 or Developer ID Installer certificate is required for this distribution format.
+
+## The landing page
+
+`apps/landing` is the static site at <https://capsule.potion.sh>, built with
+Astro from the screenshots in `docs/images` and the version in Info.plist.
+`mise run landing:dev` serves it locally and `mise run landing:check`
+type-checks, builds, tests and audits it, as the Landing workflow does.
+
+It deploys only from a published release: the Release workflow's last job
+calls `landing-deploy.yml`, which checks out the latest stable release tag,
+confirms it is on `main`, checks the page, builds it with Vercel's CLI and
+uploads the result. Run "Deploy landing page" by hand to redeploy the latest
+release. Vercel's Git integration is off in `apps/landing/vercel.json`, so
+pushes and pull requests never deploy and Vercel never builds code itself.
+The CLI comes from `.github/vercel`, locked and without install scripts.
+
+One-time setup:
+
+1. In Vercel, create a project named `capsule` without connecting a Git
+   repository, and leave its Root Directory and build settings empty;
+   `apps/landing/vercel.json` supplies them.
+2. Add the domain `capsule.potion.sh` to the project and point a `CNAME` for
+   `capsule` at the target Vercel shows.
+3. Create a token at <https://vercel.com/account/tokens> scoped to the team
+   that owns the project, with an expiry. Read the org and project IDs from
+   the project's settings.
+4. Create the environment and its secrets:
+
+   ```sh
+   gh api -X PUT repos/antick/capsule/environments/landing \
+     -F 'deployment_branch_policy[protected_branches]=false' \
+     -F 'deployment_branch_policy[custom_branch_policies]=true'
+   gh api -X POST repos/antick/capsule/environments/landing/deployment-branch-policies -f name=main -f type=branch
+   gh api -X POST repos/antick/capsule/environments/landing/deployment-branch-policies -f name='v*' -f type=tag
+   gh secret set VERCEL_TOKEN --env landing
+   gh secret set VERCEL_ORG_ID --env landing
+   gh secret set VERCEL_PROJECT_ID --env landing
+   ```
+
+`gh secret set` prompts for each value, so none lands in shell history.
+A landing failure never affects the app release, which is public by then;
+fix the page and run "Deploy landing page" again.
 
 ## Local release rehearsal
 
@@ -119,3 +165,5 @@ Sparkle 2.10.0 was published 2026-09-13 and satisfies the repository's seven-day
 minimum age. It is exact-pinned in Package.swift and Package.resolved. Action
 versions are pinned to immutable commits; the runner's supported Xcode 26.6
 version is explicit. Update these pins deliberately and rerun release checks.
+Dependabot proposes action and landing page updates weekly, each at least 7
+days old.

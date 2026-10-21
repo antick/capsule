@@ -1,0 +1,17 @@
+---
+import { features } from "../lib/site";
+---
+<section id="features" class="features wrap" aria-labelledby="features-title">
+  <p class="eyebrow">What it does</p>
+  <h2 id="features-title">Everything about a limit, in one glance.</h2>
+  <ul class="feature-grid">
+    {
+      features.map(({ title, description }) => (
+        <li>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</section>

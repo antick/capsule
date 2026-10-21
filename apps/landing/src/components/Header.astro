@@ -1,0 +1,11 @@
+---
+import { navigation } from "../lib/site";
+import Brand from "./Brand.astro";
+---
+<header class="site-header wrap">
+  <Brand />
+  <nav class="site-nav" aria-label="Main navigation">
+    {navigation.map(({ label, href }) => <a href={href}>{label}</a>)}
+  </nav>
+  <a class="button button-small" href="#download">Download</a>
+</header>

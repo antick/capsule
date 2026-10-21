@@ -1,12 +1,15 @@
 name: Check
 
+# Builds and tests the app. Changes only to the landing page skip it; the
+# Landing workflow covers those.
 on:
   push:
     branches: [main]
+    paths-ignore: ["apps/landing/**"]
   pull_request:
+    paths-ignore: ["apps/landing/**"]
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: check-${{ github.ref }}
@@ -17,6 +20,9 @@ jobs:
     name: Check
     # Capsule is a macOS app, built with Swift Package Manager.
     runs-on: macos-26
+    timeout-minutes: 60
+    permissions:
+      contents: read # check out the code
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

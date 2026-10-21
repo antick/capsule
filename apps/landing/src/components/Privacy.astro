@@ -1,0 +1,28 @@
+---
+import { questions, site } from "../lib/site";
+---
+<section id="privacy" class="privacy wrap" aria-labelledby="privacy-title">
+  <div>
+    <p class="eyebrow">Privacy</p>
+    <h2 id="privacy-title">Nothing leaves your Mac but the usage requests.</h2>
+    <p class="section-lede">
+      Capsule reuses the sessions your tools already store on this Mac. Usage
+      comes from each provider's own usage service; activity and token counts
+      come from small, bounded reads of local session records.
+    </p>
+    <p class="section-lede">
+      The source is <a href={site.repository}>on GitHub</a> under the GPL, so
+      you can read exactly what it does.
+    </p>
+  </div>
+  <div class="questions">
+    {
+      questions.map(({ question, answer }) => (
+        <details>
+          <summary>{question}</summary>
+          <p>{answer}</p>
+        </details>
+      ))
+    }
+  </div>
+</section>

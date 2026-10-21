@@ -1,0 +1,30 @@
+---
+import { providers } from "../lib/site";
+---
+<section id="providers" class="providers wrap" aria-labelledby="providers-title">
+  <p class="eyebrow">Providers</p>
+  <h2 id="providers-title">The tools you already use.</h2>
+  <p class="section-lede">
+    Claude, Codex and Grok are on by default; switch the rest on in Settings.
+    Keys you paste are kept in an owner-only file and never shown again.
+  </p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th scope="col">Provider</th><th scope="col">What it shows</th><th scope="col">Signs in with</th></tr>
+      </thead>
+      <tbody>
+        {
+          providers.map(({ name, reads, signIn }) => (
+            <tr>
+              <th scope="row">{name}</th>
+              <td>{reads}</td>
+              <td>{signIn}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="fine-print">Spend is an estimate at list price, not a bill.</p>
+</section>

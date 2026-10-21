@@ -1,0 +1,46 @@
+---
+import { getImage } from "astro:assets";
+import "@fontsource-variable/geist";
+import hero from "../../../../docs/images/hero.png";
+import logo from "../../../../docs/images/logo.png";
+import { site } from "../lib/site";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  // Pages that should stay out of search results, such as the 404 page.
+  noindex?: boolean;
+}
+
+const { title = site.title, noindex = false } = Astro.props;
+const canonical = `${site.url}/`;
+const socialImage = await getImage({ src: hero, width: 1200, format: "png" });
+const favicon = await getImage({ src: logo, width: 64, format: "png" });
+const touchIcon = await getImage({ src: logo, width: 180, format: "png" });
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={site.description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/png" href={favicon.src} />
+    <link rel="apple-touch-icon" href={touchIcon.src} />
+    <meta name="theme-color" content="#0c0a1d" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(socialImage.src, site.url).href} />
+    <meta property="og:image:alt" content="Capsule's dock on a dark and a light desktop, with the Claude usage card open" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot />
+  </body>
+</html>

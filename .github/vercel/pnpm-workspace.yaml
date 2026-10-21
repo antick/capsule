@@ -1,0 +1,18 @@
+# Settings for the locked Vercel CLI, used only by the landing deploy workflow.
+
+# Only install versions published at least 7 days ago (in minutes).
+minimumReleaseAge: 10080
+# The trust-downgrade check stays on for the landing page but not here. Since
+# August 2026 (vercel 58.5.1) Vercel publishes the CLI and every @vercel/*
+# package through npm trusted publishing from its GitHub Actions, without the
+# provenance attestation earlier releases carried, so the check rejects every
+# current release. The exact pin and the lockfile's integrity hashes still
+# fix what gets installed.
+trustPolicy: off
+# Every dependency must come from the registry, never a git URL or tarball.
+blockExoticSubdeps: true
+# No dependency may run install scripts.
+strictDepBuilds: true
+# esbuild only checks its binary after install; its platform package is enough.
+allowBuilds:
+  esbuild: false

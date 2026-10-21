@@ -1,0 +1,11 @@
+# Fake JWTs in the removed TypeScript tests: header {"alg":"HS256"}, payload {}, signature "sig".
+f98ed07e0c2ec79974b3d59f6971f56f3fe19597:packages/usage/src/usage.test.ts:generic-api-key:122
+f98ed07e0c2ec79974b3d59f6971f56f3fe19597:packages/usage/src/usage.test.ts:generic-api-key:133
+125af499ac474f9567f2d30cdbe222a7f3866da1:packages/usage/src/usage.test.ts:generic-api-key:122
+125af499ac474f9567f2d30cdbe222a7f3866da1:packages/usage/src/usage.test.ts:generic-api-key:133
+d4509336c95fca51f8acbe0cafa4c34ea83a3d06:packages/usage/src/usage.test.ts:generic-api-key:122
+d4509336c95fca51f8acbe0cafa4c34ea83a3d06:packages/usage/src/usage.test.ts:generic-api-key:133
+b5f88146d6a94978047d0c71f9b040dd4ef9cfc5:packages/usage/src/usage.test.ts:generic-api-key:122
+b5f88146d6a94978047d0c71f9b040dd4ef9cfc5:packages/usage/src/usage.test.ts:generic-api-key:133
+6d154b786c9a48039473a19ce16c27a71ef4579b:packages/usage/src/usage.test.ts:generic-api-key:111
+ef979d8ce41d07367f0163e7be1d879c64fcaeb9:packages/usage/src/usage.test.ts:generic-api-key:96

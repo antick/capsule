@@ -1,0 +1,61 @@
+---
+import { Image } from "astro:assets";
+import appearance from "../../../../docs/images/settings-appearance.png";
+import meters from "../../../../docs/images/settings-meters-themes.png";
+import themes from "../../../../docs/images/themes.png";
+import topEdge from "../../../../docs/images/top-edge.png";
+---
+<section id="themes" class="themes wrap" aria-labelledby="themes-title">
+  <p class="eyebrow">Eight themes</p>
+  <h2 id="themes-title">Four dark, four light, all yours.</h2>
+  <p class="section-lede">
+    Each theme has its own surface and its own pair of meter colours. Pick rings
+    or gauges; Auto follows macOS between Midnight and Porcelain.
+  </p>
+  <Image
+    class="shot"
+    src={themes}
+    alt="The eight themes, Midnight, Graphite, Ink, Aurora, Porcelain, Linen, Sage and Blush, each showing the dock with rings and with gauges"
+    widths={[600, 900, 1200, 1600]}
+    sizes="(min-width: 1180px) 1120px, 94vw"
+  />
+  <div class="split">
+    <div>
+      <h3>Park it anywhere.</h3>
+      <p>
+        On any edge as a rail that melts into the screen, a floating capsule, or
+        a tray. Resize the dock without touching the cards, let it fold into a
+        slim latch when you're not looking, or keep it in the menu bar instead.
+      </p>
+    </div>
+    <Image
+      class="shot"
+      src={topEdge}
+      alt="Capsule docked along the top edge of the screen with a card open"
+      widths={[600, 900, 1200]}
+      sizes="(min-width: 900px) 640px, 94vw"
+    />
+  </div>
+  <div class="pair">
+    <figure>
+      <Image
+        class="shot"
+        src={appearance}
+        alt="Capsule's settings: a live dock preview and the dock styles"
+        widths={[500, 800, 1200]}
+        sizes="(min-width: 900px) 550px, 94vw"
+      />
+      <figcaption>Every change is previewed live.</figcaption>
+    </figure>
+    <figure>
+      <Image
+        class="shot"
+        src={meters}
+        alt="Capsule's settings: rings or gauges, session and week, and the theme picker"
+        widths={[500, 800, 1200]}
+        sizes="(min-width: 900px) 550px, 94vw"
+      />
+      <figcaption>Rings or gauges, and a theme to match.</figcaption>
+    </figure>
+  </div>
+</section>

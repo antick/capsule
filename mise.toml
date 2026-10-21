@@ -1,6 +1,18 @@
 # Everyday commands, so nobody has to remember this repo's own scripts.
 # `mise tasks` lists them. Everything runs at background priority.
 
+# Only the landing page and the security checks need these; the Swift app
+# uses Xcode's toolchain. Each is pinned to a release at least 7 days old,
+# and mise.lock pins their checksums.
+[tools]
+node = "24.22.0"
+pnpm = "12.13.0"
+gitleaks = "8.30.1"
+zizmor = "1.30.1"
+
+[settings]
+lockfile = true
+
 [tasks.dev]
 description = "Build Capsule Dev and open it (never touches the installed Capsule)"
 run = "taskpolicy -b scripts/dev.sh"
@@ -21,3 +33,48 @@ run = "taskpolicy -b swift run CapsuleCLI --dev --pretty"
 [tasks.stop]
 description = "Quit Capsule Dev"
 run = "osascript -e 'quit app \"Capsule Dev\"'"
+
+# The landing page at capsule.potion.sh, in apps/landing.
+
+[tasks."landing:setup"]
+description = "Install the landing page's dependencies from the lockfile"
+dir = "apps/landing"
+run = "pnpm install --frozen-lockfile --ignore-scripts"
+
+[tasks."landing:dev"]
+description = "Serve the landing page at http://127.0.0.1:4321 with live reload"
+dir = "apps/landing"
+depends = ["landing:setup"]
+run = "pnpm run dev"
+
+[tasks."landing:build"]
+description = "Build the landing page into apps/landing/dist"
+dir = "apps/landing"
+depends = ["landing:setup"]
+run = "pnpm run build"
+
+[tasks."landing:preview"]
+description = "Serve the built landing page"
+dir = "apps/landing"
+depends = ["landing:build"]
+run = "pnpm run preview"
+
+[tasks."landing:check"]
+description = "Type-check, build and test the landing page, then audit its dependencies"
+dir = "apps/landing"
+depends = ["landing:setup"]
+run = ["pnpm run check", "pnpm audit --audit-level=moderate"]
+
+# Security checks, also run by the Security workflow.
+
+[tasks."security:workflows"]
+description = "Lint the GitHub Actions workflows and Dependabot config for security problems"
+run = "zizmor --pedantic .github/workflows .github/dependabot.yml"
+
+[tasks."security:secrets"]
+description = "Scan every commit in the git history for secrets"
+run = "gitleaks git --redact --no-banner ."
+
+[tasks.security]
+description = "Run every security check"
+depends = ["security:workflows", "security:secrets"]

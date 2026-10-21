@@ -16,6 +16,9 @@ DerivedData/
 # Macs. Not part of the Swift app.
 apps/desktop/release/
 
+# The landing page and the locked Vercel CLI
+node_modules/
+
 # Local Python release checks
 __pycache__/
 *.pyc
