@@ -13,7 +13,8 @@ strict builds and the documented existing trust-policy exception.
 
 Exact version selectors replace vulnerable upstream pins within their existing
 major lines. Dates below come from each package's npm registry time metadata.
-None skips a newer release within the same major. These overrides remove all
+None skips a newer release within the same major. Undici remains on its latest
+5.x release; newer majors require separate migration. These overrides remove all
 tar, minimatch, Ajv, YAML, TOML and route-parser findings, plus Zod 4 findings.
 
 | Package | Pin | Publication UTC |
@@ -26,17 +27,18 @@ tar, minimatch, Ajv, YAML, TOML and route-parser findings, plus Zod 4 findings.
 | path-to-regexp | 6.3.0 | 12 September 2024 |
 | path-to-regexp | 8.4.2 | 1 April 2026 |
 | zod | 4.6.7 | 12 October 2026 |
+| undici | 5.29.0 | 19 March 2025 |
 
 ## Verification
 
-`mise run vercel:check` installs the frozen lockfile without scripts, runs seven
+`mise run vercel:check` installs the frozen lockfile without scripts, runs eight
 compatibility tests, performs CLI startup/help smoke checks and audits without
 severity exclusions. Tests load dependencies through actual installed consumers.
 Container uses standard tar.extract with file/cwd, both sync and async. Tests
 extract valid gzip archives and verify traversal and symlink escapes cannot write
 outside the destination. Other tests exercise TOML parse/stringify, YAML load and
 unsafe-tag rejection, glob matching, Ajv compilation and validation, v6/v8 route
-matching and invalid patterns, and Zod 4 validation. TOML now returns objects with
+matching and invalid patterns, Zod 4 validation, and the Node builder's Undici Headers/request response streaming against a local HTTP server. TOML now returns objects with
 null prototypes; inspected container call sites use property access, optional
 chaining and serialization, which remain supported.
 
@@ -49,12 +51,15 @@ startup/help smoke behavior, not execution of every advertised flag.
 
 ## Remaining upstream blockers
 
-Audit falls from 51 initially, through 41 after the CLI upgrade, to **21**:
-**0 critical, 7 high, 10 moderate, 4 low**. All remaining paths are listed below.
+Audit falls from 51 initially, through 41 after the CLI upgrade and 21 after compatible overrides, to **19**:
+**0 critical, 7 high, 9 moderate, 3 low**. All remaining paths are listed below.
 The gate intentionally fails and prevents deployment before credential use.
 No incompatible major override or advisory suppression is included.
 
-- Vercel 65.2.0 pins Undici 5.29.0; @vercel/node 27.0.1 pins Undici 5.28.4.
+- Vercel 65.2.0 and the patched @vercel/node graph now both use Undici 5.29.0.
+  A targeted override replaces the Node builder's exact 5.28.4 pin and removes
+  GHSA-c76h-2ccp-4975 and GHSA-cxrh-j4jr-qwg3. Inspected dev-server.mjs
+  uses Headers, request, statusCode and response body streaming/text/arrayBuffer.
   Remaining fixes require >=6.29.1. Undici 5 declares busboy ^2.0.0, resolved
   2.1.1, while the busboy fixes require >=3.2.2. These are undeclared major
   migrations; representative static builds do not establish compatibility of
@@ -71,9 +76,7 @@ on the dependency audit even though workflow lint and secret scanning pass.
 
 | Package | Severity | Fixed range | Advisory |
 | --- | --- | --- | --- |
-| undici | moderate | >=5.28.5 | https://github.com/advisories/GHSA-c76h-2ccp-4975 |
 | undici | moderate | >=6.23.0 | https://github.com/advisories/GHSA-g9mf-h72j-4rw9 |
-| undici | low | >=5.29.0 | https://github.com/advisories/GHSA-cxrh-j4jr-qwg3 |
 | undici | moderate | >=6.24.0 | https://github.com/advisories/GHSA-2mjp-6q6p-2qxm |
 | undici | high | >=6.24.0 | https://github.com/advisories/GHSA-vrm6-8vpv-qv8q |
 | undici | high | >=6.24.0 | https://github.com/advisories/GHSA-v9p9-hfj2-hcw8 |

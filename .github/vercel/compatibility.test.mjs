@@ -4,6 +4,8 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createServer } from 'node:http';
+import { once } from 'node:events';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
@@ -123,5 +125,31 @@ test('CLI builds a disposable static project into prebuilt output', async () => 
     assert.equal(config.version, 3);
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('Node consumer Undici Headers and request preserve streamed proxy responses', async () => {
+  const { Headers, request } = consumer('@vercel/node')('undici');
+  const server = createServer(async (req, res) => {
+    let body = '';
+    for await (const chunk of req) body += chunk;
+    res.writeHead(201, { 'content-type': 'application/json', 'x-fixture': req.headers['x-fixture'] });
+    res.end(JSON.stringify({ method: req.method, body }));
+  });
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  try {
+    const headers = new Headers({ 'x-fixture': 'proxy' });
+    const response = await request(`http://127.0.0.1:${server.address().port}/api`, {
+      method: 'POST', headers: Object.fromEntries(headers), body: 'request body', maxRedirections: 0,
+    });
+    assert.equal(response.statusCode, 201);
+    assert.equal(new Headers(response.headers).get('x-fixture'), 'proxy');
+    let text = '';
+    for await (const chunk of response.body) text += chunk;
+    assert.deepEqual(JSON.parse(text), { method: 'POST', body: 'request body' });
+  } finally {
+    server.closeAllConnections();
+    await new Promise(resolve => server.close(resolve));
   }
 });

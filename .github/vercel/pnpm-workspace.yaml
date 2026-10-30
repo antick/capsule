@@ -28,3 +28,4 @@ overrides:
   'path-to-regexp@6.1.0': 6.3.0
   'path-to-regexp@8.3.0': 8.4.2
   'zod@4.1.11': 4.6.7
+  'undici@5.28.4': 5.29.0
