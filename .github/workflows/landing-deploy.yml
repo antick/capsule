@@ -95,9 +95,8 @@ jobs:
       - name: Check the landing page
         run: mise run landing:check
 
-      - name: Install the Vercel CLI from its lockfile
-        working-directory: .github/vercel
-        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Check the deployment CLI before using production credentials
+        run: mise run vercel:check
 
       - name: Build and deploy
         working-directory: apps/landing

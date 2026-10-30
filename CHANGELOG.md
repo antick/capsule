@@ -12,6 +12,8 @@ All notable changes to Capsule are documented in this file.
 
 ### Changed
 
+- Update the deployment CLI to Vercel 65.2.0 and refresh compatible transitive dependencies. Audit the locked CLI on landing changes and in the weekly Security workflow, and block deployment before credentials are used when advisories remain. Apply verified same-major overrides for tar, minimatch, Ajv, js-yaml, smol-toml, path-to-regexp Zod 4 and Undici 5, removing the critical tar issue. The upstream graph still has 19 advisories in Undici 5, busboy 2 and Zod 3; see `docs/vercel-security.md`.
+
 - Update the landing page to Astro 7.4.2 and its checker to 0.9.12, and pin mise-action 5.2.2 across landing and security workflows. Refresh transitive Undici to 8.12.3 and fast-uri to 3.1.9 to resolve dependency advisories. Keep the seven-day release minimum and existing script, provenance and CSP policies.
 
 - The landing deployment routes the homepage to its built HTML and checks the public URL after publishing.
