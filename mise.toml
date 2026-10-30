@@ -65,6 +65,18 @@ dir = "apps/landing"
 depends = ["landing:setup"]
 run = ["pnpm run check", "pnpm audit --audit-level=moderate"]
 
+# Deployment tooling is audited independently of the static site.
+[tasks."vercel:setup"]
+description = "Install the deployment CLI from its lockfile without scripts"
+dir = ".github/vercel"
+run = "pnpm install --frozen-lockfile --ignore-scripts"
+
+[tasks."vercel:check"]
+description = "Check the deployment CLI offline and audit its dependency graph"
+dir = ".github/vercel"
+depends = ["vercel:setup"]
+run = ["pnpm exec vercel --version", "pnpm exec vercel build --help", "pnpm exec vercel pull --help", "pnpm exec vercel deploy --help", "pnpm audit --audit-level=low"]
+
 # Security checks, also run by the Security workflow.
 
 [tasks."security:workflows"]
@@ -77,4 +89,4 @@ run = "gitleaks git --redact --no-banner ."
 
 [tasks.security]
 description = "Run every security check"
-depends = ["security:workflows", "security:secrets"]
+depends = ["security:workflows", "security:secrets", "vercel:check"]

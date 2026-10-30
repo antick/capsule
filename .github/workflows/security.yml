@@ -61,3 +61,23 @@ jobs:
           cache: false
 
       - run: mise run security:secrets
+
+  deployment-dependencies:
+    name: Audit deployment dependencies
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # check out the locked deployment tooling
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
+        with:
+          version: 2026.9.15
+          sha256: 09ea631d6f3e7031d63606a0892dc4c796f9fb57f493bc45937f9f7113c88216
+          install_args: node pnpm
+          cache: false
+
+      - run: mise run vercel:check
