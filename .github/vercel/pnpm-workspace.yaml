@@ -16,3 +16,15 @@ strictDepBuilds: true
 # esbuild only checks its binary after install; its platform package is enough.
 allowBuilds:
   esbuild: false
+
+# Keep vulnerable upstream exact pins on compatible patched major lines.
+# API compatibility coverage lives in compatibility.test.mjs.
+overrides:
+  'tar@7.5.11': 7.5.22
+  'minimatch@10.1.1': 10.2.6
+  'ajv@8.6.3': 8.20.0
+  'js-yaml@4.1.1': 4.3.2
+  'smol-toml@1.5.2': 1.9.1
+  'path-to-regexp@6.1.0': 6.3.0
+  'path-to-regexp@8.3.0': 8.4.2
+  'zod@4.1.11': 4.6.7

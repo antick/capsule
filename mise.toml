@@ -72,10 +72,10 @@ dir = ".github/vercel"
 run = "pnpm install --frozen-lockfile --ignore-scripts"
 
 [tasks."vercel:check"]
-description = "Check the deployment CLI offline and audit its dependency graph"
+description = "Test patched APIs, smoke-check CLI startup/help, and audit dependencies"
 dir = ".github/vercel"
 depends = ["vercel:setup"]
-run = ["pnpm exec vercel --version", "pnpm exec vercel build --help", "pnpm exec vercel pull --help", "pnpm exec vercel deploy --help", "pnpm audit --audit-level=low"]
+run = ["node --test compatibility.test.mjs", "pnpm exec vercel --version", "pnpm exec vercel build --help", "pnpm exec vercel pull --help", "pnpm exec vercel deploy --help", "pnpm audit --audit-level=low"]
 
 # Security checks, also run by the Security workflow.
 
