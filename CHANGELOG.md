@@ -8,7 +8,6 @@ All notable changes to Capsule are documented in this file.
 
 - A website at [capsule.potion.sh](https://capsule.potion.sh), deployed from each stable release.
 - A security policy with private vulnerability reporting, and a Security workflow that lints every workflow with zizmor and scans the whole git history for secrets with gitleaks.
-- Dependabot updates for actions and the website's packages, each at least 7 days old.
 
 ### Changed
 
