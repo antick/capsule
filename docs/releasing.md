@@ -173,5 +173,4 @@ Sparkle 2.10.0 was published 2026-09-13 and satisfies the repository's seven-day
 minimum age. It is exact-pinned in Package.swift and Package.resolved. Action
 versions are pinned to immutable commits; the runner's supported Xcode 26.6
 version is explicit. Update these pins deliberately and rerun release checks.
-Dependabot proposes action and landing page updates weekly, each at least 7
-days old.
+Action and landing page updates are made manually, each at least 7 days old.

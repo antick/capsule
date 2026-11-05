@@ -68,8 +68,8 @@ run = ["pnpm run check", "pnpm audit --audit-level=moderate"]
 # Security checks, also run by the Security workflow.
 
 [tasks."security:workflows"]
-description = "Lint the GitHub Actions workflows and Dependabot config for security problems"
-run = "zizmor --pedantic .github/workflows .github/dependabot.yml"
+description = "Lint the GitHub Actions workflows for security problems"
+run = "zizmor --pedantic .github/workflows"
 
 [tasks."security:secrets"]
 description = "Scan every commit in the git history for secrets"
