@@ -1,8 +1,8 @@
 import plist from "../../../../Support/CapsuleApp/Info.plist?raw";
 
 // The app's version lives only in its Info.plist (see scripts/version.sh).
-// The page is deployed from a release tag, so the download link below
-// always names files that release published.
+// When publishing the page again, build from a release tag so the download
+// link below names files that release published.
 const version = plist.match(
   /<key>CFBundleShortVersionString<\/key>\s*<string>(\d+\.\d+\.\d+)<\/string>/,
 )?.[1];
@@ -12,7 +12,6 @@ const repository = "https://github.com/antick/capsule";
 
 export const site = {
   name: "Capsule",
-  url: "https://capsule.potion.sh",
   title: "Capsule — Your AI coding limits, at the edge of your screen",
   description:
     "A small macOS dock for Claude, Codex, Grok, Cursor and more: every session and weekly limit, its pace and its reset, where your eyes already go.",

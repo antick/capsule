@@ -38,10 +38,6 @@ Development never starts the updater. Neither build changes your normal HOME.
   to point `Casks/capsule.rb` at the new zip; without it the job warns and the
   cask stays where it was.
 
-- GitHub environment `landing`, restricted to the `main` branch and `v*` tags,
-  with `VERCEL_TOKEN`, `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID`. See
-  [The landing page](#the-landing-page).
-
 Use `gh secret set NAME --env release` with input from a protected local file
 or stdin; never put secret values in shell history. Keep a secure backup of the
 Apple certificate/private key, its password, and Sparkle key. GitHub secrets
@@ -68,61 +64,52 @@ The Release workflow checks the tag/version/main ancestry and increasing build,
 runs all test targets, builds, signs nested helpers, notarizes, staples and
 checks Gatekeeper. It produces a DMG, ZIP, SHA256SUMS and signed appcast.xml.
 It creates a draft, uploads the complete set, publishes the release, then
-updates Pages and deploys the landing page. Nothing is published if an earlier check fails. The feed is
-published only after its downloads are public. Never move a published tag.
+updates the GitHub Pages update feed. Nothing is published if an earlier check
+fails. The feed is published only after its downloads are public. Never move a
+published tag. Landing-page deployment is suspended.
 
 DMG installation is drag-and-drop into Applications. No administrator installer
 or Developer ID Installer certificate is required for this distribution format.
 
 ## The landing page
 
-`apps/landing` is the static site at <https://capsule.potion.sh>, built with
-Astro from the screenshots in `docs/images` and the version in Info.plist.
-`mise run landing:dev` serves it locally and `mise run landing:check`
-type-checks, builds, tests and audits it, as the Landing workflow does.
+`apps/landing` retains the static Astro page, its screenshots in `docs/images`,
+and download links based on the version in Info.plist. It has no configured
+public address and deployment is suspended. `mise run landing:dev` serves it
+locally; `mise run landing:check` type-checks, builds, tests and audits it.
+The Landing workflow continues to run these checks.
 
-Automatic deploys follow a published release: the Release workflow's last job
-calls `landing-deploy.yml`, which checks out the latest stable release tag,
-confirms it is on `main`, checks the page, builds it with Vercel's CLI and
-uploads the result. Run "Deploy landing page" by hand to redeploy the latest
-release. For website-only updates, run it from main with `deploy_main: true`:
+The page builds without a domain. Canonical links, public social URLs and
+sitemap entries are omitted unless `SITE_URL` is explicitly set at build time.
+To check those features with a placeholder address:
 
 ```sh
-gh workflow run landing-deploy.yml --ref main -f deploy_main=true
+SITE_URL=https://example.invalid mise run landing:check
 ```
 
-This checks and deploys the exact main commit through the same `landing`
-environment, without changing the app version or creating a release tag.
-Vercel's Git integration is off in `apps/landing/vercel.json`, so
-pushes and pull requests never deploy and Vercel never builds code itself.
-The CLI comes from `.github/vercel`, locked and without install scripts.
+Before hosting the page again, choose its public address, set `SITE_URL`, and
+restore a reviewed deployment workflow. Build from a published release tag so
+the download links point to available files. The Vercel hosting configuration
+and locked CLI in `.github/vercel` remain available for reuse. Vercel's Git
+integration stays off, so pushes and pull requests do not deploy.
 
-One-time setup:
+### Retiring the old hosting
 
-1. In Vercel, create a project named `capsule` without connecting a Git
-   repository, and leave its Root Directory and build settings empty;
-   `apps/landing/vercel.json` supplies them.
-2. Add the domain `capsule.potion.sh` to the project and point a `CNAME` for
-   `capsule` at the target Vercel shows.
-3. Create a token at <https://vercel.com/account/tokens> scoped to the `capsule`
-   project, with No Expiration. Read the org and project IDs from
-   the project's settings.
-4. Create the environment and its secrets:
+Merge the deployment removal before removing infrastructure, and let any
+already-running landing deployment finish or cancel it. Older release tags
+still contain the old workflow; do not rerun landing jobs from them.
 
-   ```sh
-   gh api -X PUT repos/antick/capsule/environments/landing \
-     -F 'deployment_branch_policy[protected_branches]=false' \
-     -F 'deployment_branch_policy[custom_branch_policies]=true'
-   gh api -X POST repos/antick/capsule/environments/landing/deployment-branch-policies -f name=main -f type=branch
-   gh api -X POST repos/antick/capsule/environments/landing/deployment-branch-policies -f name='v*' -f type=tag
-   gh secret set VERCEL_TOKEN --env landing
-   gh secret set VERCEL_ORG_ID --env landing
-   gh secret set VERCEL_PROJECT_ID --env landing
-   ```
-
-`gh secret set` prompts for each value, so none lands in shell history.
-A landing failure never affects the app release, which is public by then;
-fix the page and run "Deploy landing page" again.
+- Remove the retired custom domain from the Vercel project and remove its DNS
+  record at the DNS provider. Existing bookmarks and search results will stop
+  working unless you keep a redirect; repository changes cannot update them.
+- Remove the unused GitHub `landing` environment and its `VERCEL_TOKEN`,
+  `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` secrets. Revoke the Vercel token if
+  nothing else uses it. Leave the `release` and `github-pages` environments.
+- Existing Vercel deployments and their generated addresses remain live until
+  removed or disabled separately. Removing a custom domain does not unpublish
+  them. Keep the project if those previews or its configuration are useful.
+- App downloads, Homebrew and the signed update feed use GitHub. Keep GitHub
+  Pages enabled at `https://antick.github.io/capsule/`; it serves app updates.
 
 ## Local release rehearsal
 

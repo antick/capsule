@@ -13,7 +13,7 @@ interface Props {
 }
 
 const { title = site.title, noindex = false } = Astro.props;
-const canonical = `${site.url}/`;
+const canonical = !noindex && Astro.site ? new URL("/", Astro.site).href : undefined;
 const socialImage = await getImage({ src: hero, width: 1200, format: "png" });
 const favicon = await getImage({ src: logo, width: 64, format: "png" });
 const touchIcon = await getImage({ src: logo, width: 180, format: "png" });
@@ -25,7 +25,8 @@ const touchIcon = await getImage({ src: logo, width: 180, format: "png" });
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={site.description} />
-    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    {canonical && <link rel="canonical" href={canonical} />}
     <link rel="icon" type="image/png" href={favicon.src} />
     <link rel="apple-touch-icon" href={touchIcon.src} />
     <meta name="theme-color" content="#0c0a1d" />
@@ -34,10 +35,12 @@ const touchIcon = await getImage({ src: logo, width: 180, format: "png" });
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={site.description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL(socialImage.src, site.url).href} />
-    <meta property="og:image:alt" content="Capsule's dock on a dark and a light desktop, with the Claude usage card open" />
-    <meta name="twitter:card" content="summary_large_image" />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {Astro.site && <>
+      <meta property="og:image" content={new URL(socialImage.src, Astro.site).href} />
+      <meta property="og:image:alt" content="Capsule's dock on a dark and a light desktop, with the Claude usage card open" />
+      <meta name="twitter:card" content="summary_large_image" />
+    </>}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

@@ -1,9 +1,9 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
-import { site } from "./src/lib/site";
 
 export default defineConfig({
-  site: site.url,
+  // No public address is assumed. Set this only when hosting the page again.
+  site: process.env.SITE_URL || undefined,
   output: "static",
   trailingSlash: "never",
   // The Content-Security-Policy in vercel.json allows no inline code, so
