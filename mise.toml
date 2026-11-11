@@ -34,7 +34,7 @@ run = "taskpolicy -b swift run CapsuleCLI --dev --pretty"
 description = "Quit Capsule Dev"
 run = "osascript -e 'quit app \"Capsule Dev\"'"
 
-# The landing page at capsule.potion.sh, in apps/landing.
+# The retained landing page, in apps/landing. Deployment is suspended.
 
 [tasks."landing:setup"]
 description = "Install the landing page's dependencies from the lockfile"

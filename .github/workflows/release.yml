@@ -93,16 +93,3 @@ jobs:
       - name: Deploy feed after release assets are public
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
-
-  # The landing page names this release's download, so it deploys only after
-  # the release and its update feed are public.
-  landing:
-    name: Deploy the landing page
-    needs: [macos, feed]
-    permissions:
-      contents: read # check out the release tag and read the latest release
-    uses: $/.github/workflows/landing-deploy.yml
-    secrets:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

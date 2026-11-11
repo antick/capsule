@@ -6,15 +6,15 @@ All notable changes to Capsule are documented in this file.
 
 ### Added
 
-- A website at [capsule.potion.sh](https://capsule.potion.sh), deployed from each stable release.
+- A static landing page, retained in `apps/landing` with build and security checks.
 - A security policy with private vulnerability reporting, and a Security workflow that lints every workflow with zizmor and scans the whole git history for secrets with gitleaks.
 
 ### Changed
 
+- Retire the landing page's public address and remove website links and deployments. Keep the page's source, local preview and checks; public metadata and sitemap entries now require an explicit `SITE_URL`. App downloads and the GitHub Pages update feed keep working independently.
 - Update the landing page to Astro 7.4.2 and its checker to 0.9.12, and pin mise-action 5.2.2 across landing and security workflows. Refresh transitive Undici to 8.12.3 and fast-uri to 3.1.9 to resolve dependency advisories. Keep the seven-day release minimum and existing script, provenance and CSP policies.
 
-- The landing deployment routes the homepage to its built HTML and checks the public URL after publishing.
-- Website-only updates can be deployed manually from main without a desktop release, using the protected landing environment. Release-triggered deploys explicitly forward the required deployment secrets.
+- The retained landing hosting configuration routes the homepage to its built HTML.
 - Workflows start with no permissions and grant each job only what it needs, never keep the checkout's token, and have timeouts. A release run by hand starts only from `main`.
 - The app's checks skip changes that touch only the website.
 

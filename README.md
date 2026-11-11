@@ -15,7 +15,7 @@ small dock that stays out of the way until you glance at it.
 ![Swift 6](https://img.shields.io/badge/Swift-6-F05138?style=flat-square&logo=swift&logoColor=white)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-2563eb?style=flat-square)](LICENSE)
 
-[Website](https://capsule.potion.sh) · [Install](#install) · [Features](#what-it-does) · [Themes](#eight-themes) · [Providers](#providers) · [Command line](#command-line) · [Build it](#build-it-yourself)
+[Install](#install) · [Features](#what-it-does) · [Themes](#eight-themes) · [Providers](#providers) · [Command line](#command-line) · [Build it](#build-it-yourself)
 
 <br>
 
