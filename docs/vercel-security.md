@@ -61,7 +61,7 @@ patched pins. No findings remain for minimatch, glob, smol-toml, js-yaml or tar.
 
 ## Verification
 
-`mise run vercel:check` performs a frozen ignored-scripts install, twelve
+`mise run vercel:check` performs a frozen ignored-scripts install, thirteen
 compatibility tests, CLI startup/help checks and the low-severity audit.
 Compatibility tests load packages through their actual installed consumers.
 They cover sync/async tar extraction and traversal/symlink escape rejection,
@@ -83,8 +83,8 @@ passes. No native Swift code changed, so no native rebuild was required.
 ## Remaining upstream blockers
 
 The fresh baseline is **21 advisories: 0 critical, 7 high, 11 moderate, 3 low**.
-The final graph has **19: 0 critical, 7 high, 9 moderate, 3 low**. The two
-removed findings affect glob and minimatch. Observed alert instances and unique
+The final graph has **18: 0 critical, 6 high, 9 moderate, 3 low**. The three
+removed findings affect glob, minimatch and Zod. Observed alert instances and unique
 audit advisories are different counts; this report uses fresh audit output.
 
 `vercel:check` and `security` still exit nonzero at the unchanged audit gate.
@@ -101,11 +101,13 @@ Do not treat this branch as merge-ready.
   cannot replace bundled code. Transport authentication, proxy, TLS, streaming
   and multipart integration need upstream migration coverage beyond a local
   static build. No blanket transport override is included.
-- Python analysis 0.15.3, backends, Express and Hono still pin Zod 3.22.4.
-  The advisory requires Zod >=4.6.6. Python analysis uses single-argument
-  `z.record(...)` at dist/index.js:1440-1476; Zod 4 removed that signature.
-  Replacing it without migrating upstream source breaks Pipfile parsing.
-  Official migration guide: https://zod.dev/v4/changelog .
+- Python analysis, backends, Express and Hono now use exact consumer-specific
+  Zod 4.6.7 overrides. The installed 4.6.7 runtime accepts the single-argument
+  record API, despite its removal in the initial Zod 4 migration guide.
+  Real Pipfile, lockfile, project and UV public schema tests pass. Retain the
+  Zod 4.1.11 selector because nested older CLI config packages still need it.
+  Migration guide: https://zod.dev/v4/changelog .
+
 
 A future upstream release must satisfy the release-age policy and pass these
 checks before it can resolve the remaining gate failures. Roll back this work
@@ -129,7 +131,6 @@ with reverting commits; keep the audit enforcement and deployment suspension.
 | undici | low | >=6.28.1 | https://github.com/advisories/GHSA-r53p-7pc4-xj5r |
 | @fastify/busboy | high | >=3.2.1 | https://github.com/advisories/GHSA-x8mw-p69m-v3mx |
 | @fastify/busboy | moderate | >=3.2.2 | https://github.com/advisories/GHSA-gxm5-99cw-xjw9 |
-| zod | high | >=4.6.6 | https://github.com/advisories/GHSA-mrhx-c7xc-m3w5 |
 | undici | high | >=6.29.1 | https://github.com/advisories/GHSA-2m5v-pch6-74hx |
 | undici | high | >=6.29.1 | https://github.com/advisories/GHSA-qrxm-fqhp-jwvm |
 | undici | moderate | >=6.29.1 | https://github.com/advisories/GHSA-9fm3-97px-rjf6 |

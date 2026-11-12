@@ -221,3 +221,20 @@ test('Python analyzer validates Pipfile dependency records through its public sc
   assert.equal(parsed.scripts.start, 'python app.py');
   assert.equal(PipfileLikeSchema.safeParse({ packages: { flask: 123 } }).success, false);
 });
+
+test('Python analyzer retains lockfile, project and UV configuration validation', () => {
+  const schemas = cli('@vercel/python-analysis');
+  const lock = { default: { flask: { version: '==3.0.0', hashes: ['sha256:fixture'] } } };
+  assert.deepEqual(schemas.PipfileLockLikeSchema.parse(lock), lock);
+  const project = {
+    project: { name: 'fixture', dependencies: ['flask>=3'], 'optional-dependencies': { test: ['pytest'] } },
+    'build-system': { requires: ['setuptools'], 'build-backend': 'setuptools.build_meta' },
+  };
+  assert.deepEqual(schemas.PyProjectTomlSchema.parse(project), project);
+  const uv = { sources: { local: { path: './local', editable: true } }, workspace: { members: ['packages/*'] } };
+  assert.deepEqual(schemas.UvConfigSchema.parse(uv), uv);
+  const invalid = schemas.UvConfigSchema.safeParse({ sources: { local: { editable: 'yes' } } });
+  assert.equal(invalid.success, false);
+  assert.ok(invalid.error.issues.length > 0);
+  assert.equal(schemas.PyProjectTomlSchema.safeParse({ project: { dependencies: [123] } }).success, false);
+});

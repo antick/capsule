@@ -31,3 +31,10 @@ overrides:
   'path-to-regexp@6.1.0': 6.3.0
   'path-to-regexp@8.3.0': 8.4.2
   'undici@5.28.4': 5.29.0
+  # These consumers use public schema APIs covered by the Python/build tests.
+  '@vercel/python-analysis@0.15.3>zod': 4.6.7
+  '@vercel/backends@24.0.1>zod': 4.6.7
+  '@vercel/express@24.0.1>zod': 4.6.7
+  '@vercel/hono@24.0.1>zod': 4.6.7
+  # Older nested CLI config packages still pin this vulnerable Zod 4 release.
+  'zod@4.1.11': 4.6.7
