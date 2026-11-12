@@ -34,7 +34,7 @@ run = "taskpolicy -b swift run CapsuleCLI --dev --pretty"
 description = "Quit Capsule Dev"
 run = "osascript -e 'quit app \"Capsule Dev\"'"
 
-# The landing page at capsule.potion.sh, in apps/landing.
+# The retained landing page, in apps/landing. Deployment is suspended.
 
 [tasks."landing:setup"]
 description = "Install the landing page's dependencies from the lockfile"
@@ -80,8 +80,8 @@ run = ["node --test compatibility.test.mjs", "pnpm exec vercel --version", "pnpm
 # Security checks, also run by the Security workflow.
 
 [tasks."security:workflows"]
-description = "Lint the GitHub Actions workflows and Dependabot config for security problems"
-run = "zizmor --pedantic .github/workflows .github/dependabot.yml"
+description = "Lint the GitHub Actions workflows for security problems"
+run = "zizmor --pedantic .github/workflows"
 
 [tasks."security:secrets"]
 description = "Scan every commit in the git history for secrets"

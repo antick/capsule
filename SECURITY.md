@@ -44,11 +44,10 @@ them with care:
 - Every dependency is pinned to an exact version published at least 7 days
   earlier. Tools come from `mise.lock` with checksums; the landing page's
   packages come from `pnpm-lock.yaml` with integrity hashes, may not run
-  install scripts, and are audited on every change. Dependabot proposes updates
-  with the same 7-day cooldown.
-- The landing page at [capsule.potion.sh](https://capsule.potion.sh) is static,
-  runs no JavaScript, and is served with a strict Content-Security-Policy. It is
-  deployed only from a published release; Vercel never builds a branch or a
-  pull request.
+  install scripts, and are audited on every change. Dependencies are updated
+  manually, with the same 7-day minimum age for new versions.
+- The retained landing page is static, runs no JavaScript, and includes a
+  strict Content-Security-Policy for future hosting. Deployment is suspended;
+  its build and security checks still run. Vercel's Git integration stays off.
 
 Run `mise run security` to repeat the workflow and secret checks locally.

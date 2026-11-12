@@ -9,6 +9,7 @@ const version = readFileSync("../../Support/CapsuleApp/Info.plist", "utf8").matc
   /<key>CFBundleShortVersionString<\/key>\s*<string>([^<]+)<\/string>/,
 )[1];
 const pages = readdirSync("dist").filter((name) => name.endsWith(".html"));
+const siteUrl = process.env.SITE_URL ? new URL("/", process.env.SITE_URL) : undefined;
 
 test("the download link names the files this version's release publishes", () => {
   const dmg = `https://github.com/antick/capsule/releases/download/v${version}/Capsule-${version}-arm64.dmg`;
@@ -43,14 +44,14 @@ test("pages load nothing from other sites", () => {
   for (const page of pages) {
     const source = readFileSync(join("dist", page), "utf8");
     for (const [, url] of source.matchAll(/<(?:img|link|source)\b[^>]*?(?:src|srcset|href)="(https?:[^"]+)"/g)) {
-      assert.match(url, /^https:\/\/capsule\.potion\.sh\//, `${page} loads ${url}`);
+      assert.ok(siteUrl, `${page} loads ${url} without a configured site URL`);
+      assert.equal(new URL(url).origin, siteUrl.origin, `${page} loads ${url}`);
     }
   }
 });
 
 test("the landing page has one heading, working anchors and alt text", () => {
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
-  assert.match(html, /<link rel="canonical" href="https:\/\/capsule\.potion\.sh\/"/);
   for (const [, target] of html.matchAll(/href="#([^"]+)"/g)) {
     assert.ok(html.includes(`id="${target}"`), `Missing anchor: ${target}`);
   }
@@ -65,6 +66,24 @@ test("the landing page has one heading, working anchors and alt text", () => {
 test("the site has a 404 page, robots.txt and a sitemap", () => {
   assert.ok(pages.includes("404.html"));
   assert.match(readFileSync("dist/404.html", "utf8"), /<meta name="robots" content="noindex"/);
-  assert.match(readFileSync("dist/robots.txt", "utf8"), /Sitemap: https:\/\/capsule\.potion\.sh\/sitemap\.xml/);
-  assert.match(readFileSync("dist/sitemap.xml", "utf8"), /<loc>https:\/\/capsule\.potion\.sh\/<\/loc>/);
+});
+
+test("public metadata uses only an explicitly configured site URL", () => {
+  const robots = readFileSync("dist/robots.txt", "utf8");
+  const sitemap = readFileSync("dist/sitemap.xml", "utf8");
+  if (siteUrl) {
+    assert.ok(html.includes(`<link rel="canonical" href="${siteUrl.href}"`));
+    assert.ok(html.includes(`<meta property="og:url" content="${siteUrl.href}"`));
+    assert.ok(html.includes(`<meta property="og:image" content="${siteUrl.origin}/_astro/`));
+    assert.ok(robots.includes(`Sitemap: ${new URL("sitemap.xml", siteUrl).href}`));
+    assert.ok(sitemap.includes(`<loc>${siteUrl.href}</loc>`));
+  } else {
+    for (const page of pages) {
+      const source = readFileSync(join("dist", page), "utf8");
+      assert.doesNotMatch(source, /rel="canonical"|property="og:(?:url|image)"/);
+    }
+    assert.doesNotMatch(robots, /Sitemap:/);
+    assert.doesNotMatch(sitemap, /<loc>/);
+  }
+  assert.doesNotMatch(readFileSync("dist/404.html", "utf8"), /rel="canonical"|property="og:url"/);
 });

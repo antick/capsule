@@ -37,11 +37,11 @@ Capsule is a native macOS always-on-top AI usage dock, in Swift and AppKit. Spec
 
 ## Landing page
 
-- `apps/landing` is the static site at capsule.potion.sh: Astro, plain CSS, pnpm, with its own `package.json` and lockfile. The repo is not a monorepo; there is no root `package.json`.
+- `apps/landing` retains the static landing page: Astro, plain CSS, pnpm, with its own `package.json` and lockfile. No public domain is configured and deployment automation is suspended. Keep its code and checks. The repo is not a monorepo; there is no root `package.json`.
 - Tools (node, pnpm, gitleaks, zizmor) are pinned in `mise.toml` with checksums in `mise.lock`. Use `mise run landing:dev`, `mise run landing:check` and `mise run security`.
 - The page runs no JavaScript and inlines nothing; the CSP in `apps/landing/vercel.json` forbids it and `tests/site.test.mjs` checks it. Keep it that way.
 - New dependencies are exact versions at least 7 days old, installed with `--ignore-scripts`; keep `pnpm-workspace.yaml`'s trust policy on and justify any exclusion there.
-- Automatic deploys follow published releases (`.github/workflows/landing-deploy.yml`). Website-only updates may be deployed manually from main with `deploy_main: true`, through the same landing environment. Never enable Vercel's Git deployments.
+- Landing deployment is suspended; app releases only publish downloads and the GitHub Pages update feed. Set `SITE_URL` when building for a future public address; without it, omit domain-specific metadata and sitemap entries. Never enable Vercel's Git deployments.
 
 ## Workflows
 
