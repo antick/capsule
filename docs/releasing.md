@@ -90,8 +90,11 @@ SITE_URL=https://example.invalid mise run landing:check
 Before hosting the page again, choose its public address, set `SITE_URL`, and
 restore a reviewed deployment workflow. Build from a published release tag so
 the download links point to available files. The Vercel hosting configuration
-and locked CLI in `.github/vercel` remain available for reuse. Vercel's Git
-integration stays off, so pushes and pull requests do not deploy.
+remains in `apps/landing/vercel.json`, with Git deployments disabled. The unused
+deployment CLI distribution has been removed. Any future Vercel deployment
+requires newly reviewed tooling pinned to exact versions at least seven days
+old, a frozen ignored-scripts install and the existing supply-chain policies.
+Do not substitute an unpinned on-demand command or global installation.
 
 ### Retiring the old hosting
 
