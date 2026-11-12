@@ -12,6 +12,7 @@ All notable changes to Capsule are documented in this file.
 ### Changed
 
 - Update the retained deployment CLI to Vercel 65.11.0, the newest stable release at least seven days old. Preserve dependency checks while keeping landing deployment suspended. Remaining security limits and compatibility coverage are documented in `docs/vercel-security.md`.
+- Upgrade the Node tracer to Glob 14.0.3 and Python file matching to Minimatch 11.0.4 with exact consumer-specific overrides. Remove superseded constraints and verify dynamic asset tracing, ignore rules and Python configuration parsing. The fresh CLI audit falls from 21 to 19 advisories; Undici, busboy and Zod upstream blockers keep the audit gate failing.
 
 - Retire the landing page's public address and remove website links and deployments. Keep the page's source, local preview and checks; public metadata and sitemap entries now require an explicit `SITE_URL`. App downloads and the GitHub Pages update feed keep working independently.
 - Update the landing page to Astro 7.4.2 and its checker to 0.9.12, and pin mise-action 5.2.2 across landing and security workflows. Refresh transitive Undici to 8.12.3 and fast-uri to 3.1.9 to resolve dependency advisories. Keep the seven-day release minimum and existing script, provenance and CSP policies.

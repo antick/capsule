@@ -153,3 +153,71 @@ test('Node consumer Undici Headers and request preserve streamed proxy responses
     await new Promise(resolve => server.close(resolve));
   }
 });
+
+test('Python analysis match export retains include and exclude selection', () => {
+  const { match } = python('minimatch');
+  const files = ['api/app.py', 'api/test_app.py', 'src/main.js', '.hidden.py'];
+  assert.deepEqual(match(files, 'api/**/*.py'), ['api/app.py', 'api/test_app.py']);
+  assert.deepEqual(match(files, '**/test_*.py'), ['api/test_app.py']);
+  assert.deepEqual(match(files, '**/*.py'), ['api/app.py', 'api/test_app.py']);
+  assert.deepEqual(match(files, '**/*.{py,js}'), files.slice(0, 3));
+});
+
+test('NFT glob retains asset discovery, ignore rules and cancellation', async () => {
+  const node = consumer('@vercel/node');
+  const { glob } = packageRequire(node, '@vercel/nft')('glob');
+  const root = await mkdtemp(join(tmpdir(), 'capsule-glob-'));
+  try {
+    await mkdir(join(root, 'assets'));
+    await mkdir(join(root, 'node_modules'));
+    await writeFile(join(root, 'assets/data.json'), '{}');
+    await writeFile(join(root, 'assets/.hidden.json'), '{}');
+    await writeFile(join(root, 'node_modules/ignored.json'), '{}');
+    const paths = await glob(`${root}/**/*`, {
+      dot: true, nodir: true, ignore: [`${root}/node_modules/**`],
+    });
+    assert.deepEqual(paths.sort(), [join(root, 'assets/.hidden.json'), join(root, 'assets/data.json')]);
+    const controller = new AbortController();
+    controller.abort();
+    await assert.rejects(glob(`${root}/**/*`, { signal: controller.signal }), { name: 'AbortError' });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('Node file tracing includes dynamic filesystem assets with the upgraded glob', async () => {
+  const { nodeFileTrace } = consumer('@vercel/node')('@vercel/nft');
+  const root = await mkdtemp(join(tmpdir(), 'capsule-nft-'));
+  try {
+    await mkdir(join(root, 'assets'));
+    await writeFile(join(root, 'package.json'), '{"private":true}');
+    await writeFile(join(root, 'assets/first.json'), '{"value":1}');
+    await writeFile(join(root, 'assets/second.json'), '{"value":2}');
+    await writeFile(join(root, 'index.js'), [
+      "const fs = require('node:fs');",
+      "const path = require('node:path');",
+      "module.exports = name => fs.readFileSync(path.join(__dirname, 'assets', name + '.json'));",
+    ].join('\n'));
+    const { fileList, warnings } = await nodeFileTrace([join(root, 'index.js')], { base: root });
+    assert.ok(fileList.has('index.js'));
+    assert.ok(fileList.has('assets/first.json'));
+    assert.ok(fileList.has('assets/second.json'));
+    assert.equal(warnings.size, 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('Python analyzer validates Pipfile dependency records through its public schemas', () => {
+  const { PipfileLikeSchema } = cli('@vercel/python-analysis');
+  const config = {
+    packages: { flask: '*', requests: { version: '>=2' } },
+    'dev-packages': { pytest: '*' },
+    scripts: { start: 'python app.py' },
+  };
+  const parsed = PipfileLikeSchema.parse(config);
+  assert.equal(parsed.packages.flask, '*');
+  assert.equal(parsed.packages.requests.version, '>=2');
+  assert.equal(parsed.scripts.start, 'python app.py');
+  assert.equal(PipfileLikeSchema.safeParse({ packages: { flask: 123 } }).success, false);
+});

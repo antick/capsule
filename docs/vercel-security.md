@@ -1,78 +1,117 @@
 # Deployment CLI security status
 
-Checked 30 October 2026 UTC (31 October India time). Vercel 65.2.0 was published
-22 October at 23:33:51 UTC, the newest stable release at least seven days old.
-Skipped 65.3.1, 65.4.0, 65.5.0, 65.7.0 and 65.8.0 because they are younger.
-Publication evidence: https://registry.npmjs.org/vercel (time metadata).
+Checked 12 November 2026 UTC. Landing deployment remains suspended.
 
-Upgrade from 64.0.2 and refresh compatible transitive ranges with pnpm 12.13.0.
-Preserve minimumReleaseAge 10080, ignored scripts, exotic dependency blocking,
-strict builds and the documented existing trust-policy exception.
+## Selected release
 
-## Compatible overrides
+Vercel is exact-pinned to **65.11.0**, published 3 November 2026 at
+19:38:50 UTC. It is the newest stable release at least seven days old at
+verification time. Skip 65.12.0 (5 November, 23:40 UTC), 65.12.1 (6 November)
+and 65.14.0 (9 November). The pinned Node 24.22.0 satisfies its Node >=20
+requirement. Registry evidence: https://registry.npmjs.org/vercel .
 
-Exact version selectors replace vulnerable upstream pins within their existing
-major lines. Dates below come from each package's npm registry time metadata.
-None skips a newer release within the same major. Undici remains on its latest
-5.x release; newer majors require separate migration. These overrides remove all
-tar, minimatch, Ajv, YAML, TOML and route-parser findings, plus Zod 4 findings.
+The official release endpoint for this tag and its raw CLI changelog returned
+404 during verification. Internal builders change major versions, so release
+note coverage is incomplete. The local static build and consumer tests below
+provide bounded compatibility evidence. Official CLI build contract:
+https://vercel.com/docs/cli/build . Release index:
+https://github.com/vercel/vercel/releases .
+
+## Targeted dependency changes
+
+Upgrade the root CLI first, then regenerate the existing lockfile with pnpm
+12.13.0 and ignored scripts. Preserve the seven-day minimum, exotic dependency
+blocking, strict build policy and existing documented trust-policy exception.
+No audit exclusions or severity reductions are applied.
+
+Glob 14 and Minimatch 11 must move together: Glob 13 expects regex-based
+internals that Minimatch 11 replaced with matcher objects. Override only
+`@vercel/nft@1.10.0>glob` to 14.0.3 and
+`@vercel/python-analysis@0.15.3>minimatch` to 11.0.4. NFT uses the public async
+glob API; Python analysis uses the retained `match(list, pattern)` export.
+Remove the superseded Minimatch 10 selector and unused Zod 4 selector, since
+Vercel now pins Zod 4.6.7 itself. Keep unrelated major lines unchanged.
+
+Official migration sources:
+https://github.com/isaacs/node-glob/blob/main/changelog.md and
+https://github.com/isaacs/minimatch/blob/main/README.md . Glob 14 changes
+internal pattern methods and absolute ignore semantics and removes `debug`.
+The affected consumers do not use those removed APIs. Tests cover their actual
+file discovery, absolute ignore paths and dynamic asset tracing.
+
+Exact override pins and live registry publication dates:
 
 | Package | Pin | Publication UTC |
 | --- | --- | --- |
-| tar | 7.5.22 | 24 July 2026 |
-| minimatch | 10.2.6 | 27 July 2026 |
-| ajv | 8.20.0 | 24 April 2026 |
-| js-yaml | 4.3.2 | 26 August 2026 |
-| smol-toml | 1.9.1 | 9 October 2026 |
-| path-to-regexp | 6.3.0 | 12 September 2024 |
-| path-to-regexp | 8.4.2 | 1 April 2026 |
-| zod | 4.6.7 | 12 October 2026 |
-| undici | 5.29.0 | 19 March 2025 |
+| tar | 7.5.22 | 2026-07-24T15:48:51.111Z |
+| minimatch | 11.0.4 | 2026-11-02T04:50:40.232Z |
+| glob | 14.0.3 | 2026-10-28T04:08:39.624Z |
+| ajv | 8.20.0 | 2026-04-24T15:22:16.529Z |
+| js-yaml | 4.3.2 | 2026-08-26T20:42:48.747Z |
+| smol-toml | 1.9.1 | 2026-10-09T10:21:39.612Z |
+| path-to-regexp | 6.3.0 | 2024-09-12T01:09:36.065Z |
+| path-to-regexp | 8.4.2 | 2026-04-01T21:17:05.201Z |
+| undici | 5.29.0 | 2025-03-19T18:00:34.079Z |
+
+Glob 14.0.4 and 14.0.5, Minimatch 11.0.5 through 11.0.8, and tar 7.5.23
+are newer but younger than seven days. Keep js-yaml on its patched 4.x line;
+upstream declares 4.x and no advisory remains there. A js-yaml 5 or route-parser
+9 migration is outside these fixes. smol-toml and tar retain their eligible
+patched pins. No findings remain for minimatch, glob, smol-toml, js-yaml or tar.
 
 ## Verification
 
-`mise run vercel:check` installs the frozen lockfile without scripts, runs eight
-compatibility tests, performs CLI startup/help smoke checks and audits without
-severity exclusions. Tests load dependencies through actual installed consumers.
-Container uses standard tar.extract with file/cwd, both sync and async. Tests
-extract valid gzip archives and verify traversal and symlink escapes cannot write
-outside the destination. Other tests exercise TOML parse/stringify, YAML load and
-unsafe-tag rejection, glob matching, Ajv compilation and validation, v6/v8 route
-matching and invalid patterns, Zod 4 validation, and the Node builder's Undici Headers/request response streaming against a local HTTP server. TOML now returns objects with
-null prototypes; inspected container call sites use property access, optional
-chaining and serialization, which remain supported.
+`mise run vercel:check` performs a frozen ignored-scripts install, twelve
+compatibility tests, CLI startup/help checks and the low-severity audit.
+Compatibility tests load packages through their actual installed consumers.
+They cover sync/async tar extraction and traversal/symlink escape rejection,
+TOML round trips, YAML unsafe-tag rejection, schema validation, route matching,
+local HTTP response streaming, Python include/exclude matching, glob ignore,
+dotfiles and abort behavior, real Node file tracing of dynamic assets, and
+Python Pipfile dependency records through the analyzer's public schema.
 
-A disposable static project builds using `vercel build --prod` with an isolated
-home/config directory and no credential environment. Tests inspect the generated
-static HTML and Build Output API version 3 config. This verifies local static
-build integration; it does not verify authenticated pull, the production project,
-its Astro adapter integration, or deployment. CLI help checks alone establish
-startup/help smoke behavior, not execution of every advertised flag.
+A disposable static project builds using `vercel build --prod` with isolated
+home/config and no credential environment. Tests inspect its HTML and Build
+Output API version 3 config. This does not verify authenticated pull, the
+production project or deployment. Help output verifies startup and help only.
+
+The retained landing page passes type checking, builds, seven tests and its
+dependency audit, with both unset and placeholder `SITE_URL`. Workflow lint
+reports no findings in its default offline mode. Full-history secret scanning
+passes. No native Swift code changed, so no native rebuild was required.
 
 ## Remaining upstream blockers
 
-Audit falls from 51 initially, through 41 after the CLI upgrade and 21 after compatible overrides, to **19**:
-**0 critical, 7 high, 9 moderate, 3 low**. All remaining paths are listed below.
-The gate intentionally fails and prevents deployment before credential use.
-No incompatible major override or advisory suppression is included.
+The fresh baseline is **21 advisories: 0 critical, 7 high, 11 moderate, 3 low**.
+The final graph has **19: 0 critical, 7 high, 9 moderate, 3 low**. The two
+removed findings affect glob and minimatch. Observed alert instances and unique
+audit advisories are different counts; this report uses fresh audit output.
 
-- Vercel 65.2.0 and the patched @vercel/node graph now both use Undici 5.29.0.
-  A targeted override replaces the Node builder's exact 5.28.4 pin and removes
-  GHSA-c76h-2ccp-4975 and GHSA-cxrh-j4jr-qwg3. Inspected dev-server.mjs
-  uses Headers, request, statusCode and response body streaming/text/arrayBuffer.
-  Remaining fixes require >=6.29.1. Undici 5 declares busboy ^2.0.0, resolved
-  2.1.1, while the busboy fixes require >=3.2.2. These are undeclared major
-  migrations; representative static builds do not establish compatibility of
-  Undici transport or multipart parsing across all builders.
-- @vercel/python-analysis 0.15.2, @vercel/backends 22.0.1, @vercel/express
-  22.0.1 and @vercel/hono 22.0.1 pin Zod 3.22.4. The remaining advisory
-  requires >=4.6.6, a major migration distinct from the applied Zod 4 update.
+`vercel:check` and `security` still exit nonzero at the unchanged audit gate.
+Do not treat this branch as merge-ready.
 
-Landing CI checks this graph when `.github/vercel/**` changes. Weekly Security
-CI and `mise run security` also run it. Thus `mise run security` currently fails
-on the dependency audit even though workflow lint and secret scanning pass.
+- Vercel 65.11.0 and its Node builder still declare Undici 5.29.0 and 5.28.4.
+  The retained exact 5.28.4 selector resolves the builder to 5.29.0. All
+  currently reported Undici fixes require at least 6.29.1, outside those
+  declarations. Undici 5 internally depends on busboy 2.1.1; the busboy fix
+  requires 3.2.2 or newer. No maintained same-major fix is available in the
+  live registry. Newer Vercel 65.14.0 still declares Undici 5.29.0. Independently
+  replacing the transport or its multipart parser would bypass upstream major
+  contracts. The CLI also ships bundled older Undici source; lockfile overrides
+  cannot replace bundled code. Transport authentication, proxy, TLS, streaming
+  and multipart integration need upstream migration coverage beyond a local
+  static build. No blanket transport override is included.
+- Python analysis 0.15.3, backends, Express and Hono still pin Zod 3.22.4.
+  The advisory requires Zod >=4.6.6. Python analysis uses single-argument
+  `z.record(...)` at dist/index.js:1440-1476; Zod 4 removed that signature.
+  Replacing it without migrating upstream source breaks Pipfile parsing.
+  Official migration guide: https://zod.dev/v4/changelog .
 
-## Remaining advisories and paths
+A future upstream release must satisfy the release-age policy and pass these
+checks before it can resolve the remaining gate failures. Roll back this work
+with reverting commits; keep the audit enforcement and deployment suspension.
+
+## Remaining advisories
 
 | Package | Severity | Fixed range | Advisory |
 | --- | --- | --- | --- |
@@ -82,7 +121,6 @@ on the dependency audit even though workflow lint and secret scanning pass.
 | undici | high | >=6.24.0 | https://github.com/advisories/GHSA-v9p9-hfj2-hcw8 |
 | undici | moderate | >=6.24.0 | https://github.com/advisories/GHSA-4992-7rv2-5pvq |
 | undici | moderate | >=6.27.0 | https://github.com/advisories/GHSA-p88m-4jfj-68fv |
-| undici | high | >=6.27.0 | https://github.com/advisories/GHSA-vxpw-j846-p89q |
 | undici | low | >=6.27.0 | https://github.com/advisories/GHSA-g8m3-5g58-fq7m |
 | undici | moderate | >=6.28.0 | https://github.com/advisories/GHSA-8xcm-r25x-g524 |
 | undici | moderate | >=6.28.0 | https://github.com/advisories/GHSA-m8rv-5g2x-5cg5 |
@@ -95,32 +133,4 @@ on the dependency audit even though workflow lint and secret scanning pass.
 | undici | high | >=6.29.1 | https://github.com/advisories/GHSA-2m5v-pch6-74hx |
 | undici | high | >=6.29.1 | https://github.com/advisories/GHSA-qrxm-fqhp-jwvm |
 | undici | moderate | >=6.29.1 | https://github.com/advisories/GHSA-9fm3-97px-rjf6 |
-
-Exact dependency paths reported by `pnpm audit --json`:
-
-```text
-.>vercel>@vercel/backends>zod
-.>vercel>@vercel/elysia>@vercel/node>undici
-.>vercel>@vercel/elysia>@vercel/node>undici>@fastify/busboy
-.>vercel>@vercel/express>@vercel/cervel>@vercel/backends>zod
-.>vercel>@vercel/express>@vercel/node>undici
-.>vercel>@vercel/express>@vercel/node>undici>@fastify/busboy
-.>vercel>@vercel/express>zod
-.>vercel>@vercel/fastify>@vercel/node>undici
-.>vercel>@vercel/fastify>@vercel/node>undici>@fastify/busboy
-.>vercel>@vercel/h3>@vercel/node>undici
-.>vercel>@vercel/h3>@vercel/node>undici>@fastify/busboy
-.>vercel>@vercel/hono>@vercel/node>undici
-.>vercel>@vercel/hono>@vercel/node>undici>@fastify/busboy
-.>vercel>@vercel/hono>zod
-.>vercel>@vercel/koa>@vercel/node>undici
-.>vercel>@vercel/koa>@vercel/node>undici>@fastify/busboy
-.>vercel>@vercel/nestjs>@vercel/node>undici
-.>vercel>@vercel/nestjs>@vercel/node>undici>@fastify/busboy
-.>vercel>@vercel/node>undici
-.>vercel>@vercel/node>undici>@fastify/busboy
-.>vercel>@vercel/python-analysis>zod
-.>vercel>@vercel/python>@vercel/python-analysis>zod
-.>vercel>undici
-.>vercel>undici>@fastify/busboy
-```
+| undici | high | >=6.27.0 | https://github.com/advisories/GHSA-vxpw-j846-p89q |

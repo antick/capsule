@@ -17,15 +17,17 @@ strictDepBuilds: true
 allowBuilds:
   esbuild: false
 
-# Keep vulnerable upstream exact pins on compatible patched major lines.
+# Replace exact upstream pins only at the consumers covered by compatibility tests.
 # API compatibility coverage lives in compatibility.test.mjs.
 overrides:
   'tar@7.5.11': 7.5.22
-  'minimatch@10.1.1': 10.2.6
+  # Glob 14 and Minimatch 11 must move together; Glob 13 uses regex internals.
+  '@vercel/nft@1.10.0>glob': 14.0.3
+  # Python analysis only uses match(list, pattern), retained by Minimatch 11.
+  '@vercel/python-analysis@0.15.3>minimatch': 11.0.4
   'ajv@8.6.3': 8.20.0
   'js-yaml@4.1.1': 4.3.2
   'smol-toml@1.5.2': 1.9.1
   'path-to-regexp@6.1.0': 6.3.0
   'path-to-regexp@8.3.0': 8.4.2
-  'zod@4.1.11': 4.6.7
   'undici@5.28.4': 5.29.0
