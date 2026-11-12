@@ -30,7 +30,10 @@ overrides:
   'smol-toml@1.5.2': 1.9.1
   'path-to-regexp@6.1.0': 6.3.0
   'path-to-regexp@8.3.0': 8.4.2
-  'undici@5.28.4': 5.29.0
+  # Public request/fetch APIs are verified on the pinned Node 24 toolchain.
+  'vercel@65.11.0>undici': 8.12.4
+  '@vercel/cli-support@65.11.0>undici': 8.12.4
+  '@vercel/node@29.0.1>undici': 8.12.4
   # These consumers use public schema APIs covered by the Python/build tests.
   '@vercel/python-analysis@0.15.3>zod': 4.6.7
   '@vercel/backends@24.0.1>zod': 4.6.7

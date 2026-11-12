@@ -5,6 +5,8 @@ import { existsSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
+import { createServer as createSecureServer } from 'node:https';
+import { connect } from 'node:net';
 import { once } from 'node:events';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -237,4 +239,120 @@ test('Python analyzer retains lockfile, project and UV configuration validation'
   assert.equal(invalid.success, false);
   assert.ok(invalid.error.issues.length > 0);
   assert.equal(schemas.PyProjectTomlSchema.safeParse({ project: { dependencies: [123] } }).success, false);
+});
+
+for (const [name, parent] of [['CLI', cli], ['Node builder', consumer('@vercel/node')]]) {
+  test(`${name} transport retains fetch, multipart, redirects, abort and custom agents`, async () => {
+    const { fetch, request, FormData, Agent, Response } = parent('undici');
+    const server = createServer(async (req, res) => {
+      if (req.url === '/redirect') {
+        res.writeHead(302, { location: '/final' });
+        res.end();
+        return;
+      }
+      let body = '';
+      for await (const chunk of req) body += chunk;
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({ url: req.url, auth: req.headers.authorization, body }));
+    });
+    server.listen(0, '127.0.0.1');
+    await once(server, 'listening');
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const agent = new Agent({ allowH2: false });
+    try {
+      const manual = await fetch(`${base}/redirect`, { redirect: 'manual', dispatcher: agent });
+      assert.equal(manual.status, 302);
+      await manual.text();
+      const followed = await fetch(`${base}/redirect`, { dispatcher: agent });
+      assert.equal((await followed.json()).url, '/final');
+      const form = new FormData();
+      form.set('message', 'local multipart fixture');
+      const posted = await fetch(base, { method: 'POST', body: form, headers: { authorization: 'Bearer fixture' }, dispatcher: agent });
+      const echoed = await posted.json();
+      assert.equal(echoed.auth, 'Bearer fixture');
+      assert.match(echoed.body, /name="message"/);
+      assert.match(echoed.body, /local multipart fixture/);
+      const multipart = new Response('--fixture\r\nContent-Disposition: form-data; name="value"\r\n\r\nparsed\r\n--fixture--\r\n', {
+        headers: { 'content-type': 'multipart/form-data; boundary=fixture' },
+      });
+      assert.equal((await multipart.formData()).get('value'), 'parsed');
+      const bytes = await request(base, { dispatcher: agent });
+      assert.ok((await bytes.body.arrayBuffer()).byteLength > 0);
+      const controller = new AbortController();
+      controller.abort();
+      await assert.rejects(fetch(base, { signal: controller.signal, dispatcher: agent }), { name: 'AbortError' });
+    } finally {
+      await agent.close();
+      server.closeAllConnections();
+      await new Promise(resolve => server.close(resolve));
+    }
+  });
+}
+
+test('transport retains authenticated CONNECT proxying over a local tunnel', { timeout: 10000 }, async () => {
+  const { ProxyAgent, request } = consumer('@vercel/node')('undici');
+  const target = createServer((_req, res) => res.end('proxied fixture'));
+  const proxy = createServer();
+  const sockets = new Set();
+  let proxyAuthorization;
+  target.listen(0, '127.0.0.1');
+  await once(target, 'listening');
+  proxy.on('connect', (req, socket, head) => {
+    proxyAuthorization = req.headers['proxy-authorization'];
+    sockets.add(socket);
+    const upstream = connect(target.address().port, '127.0.0.1', () => {
+      socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
+      if (head.length) upstream.write(head);
+      socket.pipe(upstream);
+      upstream.pipe(socket);
+    });
+    sockets.add(upstream);
+    upstream.on('error', () => socket.destroy());
+    socket.on('error', () => upstream.destroy());
+  });
+  proxy.listen(0, '127.0.0.1');
+  await once(proxy, 'listening');
+  const dispatcher = new ProxyAgent({ uri: `http://127.0.0.1:${proxy.address().port}`, token: 'Basic Zml4dHVyZQ==', proxyTunnel: true });
+  try {
+    const response = await request(`http://127.0.0.1:${target.address().port}`, { dispatcher });
+    assert.equal(await response.body.text(), 'proxied fixture');
+    assert.equal(proxyAuthorization, 'Basic Zml4dHVyZQ==');
+  } finally {
+    for (const socket of sockets) socket.destroy();
+    await dispatcher.destroy();
+    target.closeAllConnections();
+    await Promise.all([new Promise(resolve => target.close(resolve)), new Promise(resolve => proxy.close(resolve))]);
+  }
+});
+
+test('transport rejects untrusted TLS and accepts only an explicitly trusted local certificate', async () => {
+  const { Agent, request } = consumer('@vercel/node')('undici');
+  const root = await mkdtemp(join(tmpdir(), 'capsule-tls-'));
+  let server;
+  let trusted;
+  let untrusted;
+  try {
+    const key = join(root, 'fixture.key');
+    const cert = join(root, 'fixture.crt');
+    const generated = spawnSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes',
+      '-keyout', key, '-out', cert, '-days', '1', '-subj', '/CN=localhost'], { encoding: 'utf8', timeout: 10000 });
+    assert.equal(generated.status, 0, generated.stderr);
+    const ca = await readFile(cert);
+    server = createSecureServer({ key: await readFile(key), cert: ca }, (_req, res) => res.end('trusted fixture'));
+    server.listen(0, '127.0.0.1');
+    await once(server, 'listening');
+    const url = `https://localhost:${server.address().port}`;
+    untrusted = new Agent({ connect: { family: 4 } });
+    await assert.rejects(request(url, { dispatcher: untrusted }), { code: 'DEPTH_ZERO_SELF_SIGNED_CERT' });
+    trusted = new Agent({ connect: { family: 4, ca } });
+    const response = await request(url, { dispatcher: trusted });
+    assert.equal(await response.body.text(), 'trusted fixture');
+  } finally {
+    await Promise.all([trusted?.close(), untrusted?.close()]);
+    if (server) {
+      server.closeAllConnections();
+      await new Promise(resolve => server.close(resolve));
+    }
+    await rm(root, { recursive: true, force: true });
+  }
 });

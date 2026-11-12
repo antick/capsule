@@ -1,137 +1,113 @@
-# Deployment CLI security status
+# Deployment CLI dependency verification
 
 Checked 12 November 2026 UTC. Landing deployment remains suspended.
 
-## Selected release
+## Release selection
 
 Vercel is exact-pinned to **65.11.0**, published 3 November 2026 at
 19:38:50 UTC. It is the newest stable release at least seven days old at
 verification time. Skip 65.12.0 (5 November, 23:40 UTC), 65.12.1 (6 November)
-and 65.14.0 (9 November). The pinned Node 24.22.0 satisfies its Node >=20
-requirement. Registry evidence: https://registry.npmjs.org/vercel .
+and 65.14.0 (9 November). Registry: https://registry.npmjs.org/vercel .
 
-The official release endpoint for this tag and its raw CLI changelog returned
-404 during verification. Internal builders change major versions, so release
-note coverage is incomplete. The local static build and consumer tests below
-provide bounded compatibility evidence. Official CLI build contract:
-https://vercel.com/docs/cli/build . Release index:
-https://github.com/vercel/vercel/releases .
+Undici 8.12.4 was published 5 November at 08:55:59 UTC and was already seven
+days old when selected on 12 November at 08:57 UTC. It requires Node >=22.19.0;
+this repository pins Node 24.22.0. Glob 14.0.3 and Minimatch 11.0.4 are the
+newest eligible versions. Skip Glob 14.0.4 and 14.0.5, Minimatch 11.0.5 through
+11.0.8, and tar 7.5.23 because they are younger than seven days.
 
-## Targeted dependency changes
+## Consumer migrations
 
-Upgrade the root CLI first, then regenerate the existing lockfile with pnpm
+Upgrade the root CLI first, then update the existing lockfile with pnpm
 12.13.0 and ignored scripts. Preserve the seven-day minimum, exotic dependency
 blocking, strict build policy and existing documented trust-policy exception.
 No audit exclusions or severity reductions are applied.
 
-Glob 14 and Minimatch 11 must move together: Glob 13 expects regex-based
-internals that Minimatch 11 replaced with matcher objects. Override only
-`@vercel/nft@1.10.0>glob` to 14.0.3 and
-`@vercel/python-analysis@0.15.3>minimatch` to 11.0.4. NFT uses the public async
-glob API; Python analysis uses the retained `match(list, pattern)` export.
-Remove the superseded Minimatch 10 selector and unused Zod 4 selector, since
-Vercel now pins Zod 4.6.7 itself. Keep unrelated major lines unchanged.
+- Move only NFT 1.10.0 to Glob 14.0.3 and Python analysis 0.15.3 to Minimatch
+  11.0.4. Glob 14 and Minimatch 11 use matcher objects in place of regex-based
+  internals; do not put Minimatch 11 under Glob 13. NFT uses public async glob;
+  Python analysis uses the retained `match(list, pattern)` export. Tests verify
+  real dynamic asset tracing, absolute ignore rules, dotfiles and cancellation.
+- Move only Python analysis 0.15.3, backends 24.0.1, Express 24.0.1 and Hono
+  24.0.1 to Zod 4.6.7. Installed 4.6.7 accepts the single-argument record form,
+  despite its removal in the initial Zod 4 guide. Public Pipfile, lockfile,
+  project and UV schemas pass valid and invalid configuration tests. Retain
+  the compatible Zod 4.1.11 selector for older nested CLI config packages.
+- Move only Vercel 65.11.0, its optional CLI support package 65.11.0, and Node
+  builder 29.0.1 to Undici 8.12.4. Remove the superseded Undici 5 selector.
+  Vulnerable busboy 2 disappears naturally because Undici 8 owns multipart
+  parsing. Do not override busboy independently or change unrelated maintained
+  Undici major lines used by Blob and Sandbox.
 
-Official migration sources:
-https://github.com/isaacs/node-glob/blob/main/changelog.md and
-https://github.com/isaacs/minimatch/blob/main/README.md . Glob 14 changes
-internal pattern methods and absolute ignore semantics and removes `debug`.
-The affected consumers do not use those removed APIs. Tests cover their actual
-file discovery, absolute ignore paths and dynamic asset tracing.
+Undici 7 removes legacy interceptors and `throwOnError`; Undici 8 removes legacy
+handler wrappers and nonstandard Blob objects, bridges global dispatchers and
+enables HTTP/2 by default. The inspected Node dev-server imports only public
+`Headers` and `request`, for local HTTP response streaming. The tests cover
+request/fetch, multipart serialization/parsing, redirects, cancellation, custom
+agents, authenticated local CONNECT tunneling and TLS rejection/custom CA trust.
+Undici 8 forwards plain HTTP proxy targets by default; the CONNECT fixture
+explicitly sets `proxyTunnel: true`. No application ProxyAgent callsite changed.
 
-Exact override pins and live registry publication dates:
+Exact selectors and package-specific comments live in `pnpm-workspace.yaml`.
+Existing patched tar, TOML, YAML, Ajv and route-parser pins remain on their
+compatible major lines. Latest js-yaml 5 and path-to-regexp 9 are separate
+transitive major migrations with no remaining advisory in the retained lines.
 
-| Package | Pin | Publication UTC |
+| Package | Exact selected pin | Publication UTC |
 | --- | --- | --- |
-| tar | 7.5.22 | 2026-07-24T15:48:51.111Z |
-| minimatch | 11.0.4 | 2026-11-02T04:50:40.232Z |
+| vercel | 65.11.0 | 2026-11-03T19:38:50.927Z |
+| undici | 8.12.4 | 2026-11-05T08:55:59.361Z |
 | glob | 14.0.3 | 2026-10-28T04:08:39.624Z |
-| ajv | 8.20.0 | 2026-04-24T15:22:16.529Z |
-| js-yaml | 4.3.2 | 2026-08-26T20:42:48.747Z |
+| minimatch | 11.0.4 | 2026-11-02T04:50:40.232Z |
+| zod | 4.6.7 | 2026-10-12T16:29:37.778Z |
+| tar | 7.5.22 | 2026-07-24T15:48:51.111Z |
 | smol-toml | 1.9.1 | 2026-10-09T10:21:39.612Z |
+| js-yaml | 4.3.2 | 2026-08-26T20:42:48.747Z |
+| ajv | 8.20.0 | 2026-04-24T15:22:16.529Z |
 | path-to-regexp | 6.3.0 | 2024-09-12T01:09:36.065Z |
 | path-to-regexp | 8.4.2 | 2026-04-01T21:17:05.201Z |
-| undici | 5.29.0 | 2025-03-19T18:00:34.079Z |
 
-Glob 14.0.4 and 14.0.5, Minimatch 11.0.5 through 11.0.8, and tar 7.5.23
-are newer but younger than seven days. Keep js-yaml on its patched 4.x line;
-upstream declares 4.x and no advisory remains there. A js-yaml 5 or route-parser
-9 migration is outside these fixes. smol-toml and tar retain their eligible
-patched pins. No findings remain for minimatch, glob, smol-toml, js-yaml or tar.
+Publication times come from each package's `https://registry.npmjs.org/` time
+metadata. Exact manifest and override pins are checked against the seven-day
+minimum; the package manager also enforces the minimum on transitive resolution.
 
-## Verification
+## Verification and limits
 
-`mise run vercel:check` performs a frozen ignored-scripts install, thirteen
-compatibility tests, CLI startup/help checks and the low-severity audit.
-Compatibility tests load packages through their actual installed consumers.
-They cover sync/async tar extraction and traversal/symlink escape rejection,
-TOML round trips, YAML unsafe-tag rejection, schema validation, route matching,
-local HTTP response streaming, Python include/exclude matching, glob ignore,
-dotfiles and abort behavior, real Node file tracing of dynamic assets, and
-Python Pipfile dependency records through the analyzer's public schema.
+The fresh baseline audit reported **21 advisories: 7 high, 11 moderate and
+3 low**. The final deployment graph reports **zero advisories** at the unchanged
+low-severity threshold. No findings remain for the scoped packages. Unique audit
+advisories and previously observed alert instances are different counts.
 
-A disposable static project builds using `vercel build --prod` with isolated
-home/config and no credential environment. Tests inspect its HTML and Build
-Output API version 3 config. This does not verify authenticated pull, the
-production project or deployment. Help output verifies startup and help only.
+`mise run vercel:check` checks the frozen ignored-scripts install, seventeen
+consumer compatibility tests, CLI startup/help and the dependency audit. The
+suite includes a disposable `vercel build --prod` with isolated home/config
+and no credential environment, inspecting static HTML and Build Output API v3.
+The retained landing page is checked with unset and placeholder `SITE_URL`,
+including type checking, builds, seven tests and its dependency audit. Strict
+peer installs, workflow lint and full-history secret scanning are also checked.
+No native Swift code changed, so no native rebuild was required.
 
-The retained landing page passes type checking, builds, seven tests and its
-dependency audit, with both unset and placeholder `SITE_URL`. Workflow lint
-reports no findings in its default offline mode. Full-history secret scanning
-passes. No native Swift code changed, so no native rebuild was required.
+An audit-clean lockfile does not cover bundled dependency copies. Vercel's
+shipped JavaScript includes older embedded Undici source, which package-manager
+overrides cannot replace. Reachability and security of those copies remain
+unverified. Authenticated pull, production builds, deployment, provider flows,
+HTTP/2 production transport and optional platform fallback execution are not
+verified by these local tests. CLI help verifies startup/help only. Workflow
+lint runs in its default offline mode.
 
-## Remaining upstream blockers
+The official Vercel 65.11.0 release endpoint and raw CLI changelog returned 404,
+so internal builder major release-note coverage is incomplete. Local consumer
+tests provide bounded compatibility evidence; independent review is still
+required. No publication or deployment is implied by these checks. Roll back
+with reverting commits while retaining audit enforcement and deployment suspension.
 
-The fresh baseline is **21 advisories: 0 critical, 7 high, 11 moderate, 3 low**.
-The final graph has **18: 0 critical, 6 high, 9 moderate, 3 low**. The three
-removed findings affect glob, minimatch and Zod. Observed alert instances and unique
-audit advisories are different counts; this report uses fresh audit output.
+Official migration and behavior sources:
 
-`vercel:check` and `security` still exit nonzero at the unchanged audit gate.
-Do not treat this branch as merge-ready.
-
-- Vercel 65.11.0 and its Node builder still declare Undici 5.29.0 and 5.28.4.
-  The retained exact 5.28.4 selector resolves the builder to 5.29.0. All
-  currently reported Undici fixes require at least 6.29.1, outside those
-  declarations. Undici 5 internally depends on busboy 2.1.1; the busboy fix
-  requires 3.2.2 or newer. No maintained same-major fix is available in the
-  live registry. Newer Vercel 65.14.0 still declares Undici 5.29.0. Independently
-  replacing the transport or its multipart parser would bypass upstream major
-  contracts. The CLI also ships bundled older Undici source; lockfile overrides
-  cannot replace bundled code. Transport authentication, proxy, TLS, streaming
-  and multipart integration need upstream migration coverage beyond a local
-  static build. No blanket transport override is included.
-- Python analysis, backends, Express and Hono now use exact consumer-specific
-  Zod 4.6.7 overrides. The installed 4.6.7 runtime accepts the single-argument
-  record API, despite its removal in the initial Zod 4 migration guide.
-  Real Pipfile, lockfile, project and UV public schema tests pass. Retain the
-  Zod 4.1.11 selector because nested older CLI config packages still need it.
-  Migration guide: https://zod.dev/v4/changelog .
-
-
-A future upstream release must satisfy the release-age policy and pass these
-checks before it can resolve the remaining gate failures. Roll back this work
-with reverting commits; keep the audit enforcement and deployment suspension.
-
-## Remaining advisories
-
-| Package | Severity | Fixed range | Advisory |
-| --- | --- | --- | --- |
-| undici | moderate | >=6.23.0 | https://github.com/advisories/GHSA-g9mf-h72j-4rw9 |
-| undici | moderate | >=6.24.0 | https://github.com/advisories/GHSA-2mjp-6q6p-2qxm |
-| undici | high | >=6.24.0 | https://github.com/advisories/GHSA-vrm6-8vpv-qv8q |
-| undici | high | >=6.24.0 | https://github.com/advisories/GHSA-v9p9-hfj2-hcw8 |
-| undici | moderate | >=6.24.0 | https://github.com/advisories/GHSA-4992-7rv2-5pvq |
-| undici | moderate | >=6.27.0 | https://github.com/advisories/GHSA-p88m-4jfj-68fv |
-| undici | low | >=6.27.0 | https://github.com/advisories/GHSA-g8m3-5g58-fq7m |
-| undici | moderate | >=6.28.0 | https://github.com/advisories/GHSA-8xcm-r25x-g524 |
-| undici | moderate | >=6.28.0 | https://github.com/advisories/GHSA-m8rv-5g2x-5cg5 |
-| undici | moderate | >=6.28.0 | https://github.com/advisories/GHSA-v3r7-h72x-cjcm |
-| undici | low | >=6.27.0 | https://github.com/advisories/GHSA-35p6-xmwp-9g52 |
-| undici | low | >=6.28.1 | https://github.com/advisories/GHSA-r53p-7pc4-xj5r |
-| @fastify/busboy | high | >=3.2.1 | https://github.com/advisories/GHSA-x8mw-p69m-v3mx |
-| @fastify/busboy | moderate | >=3.2.2 | https://github.com/advisories/GHSA-gxm5-99cw-xjw9 |
-| undici | high | >=6.29.1 | https://github.com/advisories/GHSA-2m5v-pch6-74hx |
-| undici | high | >=6.29.1 | https://github.com/advisories/GHSA-qrxm-fqhp-jwvm |
-| undici | moderate | >=6.29.1 | https://github.com/advisories/GHSA-9fm3-97px-rjf6 |
-| undici | high | >=6.27.0 | https://github.com/advisories/GHSA-vxpw-j846-p89q |
+- https://github.com/vercel/vercel/releases
+- https://vercel.com/docs/cli/build
+- https://github.com/isaacs/node-glob/blob/main/changelog.md
+- https://github.com/isaacs/minimatch/blob/main/README.md
+- https://zod.dev/v4/changelog
+- https://github.com/nodejs/undici/releases/tag/v6.0.0
+- https://github.com/nodejs/undici/releases/tag/v7.0.0
+- https://github.com/nodejs/undici/releases/tag/v8.0.0
+- https://github.com/nodejs/undici/blob/main/README.md
