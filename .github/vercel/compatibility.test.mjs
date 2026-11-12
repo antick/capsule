@@ -103,32 +103,43 @@ test('CLI Zod v4 schemas accept config and reject invalid values', () => {
 });
 
 // Exercise a real local build with isolated configuration and no credentials.
-test('CLI builds a disposable static project into prebuilt output', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'capsule-vercel-build-'));
-  try {
-    await mkdir(join(root, '.vercel'));
-    await mkdir(join(root, 'public'));
-    const html = '<html><body>Local build fixture</body></html>';
-    await writeFile(join(root, 'public/index.html'), html);
-    await writeFile(join(root, 'package.json'), JSON.stringify({ name: 'static-build-fixture', private: true }));
-    await writeFile(join(root, '.vercel/project.json'), JSON.stringify({
-      projectId: 'prj_local_fixture', orgId: 'team_local_fixture',
-      settings: { framework: null, buildCommand: null, devCommand: null, installCommand: 'true', outputDirectory: 'public' },
-    }));
-    const cliPath = fileURLToPath(new URL('./node_modules/.bin/vercel', import.meta.url));
-    const result = spawnSync(cliPath, ['build', '--prod'], {
-      cwd: root, encoding: 'utf8', timeout: 45000,
-      env: { PATH: process.env.PATH, HOME: root, XDG_CONFIG_HOME: root, CI: '1', VERCEL_TELEMETRY_DISABLED: '1' },
-    });
-    assert.equal(result.status, 0, result.stderr);
-    const output = join(root, '.vercel/output');
-    assert.equal(await readFile(join(output, 'static/index.html'), 'utf8'), html);
-    const config = JSON.parse(await readFile(join(output, 'config.json'), 'utf8'));
-    assert.equal(config.version, 3);
-  } finally {
-    await rm(root, { recursive: true, force: true });
-  }
-});
+for (const [launcher, useNative] of [['native', '1'], ['Node fallback', '0']]) {
+  test(`CLI ${launcher} builds a disposable static project into prebuilt output`, async () => {
+    const root = await mkdtemp(join(tmpdir(), 'capsule-vercel-build-'));
+    try {
+      await mkdir(join(root, '.vercel'));
+      await mkdir(join(root, 'public'));
+      const html = '<html><body>Local build fixture</body></html>';
+      await writeFile(join(root, 'public/index.html'), html);
+      await writeFile(join(root, 'package.json'), JSON.stringify({ name: 'static-build-fixture', private: true }));
+      await writeFile(join(root, '.vercel/project.json'), JSON.stringify({
+        projectId: 'prj_local_fixture', orgId: 'team_local_fixture',
+        settings: { framework: null, buildCommand: null, devCommand: null, installCommand: 'true', outputDirectory: 'public' },
+      }));
+      const cliPath = fileURLToPath(new URL('./node_modules/.bin/vercel', import.meta.url));
+      const env = {
+        PATH: process.env.PATH, HOME: root, XDG_CONFIG_HOME: root, XDG_CACHE_HOME: root,
+        CI: '1', VERCEL_TELEMETRY_DISABLED: '1', VERCEL_CLI_USE_NATIVE_BINARY: useNative,
+        __VERCEL_NATIVE_DOWNLOAD: '0',
+      };
+      const version = spawnSync(cliPath, ['--version'], { cwd: root, env, encoding: 'utf8', timeout: 10000 });
+      assert.equal(version.status, 0, version.stderr);
+      assert.equal(version.stdout.trim(), cli('./package.json').version);
+      assert.equal(version.stderr.includes('(native)'), useNative === '1', version.stderr);
+      const result = spawnSync(cliPath, ['build', '--prod'], {
+        cwd: root, encoding: 'utf8', timeout: 45000,
+        env,
+      });
+      assert.equal(result.status, 0, result.stderr);
+      const output = join(root, '.vercel/output');
+      assert.equal(await readFile(join(output, 'static/index.html'), 'utf8'), html);
+      const config = JSON.parse(await readFile(join(output, 'config.json'), 'utf8'));
+      assert.equal(config.version, 3);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+}
 
 test('Node consumer Undici Headers and request preserve streamed proxy responses', async () => {
   const { Headers, request } = consumer('@vercel/node')('undici');

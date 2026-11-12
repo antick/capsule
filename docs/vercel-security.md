@@ -73,11 +73,13 @@ minimum; the package manager also enforces the minimum on transitive resolution.
 ## Verification and limits
 
 The fresh baseline audit reported **21 advisories: 7 high, 11 moderate and
-3 low**. The final deployment graph reports **zero advisories** at the unchanged
+3 low**. The root-only CLI upgrade still reported 21 advisories. The later targeted
+consumer migrations produce the result below. The final deployment graph
+reports **zero advisories** at the unchanged
 low-severity threshold. No findings remain for the scoped packages. Unique audit
 advisories and previously observed alert instances are different counts.
 
-`mise run vercel:check` checks the frozen ignored-scripts install, seventeen
+`mise run vercel:check` checks the frozen ignored-scripts install, eighteen
 consumer compatibility tests, CLI startup/help and the dependency audit. The
 suite includes a disposable `vercel build --prod` with isolated home/config
 and no credential environment, inspecting static HTML and Build Output API v3.
@@ -90,18 +92,26 @@ An audit-clean lockfile does not cover bundled dependency copies. Vercel's
 shipped JavaScript includes older embedded Undici source, which package-manager
 overrides cannot replace. Reachability and security of those copies remain
 unverified. Authenticated pull, production builds, deployment, provider flows,
-HTTP/2 production transport and optional platform fallback execution are not
+HTTP/2 production transport and other-platform fallback execution are not
 verified by these local tests. CLI help verifies startup/help only. Workflow
 lint runs in its default offline mode.
 
-The official Vercel 65.11.0 release endpoint and raw CLI changelog returned 404,
-so internal builder major release-note coverage is incomplete. Local consumer
-tests provide bounded compatibility evidence; independent review is still
-required. No publication or deployment is implied by these checks. Roll back
-with reverting commits while retaining audit enforcement and deployment suspension.
+Official CLI release notes are available at
+https://vercel.com/docs/cli/release-notes and cover 65.2.0 through 65.11.0,
+including the native transition in 65.10.0. GitHub endpoint 404 responses do
+not establish missing official coverage. The installed 65.11.0 launcher uses
+the native binary on this macOS arm64 host and still permits an explicit
+Node.js fallback. Separate isolated-home tests assert each launch mode via
+version output and verify a real static build's HTML and v3 output config.
+Downloads are disabled in these fixtures; no credentials or production project
+are used. Automatic fallback after a missing or unstartable binary and execution
+of the separate optional support package on other platforms remain unverified.
+Independent review is still required. No publication or deployment is implied.
+Roll back with reverting commits while retaining deployment suspension.
 
 Official migration and behavior sources:
 
+- https://vercel.com/docs/cli/release-notes
 - https://github.com/vercel/vercel/releases
 - https://vercel.com/docs/cli/build
 - https://github.com/isaacs/node-glob/blob/main/changelog.md
