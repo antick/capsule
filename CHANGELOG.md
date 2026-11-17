@@ -11,6 +11,8 @@ All notable changes to Capsule are documented in this file.
 
 ### Changed
 
+- Update the landing page to Astro 7.4.8 to fix dynamic tag attribute injection and image endpoint path checks. Preserve the seven-day release minimum and static site security policies.
+
 - Remove the unused deployment-only Vercel CLI distribution, its dependency graph, dedicated tasks and compatibility checks. Earlier lockfile fixes could not replace bundled HTTP and multipart implementations. Keep the static landing page, all retained checks, hosting security settings and app-update releases unchanged. Future Vercel deployment requires newly reviewed exact-pinned dependencies under the existing release-age and supply-chain policies.
 
 - Retire the landing page's public address and remove website links and deployments. Keep the page's source, local preview and checks; public metadata and sitemap entries now require an explicit `SITE_URL`. App downloads and the GitHub Pages update feed keep working independently.
